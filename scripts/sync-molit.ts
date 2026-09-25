@@ -11,6 +11,10 @@
  *   npx tsx scripts/sync-molit.ts --scope=all --from-month=202001 --to-month=202001 --dry-run=1 --discovery=0
  *   npx tsx scripts/sync-molit.ts --scope=all --trade-months=4 --max-writes=50000
  *
+ *   # 전월세만 과거 구간 백필 (--kinds 기본 trade,rent; quota/연속 실패 시 clean stop → 재실행으로 resume)
+ *   npx tsx scripts/sync-molit.ts --codes=11710 --from-month=201101 --to-month=202209 --kinds=rent \
+ *     --skip-existing=1 --only-changed=0 --discovery=0 --concurrency=1
+ *
  *   # 전국 plan (WRITE 0)
  *   npx tsx scripts/sync-molit.ts --scope=nationwide --trade-months=3 --plan=1
  *
@@ -147,6 +151,17 @@ async function main() {
   const fromMonth = argValue("from-month", "");
   const toMonth = argValue("to-month", "");
   const asOfArg = argValue("as-of", "");
+  const kinds = new Set(
+    argValue("kinds", "trade,rent").split(",").map((s) => s.trim()).filter(Boolean),
+  );
+  if (![...kinds].every((k) => k === "trade" || k === "rent") || kinds.size === 0) {
+    console.error(`Invalid --kinds=${argValue("kinds", "")} (use trade,rent | trade | rent)`);
+    process.exit(1);
+  }
+  const maxConsecutiveFailures = Math.max(
+    1,
+    Number(argValue("max-consecutive-failures", "5")) || 5,
+  );
   const asOf = asOfArg
     ? new Date(`${asOfArg}T12:00:00+09:00`)
     : new Date();
@@ -221,6 +236,9 @@ async function main() {
       j.kind === "trade" ? tradeKeep.has(j.yearMonth) : rentKeep.has(j.yearMonth),
     );
   }
+  if (!kinds.has("trade")) tradeYms = [];
+  if (!kinds.has("rent")) rentYms = [];
+  jobs = jobs.filter((j) => kinds.has(j.kind));
 
   let skippedExisting = 0;
   if (skipExisting && jobs.length > 0) {
@@ -242,7 +260,7 @@ async function main() {
     : null;
 
   console.log(
-    `[sync] scope=${scope} lawds=${lawdCodes.length} jobs=${jobs.length} skippedExisting=${skippedExisting} onlyChanged=${onlyChanged ? 1 : 0} discovery=${discovery ? 1 : 0} skipDelete=${skipDelete ? 1 : 0} plan=${planOnly ? 1 : 0} dryRun=${dryRun ? 1 : 0} maxWrites=${maxWrites} concurrency=${concurrency} tradeMonths=${tradeYms.length} rentMonths=${rentYms.length}`,
+    `[sync] scope=${scope} lawds=${lawdCodes.length} jobs=${jobs.length} skippedExisting=${skippedExisting} onlyChanged=${onlyChanged ? 1 : 0} discovery=${discovery ? 1 : 0} skipDelete=${skipDelete ? 1 : 0} plan=${planOnly ? 1 : 0} dryRun=${dryRun ? 1 : 0} maxWrites=${maxWrites} concurrency=${concurrency} kinds=${[...kinds].join(",")} tradeMonths=${tradeYms.length} rentMonths=${rentYms.length}`,
   );
   if (lawdCodes.length <= 20) {
     console.log(`[sync] lawds: ${lawdCodes.join(",")}`);
@@ -274,6 +292,7 @@ async function main() {
   let written = 0;
   let unchanged = 0;
   let failures = 0;
+  let consecutiveFailures = 0;
   let next = 0;
   let stop = false;
   const failedKeys: string[] = [];
@@ -293,6 +312,7 @@ async function main() {
             ? await fetchOneTradeForSync(job.lawdCd, job.yearMonth)
             : await fetchOneRentForSync(job.lawdCd, job.yearMonth);
 
+        consecutiveFailures = 0;
         if (onlyChanged && isCellUnchanged(snapshots?.get(key), items)) {
           unchanged += 1;
         } else {
@@ -349,11 +369,23 @@ async function main() {
         }
       } catch (err) {
         failures += 1;
+        consecutiveFailures += 1;
         failedKeys.push(key);
+        const message = err instanceof Error ? err.message : String(err);
         console.warn(
           `[sync] fail ${job.kind} ${job.lawdCd} ${job.yearMonth}:`,
-          err instanceof Error ? err.message : err,
+          message,
         );
+        // MOLIT daily quota: resultCode 22 LIMITED_NUMBER_OF_SERVICE_REQUESTS_EXCEEDS_ERROR / gateway 429
+        if (/LIMITED_NUMBER|EXCEEDS|quota|HTTP 429/i.test(message)) {
+          stop = true;
+          console.error(`[sync] API QUOTA STOP at ${key}: ${message}`);
+        } else if (consecutiveFailures >= maxConsecutiveFailures) {
+          stop = true;
+          console.error(
+            `[sync] STOP after ${consecutiveFailures} consecutive failures (last ${key})`,
+          );
+        }
       } finally {
         done += 1;
         if (done % 25 === 0 || done === jobs.length || stop) {

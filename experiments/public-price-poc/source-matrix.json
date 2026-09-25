@@ -1,0 +1,16 @@
+{
+  "dataset": "3073746",
+  "dataset_title": "국토교통부_주택 공시가격 정보",
+  "access": "annual bulk ZIP/CSV only",
+  "recommended_production_source": "BULK_ONLY",
+  "rejected": [
+    "realtyprice undocumented endpoints",
+    "competitor data",
+    "transaction-ratio estimates",
+    "legacy dataset 15052271"
+  ],
+  "pilot_scope": "잠실엘스 (cx_4c63d9a100973c60) UNIT_EXACT only",
+  "bulk_ingestion": "forbidden in this phase",
+  "db_writes": 0,
+  "scraping": false
+}

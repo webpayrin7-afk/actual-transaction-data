@@ -1,15 +1,19 @@
 import type { HTMLAttributes, ReactNode } from "react";
 
 /**
- * LAB interaction color rules (existing tokens only):
- * - Solid teal (`.lab-button-primary`) = execution CTA only
- * - Light teal bg + dark teal text = selection (tabs/filters)
- * - White/transparent + neutral border/text = unselected
- * - No gray selected state, no gradients
+ * Tab hierarchy (ZIPLAB UI Policy v2 §11):
+ * - LabTabs variant="primary" — 48px soft-teal segmented (주요 모드)
+ * - LabTabs variant="secondary" — 40px soft-teal segmented (분류·보기)
+ * - LabTabs variant="compact" — 30px visual / 44px touch (기간·조건)
+ * White bordered shell + soft teal selected face; hierarchy is size only.
+ * Pair content tabs with `role="tabpanel"` via idPrefix.
+ * Legacy class helpers below remain for non-migrated surfaces.
  *
- * Tab hierarchy (same colors; size/spacing differ):
- * - Primary (`.lab-tab` + `.lab-tab-primary`): page section switcher
- * - Secondary (`.lab-tab-secondary`): in-view data filter/range chips
+ * Color rules:
+ * - Solid teal (`.lab-button-primary`) = execution CTA only
+ * - Soft teal-50 face + teal-700 text = selection (tabs/filters)
+ * - White shell + muted text = unselected
+ * - No gray selected state, no gradients
  */
 export function LabCard({ className = "", ...props }: HTMLAttributes<HTMLElement>) {
   return <section className={`lab-card ${className}`.trim()} {...props} />;
@@ -71,9 +75,23 @@ export function labPrimaryTabClass(active: boolean, extra = "") {
   return `${LAB_TAB_PRIMARY} ${active ? LAB_TAB_ACTIVE : ""} ${extra}`.trim();
 }
 
-/** Apt-detail style compact filter chips */
+/** Apt-detail style filter chips — shared height/padding/radius/font via `.lab-tab-secondary` */
 export function labSecondaryTabClass(active: boolean, extra = "") {
   return `${LAB_TAB_SECONDARY} ${active ? LAB_TAB_SECONDARY_ACTIVE : ""} ${extra}`.trim();
+}
+
+/** Shared row for period / deal-type / nearby-life segmented controls */
+export const LAB_SEGMENTED = "lab-segmented";
+export function labSegmentedClass(extra = "") {
+  return `${LAB_SEGMENTED} ${extra}`.trim();
+}
+
+/**
+ * Official LAB Series section-nav tabs: teal text + thin underline when active.
+ * Transparent background — never a filled pill.
+ */
+export function labUnderlineTabClass(active: boolean, extra = "") {
+  return `lab-tab-underline ${active ? "lab-tab-underline-active" : ""} ${extra}`.trim();
 }
 
 export function labChoiceClass(active: boolean, extra = "") {

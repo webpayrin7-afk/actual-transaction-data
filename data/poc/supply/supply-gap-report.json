@@ -1,0 +1,234 @@
+{
+  "generatedAt": "2026-09-24T00:06:12.551Z",
+  "window3y": "deal_date > 2023-09-24",
+  "coverage": {
+    "master": 27524,
+    "with_types": 18664,
+    "any_supply": 17051,
+    "full_supply": 16438,
+    "partial_supply": 613,
+    "only_no_source": 1613
+  },
+  "pairTrades3y": {
+    "att3y": 378819,
+    "nosrc3y": 53104,
+    "nosrc_pairs_traded": 4252
+  },
+  "noType": {
+    "total": 8860,
+    "withTx3y": 1865,
+    "withTrade3y": 1674,
+    "causes": {
+      "PNU_BOTH_AGREE": 572,
+      "TRADE_MULTI_JIBUN_HOLD": 9,
+      "NO_PARCEL_IDENTITY": 4497,
+      "PNU_CADASTRAL_ONLY": 2451,
+      "PNU_TRADE_JIBUN_ONLY": 1223,
+      "DUPLICATE_PARCEL_ALREADY_SUPPLIED": 91,
+      "PNU_CONFLICT_CADASTRAL_VS_TRADE": 17
+    },
+    "causesWithTx3y": {
+      "PNU_BOTH_AGREE": 572,
+      "TRADE_MULTI_JIBUN_HOLD": 9,
+      "PNU_TRADE_JIBUN_ONLY": 1223,
+      "PNU_CONFLICT_CADASTRAL_VS_TRADE": 17,
+      "DUPLICATE_PARCEL_ALREADY_SUPPLIED": 26,
+      "NO_PARCEL_IDENTITY": 12,
+      "PNU_CADASTRAL_ONLY": 6
+    },
+    "bySido": {
+      "경기도": {
+        "total": 1,
+        "tx3y": 1
+      },
+      "전남광주통합특별시": {
+        "total": 1190,
+        "tx3y": 235
+      },
+      "부산광역시": {
+        "total": 1008,
+        "tx3y": 272
+      },
+      "경상남도": {
+        "total": 956,
+        "tx3y": 187
+      },
+      "대구광역시": {
+        "total": 717,
+        "tx3y": 324
+      },
+      "인천광역시": {
+        "total": 850,
+        "tx3y": 143
+      },
+      "경상북도": {
+        "total": 672,
+        "tx3y": 107
+      },
+      "충청남도": {
+        "total": 695,
+        "tx3y": 70
+      },
+      "전북특별자치도": {
+        "total": 663,
+        "tx3y": 90
+      },
+      "강원특별자치도": {
+        "total": 528,
+        "tx3y": 75
+      },
+      "충청북도": {
+        "total": 472,
+        "tx3y": 41
+      },
+      "대전광역시": {
+        "total": 396,
+        "tx3y": 117
+      },
+      "울산광역시": {
+        "total": 374,
+        "tx3y": 144
+      },
+      "세종특별자치시": {
+        "total": 183,
+        "tx3y": 34
+      },
+      "제주특별자치도": {
+        "total": 155,
+        "tx3y": 25
+      }
+    },
+    "samples": {
+      "PNU_BOTH_AGREE": [
+        "cx_a295b3c756dfe86a 평일 41220/11700 합정동",
+        "cx_00ff24e492a2ed52 삼능공간 12240/13000 금호동",
+        "cx_0489cf9720ec60a5 중흥파크 12240/11900 화정동",
+        "cx_0500a578bdf33f13 운암2차 남양휴튼 12300/10900 운암동",
+        "cx_07ce4052af48b04a 연제대광로제비앙 12300/12900 연제동"
+      ],
+      "TRADE_MULTI_JIBUN_HOLD": [
+        "cx_00369e1e89701dee 센트럴운암모아엘가트레뷰 12300/10900 운암동",
+        "cx_3863be0e64764fe2 에코델타시티 푸르지오린 26440/10300 강동동",
+        "cx_74b945def8924c35 성산삼정그린코아 웰레스트 48123/11000 안민동",
+        "cx_945a1a23af98cff8 창원롯데캐슬센텀골드 48127/10500 양덕동",
+        "cx_1fc5ee4641a8a169 만촌역 태왕디아너스 27260/10200 만촌동"
+      ],
+      "NO_PARCEL_IDENTITY": [
+        "cx_00656e495a3b61e1 대방엘리움 로얄카운티 1차 12170/13400 빛가람동",
+        "cx_00a4424776471060 오룡우미린2차아파트 12810/25335 오룡리",
+        "cx_00dbca04c0227620 영암삼호렉시안 12800/25326 용앙리",
+        "cx_01651b7c11527ee5 선원대주아파트 12130/13500 선원동",
+        "cx_02fe951252300b06 여수힐스테이트 죽림 젠트리스아파트 12130/31022 죽림리"
+      ],
+      "PNU_CADASTRAL_ONLY": [
+        "cx_0128a6640da5b336 농성동산 12240/10600 농성동",
+        "cx_0130e260e101a69a 하남3모아엘가더퍼스트 12330/12500 하남동",
+        "cx_014abfa175a3a4b0 푸른길 두산위브 12210/10900 계림동",
+        "cx_0174161da51cb76e 문흥라인3 12300/11200 문흥동",
+        "cx_031c13511ed2216a 무등프라자주월2차 아파트 12270/11500 봉선동"
+      ],
+      "PNU_TRADE_JIBUN_ONLY": [
+        "cx_01f2f760ac2c6aed 대송에이스빌 12110/10200 산정동",
+        "cx_029fae16f3d91bf3 유달파크 12110/10500 양동",
+        "cx_0491e6ff3713b218 덕진광양의봄프리미엄아파트(2단지) 12190/10700 마동",
+        "cx_0acd360c03796d37 여수수정 행복주택 12130/10200 수정동",
+        "cx_115b4ffe48280076 용해 호반리젠시빌스위트 12110/15900 용해동"
+      ],
+      "DUPLICATE_PARCEL_ALREADY_SUPPLIED": [
+        "cx_0765881ea1160a25 삼호빌라트 12800/25326 용앙리",
+        "cx_0920b108b999dc3b 여수중앙하이츠 12130/12300 둔덕동",
+        "cx_243ef56f82150548 무등파크맨션 12850/25022 가용리",
+        "cx_2a5c329f382769a1 어등산대방노블랜드 12330/12700 산정동",
+        "cx_2ce9c6adefe42fcb 첨단대우아파트 12330/11500 월계동"
+      ],
+      "PNU_CONFLICT_CADASTRAL_VS_TRADE": [
+        "cx_2166650aa5183de2 유니버시아드힐스테이트2단지 12240/11900 화정동",
+        "cx_2dad49fd70735007 소촌2차 국제미소래아파트 12330/10800 소촌동",
+        "cx_8aa2fd9e327704b9 유일가든 12300/10800 동림동",
+        "cx_e148131b20d0ac09 제일훼미리 48270/10400 삼문동",
+        "cx_2ee6fd477dd19a38 영종하늘도시KCC스위첸 28155/10100 중산동"
+      ]
+    },
+    "fillTargets": 4246,
+    "fillTargetsWithTrade3y": 1622
+  },
+  "noSource": {
+    "total": 2226,
+    "causes": {
+      "PARCEL_HAS_NO_EXPOS_ROWS (bulk)": {
+        "complexes": 1133,
+        "partialComplexes": 0,
+        "complexesTraded3y": 854,
+        "noSourceTrades3y": 39865,
+        "latestBefore2024": 289
+      },
+      "EXCLUSIVE_NOT_IN_REGISTRY_TYPES": {
+        "complexes": 612,
+        "partialComplexes": 612,
+        "complexesTraded3y": 338,
+        "noSourceTrades3y": 6602,
+        "latestBefore2024": 282
+      },
+      "PARCEL_HAS_NO_EXPOS_ROWS (api)": {
+        "complexes": 398,
+        "partialComplexes": 0,
+        "complexesTraded3y": 358,
+        "noSourceTrades3y": 4873,
+        "latestBefore2024": 47
+      },
+      "COMMON_AREA_SEMANTICS_UNCLEAR": {
+        "complexes": 9,
+        "partialComplexes": 1,
+        "complexesTraded3y": 9,
+        "noSourceTrades3y": 116,
+        "latestBefore2024": 0
+      },
+      "REGISTRY_NAME_OR_PARCEL_MISMATCH": {
+        "complexes": 68,
+        "partialComplexes": 0,
+        "complexesTraded3y": 65,
+        "noSourceTrades3y": 1064,
+        "latestBefore2024": 3
+      },
+      "API_FAILED": {
+        "complexes": 6,
+        "partialComplexes": 0,
+        "complexesTraded3y": 6,
+        "noSourceTrades3y": 584,
+        "latestBefore2024": 0
+      }
+    }
+  },
+  "conflicts": {
+    "byClass": [
+      {
+        "class": "DERIVATION_CONFLICT",
+        "n": 9
+      },
+      {
+        "class": "OLDER_SOURCE",
+        "n": 1756
+      },
+      {
+        "class": "PRECISION_ONLY",
+        "n": 1238
+      },
+      {
+        "class": "REAL_VARIANT",
+        "n": 4680
+      }
+    ],
+    "complexes": 1943,
+    "requiringReview": 4689
+  },
+  "incrementalState": {
+    "id": 1,
+    "last_bulk_source_month": "2026-08",
+    "last_processed_source_version": "bldrgst-hub-bulk-2026-08",
+    "bulk_sha256": "ccf99ab5f2423f73bfdc4ffb825a0a7642057d853eff16ec4a10339cd7832fe5",
+    "complexes_changed": 0,
+    "pending_api_residuals": 0,
+    "conflicts_requiring_review": 4689,
+    "updated_at": "2026-09-20T16:08:39.736Z"
+  }
+}

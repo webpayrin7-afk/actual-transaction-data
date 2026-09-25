@@ -1,0 +1,127 @@
+name: Complex coordinate dry-run
+
+# Seoul canonical complex coordinate DRY-RUN.
+# Default mode refuses Production writes.
+# Optional follow-on: school materialization re-dry-run with gate overrides.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dry-run | write (write blocked)"
+        required: true
+        default: "dry-run"
+        type: choice
+        options:
+          - dry-run
+          - write
+      run_school_redry:
+        description: "Also re-run school materialization dry-run with gate coords"
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+jobs:
+  coordinate-dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+
+      - name: Write guard
+        run: |
+          if [ "${{ github.event.inputs.mode }}" = "write" ]; then
+            echo "WRITE GUARD: refusing Production coordinate write"
+            exit 2
+          fi
+
+      - name: Coordinate dry-run
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: |
+          mkdir -p /tmp/complex-coordinate-out
+          npx tsx scripts/complex-coordinates/dry_run_seoul_coords.ts /tmp/complex-coordinate-out
+
+      - name: Upload coordinate artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: complex-coordinate-dry-run
+          path: |
+            /tmp/complex-coordinate-out/complex-coordinate-summary.json
+            /tmp/complex-coordinate-out/complex-coordinate-unresolved.csv
+            /tmp/complex-coordinate-out/complex-coordinate-sample.json
+            /tmp/complex-coordinate-out/complex-coordinate-gate-overrides.json
+          if-no-files-found: error
+
+  school-redry:
+    needs: coordinate-dry-run
+    if: github.event.inputs.run_school_redry == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: npm ci
+      - run: python3 -m pip install pyshp shapely pyproj
+
+      - name: Require SHP
+        id: shp
+        run: |
+          if [ -f /tmp/schoolzone-data/elem/초등학교통학구역.shp ]; then
+            echo "ok=1" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -n "${{ secrets.SCHOOLZONE_DATA_URL }}" ]; then
+            mkdir -p /tmp/schoolzone-data
+            curl -L --fail -o /tmp/schoolzone.tgz "${{ secrets.SCHOOLZONE_DATA_URL }}"
+            tar -xzf /tmp/schoolzone.tgz -C /tmp/schoolzone-data
+            echo "ok=1" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "HOLD: SHP unavailable"
+          exit 2
+
+      - name: Download coordinate overrides artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: complex-coordinate-dry-run
+          path: /tmp/complex-coordinate-out
+
+      - name: Export complexes + school re-dry-run
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: |
+          mkdir -p /tmp/school-materialization-out
+          npx tsx scripts/school-materialization/export-seoul-complexes.ts /tmp/school-materialization-out
+          python3 scripts/school-materialization/dry_run_seoul.py \
+            --mode=dry-run \
+            --region=seoul \
+            --school-level=all \
+            --complexes-json=/tmp/school-materialization-out/seoul-complexes.json \
+            --coords-json=/tmp/complex-coordinate-out/complex-coordinate-gate-overrides.json \
+            --out-dir=/tmp/school-materialization-out
+
+      - name: Upload school re-dry-run artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: school-materialization-redry-run
+          path: |
+            /tmp/school-materialization-out/school-materialization-summary.json
+            /tmp/school-materialization-out/school-materialization-unresolved.csv
+            /tmp/school-materialization-out/school-materialization-sample.json

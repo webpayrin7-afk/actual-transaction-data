@@ -1,0 +1,41 @@
+{
+ "at": "2026-09-24T18:35:28.389Z",
+ "affected": 0,
+ "statements": 62,
+ "prefix": "50",
+ "targeted": 130,
+ "filled": 10,
+ "types": 31,
+ "multiExclusives": 4,
+ "rangeLabels": 1,
+ "predecessorUsed": 0,
+ "alreadyOurs": 10,
+ "held": {
+  "NO_DERIVABLE": 58,
+  "NO_APT_EXCLUSIVE": 28,
+  "CADASTRE_ABSENT": 2,
+  "HOLD_LOT_PARSE_FAILED": 28,
+  "NO_EXPOS_ROWS": 1,
+  "COMMON_SEMANTICS_UNCLEAR": 1,
+  "SHARED_PNU": 2
+ },
+ "bySido": {
+  "50": {
+   "targeted": 130,
+   "filled": 10,
+   "held": {
+    "NO_DERIVABLE": 58,
+    "NO_APT_EXCLUSIVE": 28,
+    "CADASTRE_ABSENT": 2,
+    "HOLD_LOT_PARSE_FAILED": 28,
+    "NO_EXPOS_ROWS": 1,
+    "COMMON_SEMANTICS_UNCLEAR": 1,
+    "SHARED_PNU": 2
+   }
+  }
+ },
+ "lawdCodes": {
+  "50110": 7,
+  "50130": 3
+ }
+}

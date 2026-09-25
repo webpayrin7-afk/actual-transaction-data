@@ -65,6 +65,8 @@ export function buildMarketGroupAreas(
         selectorKind: "market_group" as const,
         exclusiveAreaMin: g.exclusiveAreaMin,
         exclusiveAreaMax: g.exclusiveAreaMax,
+        supplyAreaMin: g.supplyAreaMin,
+        supplyAreaMax: g.supplyAreaMax,
         secondaryLabel: formatMarketGroupSecondary({
           displayMode: g.displayMode,
           supplyAreaMin: g.supplyAreaMin,
@@ -76,6 +78,57 @@ export function buildMarketGroupAreas(
       };
     })
     .sort((a, b) => a.exclusiveArea - b.exclusiveArea);
+}
+
+/**
+ * Overlay market/supply label fields from pyeong groups or unit types.
+ * Does not invent exclusive-area 평. No-op when no master match.
+ */
+export function attachCanonicalPyeongLabelSource(
+  area: AptAreaOption,
+  bundle: UnitTypeMasterBundle | null,
+): AptAreaOption {
+  if (!bundle) return area;
+  const hasMarket =
+    area.marketLabel != null && Number.isFinite(area.marketLabel);
+  const hasSupply =
+    area.supplyAreaMin != null &&
+    area.supplyAreaMax != null &&
+    area.supplyAreaMin > 0 &&
+    area.supplyAreaMax > 0;
+  if (hasMarket || hasSupply) return area;
+
+  const exMin = area.exclusiveAreaMin ?? area.exclusiveArea;
+  const exMax = area.exclusiveAreaMax ?? area.exclusiveArea;
+  const mid = (exMin + exMax) / 2;
+  const group = bundle.groups.find(
+    (g) =>
+      mid >= g.exclusiveAreaMin - 0.05 && mid <= g.exclusiveAreaMax + 0.05,
+  );
+  if (group) {
+    return {
+      ...area,
+      marketLabel: group.marketLabel ?? area.marketLabel,
+      supplyAreaMin: group.supplyAreaMin ?? area.supplyAreaMin,
+      supplyAreaMax: group.supplyAreaMax ?? area.supplyAreaMax,
+    };
+  }
+
+  const supplies = bundle.unitTypes
+    .filter(
+      (u) =>
+        u.supplyAreaSqm != null &&
+        u.supplyAreaSqm > 0 &&
+        mid >= u.exclusiveAreaMin - 0.05 &&
+        mid <= u.exclusiveAreaMax + 0.05,
+    )
+    .map((u) => u.supplyAreaSqm as number);
+  if (supplies.length === 0) return area;
+  return {
+    ...area,
+    supplyAreaMin: Math.min(...supplies),
+    supplyAreaMax: Math.max(...supplies),
+  };
 }
 
 export function applyPilotSingoga(params: {

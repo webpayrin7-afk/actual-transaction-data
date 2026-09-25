@@ -1,0 +1,37 @@
+{
+ "at": "2026-09-24T18:24:44.894Z",
+ "statements": 144,
+ "prefix": "36",
+ "targeted": 149,
+ "filled": 14,
+ "types": 72,
+ "multiExclusives": 2,
+ "rangeLabels": 0,
+ "predecessorUsed": 0,
+ "alreadyOurs": 0,
+ "held": {
+  "HOLD_LOT_PARSE_FAILED": 29,
+  "CADASTRE_ABSENT": 68,
+  "NO_DERIVABLE": 31,
+  "COMMON_SEMANTICS_UNCLEAR": 2,
+  "NO_APT_EXCLUSIVE": 3,
+  "NO_EXPOS_ROWS": 2
+ },
+ "bySido": {
+  "36": {
+   "targeted": 149,
+   "filled": 14,
+   "held": {
+    "HOLD_LOT_PARSE_FAILED": 29,
+    "CADASTRE_ABSENT": 68,
+    "NO_DERIVABLE": 31,
+    "COMMON_SEMANTICS_UNCLEAR": 2,
+    "NO_APT_EXCLUSIVE": 3,
+    "NO_EXPOS_ROWS": 2
+   }
+  }
+ },
+ "lawdCodes": {
+  "36110": 14
+ }
+}

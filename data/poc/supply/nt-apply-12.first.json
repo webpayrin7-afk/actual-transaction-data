@@ -1,0 +1,63 @@
+{
+ "at": "2026-09-24T18:26:22.789Z",
+ "affected": 1480,
+ "statements": 1480,
+ "prefix": "12",
+ "targeted": 955,
+ "filled": 240,
+ "types": 744,
+ "multiExclusives": 55,
+ "rangeLabels": 11,
+ "predecessorUsed": 0,
+ "alreadyOurs": 0,
+ "held": {
+  "HOLD_LOT_PARSE_FAILED": 64,
+  "NO_DERIVABLE": 473,
+  "SHARED_PNU": 27,
+  "CADASTRE_ABSENT": 51,
+  "COMMON_SEMANTICS_UNCLEAR": 38,
+  "NO_APT_EXCLUSIVE": 39,
+  "NO_EXPOS_ROWS": 16,
+  "IMPLAUSIBLE_RATIO": 4,
+  "LOW_COVERAGE": 3
+ },
+ "bySido": {
+  "12": {
+   "targeted": 955,
+   "filled": 240,
+   "held": {
+    "HOLD_LOT_PARSE_FAILED": 64,
+    "NO_DERIVABLE": 473,
+    "SHARED_PNU": 27,
+    "CADASTRE_ABSENT": 51,
+    "COMMON_SEMANTICS_UNCLEAR": 38,
+    "NO_APT_EXCLUSIVE": 39,
+    "NO_EXPOS_ROWS": 16,
+    "IMPLAUSIBLE_RATIO": 4,
+    "LOW_COVERAGE": 3
+   }
+  }
+ },
+ "lawdCodes": {
+  "12110": 8,
+  "12130": 13,
+  "12150": 21,
+  "12170": 13,
+  "12190": 7,
+  "12210": 7,
+  "12240": 27,
+  "12270": 24,
+  "12300": 45,
+  "12330": 47,
+  "12710": 1,
+  "12740": 1,
+  "12760": 4,
+  "12780": 1,
+  "12790": 2,
+  "12800": 5,
+  "12810": 9,
+  "12830": 3,
+  "12840": 1,
+  "12860": 1
+ }
+}

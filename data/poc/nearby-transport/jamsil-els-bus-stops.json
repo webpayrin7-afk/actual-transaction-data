@@ -1,0 +1,1792 @@
+{
+  "complexId": "cx_4c63d9a100973c60",
+  "complexName": "잠실엘스",
+  "addressUsed": "서울특별시 송파구 올림픽로 99",
+  "addressType": "road_pilot_preferred",
+  "addressSource": "apt_complex_master.sido+sigungu+legal_dong_name+jibun",
+  "centerLat": 37.5133,
+  "centerLng": 127.1028,
+  "center": {
+    "lat": 37.5133,
+    "lng": 127.1028,
+    "source": "NAVER_GEOCODE",
+    "accuracy": "ADDRESS_POINT",
+    "note": "Seed used only to extract candidate pool. Runtime distances use live complexMapAnchor from client (same center for subway+bus)."
+  },
+  "source": {
+    "dataset": "서울시 버스정류소 위치정보",
+    "datasetId": "OA-15067",
+    "provider": "서울특별시",
+    "portal": "서울 열린데이터광장",
+    "file": "서울시버스정류소위치정보(20260902).xlsx",
+    "sourceVersion": "20260902",
+    "fileDate": "2026-09-02",
+    "format": "XLSX"
+  },
+  "stats": {
+    "rowsParsed": 11236,
+    "validCoordinates": 11236,
+    "candidatePoolWithin2000m": 175,
+    "seedWithin700m": 36,
+    "seedWithin500m": 25
+  },
+  "radiusM": 700,
+  "candidateExtractRadiusM": 2000,
+  "busStops": [
+    {
+      "id": "123000045",
+      "arsNo": "24134",
+      "name": "잠실역1번.11번출구",
+      "lat": 37.5140635,
+      "lng": 127.1032419,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 93
+    },
+    {
+      "id": "123000043",
+      "arsNo": "24132",
+      "name": "잠실역8번출구",
+      "lat": 37.5140132,
+      "lng": 127.1015367,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 137
+    },
+    {
+      "id": "123000690",
+      "arsNo": "24565",
+      "name": "잠실역2번출구",
+      "lat": 37.512089,
+      "lng": 127.101458,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 179
+    },
+    {
+      "id": "123000579",
+      "arsNo": "24017",
+      "name": "잠실역.롯데월드몰",
+      "lat": 37.5127166,
+      "lng": 127.1005792,
+      "stopType": "중앙차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 206
+    },
+    {
+      "id": "123000611",
+      "arsNo": "24050",
+      "name": "잠실광역환승센터",
+      "lat": 37.512343,
+      "lng": 127.1007211,
+      "stopType": "중앙차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 212
+    },
+    {
+      "id": "123000046",
+      "arsNo": "24135",
+      "name": "잠실역9번출구",
+      "lat": 37.5149141,
+      "lng": 127.1042158,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 219
+    },
+    {
+      "id": "123900038",
+      "arsNo": "24542",
+      "name": "잠실역.롯데호텔",
+      "lat": 37.5117454,
+      "lng": 127.1009964,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 235
+    },
+    {
+      "id": "123000002",
+      "arsNo": "24002",
+      "name": "잠실역.잠실대교남단",
+      "lat": 37.5137873,
+      "lng": 127.0996446,
+      "stopType": "중앙차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 284
+    },
+    {
+      "id": "123000044",
+      "arsNo": "24133",
+      "name": "잠실역7번출구",
+      "lat": 37.5146065,
+      "lng": 127.0994435,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 330
+    },
+    {
+      "id": "123900053",
+      "arsNo": "24553",
+      "name": "롯데월드.샤롯데",
+      "lat": 37.5108,
+      "lng": 127.1007139,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 333
+    },
+    {
+      "id": "123000563",
+      "arsNo": "24620",
+      "name": "잠실롯데월드호텔.롯데타워",
+      "lat": 37.5107355,
+      "lng": 127.1005887,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 345
+    },
+    {
+      "id": "123900050",
+      "arsNo": "24561",
+      "name": "롯데월드.샤롯데",
+      "lat": 37.5105674,
+      "lng": 127.1008817,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 348
+    },
+    {
+      "id": "123000048",
+      "arsNo": "24137",
+      "name": "잠실역6번출구",
+      "lat": 37.5143926,
+      "lng": 127.0988018,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 373
+    },
+    {
+      "id": "123000511",
+      "arsNo": "24998",
+      "name": "잠실역7번출구(광역)",
+      "lat": 37.5150673,
+      "lng": 127.0991375,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 378
+    },
+    {
+      "id": "123000047",
+      "arsNo": "24136",
+      "name": "송파구청.방이맛골",
+      "lat": 37.5139969,
+      "lng": 127.1072177,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 397
+    },
+    {
+      "id": "123000057",
+      "arsNo": "24146",
+      "name": "잠실역.롯데월드",
+      "lat": 37.5124116,
+      "lng": 127.0981962,
+      "stopType": "가로변전일",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 418
+    },
+    {
+      "id": "123000042",
+      "arsNo": "24131",
+      "name": "잠실중학교",
+      "lat": 37.516785,
+      "lng": 127.100445,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 440
+    },
+    {
+      "id": "123000126",
+      "arsNo": "24215",
+      "name": "송파구청.방이맛골",
+      "lat": 37.5133522,
+      "lng": 127.1077936,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 440
+    },
+    {
+      "id": "123000517",
+      "arsNo": "24486",
+      "name": "호수임광아파트",
+      "lat": 37.5113882,
+      "lng": 127.1072025,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 443
+    },
+    {
+      "id": "123000049",
+      "arsNo": "24138",
+      "name": "잠실역.롯데월드",
+      "lat": 37.5129509,
+      "lng": 127.0977631,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 446
+    },
+    {
+      "id": "123000001",
+      "arsNo": "24001",
+      "name": "잠실역.잠실대교남단",
+      "lat": 37.5155384,
+      "lng": 127.0985639,
+      "stopType": "중앙차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 449
+    },
+    {
+      "id": "123000518",
+      "arsNo": "24485",
+      "name": "호수임광아파트",
+      "lat": 37.5106263,
+      "lng": 127.1067264,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 456
+    },
+    {
+      "id": "123000536",
+      "arsNo": "24610",
+      "name": "장미아파트",
+      "lat": 37.5173488,
+      "lng": 127.101971,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 456
+    },
+    {
+      "id": "123000041",
+      "arsNo": "24130",
+      "name": "잠실중학교.장미종합상가",
+      "lat": 37.51715,
+      "lng": 127.10066,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 468
+    },
+    {
+      "id": "123900051",
+      "arsNo": "24562",
+      "name": "잠실르엘아파트.송파구청",
+      "lat": 37.516533,
+      "lng": 127.106224,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 470
+    },
+    {
+      "id": "123900054",
+      "arsNo": "24554",
+      "name": "잠실롯데월드",
+      "lat": 37.5101323,
+      "lng": 127.0986614,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 507
+    },
+    {
+      "id": "123000492",
+      "arsNo": "24715",
+      "name": "잠실역",
+      "lat": 37.5126667,
+      "lng": 127.0969964,
+      "stopType": "가로변전일",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 517
+    },
+    {
+      "id": "123900049",
+      "arsNo": "24560",
+      "name": "잠실롯데월드",
+      "lat": 37.5098485,
+      "lng": 127.0986441,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 531
+    },
+    {
+      "id": "123000040",
+      "arsNo": "24129",
+      "name": "잠실나루역.더샵스타리버",
+      "lat": 37.518236,
+      "lng": 127.104243,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 563
+    },
+    {
+      "id": "123000519",
+      "arsNo": "24484",
+      "name": "미켈란호수가아파트",
+      "lat": 37.5081977,
+      "lng": 127.1031125,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 568
+    },
+    {
+      "id": "123000520",
+      "arsNo": "24483",
+      "name": "미켈란호수가아파트",
+      "lat": 37.5076563,
+      "lng": 127.1026501,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 628
+    },
+    {
+      "id": "123000127",
+      "arsNo": "24216",
+      "name": "잠실래미안아이파크.잠실르엘",
+      "lat": 37.5161754,
+      "lng": 127.109619,
+      "stopType": "가로변전일",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 681
+    },
+    {
+      "id": "123900055",
+      "arsNo": "24555",
+      "name": "레이크팰리스아파트",
+      "lat": 37.5089193,
+      "lng": 127.0972743,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 689
+    },
+    {
+      "id": "123000039",
+      "arsNo": "24128",
+      "name": "잠실래미안아이파크.잠실르엘",
+      "lat": 37.516665,
+      "lng": 127.109397,
+      "stopType": "가로변시간",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 692
+    },
+    {
+      "id": "123000036",
+      "arsNo": "24125",
+      "name": "잠실파크리오.잠실르엘",
+      "lat": 37.519021,
+      "lng": 127.106058,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 698
+    },
+    {
+      "id": "123000706",
+      "arsNo": "24501",
+      "name": "잠실르엘.잠실파크리오아파트",
+      "lat": 37.518852,
+      "lng": 127.106519,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 699
+    },
+    {
+      "id": "123900048",
+      "arsNo": "24559",
+      "name": "레이크팰리스아파트",
+      "lat": 37.5083717,
+      "lng": 127.0975648,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 717
+    },
+    {
+      "id": "123000004",
+      "arsNo": "24004",
+      "name": "석촌호수.한솔병원",
+      "lat": 37.5071053,
+      "lng": 127.105252,
+      "stopType": "중앙차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 722
+    },
+    {
+      "id": "123000705",
+      "arsNo": "24566",
+      "name": "잠실르엘.잠실래미안아이파크",
+      "lat": 37.518174,
+      "lng": 127.10827,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 726
+    },
+    {
+      "id": "123000108",
+      "arsNo": "24197",
+      "name": "방이사거리",
+      "lat": 37.5106677,
+      "lng": 127.1107862,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 763
+    },
+    {
+      "id": "123000003",
+      "arsNo": "24003",
+      "name": "석촌호수.한솔병원",
+      "lat": 37.5068002,
+      "lng": 127.1058262,
+      "stopType": "중앙차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 770
+    },
+    {
+      "id": "123000050",
+      "arsNo": "24139",
+      "name": "잠실5단지",
+      "lat": 37.5122132,
+      "lng": 127.0939144,
+      "stopType": "가로변전일",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 793
+    },
+    {
+      "id": "123000695",
+      "arsNo": "24571",
+      "name": "잠실나루역",
+      "lat": 37.520416,
+      "lng": 127.104677,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 808
+    },
+    {
+      "id": "123000521",
+      "arsNo": "24482",
+      "name": "석촌호수서호사거리",
+      "lat": 37.506589,
+      "lng": 127.0992351,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 810
+    },
+    {
+      "id": "123000694",
+      "arsNo": "24569",
+      "name": "잠실나루역",
+      "lat": 37.52057,
+      "lng": 127.104951,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 830
+    },
+    {
+      "id": "123000125",
+      "arsNo": "24214",
+      "name": "송파나루역",
+      "lat": 37.5106794,
+      "lng": 127.1116742,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 835
+    },
+    {
+      "id": "123000522",
+      "arsNo": "24481",
+      "name": "석촌호수서호사거리",
+      "lat": 37.5063212,
+      "lng": 127.0984076,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 867
+    },
+    {
+      "id": "123000106",
+      "arsNo": "24195",
+      "name": "송파초등학교.송파동성당",
+      "lat": 37.5091625,
+      "lng": 127.1112976,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 879
+    },
+    {
+      "id": "123000123",
+      "arsNo": "24212",
+      "name": "송파나루역.방이전통시장서문",
+      "lat": 37.5110032,
+      "lng": 127.1124464,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 888
+    },
+    {
+      "id": "123000058",
+      "arsNo": "24147",
+      "name": "갤러리아팰리스",
+      "lat": 37.5113174,
+      "lng": 127.0929235,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 899
+    },
+    {
+      "id": "123000107",
+      "arsNo": "24196",
+      "name": "송파초등학교.송파동성당",
+      "lat": 37.5087366,
+      "lng": 127.1113793,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 911
+    },
+    {
+      "id": "123000104",
+      "arsNo": "24193",
+      "name": "송파여성문화회관",
+      "lat": 37.5069356,
+      "lng": 127.1094494,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 919
+    },
+    {
+      "id": "123000124",
+      "arsNo": "24213",
+      "name": "송파나루역.방이전통시장서문",
+      "lat": 37.5110903,
+      "lng": 127.1129452,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 928
+    },
+    {
+      "id": "123000059",
+      "arsNo": "24148",
+      "name": "잠실트리지움.송파경찰서교통센터",
+      "lat": 37.510978,
+      "lng": 127.0926278,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 934
+    },
+    {
+      "id": "123000035",
+      "arsNo": "24124",
+      "name": "잠실파크리오.잠실래미안아이파크",
+      "lat": 37.5196077,
+      "lng": 127.1099151,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 941
+    },
+    {
+      "id": "123000105",
+      "arsNo": "24194",
+      "name": "송파여성문화회관",
+      "lat": 37.5067281,
+      "lng": 127.1096248,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 947
+    },
+    {
+      "id": "123000064",
+      "arsNo": "24153",
+      "name": "잠실119안전센터",
+      "lat": 37.5070078,
+      "lng": 127.0947494,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 997
+    },
+    {
+      "id": "123000091",
+      "arsNo": "24180",
+      "name": "석촌역.잠실한솔아파트",
+      "lat": 37.5045155,
+      "lng": 127.1052846,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1001
+    },
+    {
+      "id": "123000632",
+      "arsNo": "24199",
+      "name": "송파나루역",
+      "lat": 37.5095629,
+      "lng": 127.1132143,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1008
+    },
+    {
+      "id": "123000535",
+      "arsNo": "24611",
+      "name": "잠실파크리오아파트",
+      "lat": 37.5195043,
+      "lng": 127.1111729,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1011
+    },
+    {
+      "id": "123000507",
+      "arsNo": "24479",
+      "name": "잠실대교전망쉼터",
+      "lat": 37.5201071,
+      "lng": 127.0951336,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1015
+    },
+    {
+      "id": "123000092",
+      "arsNo": "24181",
+      "name": "석촌역.잠실한솔아파트",
+      "lat": 37.5043936,
+      "lng": 127.1056432,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1022
+    },
+    {
+      "id": "123000037",
+      "arsNo": "24126",
+      "name": "잠실래미안아이파크.잠실파크리오",
+      "lat": 37.5196,
+      "lng": 127.11125,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1023
+    },
+    {
+      "id": "123000051",
+      "arsNo": "24140",
+      "name": "잠실리센츠아파트앞",
+      "lat": 37.5119152,
+      "lng": 127.0913236,
+      "stopType": "가로변시간",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1024
+    },
+    {
+      "id": "123000121",
+      "arsNo": "24210",
+      "name": "방이중학교",
+      "lat": 37.514164,
+      "lng": 127.1143672,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1025
+    },
+    {
+      "id": "123000508",
+      "arsNo": "24480",
+      "name": "잠실대교전망쉼터",
+      "lat": 37.519993,
+      "lng": 127.09479,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1026
+    },
+    {
+      "id": "123000305",
+      "arsNo": "24396",
+      "name": "몽촌토성역.한성백제역",
+      "lat": 37.5170404,
+      "lng": 127.1136028,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1040
+    },
+    {
+      "id": "123000056",
+      "arsNo": "24145",
+      "name": "잠실트리지움아파트앞",
+      "lat": 37.5115214,
+      "lng": 127.091102,
+      "stopType": "가로변전일",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1051
+    },
+    {
+      "id": "123000060",
+      "arsNo": "24149",
+      "name": "영동일고.레이크팰리스앞",
+      "lat": 37.5088085,
+      "lng": 127.0921467,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1064
+    },
+    {
+      "id": "123000131",
+      "arsNo": "24220",
+      "name": "방이우체국",
+      "lat": 37.5095131,
+      "lng": 127.1139246,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1068
+    },
+    {
+      "id": "123900037",
+      "arsNo": "24543",
+      "name": "석촌역5번출구",
+      "lat": 37.5043919,
+      "lng": 127.1075771,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1076
+    },
+    {
+      "id": "123000038",
+      "arsNo": "24127",
+      "name": "몽촌토성역",
+      "lat": 37.518515,
+      "lng": 127.113109,
+      "stopType": "가로변시간",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1078
+    },
+    {
+      "id": "123000061",
+      "arsNo": "24150",
+      "name": "영동일고.트리지움동문앞",
+      "lat": 37.509037,
+      "lng": 127.091732,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1085
+    },
+    {
+      "id": "123000081",
+      "arsNo": "24170",
+      "name": "삼학사길사거리",
+      "lat": 37.5046916,
+      "lng": 127.0969945,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1086
+    },
+    {
+      "id": "123900036",
+      "arsNo": "24540",
+      "name": "석촌역4번출구",
+      "lat": 37.5044972,
+      "lng": 127.1082078,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1089
+    },
+    {
+      "id": "123000698",
+      "arsNo": "24918",
+      "name": "잠신고등학교",
+      "lat": 37.516551,
+      "lng": 127.091066,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1096
+    },
+    {
+      "id": "123000082",
+      "arsNo": "24171",
+      "name": "잠실119안전센터",
+      "lat": 37.5070038,
+      "lng": 127.0929453,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1116
+    },
+    {
+      "id": "123000122",
+      "arsNo": "24211",
+      "name": "한성백제역4번출구",
+      "lat": 37.5149916,
+      "lng": 127.1153632,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1124
+    },
+    {
+      "id": "123000697",
+      "arsNo": "24919",
+      "name": "잠신고등학교",
+      "lat": 37.51646,
+      "lng": 127.090655,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1127
+    },
+    {
+      "id": "123000151",
+      "arsNo": "24241",
+      "name": "몽촌토성역.한성백제역",
+      "lat": 37.5171998,
+      "lng": 127.1146313,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1130
+    },
+    {
+      "id": "123000094",
+      "arsNo": "24183",
+      "name": "삼학사길사거리",
+      "lat": 37.5040382,
+      "lng": 127.0972566,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1140
+    },
+    {
+      "id": "123000643",
+      "arsNo": "24903",
+      "name": "올림픽공원평화의문",
+      "lat": 37.5170705,
+      "lng": 127.115008,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1155
+    },
+    {
+      "id": "123000006",
+      "arsNo": "24006",
+      "name": "석촌역",
+      "lat": 37.503857,
+      "lng": 127.108318,
+      "stopType": "중앙차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1157
+    },
+    {
+      "id": "123000610",
+      "arsNo": "24510",
+      "name": "잠실4동주민센터.파크리오B상가",
+      "lat": 37.5201133,
+      "lng": 127.113075,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1181
+    },
+    {
+      "id": "123000113",
+      "arsNo": "24202",
+      "name": "서울방이동고분군",
+      "lat": 37.5084245,
+      "lng": 127.1151708,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1218
+    },
+    {
+      "id": "123000089",
+      "arsNo": "24178",
+      "name": "석촌고분역",
+      "lat": 37.5026705,
+      "lng": 127.0983927,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1244
+    },
+    {
+      "id": "123000005",
+      "arsNo": "24005",
+      "name": "석촌역",
+      "lat": 37.503242,
+      "lng": 127.109062,
+      "stopType": "중앙차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1247
+    },
+    {
+      "id": "123000090",
+      "arsNo": "24179",
+      "name": "석촌고분역",
+      "lat": 37.5024287,
+      "lng": 127.0986428,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1263
+    },
+    {
+      "id": "123000063",
+      "arsNo": "24152",
+      "name": "잠실학원사거리.잠실트리지움남문",
+      "lat": 37.5076827,
+      "lng": 127.0902574,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1270
+    },
+    {
+      "id": "123000701",
+      "arsNo": "24923",
+      "name": "잠실새내역1번출구",
+      "lat": 37.511331,
+      "lng": 127.088213,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1305
+    },
+    {
+      "id": "123000300",
+      "arsNo": "24391",
+      "name": "서울방이동고분군",
+      "lat": 37.5082097,
+      "lng": 127.1161985,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1310
+    },
+    {
+      "id": "123000338",
+      "arsNo": "24430",
+      "name": "서울아산병원장례식장",
+      "lat": 37.5246396,
+      "lng": 127.1074534,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1326
+    },
+    {
+      "id": "123000345",
+      "arsNo": "24437",
+      "name": "잠실학원사거리.잠실트리지움남문",
+      "lat": 37.507586,
+      "lng": 127.0893716,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1344
+    },
+    {
+      "id": "123000034",
+      "arsNo": "24123",
+      "name": "잠실파크리오아파트상가.올림픽회관",
+      "lat": 37.5210239,
+      "lng": 127.1146492,
+      "stopType": "가로변시간",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1353
+    },
+    {
+      "id": "123000079",
+      "arsNo": "24168",
+      "name": "송파구민회관.구의회",
+      "lat": 37.502706,
+      "lng": 127.0947576,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1375
+    },
+    {
+      "id": "123000052",
+      "arsNo": "24141",
+      "name": "잠실새내역.잠실2동주민센터",
+      "lat": 37.5117723,
+      "lng": 127.0872805,
+      "stopType": "가로변시간",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1379
+    },
+    {
+      "id": "123000142",
+      "arsNo": "24231",
+      "name": "올림픽회관",
+      "lat": 37.5209126,
+      "lng": 127.1151502,
+      "stopType": "가로변전일",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1379
+    },
+    {
+      "id": "123000112",
+      "arsNo": "24201",
+      "name": "송파동한양1차아파트",
+      "lat": 37.5059567,
+      "lng": 127.1154171,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1380
+    },
+    {
+      "id": "123000070",
+      "arsNo": "24159",
+      "name": "영빌딩앞",
+      "lat": 37.506535,
+      "lng": 127.089623,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1384
+    },
+    {
+      "id": "123000083",
+      "arsNo": "24172",
+      "name": "삼밭나루어린이공원입구",
+      "lat": 37.5062808,
+      "lng": 127.0898346,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1385
+    },
+    {
+      "id": "123000130",
+      "arsNo": "24219",
+      "name": "방이전통시장동문",
+      "lat": 37.5101123,
+      "lng": 127.1180475,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1391
+    },
+    {
+      "id": "123000118",
+      "arsNo": "24207",
+      "name": "송파한양2차아파트",
+      "lat": 37.5059979,
+      "lng": 127.1157234,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1400
+    },
+    {
+      "id": "123000101",
+      "arsNo": "24190",
+      "name": "송파사거리",
+      "lat": 37.5016112,
+      "lng": 127.1087521,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1402
+    },
+    {
+      "id": "123000136",
+      "arsNo": "24225",
+      "name": "방이전통시장동문",
+      "lat": 37.5098959,
+      "lng": 127.1181179,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1403
+    },
+    {
+      "id": "123000080",
+      "arsNo": "24169",
+      "name": "송파구민회관.구의회",
+      "lat": 37.5024275,
+      "lng": 127.0945601,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1411
+    },
+    {
+      "id": "123000100",
+      "arsNo": "24189",
+      "name": "송파사거리.석촌시장",
+      "lat": 37.5015446,
+      "lng": 127.109178,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1423
+    },
+    {
+      "id": "123000027",
+      "arsNo": "24113",
+      "name": "아산생명과학연구원",
+      "lat": 37.5248334,
+      "lng": 127.1099765,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1430
+    },
+    {
+      "id": "123000364",
+      "arsNo": "24456",
+      "name": "잠실여고후문",
+      "lat": 37.5025011,
+      "lng": 127.111619,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1431
+    },
+    {
+      "id": "123000111",
+      "arsNo": "24200",
+      "name": "한양공원",
+      "lat": 37.5038731,
+      "lng": 127.1138832,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1433
+    },
+    {
+      "id": "123000119",
+      "arsNo": "24208",
+      "name": "한양공원",
+      "lat": 37.503707,
+      "lng": 127.113797,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1442
+    },
+    {
+      "id": "123000120",
+      "arsNo": "24209",
+      "name": "잠실여고후문",
+      "lat": 37.5025722,
+      "lng": 127.1120106,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1443
+    },
+    {
+      "id": "123000129",
+      "arsNo": "24218",
+      "name": "방이초등학교",
+      "lat": 37.5118705,
+      "lng": 127.1191093,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1447
+    },
+    {
+      "id": "123000128",
+      "arsNo": "24217",
+      "name": "올림픽베어스타운아파트앞",
+      "lat": 37.5148281,
+      "lng": 127.1191036,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1448
+    },
+    {
+      "id": "123000098",
+      "arsNo": "24187",
+      "name": "송파책박물관.헬리오시티",
+      "lat": 37.5002341,
+      "lng": 127.1044857,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1460
+    },
+    {
+      "id": "123900056",
+      "arsNo": "24556",
+      "name": "삼전동주민센터",
+      "lat": 37.503537,
+      "lng": 127.091536,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1472
+    },
+    {
+      "id": "123000137",
+      "arsNo": "24226",
+      "name": "방이초등학교",
+      "lat": 37.5120165,
+      "lng": 127.1194587,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1476
+    },
+    {
+      "id": "123000584",
+      "arsNo": "24233",
+      "name": "한성백제박물관",
+      "lat": 37.5155283,
+      "lng": 127.1193031,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1477
+    },
+    {
+      "id": "123000099",
+      "arsNo": "24188",
+      "name": "송파책박물관.헬리오시티",
+      "lat": 37.4999174,
+      "lng": 127.1040227,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1492
+    },
+    {
+      "id": "123000642",
+      "arsNo": "24902",
+      "name": "한성백제박물관",
+      "lat": 37.5154189,
+      "lng": 127.119601,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1500
+    },
+    {
+      "id": "123000344",
+      "arsNo": "24436",
+      "name": "새마을시장",
+      "lat": 37.5088577,
+      "lng": 127.086733,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1501
+    },
+    {
+      "id": "123000366",
+      "arsNo": "24458",
+      "name": "잠실새내역2번출구",
+      "lat": 37.5104225,
+      "lng": 127.0860381,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1513
+    },
+    {
+      "id": "123000078",
+      "arsNo": "24167",
+      "name": "삼전역",
+      "lat": 37.5039543,
+      "lng": 127.0897903,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1548
+    },
+    {
+      "id": "123000088",
+      "arsNo": "24177",
+      "name": "배명중고교",
+      "lat": 37.5001552,
+      "lng": 127.0966612,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1559
+    },
+    {
+      "id": "123000028",
+      "arsNo": "24114",
+      "name": "서울아산병원동관",
+      "lat": 37.5268881,
+      "lng": 127.1071795,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1560
+    },
+    {
+      "id": "123000008",
+      "arsNo": "24008",
+      "name": "송파역",
+      "lat": 37.500836,
+      "lng": 127.111084,
+      "stopType": "중앙차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1567
+    },
+    {
+      "id": "123000029",
+      "arsNo": "24115",
+      "name": "서울아산병원동관",
+      "lat": 37.5270256,
+      "lng": 127.1075881,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1584
+    },
+    {
+      "id": "123000699",
+      "arsNo": "24922",
+      "name": "한강버스잠실선착장",
+      "lat": 37.516437,
+      "lng": 127.085241,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1587
+    },
+    {
+      "id": "123000102",
+      "arsNo": "24191",
+      "name": "송파역.헬리오시티",
+      "lat": 37.5005814,
+      "lng": 127.1110145,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1589
+    },
+    {
+      "id": "123000026",
+      "arsNo": "24112",
+      "name": "풍성중학교.잠실올림픽아이파크",
+      "lat": 37.5248109,
+      "lng": 127.113565,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1594
+    },
+    {
+      "id": "123000095",
+      "arsNo": "24184",
+      "name": "배명중고교",
+      "lat": 37.4997098,
+      "lng": 127.0969106,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1598
+    },
+    {
+      "id": "123000096",
+      "arsNo": "24185",
+      "name": "석촌동남현교회앞",
+      "lat": 37.49902,
+      "lng": 127.1006952,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1599
+    },
+    {
+      "id": "123900057",
+      "arsNo": "24557",
+      "name": "삼전역",
+      "lat": 37.503905,
+      "lng": 127.0890344,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1602
+    },
+    {
+      "id": "123000077",
+      "arsNo": "24166",
+      "name": "삼전역",
+      "lat": 37.5039321,
+      "lng": 127.0889638,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1605
+    },
+    {
+      "id": "123000696",
+      "arsNo": "24920",
+      "name": "잠일고등학교",
+      "lat": 37.515716,
+      "lng": 127.084768,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1613
+    },
+    {
+      "id": "123000097",
+      "arsNo": "24186",
+      "name": "석촌동남현교회앞",
+      "lat": 37.4988053,
+      "lng": 127.1002693,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1627
+    },
+    {
+      "id": "123000069",
+      "arsNo": "24158",
+      "name": "잠실새내역4번출구",
+      "lat": 37.5114453,
+      "lng": 127.0843636,
+      "stopType": "가로변시간",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1639
+    },
+    {
+      "id": "123000132",
+      "arsNo": "24221",
+      "name": "서울방이초교.올림픽공원남2문",
+      "lat": 37.514024,
+      "lng": 127.1214073,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1643
+    },
+    {
+      "id": "123000700",
+      "arsNo": "24921",
+      "name": "잠일고등학교",
+      "lat": 37.515627,
+      "lng": 127.084403,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1643
+    },
+    {
+      "id": "123000025",
+      "arsNo": "24111",
+      "name": "풍납중학교",
+      "lat": 37.5246379,
+      "lng": 127.1149376,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1654
+    },
+    {
+      "id": "123000440",
+      "arsNo": "24662",
+      "name": "잠실새내역",
+      "lat": 37.511957,
+      "lng": 127.08406,
+      "stopType": "가로변전일",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1660
+    },
+    {
+      "id": "123000138",
+      "arsNo": "24227",
+      "name": "신구블레스밸리앞",
+      "lat": 37.5114131,
+      "lng": 127.1214992,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1663
+    },
+    {
+      "id": "123000007",
+      "arsNo": "24007",
+      "name": "송파역",
+      "lat": 37.500093,
+      "lng": 127.111934,
+      "stopType": "중앙차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1675
+    },
+    {
+      "id": "123000342",
+      "arsNo": "24434",
+      "name": "풍납중학교앞",
+      "lat": 37.5247728,
+      "lng": 127.1152308,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1682
+    },
+    {
+      "id": "123000150",
+      "arsNo": "24240",
+      "name": "올림픽공원남2문",
+      "lat": 37.5146225,
+      "lng": 127.1218099,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1683
+    },
+    {
+      "id": "123000139",
+      "arsNo": "24228",
+      "name": "신구블레스밸리",
+      "lat": 37.5116175,
+      "lng": 127.1218814,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1693
+    },
+    {
+      "id": "123000504",
+      "arsNo": "24728",
+      "name": "잠실새내역",
+      "lat": 37.5114109,
+      "lng": 127.0836049,
+      "stopType": "가로변시간",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1706
+    },
+    {
+      "id": "123000689",
+      "arsNo": "00001",
+      "name": "한강버스.잠실선착장",
+      "lat": 37.518944,
+      "lng": 127.084778,
+      "stopType": "한강선착장",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1709
+    },
+    {
+      "id": "123900001",
+      "arsNo": "24508",
+      "name": "송파역.헬리오시티",
+      "lat": 37.499696,
+      "lng": 127.11185,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1710
+    },
+    {
+      "id": "123900002",
+      "arsNo": "24505",
+      "name": "송파역",
+      "lat": 37.4998737,
+      "lng": 127.1123582,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1715
+    },
+    {
+      "id": "123000053",
+      "arsNo": "24142",
+      "name": "잠실엘스아파트앞",
+      "lat": 37.5118706,
+      "lng": 127.0833905,
+      "stopType": "가로변시간",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1719
+    },
+    {
+      "id": "123000346",
+      "arsNo": "24438",
+      "name": "삼전역.잠실현대아파트",
+      "lat": 37.503762,
+      "lng": 127.087268,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1733
+    },
+    {
+      "id": "123000084",
+      "arsNo": "24173",
+      "name": "삼전역.잠실현대아파트",
+      "lat": 37.5034264,
+      "lng": 127.0874732,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1742
+    },
+    {
+      "id": "123000117",
+      "arsNo": "24206",
+      "name": "송파미성.가락삼익아파트",
+      "lat": 37.506087,
+      "lng": 127.1203825,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1746
+    },
+    {
+      "id": "123900013",
+      "arsNo": "24517",
+      "name": "송파현대아파트.가락중학교",
+      "lat": 37.5029952,
+      "lng": 127.1182081,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1778
+    },
+    {
+      "id": "123000071",
+      "arsNo": "24160",
+      "name": "잠실우성4차현대아파트",
+      "lat": 37.5052624,
+      "lng": 127.0852076,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1791
+    },
+    {
+      "id": "123900012",
+      "arsNo": "24516",
+      "name": "송파삼성래미안아파트",
+      "lat": 37.5046818,
+      "lng": 127.1199758,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1793
+    },
+    {
+      "id": "123900016",
+      "arsNo": "24520",
+      "name": "가락중학교",
+      "lat": 37.5020917,
+      "lng": 127.1174129,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1793
+    },
+    {
+      "id": "123000114",
+      "arsNo": "24203",
+      "name": "송파역",
+      "lat": 37.4992928,
+      "lng": 127.1129081,
+      "stopType": "가로변전일",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1795
+    },
+    {
+      "id": "123000072",
+      "arsNo": "24161",
+      "name": "잠실우성4차현대아파트",
+      "lat": 37.5049574,
+      "lng": 127.0853685,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1796
+    },
+    {
+      "id": "123900017",
+      "arsNo": "24521",
+      "name": "가락중학교.래미안송파파인탑",
+      "lat": 37.5030501,
+      "lng": 127.118551,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1797
+    },
+    {
+      "id": "123000353",
+      "arsNo": "24445",
+      "name": "올림픽대교남단교차로",
+      "lat": 37.525152,
+      "lng": 127.11681,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1807
+    },
+    {
+      "id": "123900018",
+      "arsNo": "24522",
+      "name": "가락삼익맨숀",
+      "lat": 37.5053207,
+      "lng": 127.1207656,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1816
+    },
+    {
+      "id": "123900014",
+      "arsNo": "24518",
+      "name": "가락고등학교",
+      "lat": 37.5016525,
+      "lng": 127.1173726,
+      "stopType": "마을버스",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1825
+    },
+    {
+      "id": "123000087",
+      "arsNo": "24176",
+      "name": "삼전사회복지관",
+      "lat": 37.498093,
+      "lng": 127.0942399,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1852
+    },
+    {
+      "id": "123000135",
+      "arsNo": "24224",
+      "name": "잠실3차한양아파트",
+      "lat": 37.5059144,
+      "lng": 127.1217138,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1859
+    },
+    {
+      "id": "123000033",
+      "arsNo": "24121",
+      "name": "올림픽대교남단",
+      "lat": 37.526761,
+      "lng": 127.115419,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1865
+    },
+    {
+      "id": "123000086",
+      "arsNo": "24175",
+      "name": "삼전동쌍용하이츠빌라",
+      "lat": 37.4992254,
+      "lng": 127.0908501,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1887
+    },
+    {
+      "id": "123000141",
+      "arsNo": "24230",
+      "name": "방이동대림.코오롱아파트",
+      "lat": 37.5095588,
+      "lng": 127.1240112,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1917
+    },
+    {
+      "id": "123000303",
+      "arsNo": "24394",
+      "name": "풍납토성서성벽",
+      "lat": 37.5297958,
+      "lng": 127.1098763,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1938
+    },
+    {
+      "id": "123000140",
+      "arsNo": "24229",
+      "name": "방이동대림.코오롱아파트",
+      "lat": 37.5091864,
+      "lng": 127.124238,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1945
+    },
+    {
+      "id": "123000133",
+      "arsNo": "24222",
+      "name": "올림픽공원장미광장",
+      "lat": 37.5126513,
+      "lng": 127.1249202,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1952
+    },
+    {
+      "id": "123000085",
+      "arsNo": "24174",
+      "name": "삼전동현대APT",
+      "lat": 37.5004306,
+      "lng": 127.0874665,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1969
+    },
+    {
+      "id": "123000115",
+      "arsNo": "24204",
+      "name": "잠실더샵루벤",
+      "lat": 37.4997831,
+      "lng": 127.1174306,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1981
+    },
+    {
+      "id": "123000299",
+      "arsNo": "24390",
+      "name": "가락1동주민센터",
+      "lat": 37.4962978,
+      "lng": 127.1098466,
+      "stopType": "일반차로",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1990
+    },
+    {
+      "id": "123000024",
+      "arsNo": "24110",
+      "name": "풍납동극동.쌍용아파트",
+      "lat": 37.5265632,
+      "lng": 127.1180236,
+      "stopType": "가로변시간",
+      "source": "SEOUL_BUS_STOP_OFFICIAL",
+      "seedDistanceM": 1994
+    }
+  ],
+  "generatedAt": "2026-09-15T09:02:42.000Z",
+  "note": "Candidate pool from Seoul OA-15067. Distances ALWAYS recomputed from live NAVER map anchor. No TAGO. No VWorld. No coordinate invention.",
+  "anchorType": "NAVER_GEOCODE",
+  "poiLookup": "HOLD",
+  "poiLookupReason": "NAVER Local/Place Search credential not configured (Maps JS key only)"
+}

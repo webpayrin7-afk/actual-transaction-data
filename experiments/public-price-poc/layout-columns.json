@@ -1,0 +1,105 @@
+{
+  "dataset": "3073746",
+  "package": "국토교통부_주택 공시가격 정보(2025).zip",
+  "encoding": "UTF-8 (utf-8-sig accepted)",
+  "row_separator": "CRLF",
+  "column_separator": ",",
+  "quoting": "double quotes around fields",
+  "header_row": true,
+  "columns": [
+    {
+      "index": 0,
+      "name": "기준연도"
+    },
+    {
+      "index": 1,
+      "name": "기준월"
+    },
+    {
+      "index": 2,
+      "name": "법정동코드"
+    },
+    {
+      "index": 3,
+      "name": "도로명주소"
+    },
+    {
+      "index": 4,
+      "name": "시도"
+    },
+    {
+      "index": 5,
+      "name": "시군구"
+    },
+    {
+      "index": 6,
+      "name": "읍면"
+    },
+    {
+      "index": 7,
+      "name": "동리"
+    },
+    {
+      "index": 8,
+      "name": "특수지코드"
+    },
+    {
+      "index": 9,
+      "name": "본번"
+    },
+    {
+      "index": 10,
+      "name": "부번"
+    },
+    {
+      "index": 11,
+      "name": "특수지명"
+    },
+    {
+      "index": 12,
+      "name": "단지명"
+    },
+    {
+      "index": 13,
+      "name": "동명"
+    },
+    {
+      "index": 14,
+      "name": "호명"
+    },
+    {
+      "index": 15,
+      "name": "전용면적"
+    },
+    {
+      "index": 16,
+      "name": "공시가격"
+    },
+    {
+      "index": 17,
+      "name": "단지코드"
+    },
+    {
+      "index": 18,
+      "name": "동코드"
+    },
+    {
+      "index": 19,
+      "name": "호코드"
+    },
+    {
+      "index": 20,
+      "name": "건축물대장PK"
+    }
+  ],
+  "building_register_pk": {
+    "column": "건축물대장PK",
+    "classification": "NULLABLE",
+    "safe_as_unique_key": false,
+    "sample_null_count": 791,
+    "sample_rows": 99999,
+    "jamsil_els_rows": 5678,
+    "jamsil_els_null_count": 0,
+    "jamsil_els_unique_when_present": true
+  }
+}

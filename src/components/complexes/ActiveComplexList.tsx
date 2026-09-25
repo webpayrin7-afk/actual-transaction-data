@@ -1,10 +1,13 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import type { ActiveComplexesResponse } from "@/lib/complexes/active-complexes";
 import { formatDealDate } from "@/lib/utils/format";
+import { LabSection } from "@/components/ui/LabSection";
+import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 
 async function fetchActive(): Promise<ActiveComplexesResponse> {
   const res = await fetch("/api/complexes/active");
@@ -13,6 +16,7 @@ async function fetchActive(): Promise<ActiveComplexesResponse> {
 }
 
 export function ActiveComplexList() {
+  const [expanded, setExpanded] = useState(false);
   const query = useQuery({
     queryKey: ["complexes-active"],
     queryFn: fetchActive,
@@ -21,63 +25,52 @@ export function ActiveComplexList() {
 
   const data = query.data;
   useLoadProgressWhen(query.isLoading && !data, "단지 목록 불러오는 중…");
+  const items = data?.items ?? [];
+  const visible = expanded ? items : items.slice(0, LAB_LIST_PREVIEW);
 
   return (
-    <section className="flex flex-col gap-3">
-      <div>
-        <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
-          최근 거래 활발 단지
-        </h2>
-        <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">
-          최근 30일 매매 거래건수가 많았던 단지입니다
-        </p>
-      </div>
-
+    <LabSection
+      title="최근 거래 활발 단지"
+      meta="최근 30일 매매 건수 순"
+      tip={<p>최근 30일 매매 거래건수가 많았던 단지입니다.</p>}
+    >
       {query.isLoading ? (
         <div className="lab-skeleton" />
       ) : query.isError ? (
-        <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-          {(query.error as Error).message}
-        </p>
-      ) : !data?.items.length ? (
-        <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50/80 px-4 py-6 text-center text-sm text-slate-500">
-          표시할 거래 활발 단지가 없습니다.
-        </p>
+        <p className="detail-body">{(query.error as Error).message}</p>
+      ) : !items.length ? (
+        <p className="detail-body">표시할 거래 활발 단지가 없습니다.</p>
       ) : (
         <>
-          <ul className="lab-card divide-y divide-slate-100 overflow-hidden">
-            {data.items.map((item) => (
-              <li key={`${item.aptNameNorm}|${item.lawdCd}|${item.dong}`}>
-                <Link
-                  href={item.href}
-                  className="flex min-h-14 items-center gap-3 px-3.5 py-3 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-teal-600 sm:px-4"
-                >
-                  <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-slate-100 text-xs font-semibold tabular-nums text-slate-600">
-                    {item.rank}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold text-slate-900">
-                      {item.aptName}
+          <ul className={LAB_LIST}>
+            {visible.map((item) => (
+              <LabListRow
+                key={`${item.aptNameNorm}|${item.lawdCd}|${item.dong}`}
+                href={item.href}
+                title={
+                  <>
+                    <span className="mr-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full border border-[color:var(--lab-border)] px-1 align-[1px] text-[12px] font-semibold leading-4 tabular-nums text-[color:var(--lab-muted)]">
+                      {item.rank}
                     </span>
-                    <span className="mt-0.5 block truncate text-xs text-slate-500">
-                      {item.regionLabel}
-                      {item.latestDealDate
-                        ? ` · 최근 ${formatDealDate(item.latestDealDate)}`
-                        : ""}
-                    </span>
-                  </span>
-                  <span className="shrink-0 text-right text-xs font-semibold tabular-nums text-teal-800 sm:text-sm">
-                    {item.recentCount.toLocaleString("ko-KR")}건
-                  </span>
-                </Link>
-              </li>
+                    {item.aptName}
+                  </>
+                }
+                meta={item.regionLabel}
+                value={`${item.recentCount.toLocaleString("ko-KR")}건`}
+                sub={item.latestDealDate ? `최근 ${formatDealDate(item.latestDealDate)}` : undefined}
+              />
             ))}
           </ul>
-          {data.note ? (
-            <p className="text-[11px] leading-5 text-slate-400">{data.note}</p>
+          {items.length > LAB_LIST_PREVIEW ? (
+            <LabMoreButton
+              expanded={expanded}
+              onToggle={() => setExpanded((v) => !v)}
+              label={`${items.length - LAB_LIST_PREVIEW}곳 더보기`}
+            />
           ) : null}
+          {data?.note ? <p className="detail-meta">{data.note}</p> : null}
         </>
       )}
-    </section>
+    </LabSection>
   );
 }

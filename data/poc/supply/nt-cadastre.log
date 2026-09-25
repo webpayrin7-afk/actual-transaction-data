@@ -1,0 +1,15 @@
+{"prefix": "12", "parts": 7, "scanned": 6307550, "targets": 880, "found": 829, "missing": 51, "sec": 6.4}
+{"prefix": "26", "parts": 1, "scanned": 705940, "targets": 697, "found": 632, "missing": 65, "sec": 0.7}
+{"prefix": "48", "parts": 5, "scanned": 4833198, "targets": 689, "found": 656, "missing": 33, "sec": 4.9}
+{"prefix": "28", "parts": 1, "scanned": 667724, "targets": 647, "found": 612, "missing": 35, "sec": 0.7}
+{"prefix": "44", "parts": 4, "scanned": 3775096, "targets": 583, "found": 553, "missing": 30, "sec": 3.8}
+{"prefix": "52", "parts": 4, "scanned": 3886613, "targets": 544, "found": 523, "missing": 21, "sec": 3.5}
+{"prefix": "47", "parts": 6, "scanned": 5733851, "targets": 474, "found": 437, "missing": 37, "sec": 5.0}
+{"prefix": "51", "parts": 3, "scanned": 2758377, "targets": 411, "found": 391, "missing": 20, "sec": 2.4}
+{"prefix": "43", "parts": 3, "scanned": 2415439, "targets": 376, "found": 348, "missing": 28, "sec": 2.1}
+{"prefix": "27", "parts": 1, "scanned": 785263, "targets": 354, "found": 325, "missing": 29, "sec": 0.7}
+{"prefix": "30", "parts": 1, "scanned": 290840, "targets": 256, "found": 240, "missing": 16, "sec": 0.2}
+{"prefix": "31", "parts": 1, "scanned": 510997, "targets": 201, "found": 178, "missing": 23, "sec": 0.4}
+{"prefix": "36", "parts": 1, "scanned": 207960, "targets": 120, "found": 52, "missing": 68, "sec": 0.2}
+{"prefix": "50", "parts": 1, "scanned": 887267, "targets": 101, "found": 99, "missing": 2, "sec": 0.6}
+{"in_cadastre": 5955, "not_in_cadastre": 460, "no_pnu": 580}

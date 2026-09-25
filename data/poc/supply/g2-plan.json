@@ -1,0 +1,23 @@
+{
+  "at": "2026-09-24T17:46:23.316Z",
+  "statements": 0,
+  "totals": {
+    "complexes": 1613,
+    "recovered": 0,
+    "recovered3y": 0,
+    "fullAfter": 0,
+    "fullAfter3y": 0,
+    "exclusivesFilled": 0,
+    "held": {
+      "NO_DERIVABLE": 933,
+      "NO_EXPOS_ROWS": 165,
+      "CADASTRE_ABSENT": 146,
+      "EXCLUSIVE_NOT_MATCHED": 302,
+      "HOLD_ABOLISHED": 12,
+      "COMMON_SEMANTICS_UNCLEAR": 27,
+      "HOLD_NO_SUCCESSOR": 16,
+      "HOLD_BAD_JIBUN": 12
+    },
+    "with3y": 1291
+  }
+}

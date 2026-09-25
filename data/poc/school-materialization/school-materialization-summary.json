@@ -1,0 +1,108 @@
+{
+  "mode": "dry-run",
+  "region": "seoul",
+  "source_version": "koies-2026-03-20",
+  "base_date": "2026-03-20",
+  "runtime_sec": 1.01,
+  "total_complexes": 8437,
+  "valid_coordinates": 1,
+  "coord_note": "Production apt_complex_master lat/lng currently null for Seoul; only product mapAnchor overrides applied (잠실엘스).",
+  "elementary": {
+    "resolved": 1,
+    "single": 1,
+    "common": 0,
+    "ambiguous": 0,
+    "unmatched": 0,
+    "school_code_unresolved": 0,
+    "invalid_coord": 8436,
+    "coverage_pct_of_valid_coords": 100.0,
+    "counts": {
+      "INVALID_COMPLEX_COORD": 8436,
+      "CONFIRMED_SINGLE": 1
+    }
+  },
+  "middle": {
+    "district_resolved": 1,
+    "membership_complete": 1,
+    "district_only": 0,
+    "ambiguous": 0,
+    "unmatched": 0,
+    "invalid_coord": 8436,
+    "coverage_pct_of_valid_coords": 100.0,
+    "counts": {
+      "INVALID_COMPLEX_COORD": 8436,
+      "MEMBERSHIP_COMPLETE": 1,
+      "CONFIRMED_SINGLE": 1
+    }
+  },
+  "high": {
+    "district_resolved": 1,
+    "membership_complete": 1,
+    "partial": 0,
+    "unresolved": 8436,
+    "coverage_note": "Seoul-wide high SHP/membership not packaged; seed-only for 잠실엘스.",
+    "counts": {
+      "UNRESOLVED": 8436,
+      "MEMBERSHIP_COMPLETE": 1,
+      "DISTRICT_RESOLVED_SEED": 1
+    }
+  },
+  "nearby": {
+    "complexes_calculated": 1,
+    "elementary_rows": 7,
+    "middle_rows": 4,
+    "high_rows": 4,
+    "neis_code_unresolved": 6,
+    "skipped_no_coord": 8436,
+    "radius_m": 1500.0,
+    "store_cap_per_level": 24,
+    "store_cap_reason": "Product UI shows all within 1500m (SCHOOL_MAX_PER_LEVEL=null); store cap 24 mirrors legacy dev map bound without truncating typical in-radius sets."
+  },
+  "write_eligibility": {
+    "elementary_eligible": 1,
+    "middle_eligible_membership": 1,
+    "middle_eligible_district_only": 0,
+    "high_eligible": 1,
+    "nearby_eligible_complexes": 1,
+    "excluded_reason": "CONFIRMED(+membership) only; INVALID_COMPLEX_COORD / AMBIGUOUS / UNRESOLVED excluded. Seoul coord backfill required before Production write."
+  },
+  "jamsil_els_regression": {
+    "elementary_zone": "서울잠일초통학구역",
+    "elementary_zone_id": "Z000100307",
+    "elementary_school": "서울잠일초등학교",
+    "elementary_school_code": "7130153",
+    "elementary_status": "CONFIRMED_SINGLE",
+    "middle_district": "강동송파3학교군",
+    "middle_district_id": "Z000200027",
+    "middle_members": 11,
+    "middle_membership_status": "MEMBERSHIP_COMPLETE",
+    "high_district": "강동송파학교군",
+    "high_members": 26,
+    "nearby_count": 15,
+    "elem_pass": true,
+    "middle_pass": true,
+    "high_pass": true,
+    "result": "PASS"
+  },
+  "polygon_inventory": {
+    "elem_seoul_polys": 629,
+    "middle_seoul_polys": 46,
+    "seoul_schools_csv": 1313
+  },
+  "samples": {
+    "normal_elementary_single": {
+      "complex_id": "cx_4c63d9a100973c60",
+      "zone_id": "Z000100307",
+      "zone_name": "서울잠일초통학구역",
+      "school_name": "서울잠일초등학교"
+    },
+    "middle_normal_district": {
+      "complex_id": "cx_4c63d9a100973c60",
+      "district_id": "Z000200027",
+      "district_name": "강동송파3학교군",
+      "member_count": 11
+    }
+  },
+  "pip_semantics": "shapely Polygon.covers(point) — interior OR boundary; multi-cover → BOUNDARY_AMBIGUOUS (no arbitrary pick)",
+  "production_rows_written": 0
+}

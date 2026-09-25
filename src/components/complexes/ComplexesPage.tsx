@@ -2,6 +2,7 @@
 
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
 import { RecentComplexList } from "@/components/complexes/RecentComplexList";
+import { SavedComplexList } from "@/components/complexes/SavedComplexList";
 import { ActiveComplexList } from "@/components/complexes/ActiveComplexList";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
@@ -14,6 +15,7 @@ export function ComplexesPage() {
     <div className={PAGE_SHELL}>
       <PageHeader
         title="단지별 조회"
+        titleClassName="detail-page-title"
         description="궁금한 아파트를 검색하고 실거래가와 거래 이력을 확인하세요."
       >
         <AptQuickSearch
@@ -22,6 +24,8 @@ export function ComplexesPage() {
           showPrice={false}
         />
       </PageHeader>
+
+      <SavedComplexList />
 
       <RecentComplexList />
 

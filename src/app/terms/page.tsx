@@ -19,7 +19,7 @@ export default function TermsPage() {
           이 약관은 {SITE_BRAND}(이하 “서비스”)가 제공하는 웹 정보 서비스의
           이용 조건과 운영자와 이용자 간의 기본 권리를 정합니다.
         </p>
-        <p className="text-xs text-slate-500">최종 업데이트: 2026-09-08</p>
+        <p className="detail-meta">최종 업데이트: 2026-09-08</p>
       </InfoSection>
 
       <InfoSection title="서비스 내용">

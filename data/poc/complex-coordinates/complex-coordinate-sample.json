@@ -1,0 +1,78 @@
+{
+  "samples": [
+    {
+      "complex_id": "cx_01a01c194bce0a20",
+      "apt_name": "휴먼스타빌",
+      "address": "서울특별시 강남구 청담동 5-25",
+      "source": null,
+      "coordinate": null,
+      "status": "SOURCE_NO_MATCH",
+      "gate_eligible": false
+    },
+    {
+      "complex_id": "cx_4c63d9a100973c60",
+      "apt_name": "잠실엘스",
+      "address": "서울특별시 송파구 잠실동 19",
+      "source": "product_map_anchor",
+      "coordinate": {
+        "lat": 37.5133051,
+        "lng": 127.0815962
+      },
+      "status": "SINGLE_SOURCE_HIGH_CONFIDENCE",
+      "gate_eligible": true
+    },
+    {
+      "complex_id": "cx_0074b35c6bca6137",
+      "apt_name": "삼흥",
+      "address": "서울특별시 종로구 창신동 638-45",
+      "source": null,
+      "coordinate": null,
+      "status": "SOURCE_NO_MATCH",
+      "gate_eligible": false
+    },
+    {
+      "complex_id": "cx_0276fe98811f6b51",
+      "apt_name": "공덕파크자이",
+      "address": "서울특별시 마포구 공덕동 476",
+      "source": null,
+      "coordinate": null,
+      "status": "SOURCE_NO_MATCH",
+      "gate_eligible": false
+    },
+    {
+      "complex_id": "cx_01210eca6e2ee4cc",
+      "apt_name": "마곡수명산파크2단지",
+      "address": "서울특별시 강서구 내발산동 741",
+      "source": null,
+      "coordinate": null,
+      "status": "SOURCE_NO_MATCH",
+      "gate_eligible": false
+    },
+    {
+      "complex_id": "cx_019b3fbe56815f11",
+      "apt_name": "대명아파트",
+      "address": "서울특별시 노원구 공릉동 270-71",
+      "source": null,
+      "coordinate": null,
+      "status": "SOURCE_NO_MATCH",
+      "gate_eligible": false
+    }
+  ],
+  "jamsil_els": {
+    "complex_id": "cx_4c63d9a100973c60",
+    "old_anchor": {
+      "lat": 37.5133051,
+      "lng": 127.0815962
+    },
+    "candidate": {
+      "lat": 37.5133051,
+      "lng": 127.0815962,
+      "status": "SINGLE_SOURCE_HIGH_CONFIDENCE",
+      "source": "product_map_anchor"
+    },
+    "difference_meters": 0,
+    "status": "SINGLE_SOURCE_HIGH_CONFIDENCE",
+    "gate_eligible": true,
+    "regression": "PASS"
+  }
+}

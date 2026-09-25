@@ -45,3 +45,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# national coordinate cache (manifest is tracked; raw extracts are not)
+/data/poc/national-expansion/coordinates/cache/
+
+# NAVER map-anchor geocode runs (local review files)
+data/map-anchor/
+
+# SEMAS national store zip + local commerce build (large, regenerable)
+/data/semas/
+
+# 건축HUB / VWorld response cache for the supply fill (regenerable, large)
+/data/supply-fill-cache/

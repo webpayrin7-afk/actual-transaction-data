@@ -1,0 +1,53 @@
+{
+ "at": "2026-09-24T18:25:31.405Z",
+ "statements": 1193,
+ "prefix": "52",
+ "targeted": 573,
+ "filled": 169,
+ "types": 601,
+ "multiExclusives": 49,
+ "rangeLabels": 19,
+ "predecessorUsed": 0,
+ "alreadyOurs": 0,
+ "held": {
+  "NO_DERIVABLE": 292,
+  "NO_APT_EXCLUSIVE": 37,
+  "LOW_COVERAGE": 1,
+  "HOLD_LOT_PARSE_FAILED": 28,
+  "SHARED_PNU": 3,
+  "COMMON_SEMANTICS_UNCLEAR": 17,
+  "CADASTRE_ABSENT": 21,
+  "NO_EXPOS_ROWS": 5
+ },
+ "bySido": {
+  "52": {
+   "targeted": 573,
+   "filled": 169,
+   "held": {
+    "NO_DERIVABLE": 292,
+    "NO_APT_EXCLUSIVE": 37,
+    "LOW_COVERAGE": 1,
+    "HOLD_LOT_PARSE_FAILED": 28,
+    "SHARED_PNU": 3,
+    "COMMON_SEMANTICS_UNCLEAR": 17,
+    "CADASTRE_ABSENT": 21,
+    "NO_EXPOS_ROWS": 5
+   }
+  }
+ },
+ "lawdCodes": {
+  "52111": 45,
+  "52113": 40,
+  "52130": 32,
+  "52140": 14,
+  "52180": 6,
+  "52190": 8,
+  "52210": 4,
+  "52710": 14,
+  "52720": 1,
+  "52740": 1,
+  "52770": 1,
+  "52790": 1,
+  "52800": 2
+ }
+}

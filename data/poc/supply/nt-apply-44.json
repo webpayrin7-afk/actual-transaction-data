@@ -1,0 +1,57 @@
+{
+ "at": "2026-09-24T18:32:41.777Z",
+ "affected": 0,
+ "statements": 1695,
+ "prefix": "44",
+ "targeted": 625,
+ "filled": 231,
+ "types": 875,
+ "multiExclusives": 61,
+ "rangeLabels": 29,
+ "predecessorUsed": 0,
+ "alreadyOurs": 231,
+ "held": {
+  "NO_APT_EXCLUSIVE": 46,
+  "NO_DERIVABLE": 231,
+  "COMMON_SEMANTICS_UNCLEAR": 27,
+  "HOLD_LOT_PARSE_FAILED": 33,
+  "CADASTRE_ABSENT": 30,
+  "NO_EXPOS_ROWS": 11,
+  "SHARED_PNU": 15,
+  "HOLD_INVALID_PNU": 1
+ },
+ "bySido": {
+  "44": {
+   "targeted": 625,
+   "filled": 231,
+   "held": {
+    "NO_APT_EXCLUSIVE": 46,
+    "NO_DERIVABLE": 231,
+    "COMMON_SEMANTICS_UNCLEAR": 27,
+    "HOLD_LOT_PARSE_FAILED": 33,
+    "CADASTRE_ABSENT": 30,
+    "NO_EXPOS_ROWS": 11,
+    "SHARED_PNU": 15,
+    "HOLD_INVALID_PNU": 1
+   }
+  }
+ },
+ "lawdCodes": {
+  "44131": 39,
+  "44133": 29,
+  "44150": 10,
+  "44180": 9,
+  "44200": 60,
+  "44210": 30,
+  "44230": 3,
+  "44250": 4,
+  "44270": 16,
+  "44710": 3,
+  "44760": 1,
+  "44770": 4,
+  "44790": 1,
+  "44800": 11,
+  "44810": 9,
+  "44825": 2
+ }
+}

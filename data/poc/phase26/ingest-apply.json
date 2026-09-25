@@ -1,0 +1,1874 @@
+{
+  "generatedAt": "2026-09-14T07:50:03.543Z",
+  "apply": true,
+  "complexId": "cx_4c63d9a100973c60",
+  "kaptCode": "A13822004",
+  "privArea": 470139.94,
+  "months": [
+    "202607",
+    "202606",
+    "202605",
+    "202604",
+    "202603",
+    "202602",
+    "202601",
+    "202512",
+    "202511",
+    "202510",
+    "202509",
+    "202508"
+  ],
+  "written": 12,
+  "complete": 12,
+  "incomplete": 0,
+  "results": [
+    {
+      "searchDate": "202607",
+      "kaptCode": "A13822004",
+      "privArea": 470139.94,
+      "commonTotal": 690670155,
+      "individualTotal": 957127575,
+      "reserveTotal": 222719680,
+      "portalTotal": 1870517410,
+      "perAreaCommon": 1469.0735592470617,
+      "perAreaIndividual": 2035.8354897480099,
+      "perAreaReserve": 473.7306088055399,
+      "perAreaTotal": 3978.6396578006115,
+      "status": "COMPLETE",
+      "commonOps": [
+        {
+          "op": "getHsmpCleaningCostInfoV3",
+          "ok": true,
+          "sum": 164012010
+        },
+        {
+          "op": "getHsmpGuardCostInfoV3",
+          "ok": true,
+          "sum": 195773550
+        },
+        {
+          "op": "getHsmpDisinfectionCostInfoV3",
+          "ok": true,
+          "sum": 3550000
+        },
+        {
+          "op": "getHsmpElevatorMntncCostInfoV3",
+          "ok": true,
+          "sum": 35040500
+        },
+        {
+          "op": "getHsmpRepairsCostInfoV3",
+          "ok": true,
+          "sum": 46698970
+        },
+        {
+          "op": "getHsmpFacilityMntncCostInfoV3",
+          "ok": true,
+          "sum": 38005820
+        },
+        {
+          "op": "getHsmpSafetyCheckUpCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDisasterPreventionCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpConsignManageFeeInfoV3",
+          "ok": true,
+          "sum": 2041595
+        },
+        {
+          "op": "getHsmpOfcrkCostInfoV3",
+          "ok": true,
+          "sum": 5306740
+        },
+        {
+          "op": "getHsmpClothingCostInfoV3",
+          "ok": true,
+          "sum": 827570
+        },
+        {
+          "op": "getHsmpEduTraingCostInfoV3",
+          "ok": true,
+          "sum": 105000
+        },
+        {
+          "op": "getHsmpVhcleMntncCostInfoV3",
+          "ok": true,
+          "sum": 94280
+        },
+        {
+          "op": "getHsmpHomeNetworkMntncCostInfoV3",
+          "ok": true,
+          "sum": 2090000
+        },
+        {
+          "op": "getHsmpLaborCostInfoV3",
+          "ok": true,
+          "sum": 194419270
+        },
+        {
+          "op": "getHsmpTaxdueInfoV3",
+          "ok": true,
+          "sum": 1094950
+        },
+        {
+          "op": "getHsmpEtcCostInfoV3",
+          "ok": true,
+          "sum": 1609900
+        }
+      ],
+      "individualOps": [
+        {
+          "op": "getHsmpElectricityCostInfoV3",
+          "ok": true,
+          "sum": 652884025
+        },
+        {
+          "op": "getHsmpWaterCostInfoV3",
+          "ok": true,
+          "sum": 140139520
+        },
+        {
+          "op": "getHsmpHeatCostInfoV3",
+          "ok": true,
+          "sum": 33313270
+        },
+        {
+          "op": "getHsmpHotWaterCostInfoV3",
+          "ok": true,
+          "sum": 99006660
+        },
+        {
+          "op": "getHsmpGasRentalFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpWaterPurifierTankFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDomesticWasteFeeInfoV3",
+          "ok": true,
+          "sum": 12424360
+        },
+        {
+          "op": "getHsmpBuildingInsuranceFeeInfoV3",
+          "ok": true,
+          "sum": 9606650
+        },
+        {
+          "op": "getHsmpElectionOrpnsInfoV3",
+          "ok": true,
+          "sum": 3665560
+        },
+        {
+          "op": "getHsmpMovingInRepresentationMtgInfoV3",
+          "ok": true,
+          "sum": 6087530
+        }
+      ],
+      "reserveOk": true
+    },
+    {
+      "searchDate": "202606",
+      "kaptCode": "A13822004",
+      "privArea": 470139.94,
+      "commonTotal": 677388429,
+      "individualTotal": 765225376,
+      "reserveTotal": 222719680,
+      "portalTotal": 1665333485,
+      "perAreaCommon": 1440.8229792176346,
+      "perAreaIndividual": 1627.6544724109167,
+      "perAreaReserve": 473.7306088055399,
+      "perAreaTotal": 3542.2080604340913,
+      "status": "COMPLETE",
+      "commonOps": [
+        {
+          "op": "getHsmpCleaningCostInfoV3",
+          "ok": true,
+          "sum": 161799550
+        },
+        {
+          "op": "getHsmpGuardCostInfoV3",
+          "ok": true,
+          "sum": 196220920
+        },
+        {
+          "op": "getHsmpDisinfectionCostInfoV3",
+          "ok": true,
+          "sum": 3352440
+        },
+        {
+          "op": "getHsmpElevatorMntncCostInfoV3",
+          "ok": true,
+          "sum": 33202400
+        },
+        {
+          "op": "getHsmpRepairsCostInfoV3",
+          "ok": true,
+          "sum": 51014934
+        },
+        {
+          "op": "getHsmpFacilityMntncCostInfoV3",
+          "ok": true,
+          "sum": 33869820
+        },
+        {
+          "op": "getHsmpSafetyCheckUpCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDisasterPreventionCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpConsignManageFeeInfoV3",
+          "ok": true,
+          "sum": 2041595
+        },
+        {
+          "op": "getHsmpOfcrkCostInfoV3",
+          "ok": true,
+          "sum": 4269830
+        },
+        {
+          "op": "getHsmpClothingCostInfoV3",
+          "ok": true,
+          "sum": 827570
+        },
+        {
+          "op": "getHsmpEduTraingCostInfoV3",
+          "ok": true,
+          "sum": 30000
+        },
+        {
+          "op": "getHsmpVhcleMntncCostInfoV3",
+          "ok": true,
+          "sum": 215280
+        },
+        {
+          "op": "getHsmpHomeNetworkMntncCostInfoV3",
+          "ok": true,
+          "sum": 2090000
+        },
+        {
+          "op": "getHsmpLaborCostInfoV3",
+          "ok": true,
+          "sum": 186888100
+        },
+        {
+          "op": "getHsmpTaxdueInfoV3",
+          "ok": true,
+          "sum": 774770
+        },
+        {
+          "op": "getHsmpEtcCostInfoV3",
+          "ok": true,
+          "sum": 791220
+        }
+      ],
+      "individualOps": [
+        {
+          "op": "getHsmpElectricityCostInfoV3",
+          "ok": true,
+          "sum": 448831756
+        },
+        {
+          "op": "getHsmpWaterCostInfoV3",
+          "ok": true,
+          "sum": 141230690
+        },
+        {
+          "op": "getHsmpHeatCostInfoV3",
+          "ok": true,
+          "sum": 33442970
+        },
+        {
+          "op": "getHsmpHotWaterCostInfoV3",
+          "ok": true,
+          "sum": 115624530
+        },
+        {
+          "op": "getHsmpGasRentalFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpWaterPurifierTankFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDomesticWasteFeeInfoV3",
+          "ok": true,
+          "sum": 11725480
+        },
+        {
+          "op": "getHsmpBuildingInsuranceFeeInfoV3",
+          "ok": true,
+          "sum": 9606650
+        },
+        {
+          "op": "getHsmpElectionOrpnsInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpMovingInRepresentationMtgInfoV3",
+          "ok": true,
+          "sum": 4763300
+        }
+      ],
+      "reserveOk": true
+    },
+    {
+      "searchDate": "202605",
+      "kaptCode": "A13822004",
+      "privArea": 470139.94,
+      "commonTotal": 676977115,
+      "individualTotal": 760083898,
+      "reserveTotal": 222719680,
+      "portalTotal": 1659780693,
+      "perAreaCommon": 1439.9481035370022,
+      "perAreaIndividual": 1616.718413670619,
+      "perAreaReserve": 473.7306088055399,
+      "perAreaTotal": 3530.397126013161,
+      "status": "COMPLETE",
+      "commonOps": [
+        {
+          "op": "getHsmpCleaningCostInfoV3",
+          "ok": true,
+          "sum": 150373770
+        },
+        {
+          "op": "getHsmpGuardCostInfoV3",
+          "ok": true,
+          "sum": 196459870
+        },
+        {
+          "op": "getHsmpDisinfectionCostInfoV3",
+          "ok": true,
+          "sum": 3352440
+        },
+        {
+          "op": "getHsmpElevatorMntncCostInfoV3",
+          "ok": true,
+          "sum": 39232600
+        },
+        {
+          "op": "getHsmpRepairsCostInfoV3",
+          "ok": true,
+          "sum": 49171420
+        },
+        {
+          "op": "getHsmpFacilityMntncCostInfoV3",
+          "ok": true,
+          "sum": 33869820
+        },
+        {
+          "op": "getHsmpSafetyCheckUpCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDisasterPreventionCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpConsignManageFeeInfoV3",
+          "ok": true,
+          "sum": 2041595
+        },
+        {
+          "op": "getHsmpOfcrkCostInfoV3",
+          "ok": true,
+          "sum": 4593590
+        },
+        {
+          "op": "getHsmpClothingCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpEduTraingCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpVhcleMntncCostInfoV3",
+          "ok": true,
+          "sum": 34280
+        },
+        {
+          "op": "getHsmpHomeNetworkMntncCostInfoV3",
+          "ok": true,
+          "sum": 2090000
+        },
+        {
+          "op": "getHsmpLaborCostInfoV3",
+          "ok": true,
+          "sum": 194345540
+        },
+        {
+          "op": "getHsmpTaxdueInfoV3",
+          "ok": true,
+          "sum": 791600
+        },
+        {
+          "op": "getHsmpEtcCostInfoV3",
+          "ok": true,
+          "sum": 620590
+        }
+      ],
+      "individualOps": [
+        {
+          "op": "getHsmpElectricityCostInfoV3",
+          "ok": true,
+          "sum": 376592818
+        },
+        {
+          "op": "getHsmpWaterCostInfoV3",
+          "ok": true,
+          "sum": 134498680
+        },
+        {
+          "op": "getHsmpHeatCostInfoV3",
+          "ok": true,
+          "sum": 44781860
+        },
+        {
+          "op": "getHsmpHotWaterCostInfoV3",
+          "ok": true,
+          "sum": 178857000
+        },
+        {
+          "op": "getHsmpGasRentalFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpWaterPurifierTankFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDomesticWasteFeeInfoV3",
+          "ok": true,
+          "sum": 10868730
+        },
+        {
+          "op": "getHsmpBuildingInsuranceFeeInfoV3",
+          "ok": true,
+          "sum": 9606650
+        },
+        {
+          "op": "getHsmpElectionOrpnsInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpMovingInRepresentationMtgInfoV3",
+          "ok": true,
+          "sum": 4878160
+        }
+      ],
+      "reserveOk": true
+    },
+    {
+      "searchDate": "202604",
+      "kaptCode": "A13822004",
+      "privArea": 470139.94,
+      "commonTotal": 641496105,
+      "individualTotal": 856355888,
+      "reserveTotal": 222719680,
+      "portalTotal": 1720571673,
+      "perAreaCommon": 1364.4790634039728,
+      "perAreaIndividual": 1821.4914648604413,
+      "perAreaReserve": 473.7306088055399,
+      "perAreaTotal": 3659.7011370699543,
+      "status": "COMPLETE",
+      "commonOps": [
+        {
+          "op": "getHsmpCleaningCostInfoV3",
+          "ok": true,
+          "sum": 149306600
+        },
+        {
+          "op": "getHsmpGuardCostInfoV3",
+          "ok": true,
+          "sum": 196322980
+        },
+        {
+          "op": "getHsmpDisinfectionCostInfoV3",
+          "ok": true,
+          "sum": 3352440
+        },
+        {
+          "op": "getHsmpElevatorMntncCostInfoV3",
+          "ok": true,
+          "sum": 22128700
+        },
+        {
+          "op": "getHsmpRepairsCostInfoV3",
+          "ok": true,
+          "sum": 36441880
+        },
+        {
+          "op": "getHsmpFacilityMntncCostInfoV3",
+          "ok": true,
+          "sum": 33869820
+        },
+        {
+          "op": "getHsmpSafetyCheckUpCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDisasterPreventionCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpConsignManageFeeInfoV3",
+          "ok": true,
+          "sum": 2041595
+        },
+        {
+          "op": "getHsmpOfcrkCostInfoV3",
+          "ok": true,
+          "sum": 3924580
+        },
+        {
+          "op": "getHsmpClothingCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpEduTraingCostInfoV3",
+          "ok": true,
+          "sum": 40000
+        },
+        {
+          "op": "getHsmpVhcleMntncCostInfoV3",
+          "ok": true,
+          "sum": 110110
+        },
+        {
+          "op": "getHsmpHomeNetworkMntncCostInfoV3",
+          "ok": true,
+          "sum": 2090000
+        },
+        {
+          "op": "getHsmpLaborCostInfoV3",
+          "ok": true,
+          "sum": 190247290
+        },
+        {
+          "op": "getHsmpTaxdueInfoV3",
+          "ok": true,
+          "sum": 792580
+        },
+        {
+          "op": "getHsmpEtcCostInfoV3",
+          "ok": true,
+          "sum": 827530
+        }
+      ],
+      "individualOps": [
+        {
+          "op": "getHsmpElectricityCostInfoV3",
+          "ok": true,
+          "sum": 355920268
+        },
+        {
+          "op": "getHsmpWaterCostInfoV3",
+          "ok": true,
+          "sum": 141216260
+        },
+        {
+          "op": "getHsmpHeatCostInfoV3",
+          "ok": true,
+          "sum": 121288260
+        },
+        {
+          "op": "getHsmpHotWaterCostInfoV3",
+          "ok": true,
+          "sum": 214513600
+        },
+        {
+          "op": "getHsmpGasRentalFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpWaterPurifierTankFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDomesticWasteFeeInfoV3",
+          "ok": true,
+          "sum": 9221710
+        },
+        {
+          "op": "getHsmpBuildingInsuranceFeeInfoV3",
+          "ok": true,
+          "sum": 9606650
+        },
+        {
+          "op": "getHsmpElectionOrpnsInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpMovingInRepresentationMtgInfoV3",
+          "ok": true,
+          "sum": 4589140
+        }
+      ],
+      "reserveOk": true
+    },
+    {
+      "searchDate": "202603",
+      "kaptCode": "A13822004",
+      "privArea": 470139.94,
+      "commonTotal": 658229725,
+      "individualTotal": 1237683300,
+      "reserveTotal": 222719680,
+      "portalTotal": 2118632705,
+      "perAreaCommon": 1400.0719126309498,
+      "perAreaIndividual": 2632.584885257781,
+      "perAreaReserve": 473.7306088055399,
+      "perAreaTotal": 4506.387406694271,
+      "status": "COMPLETE",
+      "commonOps": [
+        {
+          "op": "getHsmpCleaningCostInfoV3",
+          "ok": true,
+          "sum": 154433340
+        },
+        {
+          "op": "getHsmpGuardCostInfoV3",
+          "ok": true,
+          "sum": 195750890
+        },
+        {
+          "op": "getHsmpDisinfectionCostInfoV3",
+          "ok": true,
+          "sum": 3352440
+        },
+        {
+          "op": "getHsmpElevatorMntncCostInfoV3",
+          "ok": true,
+          "sum": 20702000
+        },
+        {
+          "op": "getHsmpRepairsCostInfoV3",
+          "ok": true,
+          "sum": 52818390
+        },
+        {
+          "op": "getHsmpFacilityMntncCostInfoV3",
+          "ok": true,
+          "sum": 33869820
+        },
+        {
+          "op": "getHsmpSafetyCheckUpCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDisasterPreventionCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpConsignManageFeeInfoV3",
+          "ok": true,
+          "sum": 2041595
+        },
+        {
+          "op": "getHsmpOfcrkCostInfoV3",
+          "ok": true,
+          "sum": 4372770
+        },
+        {
+          "op": "getHsmpClothingCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpEduTraingCostInfoV3",
+          "ok": true,
+          "sum": 286000
+        },
+        {
+          "op": "getHsmpVhcleMntncCostInfoV3",
+          "ok": true,
+          "sum": 40080
+        },
+        {
+          "op": "getHsmpHomeNetworkMntncCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpLaborCostInfoV3",
+          "ok": true,
+          "sum": 189003910
+        },
+        {
+          "op": "getHsmpTaxdueInfoV3",
+          "ok": true,
+          "sum": 804560
+        },
+        {
+          "op": "getHsmpEtcCostInfoV3",
+          "ok": true,
+          "sum": 753930
+        }
+      ],
+      "individualOps": [
+        {
+          "op": "getHsmpElectricityCostInfoV3",
+          "ok": true,
+          "sum": 417787640
+        },
+        {
+          "op": "getHsmpWaterCostInfoV3",
+          "ok": true,
+          "sum": 125954300
+        },
+        {
+          "op": "getHsmpHeatCostInfoV3",
+          "ok": true,
+          "sum": 434353230
+        },
+        {
+          "op": "getHsmpHotWaterCostInfoV3",
+          "ok": true,
+          "sum": 235390400
+        },
+        {
+          "op": "getHsmpGasRentalFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpWaterPurifierTankFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDomesticWasteFeeInfoV3",
+          "ok": true,
+          "sum": 9953330
+        },
+        {
+          "op": "getHsmpBuildingInsuranceFeeInfoV3",
+          "ok": true,
+          "sum": 9606650
+        },
+        {
+          "op": "getHsmpElectionOrpnsInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpMovingInRepresentationMtgInfoV3",
+          "ok": true,
+          "sum": 4637750
+        }
+      ],
+      "reserveOk": true
+    },
+    {
+      "searchDate": "202602",
+      "kaptCode": "A13822004",
+      "privArea": 470139.94,
+      "commonTotal": 662162935,
+      "individualTotal": 1460339261,
+      "reserveTotal": 222719680,
+      "portalTotal": 2345221876,
+      "perAreaCommon": 1408.4379536016447,
+      "perAreaIndividual": 3106.1799620768234,
+      "perAreaReserve": 473.7306088055399,
+      "perAreaTotal": 4988.348524484008,
+      "status": "COMPLETE",
+      "commonOps": [
+        {
+          "op": "getHsmpCleaningCostInfoV3",
+          "ok": true,
+          "sum": 155552020
+        },
+        {
+          "op": "getHsmpGuardCostInfoV3",
+          "ok": true,
+          "sum": 196528370
+        },
+        {
+          "op": "getHsmpDisinfectionCostInfoV3",
+          "ok": true,
+          "sum": 3352440
+        },
+        {
+          "op": "getHsmpElevatorMntncCostInfoV3",
+          "ok": true,
+          "sum": 30074000
+        },
+        {
+          "op": "getHsmpRepairsCostInfoV3",
+          "ok": true,
+          "sum": 38481420
+        },
+        {
+          "op": "getHsmpFacilityMntncCostInfoV3",
+          "ok": true,
+          "sum": 37719820
+        },
+        {
+          "op": "getHsmpSafetyCheckUpCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDisasterPreventionCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpConsignManageFeeInfoV3",
+          "ok": true,
+          "sum": 2041595
+        },
+        {
+          "op": "getHsmpOfcrkCostInfoV3",
+          "ok": true,
+          "sum": 4131290
+        },
+        {
+          "op": "getHsmpClothingCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpEduTraingCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpVhcleMntncCostInfoV3",
+          "ok": true,
+          "sum": 90080
+        },
+        {
+          "op": "getHsmpHomeNetworkMntncCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpLaborCostInfoV3",
+          "ok": true,
+          "sum": 192768070
+        },
+        {
+          "op": "getHsmpTaxdueInfoV3",
+          "ok": true,
+          "sum": 836840
+        },
+        {
+          "op": "getHsmpEtcCostInfoV3",
+          "ok": true,
+          "sum": 586990
+        }
+      ],
+      "individualOps": [
+        {
+          "op": "getHsmpElectricityCostInfoV3",
+          "ok": true,
+          "sum": 377757591
+        },
+        {
+          "op": "getHsmpWaterCostInfoV3",
+          "ok": true,
+          "sum": 139095820
+        },
+        {
+          "op": "getHsmpHeatCostInfoV3",
+          "ok": true,
+          "sum": 695901060
+        },
+        {
+          "op": "getHsmpHotWaterCostInfoV3",
+          "ok": true,
+          "sum": 220449600
+        },
+        {
+          "op": "getHsmpGasRentalFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpWaterPurifierTankFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDomesticWasteFeeInfoV3",
+          "ok": true,
+          "sum": 9644830
+        },
+        {
+          "op": "getHsmpBuildingInsuranceFeeInfoV3",
+          "ok": true,
+          "sum": 9606650
+        },
+        {
+          "op": "getHsmpElectionOrpnsInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpMovingInRepresentationMtgInfoV3",
+          "ok": true,
+          "sum": 7883710
+        }
+      ],
+      "reserveOk": true
+    },
+    {
+      "searchDate": "202601",
+      "kaptCode": "A13822004",
+      "privArea": 470139.94,
+      "commonTotal": 671733667,
+      "individualTotal": 1965473844,
+      "reserveTotal": 222719680,
+      "portalTotal": 2859927191,
+      "perAreaCommon": 1428.795151928594,
+      "perAreaIndividual": 4180.614486827049,
+      "perAreaReserve": 473.7306088055399,
+      "perAreaTotal": 6083.140247561184,
+      "status": "COMPLETE",
+      "commonOps": [
+        {
+          "op": "getHsmpCleaningCostInfoV3",
+          "ok": true,
+          "sum": 154473050
+        },
+        {
+          "op": "getHsmpGuardCostInfoV3",
+          "ok": true,
+          "sum": 194417492
+        },
+        {
+          "op": "getHsmpDisinfectionCostInfoV3",
+          "ok": true,
+          "sum": 3352440
+        },
+        {
+          "op": "getHsmpElevatorMntncCostInfoV3",
+          "ok": true,
+          "sum": 30585610
+        },
+        {
+          "op": "getHsmpRepairsCostInfoV3",
+          "ok": true,
+          "sum": 54274800
+        },
+        {
+          "op": "getHsmpFacilityMntncCostInfoV3",
+          "ok": true,
+          "sum": 38777580
+        },
+        {
+          "op": "getHsmpSafetyCheckUpCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDisasterPreventionCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpConsignManageFeeInfoV3",
+          "ok": true,
+          "sum": 2041595
+        },
+        {
+          "op": "getHsmpOfcrkCostInfoV3",
+          "ok": true,
+          "sum": 4541830
+        },
+        {
+          "op": "getHsmpClothingCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpEduTraingCostInfoV3",
+          "ok": true,
+          "sum": 90000
+        },
+        {
+          "op": "getHsmpVhcleMntncCostInfoV3",
+          "ok": true,
+          "sum": 40080
+        },
+        {
+          "op": "getHsmpHomeNetworkMntncCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpLaborCostInfoV3",
+          "ok": true,
+          "sum": 187765670
+        },
+        {
+          "op": "getHsmpTaxdueInfoV3",
+          "ok": true,
+          "sum": 858720
+        },
+        {
+          "op": "getHsmpEtcCostInfoV3",
+          "ok": true,
+          "sum": 514800
+        }
+      ],
+      "individualOps": [
+        {
+          "op": "getHsmpElectricityCostInfoV3",
+          "ok": true,
+          "sum": 506893624
+        },
+        {
+          "op": "getHsmpWaterCostInfoV3",
+          "ok": true,
+          "sum": 138280660
+        },
+        {
+          "op": "getHsmpHeatCostInfoV3",
+          "ok": true,
+          "sum": 1040097570
+        },
+        {
+          "op": "getHsmpHotWaterCostInfoV3",
+          "ok": true,
+          "sum": 255880800
+        },
+        {
+          "op": "getHsmpGasRentalFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpWaterPurifierTankFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDomesticWasteFeeInfoV3",
+          "ok": true,
+          "sum": 10157430
+        },
+        {
+          "op": "getHsmpBuildingInsuranceFeeInfoV3",
+          "ok": true,
+          "sum": 9606650
+        },
+        {
+          "op": "getHsmpElectionOrpnsInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpMovingInRepresentationMtgInfoV3",
+          "ok": true,
+          "sum": 4557110
+        }
+      ],
+      "reserveOk": true
+    },
+    {
+      "searchDate": "202512",
+      "kaptCode": "A13822004",
+      "privArea": 470139.94,
+      "commonTotal": 617252751,
+      "individualTotal": 1650753376,
+      "reserveTotal": 222719680,
+      "portalTotal": 2490725807,
+      "perAreaCommon": 1312.9128127255046,
+      "perAreaIndividual": 3511.195785663307,
+      "perAreaReserve": 473.7306088055399,
+      "perAreaTotal": 5297.839207194352,
+      "status": "COMPLETE",
+      "commonOps": [
+        {
+          "op": "getHsmpCleaningCostInfoV3",
+          "ok": true,
+          "sum": 151443440
+        },
+        {
+          "op": "getHsmpGuardCostInfoV3",
+          "ok": true,
+          "sum": 193013340
+        },
+        {
+          "op": "getHsmpDisinfectionCostInfoV3",
+          "ok": true,
+          "sum": 3352440
+        },
+        {
+          "op": "getHsmpElevatorMntncCostInfoV3",
+          "ok": true,
+          "sum": 19299500
+        },
+        {
+          "op": "getHsmpRepairsCostInfoV3",
+          "ok": true,
+          "sum": 59595166
+        },
+        {
+          "op": "getHsmpFacilityMntncCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpSafetyCheckUpCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDisasterPreventionCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpConsignManageFeeInfoV3",
+          "ok": true,
+          "sum": 2041595
+        },
+        {
+          "op": "getHsmpOfcrkCostInfoV3",
+          "ok": true,
+          "sum": 4612070
+        },
+        {
+          "op": "getHsmpClothingCostInfoV3",
+          "ok": true,
+          "sum": 679840
+        },
+        {
+          "op": "getHsmpEduTraingCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpVhcleMntncCostInfoV3",
+          "ok": true,
+          "sum": 117080
+        },
+        {
+          "op": "getHsmpHomeNetworkMntncCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpLaborCostInfoV3",
+          "ok": true,
+          "sum": 182019080
+        },
+        {
+          "op": "getHsmpTaxdueInfoV3",
+          "ok": true,
+          "sum": 828210
+        },
+        {
+          "op": "getHsmpEtcCostInfoV3",
+          "ok": true,
+          "sum": 250990
+        }
+      ],
+      "individualOps": [
+        {
+          "op": "getHsmpElectricityCostInfoV3",
+          "ok": true,
+          "sum": 486910646
+        },
+        {
+          "op": "getHsmpWaterCostInfoV3",
+          "ok": true,
+          "sum": 123685790
+        },
+        {
+          "op": "getHsmpHeatCostInfoV3",
+          "ok": true,
+          "sum": 773494300
+        },
+        {
+          "op": "getHsmpHotWaterCostInfoV3",
+          "ok": true,
+          "sum": 240609600
+        },
+        {
+          "op": "getHsmpGasRentalFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpWaterPurifierTankFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDomesticWasteFeeInfoV3",
+          "ok": true,
+          "sum": 10471170
+        },
+        {
+          "op": "getHsmpBuildingInsuranceFeeInfoV3",
+          "ok": true,
+          "sum": 9606650
+        },
+        {
+          "op": "getHsmpElectionOrpnsInfoV3",
+          "ok": true,
+          "sum": 400000
+        },
+        {
+          "op": "getHsmpMovingInRepresentationMtgInfoV3",
+          "ok": true,
+          "sum": 5575220
+        }
+      ],
+      "reserveOk": true
+    },
+    {
+      "searchDate": "202511",
+      "kaptCode": "A13822004",
+      "privArea": 470139.94,
+      "commonTotal": 620081142,
+      "individualTotal": 1114783566,
+      "reserveTotal": 222719680,
+      "portalTotal": 1957584388,
+      "perAreaCommon": 1318.9288746665513,
+      "perAreaIndividual": 2371.173923236558,
+      "perAreaReserve": 473.7306088055399,
+      "perAreaTotal": 4163.833406708649,
+      "status": "COMPLETE",
+      "commonOps": [
+        {
+          "op": "getHsmpCleaningCostInfoV3",
+          "ok": true,
+          "sum": 153231990
+        },
+        {
+          "op": "getHsmpGuardCostInfoV3",
+          "ok": true,
+          "sum": 193432230
+        },
+        {
+          "op": "getHsmpDisinfectionCostInfoV3",
+          "ok": true,
+          "sum": 3352440
+        },
+        {
+          "op": "getHsmpElevatorMntncCostInfoV3",
+          "ok": true,
+          "sum": 19741700
+        },
+        {
+          "op": "getHsmpRepairsCostInfoV3",
+          "ok": true,
+          "sum": 62415397
+        },
+        {
+          "op": "getHsmpFacilityMntncCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpSafetyCheckUpCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDisasterPreventionCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpConsignManageFeeInfoV3",
+          "ok": true,
+          "sum": 2041595
+        },
+        {
+          "op": "getHsmpOfcrkCostInfoV3",
+          "ok": true,
+          "sum": 4347240
+        },
+        {
+          "op": "getHsmpClothingCostInfoV3",
+          "ok": true,
+          "sum": 679830
+        },
+        {
+          "op": "getHsmpEduTraingCostInfoV3",
+          "ok": true,
+          "sum": 60000
+        },
+        {
+          "op": "getHsmpVhcleMntncCostInfoV3",
+          "ok": true,
+          "sum": 346080
+        },
+        {
+          "op": "getHsmpHomeNetworkMntncCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpLaborCostInfoV3",
+          "ok": true,
+          "sum": 179405440
+        },
+        {
+          "op": "getHsmpTaxdueInfoV3",
+          "ok": true,
+          "sum": 745990
+        },
+        {
+          "op": "getHsmpEtcCostInfoV3",
+          "ok": true,
+          "sum": 281210
+        }
+      ],
+      "individualOps": [
+        {
+          "op": "getHsmpElectricityCostInfoV3",
+          "ok": true,
+          "sum": 384056366
+        },
+        {
+          "op": "getHsmpWaterCostInfoV3",
+          "ok": true,
+          "sum": 129952400
+        },
+        {
+          "op": "getHsmpHeatCostInfoV3",
+          "ok": true,
+          "sum": 364707360
+        },
+        {
+          "op": "getHsmpHotWaterCostInfoV3",
+          "ok": true,
+          "sum": 211030400
+        },
+        {
+          "op": "getHsmpGasRentalFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpWaterPurifierTankFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDomesticWasteFeeInfoV3",
+          "ok": true,
+          "sum": 10954130
+        },
+        {
+          "op": "getHsmpBuildingInsuranceFeeInfoV3",
+          "ok": true,
+          "sum": 9606650
+        },
+        {
+          "op": "getHsmpElectionOrpnsInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpMovingInRepresentationMtgInfoV3",
+          "ok": true,
+          "sum": 4476260
+        }
+      ],
+      "reserveOk": true
+    },
+    {
+      "searchDate": "202510",
+      "kaptCode": "A13822004",
+      "privArea": 470139.94,
+      "commonTotal": 635496140,
+      "individualTotal": 825867283,
+      "reserveTotal": 222719680,
+      "portalTotal": 1684083103,
+      "perAreaCommon": 1351.7169802676199,
+      "perAreaIndividual": 1756.6414012814994,
+      "perAreaReserve": 473.7306088055399,
+      "perAreaTotal": 3582.088990354659,
+      "status": "COMPLETE",
+      "commonOps": [
+        {
+          "op": "getHsmpCleaningCostInfoV3",
+          "ok": true,
+          "sum": 153326800
+        },
+        {
+          "op": "getHsmpGuardCostInfoV3",
+          "ok": true,
+          "sum": 194098130
+        },
+        {
+          "op": "getHsmpDisinfectionCostInfoV3",
+          "ok": true,
+          "sum": 3352440
+        },
+        {
+          "op": "getHsmpElevatorMntncCostInfoV3",
+          "ok": true,
+          "sum": 19839160
+        },
+        {
+          "op": "getHsmpRepairsCostInfoV3",
+          "ok": true,
+          "sum": 72670115
+        },
+        {
+          "op": "getHsmpFacilityMntncCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpSafetyCheckUpCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDisasterPreventionCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpConsignManageFeeInfoV3",
+          "ok": true,
+          "sum": 2041595
+        },
+        {
+          "op": "getHsmpOfcrkCostInfoV3",
+          "ok": true,
+          "sum": 4494290
+        },
+        {
+          "op": "getHsmpClothingCostInfoV3",
+          "ok": true,
+          "sum": 679830
+        },
+        {
+          "op": "getHsmpEduTraingCostInfoV3",
+          "ok": true,
+          "sum": 35000
+        },
+        {
+          "op": "getHsmpVhcleMntncCostInfoV3",
+          "ok": true,
+          "sum": 40080
+        },
+        {
+          "op": "getHsmpHomeNetworkMntncCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpLaborCostInfoV3",
+          "ok": true,
+          "sum": 183084890
+        },
+        {
+          "op": "getHsmpTaxdueInfoV3",
+          "ok": true,
+          "sum": 959990
+        },
+        {
+          "op": "getHsmpEtcCostInfoV3",
+          "ok": true,
+          "sum": 873820
+        }
+      ],
+      "individualOps": [
+        {
+          "op": "getHsmpElectricityCostInfoV3",
+          "ok": true,
+          "sum": 376912595
+        },
+        {
+          "op": "getHsmpWaterCostInfoV3",
+          "ok": true,
+          "sum": 130173530
+        },
+        {
+          "op": "getHsmpHeatCostInfoV3",
+          "ok": true,
+          "sum": 128916090
+        },
+        {
+          "op": "getHsmpHotWaterCostInfoV3",
+          "ok": true,
+          "sum": 163279200
+        },
+        {
+          "op": "getHsmpGasRentalFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpWaterPurifierTankFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDomesticWasteFeeInfoV3",
+          "ok": true,
+          "sum": 8873050
+        },
+        {
+          "op": "getHsmpBuildingInsuranceFeeInfoV3",
+          "ok": true,
+          "sum": 9606650
+        },
+        {
+          "op": "getHsmpElectionOrpnsInfoV3",
+          "ok": true,
+          "sum": 3126588
+        },
+        {
+          "op": "getHsmpMovingInRepresentationMtgInfoV3",
+          "ok": true,
+          "sum": 4979580
+        }
+      ],
+      "reserveOk": true
+    },
+    {
+      "searchDate": "202509",
+      "kaptCode": "A13822004",
+      "privArea": 470139.94,
+      "commonTotal": 611384352,
+      "individualTotal": 779505909,
+      "reserveTotal": 222719680,
+      "portalTotal": 1613609941,
+      "perAreaCommon": 1300.4305739265633,
+      "perAreaIndividual": 1658.029541161723,
+      "perAreaReserve": 473.7306088055399,
+      "perAreaTotal": 3432.190723893826,
+      "status": "COMPLETE",
+      "commonOps": [
+        {
+          "op": "getHsmpCleaningCostInfoV3",
+          "ok": true,
+          "sum": 155225870
+        },
+        {
+          "op": "getHsmpGuardCostInfoV3",
+          "ok": true,
+          "sum": 194060500
+        },
+        {
+          "op": "getHsmpDisinfectionCostInfoV3",
+          "ok": true,
+          "sum": 3352440
+        },
+        {
+          "op": "getHsmpElevatorMntncCostInfoV3",
+          "ok": true,
+          "sum": 16640800
+        },
+        {
+          "op": "getHsmpRepairsCostInfoV3",
+          "ok": true,
+          "sum": 57010857
+        },
+        {
+          "op": "getHsmpFacilityMntncCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpSafetyCheckUpCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDisasterPreventionCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpConsignManageFeeInfoV3",
+          "ok": true,
+          "sum": 2041595
+        },
+        {
+          "op": "getHsmpOfcrkCostInfoV3",
+          "ok": true,
+          "sum": 4608660
+        },
+        {
+          "op": "getHsmpClothingCostInfoV3",
+          "ok": true,
+          "sum": 493900
+        },
+        {
+          "op": "getHsmpEduTraingCostInfoV3",
+          "ok": true,
+          "sum": 290000
+        },
+        {
+          "op": "getHsmpVhcleMntncCostInfoV3",
+          "ok": true,
+          "sum": 379990
+        },
+        {
+          "op": "getHsmpHomeNetworkMntncCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpLaborCostInfoV3",
+          "ok": true,
+          "sum": 175752270
+        },
+        {
+          "op": "getHsmpTaxdueInfoV3",
+          "ok": true,
+          "sum": 778180
+        },
+        {
+          "op": "getHsmpEtcCostInfoV3",
+          "ok": true,
+          "sum": 749290
+        }
+      ],
+      "individualOps": [
+        {
+          "op": "getHsmpElectricityCostInfoV3",
+          "ok": true,
+          "sum": 449484129
+        },
+        {
+          "op": "getHsmpWaterCostInfoV3",
+          "ok": true,
+          "sum": 139657710
+        },
+        {
+          "op": "getHsmpHeatCostInfoV3",
+          "ok": true,
+          "sum": 38741240
+        },
+        {
+          "op": "getHsmpHotWaterCostInfoV3",
+          "ok": true,
+          "sum": 122511200
+        },
+        {
+          "op": "getHsmpGasRentalFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpWaterPurifierTankFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDomesticWasteFeeInfoV3",
+          "ok": true,
+          "sum": 10807540
+        },
+        {
+          "op": "getHsmpBuildingInsuranceFeeInfoV3",
+          "ok": true,
+          "sum": 10815440
+        },
+        {
+          "op": "getHsmpElectionOrpnsInfoV3",
+          "ok": true,
+          "sum": 1442400
+        },
+        {
+          "op": "getHsmpMovingInRepresentationMtgInfoV3",
+          "ok": true,
+          "sum": 6046250
+        }
+      ],
+      "reserveOk": true
+    },
+    {
+      "searchDate": "202508",
+      "kaptCode": "A13822004",
+      "privArea": 470139.94,
+      "commonTotal": 659745580,
+      "individualTotal": 1002552246,
+      "reserveTotal": 222719680,
+      "portalTotal": 1885017506,
+      "perAreaCommon": 1403.296176027929,
+      "perAreaIndividual": 2132.4549579854884,
+      "perAreaReserve": 473.7306088055399,
+      "perAreaTotal": 4009.481742818957,
+      "status": "COMPLETE",
+      "commonOps": [
+        {
+          "op": "getHsmpCleaningCostInfoV3",
+          "ok": true,
+          "sum": 150828220
+        },
+        {
+          "op": "getHsmpGuardCostInfoV3",
+          "ok": true,
+          "sum": 186539230
+        },
+        {
+          "op": "getHsmpDisinfectionCostInfoV3",
+          "ok": true,
+          "sum": 3352440
+        },
+        {
+          "op": "getHsmpElevatorMntncCostInfoV3",
+          "ok": true,
+          "sum": 29146700
+        },
+        {
+          "op": "getHsmpRepairsCostInfoV3",
+          "ok": true,
+          "sum": 98788130
+        },
+        {
+          "op": "getHsmpFacilityMntncCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpSafetyCheckUpCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDisasterPreventionCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpConsignManageFeeInfoV3",
+          "ok": true,
+          "sum": 2041590
+        },
+        {
+          "op": "getHsmpOfcrkCostInfoV3",
+          "ok": true,
+          "sum": 4996050
+        },
+        {
+          "op": "getHsmpClothingCostInfoV3",
+          "ok": true,
+          "sum": 493900
+        },
+        {
+          "op": "getHsmpEduTraingCostInfoV3",
+          "ok": true,
+          "sum": 60000
+        },
+        {
+          "op": "getHsmpVhcleMntncCostInfoV3",
+          "ok": true,
+          "sum": 110080
+        },
+        {
+          "op": "getHsmpHomeNetworkMntncCostInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpLaborCostInfoV3",
+          "ok": true,
+          "sum": 182059100
+        },
+        {
+          "op": "getHsmpTaxdueInfoV3",
+          "ok": true,
+          "sum": 833770
+        },
+        {
+          "op": "getHsmpEtcCostInfoV3",
+          "ok": true,
+          "sum": 496370
+        }
+      ],
+      "individualOps": [
+        {
+          "op": "getHsmpElectricityCostInfoV3",
+          "ok": true,
+          "sum": 698581266
+        },
+        {
+          "op": "getHsmpWaterCostInfoV3",
+          "ok": true,
+          "sum": 138282160
+        },
+        {
+          "op": "getHsmpHeatCostInfoV3",
+          "ok": true,
+          "sum": 36348000
+        },
+        {
+          "op": "getHsmpHotWaterCostInfoV3",
+          "ok": true,
+          "sum": 101361810
+        },
+        {
+          "op": "getHsmpGasRentalFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpWaterPurifierTankFeeInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpDomesticWasteFeeInfoV3",
+          "ok": true,
+          "sum": 11790160
+        },
+        {
+          "op": "getHsmpBuildingInsuranceFeeInfoV3",
+          "ok": true,
+          "sum": 10815360
+        },
+        {
+          "op": "getHsmpElectionOrpnsInfoV3",
+          "ok": true,
+          "sum": 0
+        },
+        {
+          "op": "getHsmpMovingInRepresentationMtgInfoV3",
+          "ok": true,
+          "sum": 5373490
+        }
+      ],
+      "reserveOk": true
+    }
+  ]
+}
