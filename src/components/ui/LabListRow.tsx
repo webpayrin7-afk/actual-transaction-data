@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { RankCircle } from "@/components/ui/RankCircle";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
@@ -20,6 +21,7 @@ export function LabListRow({
   wrap = false,
   external = false,
   children,
+  rank,
 }: {
   href?: string | null;
   /** In-page action row (button) — e.g. choose this 평형. Ignored when `href` is set. */
@@ -37,6 +39,8 @@ export function LabListRow({
   external?: boolean;
   /** Extra full-width line under the row (e.g. a share bar). */
   children?: ReactNode;
+  /** 순위 목록 — 맨 앞 칸에 공통 순위 표시(RankCircle) */
+  rank?: number;
 }) {
   const toneStyle =
     valueTone === "down"
@@ -46,6 +50,11 @@ export function LabListRow({
         : undefined;
   const body = (
     <>
+      {rank != null ? (
+        <span className="flex w-7 shrink-0 justify-center">
+          <RankCircle rank={rank} />
+        </span>
+      ) : null}
       <div className="min-w-0 flex-1">
         <p
           className={`detail-data-value-emphasis ${wrap ? "line-clamp-2 break-keep" : "truncate"}`}

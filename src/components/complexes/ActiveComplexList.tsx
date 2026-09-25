@@ -24,7 +24,8 @@ export function ActiveComplexList() {
 
   const data = query.data;
   useLoadProgressWhen(query.isLoading && !data, "단지 목록 불러오는 중…");
-  const items = data?.items ?? [];
+  // 순위 목록 공통: 최대 10개, 처음 5개 + 더보기
+  const items = (data?.items ?? []).slice(0, 10);
   const visible = expanded ? items : items.slice(0, LAB_LIST_PREVIEW);
 
   return (
@@ -45,14 +46,8 @@ export function ActiveComplexList() {
               <LabListRow
                 key={`${item.aptNameNorm}|${item.lawdCd}|${item.dong}`}
                 href={item.href}
-                title={
-                  <>
-                    <span className="mr-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full border border-[color:var(--lab-border)] px-1 align-[1px] text-[12px] font-semibold leading-4 tabular-nums text-[color:var(--lab-muted)]">
-                      {item.rank}
-                    </span>
-                    {item.aptName}
-                  </>
-                }
+                rank={item.rank}
+                title={item.aptName}
                 meta={item.regionLabel}
                 value={`${item.recentCount.toLocaleString("ko-KR")}건`}
                 sub={item.latestDealDate ? `최근 ${item.latestDealDate.slice(5, 10).replace("-", ".")}` : undefined}

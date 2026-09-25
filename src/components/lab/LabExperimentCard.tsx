@@ -28,7 +28,7 @@ function RankList({ id, rows }: { id: LabExperimentResult["id"]; rows: LabRankRo
       <ul className={LAB_LIST}>
         {visible.map((r) => {
           const key = `${r.rank}-${r.label}`;
-          const common = { href: r.href, title: `${r.rank}. ${r.label}` };
+          const common = { href: r.href, rank: r.rank, title: r.label };
           if (id === "volume-thermometer") {
             return (
               <LabListRow

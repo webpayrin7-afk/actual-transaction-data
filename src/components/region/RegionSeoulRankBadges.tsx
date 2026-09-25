@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { RankCircle } from "@/components/ui/RankCircle";
 import { LabEmphasisChip } from "@/components/ui/LabTag";
 
 export type SeoulRankGu = {
@@ -65,7 +66,9 @@ function RankList({ rank, kind }: { rank: SeoulRank; kind: Kind }) {
                   : "text-[color:var(--lab-body)]"
               }`}
             >
-              <span className="w-7 shrink-0 text-right text-slate-500">{rankOf(g)}위</span>
+              <span className="flex w-7 shrink-0 justify-center">
+                <RankCircle rank={rankOf(g)!} />
+              </span>
               <span className="min-w-0 flex-1 truncate">{shortName(g.name)}</span>
               {kind === "price" ? (
                 <span className="shrink-0 whitespace-nowrap">

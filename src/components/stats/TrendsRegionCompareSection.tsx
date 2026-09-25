@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { RankCircle } from "@/components/ui/RankCircle";
 import { useQuery } from "@tanstack/react-query";
 import { LabSection } from "@/components/ui/LabSection";
 import { LabTabs } from "@/components/ui/LabTabs";
@@ -35,10 +36,11 @@ function metricValue(row: TrendRankRow, metric: Metric): number | null {
   return metric === "peak" ? row.fromPeak : row.change[metric];
 }
 
+/** 순위 목록 공통 표시 */
 function RankBadge({ rank }: { rank: number }) {
   return (
-    <span className="mr-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full border border-[color:var(--lab-border)] px-1 align-[1px] text-[12px] font-semibold leading-4 tabular-nums text-[color:var(--lab-muted)]">
-      {rank}
+    <span className="mr-2 inline-flex align-[-6px]">
+      <RankCircle rank={rank} />
     </span>
   );
 }

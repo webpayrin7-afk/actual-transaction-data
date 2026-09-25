@@ -1,6 +1,7 @@
 "use client";
 
 import { LabMoreButton } from "@/components/ui/LabMoreButton";
+import { RankCircle } from "@/components/ui/RankCircle";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -20,15 +21,11 @@ import { labSecondaryTabClass, labSegmentedClass } from "@/components/ui/lab";
 
 const PREVIEW_COUNT = 5;
 
+/** 순위 목록 공통 표시 */
 function RankMark({ rank }: { rank: number }) {
-  const top = rank >= 1 && rank <= 3;
   return (
-    <span
-      className={`w-7 shrink-0 text-right text-[15px] font-semibold tabular-nums sm:w-8 sm:text-base ${
-        top ? "text-slate-900" : "text-slate-500"
-      }`}
-    >
-      {rank}
+    <span className="flex w-7 shrink-0 justify-center sm:w-8">
+      <RankCircle rank={rank} />
     </span>
   );
 }

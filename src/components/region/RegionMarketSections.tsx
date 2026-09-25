@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { RankCircle } from "@/components/ui/RankCircle";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
@@ -48,23 +49,6 @@ export function RegionPriceSection({
   );
 }
 
-function RankCircle({ rank }: { rank: number }) {
-  const tone =
-    rank === 1
-      ? "bg-amber-400 text-white"
-      : rank === 2
-        ? "bg-slate-400 text-white"
-        : rank === 3
-          ? "bg-orange-400 text-white"
-          : "bg-slate-100 text-slate-600";
-  return (
-    <span
-      className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold tabular-nums ${tone}`}
-    >
-      {rank}
-    </span>
-  );
-}
 
 
 const STRENGTH_LABELS = {
@@ -249,10 +233,7 @@ export function RegionRankingTable({
                         )}
                       </span>
                     ) : null}
-                    <ChevronRight
-                      className="h-4 w-4 text-slate-400"
-                      aria-hidden
-                    />
+                    <ChevronRight className="lab-press-arrow h-4 w-4" aria-hidden />
                   </>
                 );
                 const cls = `grid min-h-11 ${gridCols} items-center gap-x-2 px-2 py-2.5`;

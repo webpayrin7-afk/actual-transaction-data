@@ -1,6 +1,7 @@
 "use client";
 
 import { BackLink } from "@/components/layout/BackLink";
+import { RankCircle } from "@/components/ui/RankCircle";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -321,7 +322,7 @@ function RateRow({ row, rank }: { row: BankLoanRate; rank: number }) {
               최저
             </span>
           ) : (
-            <span className="w-5 text-[13px] tabular-nums text-[color:var(--lab-muted)]">{rank}</span>
+            <RankCircle rank={rank} />
           )}
           <span className="font-semibold text-[color:var(--lab-navy-950)]">{row.orgName}</span>
         </div>
