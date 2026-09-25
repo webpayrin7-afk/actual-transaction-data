@@ -5,7 +5,6 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, Maximize2, SquareDashed, X } from "lucide-react";
 import type { Complex3d } from "@/lib/complex-3d/read";
 import { BackLink } from "@/components/layout/BackLink";
-import { LabTabs } from "@/components/ui/LabTabs";
 import type {
   Complex3dScene,
   SceneMode,
@@ -573,14 +572,14 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             )}
           </div>
         ) : (
-          <div className="pointer-events-auto flex gap-1.5 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="pointer-events-auto flex justify-end gap-1 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {MODES.map((m) => (
               <button
                 key={m.id}
                 type="button"
                 onClick={() => setMode(m.id)}
                 aria-pressed={mode === m.id}
-                className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition active:scale-95 ${
+                className={`shrink-0 rounded-full px-2.5 py-1 text-[12px] font-semibold transition active:scale-95 ${
                   mode === m.id
                     ? "bg-[color:var(--lab-brand-primary)] text-white shadow-[0_2px_10px_rgba(15,118,110,0.35)]"
                     : `${FLOAT} text-[color:var(--lab-navy-950)]`
@@ -669,12 +668,12 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         <div
           ref={panelRef}
           className="absolute left-3 right-3 z-20 sm:right-auto sm:w-[400px]"
-          style={{ bottom: "calc(env(safe-area-inset-bottom) + 24px)" }}
+          style={{ bottom: "calc(env(safe-area-inset-bottom) + 10px)" }}
         >
           <div
             className={`overflow-y-auto rounded-2xl border border-[color:var(--lab-brand-border)] bg-white px-3.5 py-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.14)]`}
             style={{
-              maxHeight: mode === "around" ? "24dvh" : "38dvh",
+              maxHeight: mode === "around" ? "24dvh" : mode === "sun" ? "60dvh" : "38dvh",
               touchAction: "pan-y",
               overscrollBehavior: "contain",
             }}
@@ -769,27 +768,32 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             ) : null}
 
             {mode === "sun" ? (
-              <div className="mt-2 flex flex-col gap-2.5">
-                <LabTabs
-                  variant="compact"
-                  ariaLabel="계절"
-                  items={SEASONS.map((s) => ({ id: s.id, label: s.label }))}
-                  value={season}
-                  onChange={setSeason}
-                />
-                <label className="flex flex-col gap-1">
-                  <span className="flex items-baseline justify-between text-[12px] text-[color:var(--lab-muted)]">
-                    <span>
-                      그림자 시각{" "}
-                      <b className="text-[14px] tabular-nums text-[color:var(--lab-navy-950)]">
-                        {String(hour).padStart(2, "0")}:00
-                      </b>
-                    </span>
-                    <span className="tabular-nums">
-                      {sunInfo && sunInfo.altitude > 0
-                        ? `해 높이 ${Math.round((sunInfo.altitude * 180) / Math.PI)}° · ${dirOf((sunInfo.azimuth * 180) / Math.PI)}쪽`
-                        : "해 진 뒤"}
-                    </span>
+              <div className="mt-1.5 flex flex-col gap-1.5">
+                <div className="flex items-center gap-1">
+                  {SEASONS.map((x) => (
+                    <button
+                      key={x.id}
+                      type="button"
+                      onClick={() => setSeason(x.id)}
+                      aria-pressed={season === x.id}
+                      className={`rounded-full px-2.5 py-1 text-[12px] font-semibold transition active:scale-95 ${
+                        season === x.id
+                          ? "bg-[color:var(--lab-navy-950)] text-white"
+                          : "bg-slate-100 text-[color:var(--lab-navy-950)]"
+                      }`}
+                    >
+                      {x.label}
+                    </button>
+                  ))}
+                  <span className="ml-auto text-[11px] tabular-nums text-[color:var(--lab-muted)]">
+                    {sunInfo && sunInfo.altitude > 0
+                      ? `해 ${Math.round((sunInfo.altitude * 180) / Math.PI)}° ${dirOf((sunInfo.azimuth * 180) / Math.PI)}쪽`
+                      : "해 진 뒤"}
+                  </span>
+                </div>
+                <label className="flex items-center gap-2">
+                  <span className="w-[74px] shrink-0 text-[12px] text-[color:var(--lab-muted)]">
+                    그림자 <b className="text-[13px] tabular-nums text-[color:var(--lab-navy-950)]">{String(hour).padStart(2, "0")}:00</b>
                   </span>
                   <input
                     type="range"
@@ -798,21 +802,31 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                     step={1}
                     value={hour}
                     onChange={(e) => setHour(Number(e.target.value))}
-                    className="w-full accent-[color:var(--lab-brand-primary)]"
-                    aria-label="시각"
+                    className="min-w-0 flex-1 accent-[color:var(--lab-brand-primary)]"
+                    aria-label="그림자 시각"
                   />
                 </label>
                 {sel ? (
                   <>
-                    {floorSlider}
-                    {sunStats ? (
-                      <SunStatsView stats={sunStats} season={season} />
-                    ) : null}
+                    <label className="flex items-center gap-2">
+                      <span className="w-[74px] shrink-0 text-[12px] text-[color:var(--lab-muted)]">
+                        층 <b className="text-[13px] tabular-nums text-[color:var(--lab-navy-950)]">{floorNow}층</b>
+                      </span>
+                      <input
+                        type="range"
+                        min={1}
+                        max={Math.max(1, maxFloors)}
+                        step={1}
+                        value={floorNow}
+                        onChange={(e) => setViewFloor(Number(e.target.value))}
+                        className="min-w-0 flex-1 accent-[color:var(--lab-brand-primary)]"
+                        aria-label="층"
+                      />
+                    </label>
+                    {sunStats ? <SunStatsView stats={sunStats} season={season} /> : null}
                   </>
                 ) : (
-                  <p className="text-[12px] text-[color:var(--lab-muted)]">
-                    동을 누르면 그 동·층의 하루 일조 시간을 계산해요.
-                  </p>
+                  <p className="text-[12px] text-[color:var(--lab-muted)]">동을 누르면 그 동·층의 하루 일조 시간을 계산해요.</p>
                 )}
               </div>
             ) : null}
@@ -872,19 +886,13 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                 </p>
               )
             ) : null}
+            <p className="mt-1 text-right text-[9px] leading-3 text-slate-400">
+              건물 국토부 GIS · 지도 NAVER{estimated ? " · 일부 높이 추정" : ""}
+            </p>
           </div>
         </div>
       ) : null}
 
-      {/* 출처 */}
-      {d && hasShape ? (
-        <p
-          className="pointer-events-none absolute left-3 z-10 text-[10px] leading-4 text-[color:var(--lab-muted)]"
-          style={{ bottom: "calc(env(safe-area-inset-bottom) + 4px)" }}
-        >
-          건물: 국토교통부 GIS건물통합정보 · 지도 © NAVER Corp.{estimated ? " · 일부 높이는 층수×3m" : ""}
-        </p>
-      ) : null}
     </div>
   );
 }
