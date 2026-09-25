@@ -8,7 +8,7 @@ import type {
   AptAreaOption,
   AptDetailResponse,
 } from "@/lib/molit/apt-client";
-import { aptDetailHref } from "@/lib/molit/apt-client";
+import { APT_API_VERSION, aptDetailHref } from "@/lib/molit/apt-client";
 import {
   buildCompareMetrics,
   compareAreaRefFromOption,
@@ -74,6 +74,7 @@ async function fetchDetail(
 ): Promise<AptDetailResponse | null> {
   const qs = new URLSearchParams({ aptName, region, months: "36" });
   if (gu?.trim()) qs.set("gu", gu.trim());
+  qs.set("v", APT_API_VERSION);
   const res = await fetch(`/api/apt-detail?${qs}`);
   if (!res.ok) return null;
   return res.json();

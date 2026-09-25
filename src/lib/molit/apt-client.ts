@@ -6,6 +6,12 @@
 import { formatEok } from "@/lib/utils/format";
 import type { Transaction } from "@/types/transaction";
 
+/**
+ * 단지 상세·거래 API 응답 모양이 바뀌면 올린다 — 브라우저 캐시(max-age)에 남은 예전 응답을 안 쓰게 요청 주소에 붙인다.
+ * 2: 평형 묶기(전용 소수점 차이를 한 평형으로)
+ */
+export const APT_API_VERSION = "2";
+
 export interface AptSuggestion {
   aptName: string;
   regionSlug: string;

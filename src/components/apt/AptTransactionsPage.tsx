@@ -56,6 +56,7 @@ async function fetchArchive(params: {
   if (params.gu?.trim()) qs.set("gu", params.gu.trim());
   if (params.area) qs.set("area", params.area);
   const started = performance.now();
+  qs.set("v", APT_API_VERSION);
   const res = await fetch(`/api/apt-transactions?${qs.toString()}`);
   if (!res.ok) throw new Error("failed");
   const data = (await res.json()) as AptTransactionArchiveResponse;

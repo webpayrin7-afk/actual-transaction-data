@@ -28,6 +28,7 @@ import { SaveComplexButton } from "@/components/complexes/SaveComplexButton";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 import { getRegion } from "@/lib/constants/regions";
 import type { AptDetailResponse } from "@/lib/molit/apt-client";
+import { APT_API_VERSION } from "@/lib/molit/apt-client";
 import {
   AptPriceChart,
   PeriodRangeSlider,
@@ -104,6 +105,7 @@ async function fetchAptDetail(
     months: String(months),
   });
   if (gu?.trim()) qs.set("gu", gu.trim());
+  qs.set("v", APT_API_VERSION);
   const res = await fetch(`/api/apt-detail?${qs.toString()}`);
   if (!res.ok) throw new Error("failed");
   return res.json();
@@ -838,10 +840,11 @@ export function AptDetailPage({
             {selectedMonthYm ? (
               <div className="detail-market-month-filter">
                 <p className="detail-meta">
-                  차트에서 선택한 날짜 거래만 조회{" "}
+                  차트에서 선택한{" "}
                   <b className="font-semibold text-[color:var(--lab-navy-950)]">
-                    ({Number(selectedMonthYm.slice(0, 4))}년 {Number(selectedMonthYm.slice(4, 6))}월)
-                  </b>
+                    {Number(selectedMonthYm.slice(0, 4))}년 {Number(selectedMonthYm.slice(4, 6))}월
+                  </b>{" "}
+                  거래만 조회
                 </p>
                 <button
                   type="button"
