@@ -1174,28 +1174,26 @@ function OpenDirections({ view }: { view: ViewResult }) {
     const nearestHit = Math.min(...rays.map((r) => r.distance ?? Infinity));
     return { label, open, nearestHit };
   });
+  // 모형 위 부채꼴과 같은 색: 트임(200m+) 청록 · 80~200m 주황 · 80m 안 빨강
+  const tone = (s: (typeof sectors)[number]) =>
+    s.open >= 0.6 || !Number.isFinite(s.nearestHit)
+      ? { fg: "#0f766e", bg: "#ecfdf5", border: "#99f6e4" }
+      : s.nearestHit >= 80
+        ? { fg: "#b45309", bg: "#fffbeb", border: "#fcd34d" }
+        : { fg: "#dc2626", bg: "#fef2f2", border: "#fca5a5" };
   return (
     <div className="grid grid-cols-4 gap-1.5">
-      {sectors.map((s) => (
-        <div
-          key={s.label}
-          className="rounded-md border px-2 py-1.5 text-center"
-          style={{
-            borderColor:
-              s.open >= 0.6 ? "var(--lab-brand-border)" : "var(--lab-border)",
-            background: s.open >= 0.6 ? "var(--lab-brand-subtle)" : "white",
-          }}
-        >
-          <p className="detail-label">{s.label}</p>
-          <p className="detail-meta tabular-nums">
-            {s.open >= 0.6
-              ? "트임"
-              : Number.isFinite(s.nearestHit)
-                ? `${s.nearestHit}m 가림`
-                : "트임"}
-          </p>
-        </div>
-      ))}
+      {sectors.map((s) => {
+        const t = tone(s);
+        return (
+          <div key={s.label} className="rounded-md border px-2 py-1.5 text-center" style={{ borderColor: t.border, background: t.bg }}>
+            <p className="text-[12px] font-semibold text-[color:var(--lab-navy-950)]">{s.label}</p>
+            <p className="text-[13px] font-bold tabular-nums" style={{ color: t.fg }}>
+              {s.open >= 0.6 || !Number.isFinite(s.nearestHit) ? "트임" : `${s.nearestHit}m 가림`}
+            </p>
+          </div>
+        );
+      })}
     </div>
   );
 }

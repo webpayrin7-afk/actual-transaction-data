@@ -7,6 +7,9 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { CSS2DObject, CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRenderer.js";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
+import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
+import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import type { Complex3d, Complex3dBuilding, FloorBand, Poi3d, Ring } from "@/lib/complex-3d/read";
 
 export const FLOOR_M = 3;
@@ -695,12 +698,17 @@ export class Complex3dScene {
     const sel = this.selectedId ? this.ownMeshes.get(this.selectedId) : null;
     if (sel) {
       const group = new THREE.Group();
-      group.add(new THREE.LineSegments(new THREE.EdgesGeometry(sel.geometry, 30), this.selectEdgeMaterial));
+      // WebGL 기본 선은 1px이라 굵은 선(화면 기준 px)으로
+      const edges = new THREE.EdgesGeometry(sel.geometry, 30);
+      const geo = new LineSegmentsGeometry().setPositions(edges.attributes.position!.array as Float32Array);
+      edges.dispose();
+      this.selectEdgeMaterial.resolution.set(this.host.clientWidth, this.host.clientHeight);
+      group.add(new LineSegments2(geo, this.selectEdgeMaterial));
       this.scene.add(group);
       this.selOutline = group;
     }
   }
-  private selectEdgeMaterial = new THREE.LineBasicMaterial({ color: 0x0f172a });
+  private selectEdgeMaterial = new LineMaterial({ color: 0x0f172a, linewidth: 2.5 });
 
   /**
    * 동 주변 — 향(정면 = 긴 변 중 남쪽을 향한 쪽), 앞 동(정면으로 가장 먼저 닿는 단지 동), 옆 동(외곽선 사이 가장 가까운 동).
@@ -823,6 +831,7 @@ export class Complex3dScene {
     const w = this.host.clientWidth;
     const h = this.host.clientHeight;
     this.camera.aspect = w / h;
+    this.selectEdgeMaterial.resolution.set(w, h);
     this.applyInset();
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
