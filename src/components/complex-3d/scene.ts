@@ -26,6 +26,17 @@ export function dominantUnit(b: Complex3dBuilding): { label: string; share: numb
   return top && total > 0 ? { label: top.label, share: top.households / total } : null;
 }
 
+const FACING = ["북", "북동", "동", "남동", "남", "남서", "서", "북서"];
+
+export type DongContext = {
+  /** "남향", "남동향" … (동 정면 기준) */
+  facing: string;
+  /** 정면으로 가장 먼저 닿는 단지 동 — 없으면 null (앞이 트임) */
+  front: { dong: string | null; meters: number } | null;
+  /** 외곽선 사이 가장 가까운 동 */
+  near: { dong: string | null; meters: number } | null;
+};
+
 export type SunHours = {
   /** 해가 드는 시간 합계 (분) */
   totalMin: number;
@@ -675,6 +686,56 @@ export class Complex3dScene {
               ? this.hiMaterial
               : this.dimMaterial;
     }
+  }
+
+  /**
+   * 동 주변 — 향(정면 = 긴 변 중 남쪽을 향한 쪽), 앞 동(정면으로 가장 먼저 닿는 단지 동), 옆 동(외곽선 사이 가장 가까운 동).
+   * 앞 동은 정면 가운데 3m 높이에서 정면 방향으로 쏜 광선이 처음 닿는 단지 동 (400m 안).
+   */
+  dongContext(id: string): DongContext | null {
+    const b = this.data?.buildings.find((x) => x.id === id);
+    if (!b?.rings?.[0]) return null;
+    const pts = b.rings[0].map(([lng, lat]) => this.toLocal(lng, lat));
+    const mx = pts.reduce((a, q) => a + q.x, 0) / pts.length;
+    const mz = pts.reduce((a, q) => a + q.z, 0) / pts.length;
+    let sxx = 0, szz = 0, sxz = 0;
+    for (const q of pts) {
+      sxx += (q.x - mx) ** 2;
+      szz += (q.z - mz) ** 2;
+      sxz += (q.x - mx) * (q.z - mz);
+    }
+    const ang = 0.5 * Math.atan2(2 * sxz, sxx - szz);
+    let nx = -Math.sin(ang);
+    let nz = Math.cos(ang);
+    if (nz < 0) {
+      nx = -nx;
+      nz = -nz;
+    }
+    // 방위: 북=0°, 시계방향 (로컬 x=동쪽, z=남쪽)
+    const bearing = ((Math.atan2(nx, -nz) * 180) / Math.PI + 360) % 360;
+    const facing = `${FACING[Math.round(bearing / 45) % 8]}향`;
+    const face = Math.max(...pts.map((q) => (q.x - mx) * nx + (q.z - mz) * nz));
+    // 정면 폭을 따라 7곳에서 쏴 가장 가까운 동 — 광선 하나는 동 사이 틈으로 빠질 수 있다
+    const ux = nz;
+    const uz = -nx;
+    const along = pts.map((q) => (q.x - mx) * ux + (q.z - mz) * uz);
+    const lo = Math.min(...along);
+    const hi = Math.max(...along);
+    const others = [...this.ownMeshes.entries()].filter(([k]) => k !== id).map(([, m]) => m);
+    let hit: THREE.Intersection | undefined;
+    for (let i = 0; i < 7; i++) {
+      const t = lo + ((hi - lo) * (i + 0.5)) / 7;
+      const origin = new THREE.Vector3(mx + nx * (face + 0.5) + ux * t, 3, mz + nz * (face + 0.5) + uz * t);
+      this.raycaster.set(origin, new THREE.Vector3(nx, 0, nz));
+      this.raycaster.far = 400;
+      const h = this.raycaster.intersectObjects(others, false)[0];
+      if (h && (!hit || h.distance < hit.distance)) hit = h;
+    }
+    const frontId = (hit?.object.userData.id as string | undefined) ?? null;
+    const front = frontId
+      ? { dong: this.data!.buildings.find((x) => x.id === frontId)?.dong ?? null, meters: Math.round(hit!.distance + 0.5) }
+      : null;
+    return { facing, front, near: this.nearestDistance(id) };
   }
 
   /** 두 동 외곽선 사이 최소 거리 (m, 평면) */

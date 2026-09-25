@@ -3,7 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { ChevronDown, ChevronRight, Maximize2, SquareDashed, X } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Maximize2,
+  SquareDashed,
+  X,
+} from "lucide-react";
 import type { Complex3d } from "@/lib/complex-3d/read";
 import { BackLink } from "@/components/layout/BackLink";
 import type {
@@ -11,6 +17,7 @@ import type {
   SceneMode,
   SunHours,
   ViewResult,
+  DongContext,
 } from "@/components/complex-3d/scene";
 import { TYPE_COLORS } from "@/components/complex-3d/palette";
 import { fetchComplexTypes } from "@/lib/apt/area-supply";
@@ -69,10 +76,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   const [viewFloor, setViewFloor] = useState(10);
   const [view, setView] = useState<ViewResult | null>(null);
   const [webglError, setWebglError] = useState(false);
-  const [nearest, setNearest] = useState<{
-    dong: string | null;
-    meters: number;
-  } | null>(null);
+  const [nearest, setNearest] = useState<DongContext | null>(null);
   const [heading, setHeading] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<number | null>(null);
@@ -96,7 +100,9 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     const sync = () => {
       const panel = panelRef.current?.offsetHeight ?? 0;
       setPanelH(panel);
-      sceneRef.current?.setBottomInset(window.innerWidth < 640 && panel ? panel + 24 : 0);
+      sceneRef.current?.setBottomInset(
+        window.innerWidth < 640 && panel ? panel + 24 : 0,
+      );
     };
     sync();
     const ro = new ResizeObserver(sync);
@@ -246,7 +252,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         const s = scene;
         s.onSelect = (id) => {
           setSelected(id);
-          setNearest(id ? s.nearestDistance(id) : null);
+          setNearest(id ? s.dongContext(id) : null);
           if (id) showToastRef.current("두 번 누르면 해당 동으로 이동합니다");
         };
         s.onHeading = setHeading;
@@ -310,7 +316,11 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     prevMode.current = mode;
     let run: (() => void) | null = null;
     if (mode === "around") run = () => sceneRef.current?.fitPois();
-    else if (from === "around") run = () => (selected ? sceneRef.current?.focus(selected) : sceneRef.current?.resetView());
+    else if (from === "around")
+      run = () =>
+        selected
+          ? sceneRef.current?.focus(selected)
+          : sceneRef.current?.resetView();
     if (!run) return;
     // 정보 패널 높이가 잡힌 뒤에 맞춘다
     const t = window.setTimeout(run, 350);
@@ -341,7 +351,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     s.select(id);
     s.focus(id);
     setSelected(id);
-    setNearest(s.nearestDistance(id));
+    setNearest(s.dongContext(id));
   };
 
   // 고른 동의 호 라인을 타입별로 묶기 (고른 타입이 먼저)
@@ -451,7 +461,9 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
       {/* 위: 뒤로·단지명 · 동/타입 필터 · 모드 */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex flex-col gap-2 pt-[calc(env(safe-area-inset-top)+8px)]">
         <div className="flex items-center gap-1.5 px-3">
-          <div className={`pointer-events-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${FLOAT}`}>
+          <div
+            className={`pointer-events-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${FLOAT}`}
+          >
             <BackLink fallback={d?.href ?? "/complexes"} compact hideLabel />
           </div>
           {d?.href ? (
@@ -461,7 +473,10 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
               className={`pointer-events-auto flex h-8 min-w-0 items-center gap-0.5 rounded-full pl-3 pr-2 text-[14px] font-bold text-[color:var(--lab-navy-950)] transition active:scale-95 ${FLOAT}`}
             >
               <span className="truncate">{d.name}</span>
-              <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
+              <ChevronRight
+                className="h-4 w-4 shrink-0 text-slate-400"
+                aria-hidden
+              />
             </Link>
           ) : (
             <p
@@ -490,10 +505,17 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   }`}
                 >
                   {f.id === "type" && picked ? (
-                    <span className="h-2 w-2 rounded-full" style={{ background: picked.color }} aria-hidden />
+                    <span
+                      className="h-2 w-2 rounded-full"
+                      style={{ background: picked.color }}
+                      aria-hidden
+                    />
                   ) : null}
                   <span className="max-w-[92px] truncate">{f.label}</span>
-                  <ChevronDown className={`h-3.5 w-3.5 transition ${picker === f.id ? "rotate-180" : ""}`} aria-hidden />
+                  <ChevronDown
+                    className={`h-3.5 w-3.5 transition ${picker === f.id ? "rotate-180" : ""}`}
+                    aria-hidden
+                  />
                 </button>
               ))}
             </div>
@@ -504,7 +526,11 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         {picker && d ? (
           <div
             className="pointer-events-auto mx-3 overflow-y-auto rounded-2xl bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,0.18)]"
-            style={{ maxHeight: "52dvh", touchAction: "pan-y", overscrollBehavior: "contain" }}
+            style={{
+              maxHeight: "52dvh",
+              touchAction: "pan-y",
+              overscrollBehavior: "contain",
+            }}
           >
             {picker === "dong" ? (
               <div className="flex flex-wrap gap-1.5">
@@ -523,7 +549,11 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   전체
                 </button>
                 {(picked
-                  ? [...dongs].sort((a, b) => Number(picked.dongs.has(b.dong!)) - Number(picked.dongs.has(a.dong!)))
+                  ? [...dongs].sort(
+                      (a, b) =>
+                        Number(picked.dongs.has(b.dong!)) -
+                        Number(picked.dongs.has(a.dong!)),
+                    )
                   : dongs
                 ).map((b) => (
                   <button
@@ -541,7 +571,12 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                           : "border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
                     }`}
                     style={
-                      picked && b.dong && picked.dongs.has(b.dong) && b.id !== selected ? { borderColor: picked.color } : undefined
+                      picked &&
+                      b.dong &&
+                      picked.dongs.has(b.dong) &&
+                      b.id !== selected
+                        ? { borderColor: picked.color }
+                        : undefined
                     }
                   >
                     {b.dong}
@@ -551,7 +586,12 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             ) : (
               <ul className="flex flex-col">
                 {[
-                  { id: null as string | null, label: "전체 타입", color: null as string | null, sub: `${typeOptions.length}개 타입` },
+                  {
+                    id: null as string | null,
+                    label: "전체 타입",
+                    color: null as string | null,
+                    sub: `${typeOptions.length}개 타입`,
+                  },
                   ...typeOptions.map((t) => ({
                     id: t.id as string | null,
                     label: t.label,
@@ -567,16 +607,25 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                         setPicker(null);
                       }}
                       className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition active:scale-[0.99] ${
-                        pickedType === t.id ? "bg-[color:var(--lab-brand-subtle)]" : ""
+                        pickedType === t.id
+                          ? "bg-[color:var(--lab-brand-subtle)]"
+                          : ""
                       }`}
                     >
                       <span
                         className="h-2.5 w-2.5 shrink-0 rounded-full"
-                        style={{ background: t.color ?? "transparent", border: t.color ? undefined : "1px solid #cbd5e1" }}
+                        style={{
+                          background: t.color ?? "transparent",
+                          border: t.color ? undefined : "1px solid #cbd5e1",
+                        }}
                         aria-hidden
                       />
-                      <span className="flex-1 text-[14px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">{t.label}</span>
-                      <span className="text-[12px] tabular-nums text-[color:var(--lab-muted)]">{t.sub}</span>
+                      <span className="flex-1 text-[14px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
+                        {t.label}
+                      </span>
+                      <span className="text-[12px] tabular-nums text-[color:var(--lab-muted)]">
+                        {t.sub}
+                      </span>
                     </button>
                   </li>
                 ))}
@@ -602,14 +651,27 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             ))}
           </div>
         )}
-        {!picker && d && hasShape && d.coverage.withShape < d.coverage.buildings ? (
-          <p className={`mx-3 self-start rounded-md px-2 py-1 text-[11px] text-[color:var(--lab-muted)] ${FLOAT}`}>
-            동 {d.coverage.buildings}개 중 {d.coverage.withShape}개 모양 · 나머지는 준비 중
+        {!picker &&
+        d &&
+        hasShape &&
+        d.coverage.withShape < d.coverage.buildings ? (
+          <p
+            className={`mx-3 self-start rounded-md px-2 py-1 text-[11px] text-[color:var(--lab-muted)] ${FLOAT}`}
+          >
+            동 {d.coverage.buildings}개 중 {d.coverage.withShape}개 모양 ·
+            나머지는 준비 중
           </p>
         ) : null}
       </div>
       {/* 필터 목록 바깥을 누르면 닫기 */}
-      {picker ? <button type="button" aria-label="닫기" className="absolute inset-0 z-20 cursor-default" onClick={() => setPicker(null)} /> : null}
+      {picker ? (
+        <button
+          type="button"
+          aria-label="닫기"
+          className="absolute inset-0 z-20 cursor-default"
+          onClick={() => setPicker(null)}
+        />
+      ) : null}
 
       {/* 안내 토스트 */}
       {toast ? (
@@ -617,7 +679,9 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           role="status"
           className="pointer-events-none absolute left-1/2 z-30 -translate-x-1/2 whitespace-nowrap rounded-full bg-[color:var(--lab-navy-950)]/90 px-3.5 py-2 text-[13px] font-semibold text-white shadow-lg"
           style={{
-            bottom: panelH ? `calc(env(safe-area-inset-bottom) + ${panelH + 34}px)` : "calc(env(safe-area-inset-bottom) + 34px)",
+            bottom: panelH
+              ? `calc(env(safe-area-inset-bottom) + ${panelH + 34}px)`
+              : "calc(env(safe-area-inset-bottom) + 34px)",
           }}
         >
           {toast}
@@ -685,7 +749,12 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           <div
             className={`overflow-y-auto rounded-2xl border border-[color:var(--lab-brand-border)] bg-white px-3.5 py-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.14)]`}
             style={{
-              maxHeight: mode === "around" ? "24dvh" : mode === "sun" ? "60dvh" : "38dvh",
+              maxHeight:
+                mode === "around"
+                  ? "24dvh"
+                  : mode === "sun"
+                    ? "60dvh"
+                    : "38dvh",
               touchAction: "pan-y",
               overscrollBehavior: "contain",
             }}
@@ -702,16 +771,19 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             {mode === "base" && !sel && !picked ? (
               <p className="text-[13px] text-[color:var(--lab-navy-950)]">
                 <b>동 정보</b>
-                <span className="ml-1.5 text-[12px] text-[color:var(--lab-muted)]">위 [동]·[타입]에서 고르거나 모형의 동을 눌러 보세요</span>
+                <span className="ml-1.5 text-[12px] text-[color:var(--lab-muted)]">
+                  위 [동]·[타입]에서 고르거나 모형의 동을 눌러 보세요
+                </span>
               </p>
             ) : null}
             {mode === "base" && sel ? (
               <p className="mt-0.5 text-[12px] tabular-nums text-[color:var(--lab-muted)]">
                 {[
-                  sel.floors ? `지상 ${sel.floors}층` : null,
                   sel.floorsBelow ? `지하 ${sel.floorsBelow}층` : null,
                   sel.heightM ? `높이 ${Math.round(sel.heightM)}m` : null,
-                  sel.lines?.length ? `${new Set(sel.lines.map((l) => l.line)).size}개 라인` : null,
+                  sel.lines?.length
+                    ? `${new Set(sel.lines.map((l) => l.line)).size}개 라인`
+                    : null,
                 ]
                   .filter(Boolean)
                   .join(" · ")}
@@ -796,7 +868,9 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                         onClick={() => setSeason(x.id)}
                         aria-pressed={season === x.id}
                         className={`rounded-full px-2 py-0.5 text-[11px] font-semibold transition active:scale-95 ${
-                          season === x.id ? "bg-white text-[color:var(--lab-navy-950)] shadow-sm" : "text-[color:var(--lab-muted)]"
+                          season === x.id
+                            ? "bg-white text-[color:var(--lab-navy-950)] shadow-sm"
+                            : "text-[color:var(--lab-muted)]"
                         }`}
                       >
                         {x.label}
@@ -806,7 +880,10 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                 </div>
                 <label className="flex items-center gap-2">
                   <span className="w-[74px] shrink-0 text-[12px] text-[color:var(--lab-muted)]">
-                    그림자 <b className="text-[13px] tabular-nums text-[color:var(--lab-navy-950)]">{String(hour).padStart(2, "0")}:00</b>
+                    그림자{" "}
+                    <b className="text-[13px] tabular-nums text-[color:var(--lab-navy-950)]">
+                      {String(hour).padStart(2, "0")}:00
+                    </b>
                   </span>
                   <input
                     type="range"
@@ -823,7 +900,10 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   <>
                     <label className="flex items-center gap-2">
                       <span className="w-[74px] shrink-0 text-[12px] text-[color:var(--lab-muted)]">
-                        층 <b className="text-[13px] tabular-nums text-[color:var(--lab-navy-950)]">{floorNow}층</b>
+                        층{" "}
+                        <b className="text-[13px] tabular-nums text-[color:var(--lab-navy-950)]">
+                          {floorNow}층
+                        </b>
                       </span>
                       <input
                         type="range"
@@ -836,10 +916,14 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                         aria-label="층"
                       />
                     </label>
-                    {sunStats ? <SunStatsView stats={sunStats} season={season} /> : null}
+                    {sunStats ? (
+                      <SunStatsView stats={sunStats} season={season} />
+                    ) : null}
                   </>
                 ) : (
-                  <p className="text-[12px] text-[color:var(--lab-muted)]">동을 누르면 그 동·층의 하루 일조 시간을 계산해요.</p>
+                  <p className="text-[12px] text-[color:var(--lab-muted)]">
+                    동을 누르면 그 동·층의 하루 일조 시간을 계산해요.
+                  </p>
                 )}
               </div>
             ) : null}
@@ -905,7 +989,6 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           </div>
         </div>
       ) : null}
-
     </div>
   );
 }
@@ -916,32 +999,51 @@ function DongHeader({
   onClose,
 }: {
   sel: Complex3d["buildings"][number];
-  nearest: { dong: string | null; meters: number } | null;
+  nearest: DongContext | null;
   onClose: () => void;
 }) {
   const main = [
     sel.floors ? `${sel.floors}층` : null,
     sel.households ? `${sel.households.toLocaleString("ko-KR")}세대` : null,
-    nearest ? `옆 동 ${nearest.meters}m` : null,
   ]
     .filter(Boolean)
     .join(" · ");
+  const around = nearest
+    ? [
+        nearest.facing,
+        nearest.front
+          ? `앞 동 ${nearest.front.dong ?? ""} ${nearest.front.meters}m`
+          : "앞이 트임",
+        nearest.near
+          ? `옆 동 ${nearest.near.dong ?? ""} ${nearest.near.meters}m`
+          : null,
+      ]
+        .filter(Boolean)
+        .join(" · ")
+    : null;
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-[15px] font-bold text-[color:var(--lab-teal-700)]">
-        {sel.dong ?? sel.name ?? "동"}
-      </span>
-      <span className="min-w-0 flex-1 truncate text-[13px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
-        {main}
-      </span>
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label="동 선택 해제"
-        className="-mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-slate-400 active:scale-95"
-      >
-        <X className="h-4 w-4" aria-hidden />
-      </button>
+    <div>
+      <div className="flex items-center gap-2">
+        <span className="text-[15px] font-bold text-[color:var(--lab-teal-700)]">
+          {sel.dong ?? sel.name ?? "동"}
+        </span>
+        <span className="min-w-0 flex-1 truncate text-[13px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
+          {main}
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="동 선택 해제"
+          className="-mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-slate-400 active:scale-95"
+        >
+          <X className="h-4 w-4" aria-hidden />
+        </button>
+      </div>
+      {around ? (
+        <p className="-mt-0.5 text-[12px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
+          {around}
+        </p>
+      ) : null}
     </div>
   );
 }
