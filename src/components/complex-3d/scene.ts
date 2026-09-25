@@ -674,17 +674,44 @@ export class Complex3dScene {
     this.marker.position.set(l.x, l.y, l.z);
   }
 
+  private selOutline: THREE.Group | null = null;
+
   private paint() {
     this.markSelected();
+    // 타입을 고른 상태에서 그 타입 동을 고르면 타입 색은 그대로 두고 진한 테두리로 선택 표시
+    const keepTypeColor = !!(this.selectedId && this.highlight?.has(this.selectedId));
     for (const [id, mesh] of this.ownMeshes) {
       mesh.material =
-        id === this.selectedId
+        id === this.selectedId && !keepTypeColor
           ? this.selectMaterial
           : !this.highlight
             ? this.ownMaterial
             : this.highlight.has(id)
               ? this.hiMaterial
               : this.dimMaterial;
+    }
+    if (this.selOutline) {
+      this.scene.remove(this.selOutline);
+      this.selOutline.traverse((o) => (o as THREE.LineSegments).geometry?.dispose?.());
+      this.selOutline = null;
+    }
+    const sel = keepTypeColor ? this.ownMeshes.get(this.selectedId!) : null;
+    if (sel) {
+      // WebGL 선은 굵기가 1px이라 조금씩 키운 테두리 세 겹으로 굵게 보이게
+      const edges = new THREE.EdgesGeometry(sel.geometry, 30);
+      const mat = new THREE.LineBasicMaterial({ color: 0x0f172a, depthTest: false, transparent: true, opacity: 0.95 });
+      const group = new THREE.Group();
+      sel.geometry.computeBoundingBox();
+      const c = sel.geometry.boundingBox!.getCenter(new THREE.Vector3());
+      for (const k of [1, 1.012, 1.024]) {
+        const line = new THREE.LineSegments(edges, mat);
+        line.position.copy(c).multiplyScalar(1 - k);
+        line.scale.setScalar(k);
+        line.renderOrder = 10;
+        group.add(line);
+      }
+      this.scene.add(group);
+      this.selOutline = group;
     }
   }
 

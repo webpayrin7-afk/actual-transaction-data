@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import type { Complex3d } from "@/lib/complex-3d/read";
 import { BackLink } from "@/components/layout/BackLink";
+import { InfoTip } from "@/components/ui/InfoTip";
 import type {
   Complex3dScene,
   SceneMode,
@@ -472,7 +473,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
               aria-label={`${d.name} 단지 상세로`}
               className={`pointer-events-auto flex h-8 min-w-0 items-center gap-0.5 rounded-full pl-3 pr-2 text-[14px] font-bold text-[color:var(--lab-navy-950)] transition active:scale-95 ${FLOAT}`}
             >
-              <span className="truncate">{d.name}</span>
+              <span className="min-w-0 truncate">{d.name}</span>
+              <span className="ml-1 shrink-0 text-[12px] font-semibold text-[color:var(--lab-muted)]">상세 보기</span>
               <ChevronRight
                 className="h-4 w-4 shrink-0 text-slate-400"
                 aria-hidden
@@ -489,8 +491,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             <div className="pointer-events-auto ml-auto flex shrink-0 gap-1.5">
               {(
                 [
-                  { id: "dong", label: sel?.dong ?? "동", on: !!sel },
                   { id: "type", label: picked?.label ?? "타입", on: !!picked },
+                  { id: "dong", label: sel?.dong ?? "동", on: !!sel },
                 ] as const
               ).map((f) => (
                 <button
@@ -761,7 +763,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           >
             {/* 고른 동 (모든 모드 공통 머리) */}
             {sel ? (
-              <DongHeader sel={sel} nearest={nearest} onClose={closeDong} />
+              <DongHeader sel={sel} nearest={mode === "base" ? nearest : null} onClose={closeDong} />
             ) : mode === "base" ? null : (
               <p className="text-[13px] font-bold text-[color:var(--lab-navy-950)]">
                 {modeTitle}
@@ -772,25 +774,15 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
               <p className="text-[13px] text-[color:var(--lab-navy-950)]">
                 <b>동 정보</b>
                 <span className="ml-1.5 text-[12px] text-[color:var(--lab-muted)]">
-                  위 [동]·[타입]에서 고르거나 모형의 동을 눌러 보세요
+                  상단의 타입·동을 선택하시거나 건물을 직접 눌러보세요.
                 </span>
               </p>
             ) : null}
             {mode === "base" && sel ? (
-              <p className="mt-0.5 text-[12px] tabular-nums text-[color:var(--lab-muted)]">
-                {[
-                  sel.floorsBelow ? `지하 ${sel.floorsBelow}층` : null,
-                  sel.heightM ? `높이 ${Math.round(sel.heightM)}m` : null,
-                  sel.lines?.length
-                    ? `${new Set(sel.lines.map((l) => l.line)).size}개 라인`
-                    : null,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-            ) : null}
-            {mode === "base" && sel ? (
-              <DongLines lines={selLines} fallback={sel.units} />
+              <>
+                <DongLines lines={selLines} fallback={sel.units} />
+                {sel.dong ? <DongTrades complexId={complexId} dong={sel.dong} /> : null}
+              </>
             ) : null}
             {mode === "base" && !sel && picked ? (
               <div>
@@ -941,8 +933,20 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                         </b>
                       </p>
                       <OpenDirections view={view} />
-                      <p className="text-[11px] text-[color:var(--lab-muted)]">
-                        청록 200m 이상 트임 · 주황 80~200m · 빨강 80m 안 가림
+                      <p className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[11px] text-[color:var(--lab-muted)]">
+                        <span className="text-[color:var(--lab-navy-950)]">모형 위 부채꼴 색</span>
+                        <span className="flex items-center gap-1">
+                          <span className="h-2 w-2 rounded-sm" style={{ background: "#0e9aa0" }} aria-hidden />
+                          200m 넘게 막힘없음
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span className="h-2 w-2 rounded-sm" style={{ background: "#f59e0b" }} aria-hidden />
+                          80~200m에 건물
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span className="h-2 w-2 rounded-sm" style={{ background: "#ef4444" }} aria-hidden />
+                          80m 안에 건물
+                        </span>
                       </p>
                     </>
                   ) : null}
@@ -1111,11 +1115,17 @@ function SunStatsView({ stats, season }: { stats: SunHours; season: Season }) {
           <p className="flex items-center justify-between gap-1 text-[11px] text-[color:var(--lab-teal-700)]">
             9~15시 연속 최대
             {season === "winter" ? (
-              <span
-                title="동지 9~15시 연속 2시간 이상이면 일조 기준 충족"
-                className={`rounded px-1 text-[10px] font-bold ${stats.best9to15Min >= 120 ? "bg-white text-[color:var(--lab-teal-700)]" : "bg-rose-50 text-rose-600"}`}
-              >
-                {stats.best9to15Min >= 120 ? "기준 충족" : "기준 미달"}
+              <span className="flex items-center">
+                <span
+                  className={`rounded px-1 text-[10px] font-bold ${stats.best9to15Min >= 120 ? "bg-white text-[color:var(--lab-teal-700)]" : "bg-rose-50 text-rose-600"}`}
+                >
+                  {stats.best9to15Min >= 120 ? "기준 충족" : "기준 미달"}
+                </span>
+                <InfoTip aria-label="일조 기준 설명" rootClassName="ml-0.5">
+                  동지(12월 22일 무렵)에 9시~15시 사이 <b>연속 2시간 이상</b> 해가 들면 충족으로 봐요. 공동주택 일조권 분쟁에서 법원이
+                  흔히 쓰는 기준이에요(또는 8시~16시 사이 합계 4시간 이상). 이 수치는 동 정면 가운데 창 높이 기준 추정이라 실제
+                  세대와 다를 수 있어요.
+                </InfoTip>
               </span>
             ) : null}
           </p>
@@ -1195,6 +1205,62 @@ function OpenDirections({ view }: { view: ViewResult }) {
           </p>
         </div>
       ))}
+    </div>
+  );
+}
+
+/** 3억 4,000 형식 (만원 단위) */
+function eok(man: number): string {
+  const e = Math.floor(man / 10_000);
+  const r = man % 10_000;
+  if (!e) return `${r.toLocaleString("ko-KR")}만`;
+  return r ? `${e}억 ${r.toLocaleString("ko-KR")}` : `${e}억`;
+}
+
+type DongTradesResponse = {
+  total: number;
+  available: boolean;
+  trades: Array<{ dealDate: string; amount: number; area: number; floor: number; registered: boolean }>;
+};
+
+/** 동별 매매 실거래 — 국토부 거래 동(등기된 2023년 이후 거래) */
+function DongTrades({ complexId, dong }: { complexId: string; dong: string }) {
+  const q = useQuery({
+    queryKey: ["dong-trades", complexId, dong],
+    queryFn: async (): Promise<DongTradesResponse> => {
+      const res = await fetch(`/api/complex-3d/${complexId}/dong-trades?dong=${encodeURIComponent(dong)}`);
+      if (!res.ok) return { total: 0, available: false, trades: [] };
+      return res.json();
+    },
+    staleTime: 10 * 60_000,
+  });
+  if (!q.data) return null;
+  const { total, available, trades } = q.data;
+  return (
+    <div className="mt-1.5 border-t border-[color:var(--lab-border)] pt-1.5">
+      <p className="flex items-baseline justify-between text-[12px] font-semibold text-[color:var(--lab-navy-950)]">
+        {dong} 실거래
+        <span className="text-[11px] font-normal tabular-nums text-[color:var(--lab-muted)]">
+          {available ? `2023년~ ${total}건` : "준비 중"}
+        </span>
+      </p>
+      {!available ? (
+        <p className="text-[11px] text-[color:var(--lab-muted)]">이 단지는 동별 실거래를 모으는 중이에요.</p>
+      ) : trades.length ? (
+        <ul className="mt-0.5 flex flex-col">
+          {trades.slice(0, 3).map((t, i) => (
+            <li key={i} className="flex items-baseline gap-2 text-[12px] leading-[18px] tabular-nums">
+              <span className="w-[54px] shrink-0 text-[color:var(--lab-muted)]">{t.dealDate.slice(2).replace(/-/g, ".")}</span>
+              <span className="font-bold text-[color:var(--lab-teal-700)]">{eok(t.amount)}</span>
+              <span className="ml-auto text-[color:var(--lab-muted)]">
+                {t.area}㎡ · {t.floor}층
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-[11px] text-[color:var(--lab-muted)]">2023년 이후 등기된 매매가 없어요.</p>
+      )}
     </div>
   );
 }
