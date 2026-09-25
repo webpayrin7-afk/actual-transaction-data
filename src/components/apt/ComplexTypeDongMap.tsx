@@ -49,16 +49,15 @@ function esc(s: string): string {
 
 const FONT = "'Noto Sans KR',system-ui,sans-serif";
 
-/** "131동 / 109A / 26층" 말풍선 (호갱노노 방식) */
+/** "131동 / 109.29A㎡ · 26층" 작은 말풍선 — 동이 많아도 지도를 덮지 않게 두 줄로 */
 function labelHtml(dong: string, type: string, floors: number | null, on: boolean): string {
   const head = on ? "var(--lab-navy-950)" : "var(--lab-brand-primary)";
-  return `<div style="transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 1px 2px rgba(15,23,42,.25))">
-    <div style="min-width:52px;border-radius:6px;overflow:hidden;border:1.5px solid ${head};background:#fff;text-align:center;white-space:nowrap">
-      <div style="background:${head};color:#fff;font:600 11px/16px ${FONT};padding:0 6px">${esc(dong)}</div>
-      <div style="color:var(--lab-navy-950);font:700 12px/17px ${FONT};padding:0 6px">${esc(type)}</div>
-      ${floors ? `<div style="color:var(--lab-muted);font:500 10px/13px ${FONT};padding:0 6px 1px">${floors}층</div>` : ""}
+  return `<div style="transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 1px 1px rgba(15,23,42,.2))">
+    <div style="border-radius:4px;overflow:hidden;border:1px solid ${head};background:#fff;text-align:center;white-space:nowrap">
+      <div style="background:${head};color:#fff;font:600 10px/13px ${FONT};padding:0 4px">${esc(dong)}</div>
+      <div style="color:var(--lab-navy-950);font:600 10px/13px ${FONT};padding:0 4px">${esc(type)}${floors ? `<span style="color:var(--lab-muted);font-weight:500"> · ${floors}층</span>` : ""}</div>
     </div>
-    <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid ${head};margin-top:-1px"></div>
+    <div style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:4px solid ${head};margin-top:-1px"></div>
   </div>`;
 }
 
