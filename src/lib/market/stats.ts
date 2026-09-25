@@ -230,6 +230,9 @@ function yearMonthsBetween(fromDay: string, toDay: string): string[] {
 }
 
 /** sync / db:stats — 일별 사전 집계 재생성 */
+/** 마지막 rebuildMarketStats가 쓴 행 수 (달라진 행만) — 로그용 */
+export let lastPersistWrites = 0;
+
 export async function rebuildMarketStats(): Promise<{
   asOfDate: string;
   days: number;
@@ -361,10 +364,8 @@ export async function rebuildMarketStats(): Promise<{
     }
   }
 
-  // persist
-  await db.execute(`DELETE FROM market_stats_daily`);
-  await db.execute(`DELETE FROM market_stats_daily_region`);
-
+  // persist — 계산은 매번 전체를 다시 하고(결과는 전체 재작성과 같다), 저장은 달라진 행만 쓴다.
+  // 예전엔 표를 통째로 지우고 다시 넣어 실행마다 수만 행을 썼다 (Turso 쓰기 한도).
   const dailyArgs: Array<Array<string | number | null>> = [];
   for (const [mapKey, acc] of scopeDay) {
     const [day, scope] = mapKey.split("|") as [string, StatsScope];
@@ -389,19 +390,6 @@ export async function rebuildMarketStats(): Promise<{
     ]);
   }
 
-  // batch insert
-  const CHUNK = 200;
-  for (let i = 0; i < dailyArgs.length; i += CHUNK) {
-    const slice = dailyArgs.slice(i, i + CHUNK);
-    const placeholders = slice.map(() => "(?,?,?,?,?,?,?,?)").join(",");
-    await db.execute({
-      sql: `INSERT INTO market_stats_daily
-            (day, scope, trade_count, singoga_count, drop_count, median_amount, avg_amount, median_ppsqm)
-            VALUES ${placeholders}`,
-      args: slice.flat(),
-    });
-  }
-
   const regionArgs: Array<Array<string | number>> = [];
   for (const [mapKey, acc] of regionDay) {
     const [day, lawdCd] = mapKey.split("|");
@@ -418,16 +406,86 @@ export async function rebuildMarketStats(): Promise<{
     ]);
   }
 
-  for (let i = 0; i < regionArgs.length; i += CHUNK) {
-    const slice = regionArgs.slice(i, i + CHUNK);
-    const placeholders = slice.map(() => "(?,?,?,?,?,?,?,?)").join(",");
-    await db.execute({
-      sql: `INSERT INTO market_stats_daily_region
-            (day, lawd_cd, metro, region_slug, region_name, trade_count, singoga_count, drop_count)
-            VALUES ${placeholders}`,
-      args: slice.flat(),
+  const sameRow = (a: ReadonlyArray<unknown>, b: ReadonlyArray<unknown>) =>
+    a.length === b.length && a.every((v, i) => (v ?? null) === (b[i] ?? null));
+
+  const existingDaily = new Map<string, Array<string | number | null>>();
+  for (const r of (
+    await db.execute(
+      `SELECT day, scope, trade_count, singoga_count, drop_count, median_amount, avg_amount, median_ppsqm FROM market_stats_daily`,
+    )
+  ).rows) {
+    existingDaily.set(`${r.day}|${r.scope}`, [
+      String(r.day),
+      String(r.scope),
+      Number(r.trade_count),
+      Number(r.singoga_count),
+      Number(r.drop_count),
+      r.median_amount == null ? null : Number(r.median_amount),
+      r.avg_amount == null ? null : Number(r.avg_amount),
+      r.median_ppsqm == null ? null : Number(r.median_ppsqm),
+    ]);
+  }
+  const existingRegion = new Map<string, Array<string | number>>();
+  for (const r of (
+    await db.execute(
+      `SELECT day, lawd_cd, metro, region_slug, region_name, trade_count, singoga_count, drop_count FROM market_stats_daily_region`,
+    )
+  ).rows) {
+    existingRegion.set(`${r.day}|${r.lawd_cd}`, [
+      String(r.day),
+      String(r.lawd_cd),
+      String(r.metro),
+      String(r.region_slug),
+      String(r.region_name),
+      Number(r.trade_count),
+      Number(r.singoga_count),
+      Number(r.drop_count),
+    ]);
+  }
+
+  const writes: Array<{ sql: string; args: Array<string | number | null> }> = [];
+  const keepDaily = new Set<string>();
+  for (const row of dailyArgs) {
+    const key = `${row[0]}|${row[1]}`;
+    keepDaily.add(key);
+    const prev = existingDaily.get(key);
+    if (prev && sameRow(prev, row)) continue;
+    writes.push({
+      sql: `INSERT OR REPLACE INTO market_stats_daily
+            (day, scope, trade_count, singoga_count, drop_count, median_amount, avg_amount, median_ppsqm)
+            VALUES (?,?,?,?,?,?,?,?)`,
+      args: row,
     });
   }
+  for (const key of existingDaily.keys()) {
+    if (keepDaily.has(key)) continue;
+    const [day, scope] = key.split("|");
+    writes.push({ sql: `DELETE FROM market_stats_daily WHERE day = ? AND scope = ?`, args: [day!, scope!] });
+  }
+  const keepRegion = new Set<string>();
+  for (const row of regionArgs) {
+    const key = `${row[0]}|${row[1]}`;
+    keepRegion.add(key);
+    const prev = existingRegion.get(key);
+    if (prev && sameRow(prev, row)) continue;
+    writes.push({
+      sql: `INSERT OR REPLACE INTO market_stats_daily_region
+            (day, lawd_cd, metro, region_slug, region_name, trade_count, singoga_count, drop_count)
+            VALUES (?,?,?,?,?,?,?,?)`,
+      args: row,
+    });
+  }
+  for (const key of existingRegion.keys()) {
+    if (keepRegion.has(key)) continue;
+    const [day, lawdCd] = key.split("|");
+    writes.push({ sql: `DELETE FROM market_stats_daily_region WHERE day = ? AND lawd_cd = ?`, args: [day!, lawdCd!] });
+  }
+  const CHUNK = 200;
+  for (let i = 0; i < writes.length; i += CHUNK) {
+    await db.batch(writes.slice(i, i + CHUNK), "write");
+  }
+  lastPersistWrites = writes.length;
 
   const computedAt = new Date().toISOString();
   await db.execute({
