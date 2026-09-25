@@ -230,12 +230,6 @@ function AreaSheet({
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
-  const totalDeals = areas.reduce((sum, a) => sum + a.count, 0);
-  const latestOfAll = areas.reduce<AptAreaOption["latestTrade"]>(
-    (best, a) => (a.latestTrade && (!best || a.latestTrade.date > best.date) ? a.latestTrade : best),
-    null,
-  );
-
   useLayoutEffect(() => {
     const run = () => {
       const list = listRef.current;
@@ -354,17 +348,6 @@ function AreaSheet({
           ref={listRef}
           className="min-h-0 overflow-y-auto overscroll-contain touch-pan-y pb-2"
         >
-          <AreaOptionRow
-            active={value === "all"}
-            buttonRef={value === "all" ? activeRef : undefined}
-            onClick={() => onPick("all")}
-            pyeongLabel="전체 면적"
-            exclusiveLabel={`평형 ${areas.length.toLocaleString("ko-KR")}개`}
-            supplyLabel={null}
-            dealLabel={areaSelectorDealCountLabel(totalDeals)}
-            latest={latestOfAll}
-          />
-          <div className="mx-4 border-b border-slate-100" aria-hidden />
           {areas.map((area, index) => (
             <div key={area.key}>
               <AreaOptionRow
