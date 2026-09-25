@@ -22,7 +22,7 @@ import {
   RegionSupplyTimelineSection,
   RegionTradeHighlightsSection,
 } from "@/components/region/RegionMarketExtras";
-import { regionRankingCode } from "@/lib/region-ranking/public";
+import { regionScopeLawdCd } from "@/lib/region/region-scope";
 import { RegionDongPricesSection } from "@/components/region/RegionDongPrices";
 import { RegionBudgetFinderSection } from "@/components/region/RegionBudgetFinder";
 import { RegionJeonseSection } from "@/components/region/RegionJeonseSection";
@@ -812,7 +812,8 @@ export function RegionDailyStatus({
   }, [listedDates, sectionByDate, visibleDayCount, clickedDates]);
 
 
-  const guLawdCd = regionRankingCode(lawdCodes);
+  // 지역 화면 범위: 구 하나면 그 코드, 여러 구로 나뉜 시는 모든 구 코드("41131,41133,41135").
+  const guLawdCd = regionScopeLawdCd(lawdCodes);
   const stickyNavAnchor = useRef<HTMLDivElement | null>(null);
   const singogaDeals = useMemo(
     () =>

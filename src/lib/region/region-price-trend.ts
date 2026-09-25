@@ -13,7 +13,13 @@
 import type { RankingReader } from "@/lib/region-ranking/query";
 import { seoulToday } from "@/lib/market/time";
 import { REGION_PRICE_INDEX_METHOD, REGION_PRICE_INDEX_TABLE } from "@/lib/region/region-price-index";
-import { regionScopeKey } from "@/lib/region/region-scope";
+import {
+  isMultiLawdScope,
+  lawdInSql,
+  regionScopeKey,
+  scopeLawdCodes,
+  tradeOnlySql,
+} from "@/lib/region/region-scope";
 
 export type RegionPriceTrendPoint = {
   yearMonth: string;
@@ -26,6 +32,7 @@ export type RegionPriceTrendPoint = {
 };
 
 export type RegionDongPrice = {
+  /** 법정동 코드 5자리. 여러 구로 나뉜 시 범위는 구 코드를 붙인 10자리(구끼리 겹치지 않게). */
   bjdongCd: string;
   name: string;
   pyeongPrice: number | null;
@@ -155,11 +162,17 @@ export function buildRegionPriceTrend(series: RegionPriceSeries): RegionPriceTre
   };
 }
 
-/** 원천 거래·평형 테이블에서 구 및 법정동 월별 시계열을 직접 계산한다. */
+/**
+ * 원천 거래·평형 테이블에서 구 및 법정동 월별 시계열을 직접 계산한다.
+ * 여러 구로 나뉜 시(`lawdCd`가 구 코드 목록)는 모든 구 단지를 한 번에 세대수 가중 평균하고,
+ * 법정동 키는 구 코드를 붙인 10자리로 둔다.
+ */
 export async function computeRegionPriceSeries(
   db: RankingReader,
   lawdCd: string,
 ): Promise<RegionPriceSeries> {
+  const codes = scopeLawdCodes(lawdCd);
+  const multi = codes.length > 1;
   const [typeRows, volumeRows] = await Promise.all([
     db.execute({
       sql: `WITH cu AS (
@@ -167,7 +180,7 @@ export async function computeRegionPriceSeries(
                      ROUND(ROUND(c.supply_area / ${SUPPLY_PYEONG_FACTOR}, 2)) AS lbl
               FROM apt_canonical_unit_types c
               JOIN apt_complex_master mm ON mm.complex_id = c.complex_id
-              WHERE mm.lawd_cd = ? AND c.supply_cents >= 0 AND c.supply_area > 0
+              WHERE ${lawdInSql("mm.lawd_cd", lawdCd)} AND c.supply_cents >= 0 AND c.supply_area > 0
                 AND c.status IN ('EXACT_SINGLE', 'AMBIGUOUS_MULTI')
             ),
             ul AS (
@@ -184,13 +197,14 @@ export async function computeRegionPriceSeries(
                      CAST(ROUND(CAST(t.exclusive_area AS REAL) * 100) AS INTEGER) AS ec,
                      t.year_month AS ym,
                      CAST(t.deal_amount AS REAL) AS a,
+                     m.lawd_cd AS lc,
                      m.bjdong_cd AS bj,
                      m.legal_dong_name AS dn
               FROM transactions t
               JOIN apt_complex_master m
                 ON m.lawd_cd = t.lawd_cd AND m.apt_name_norm = t.apt_name_norm
                AND m.legal_dong_name = t.dong
-              WHERE t.lawd_cd = ? AND t.deal_type = 'trade'
+              WHERE ${lawdInSql("t.lawd_cd", lawdCd)} AND ${tradeOnlySql("t.deal_type", lawdCd)}
                 AND CAST(t.deal_amount AS REAL) > 0
             ),
             traded AS (SELECT DISTINCT cid, ec FROM base),
@@ -203,27 +217,31 @@ export async function computeRegionPriceSeries(
             ),
             agg AS (
               SELECT b.cid, b.ec, b.ym, AVG(b.a / ul.label) AS v,
-                     MAX(b.bj) AS bj, MAX(b.dn) AS dn
+                     MAX(b.lc) AS lc, MAX(b.bj) AS bj, MAX(b.dn) AS dn
               FROM base b
               JOIN ul ON ul.complex_id = b.cid AND ul.exclusive_cents = b.ec
               WHERE ul.label > 0
               GROUP BY b.cid, b.ec, b.ym
             )
-            SELECT agg.cid, agg.ec, agg.ym, agg.v, agg.bj, agg.dn,
+            SELECT agg.cid, agg.ec, agg.ym, agg.v, agg.lc, agg.bj, agg.dn,
                    COALESCE(hh.h, p.household_count) AS w
             FROM agg
             LEFT JOIN hh ON hh.complex_id = agg.cid
             LEFT JOIN apt_complex_profile p ON p.complex_id = agg.cid`,
-      args: [lawdCd, lawdCd],
+      args: [...codes, ...codes],
     }),
     db.execute({
-      sql: `SELECT year_month AS ym, dong, COUNT(*) AS c
+      sql: `SELECT lawd_cd AS lc, year_month AS ym, dong, COUNT(*) AS c
             FROM transactions
-            WHERE lawd_cd = ? AND deal_type = 'trade' AND CAST(deal_amount AS REAL) > 0
-            GROUP BY year_month, dong`,
-      args: [lawdCd],
+            WHERE ${lawdInSql("lawd_cd", lawdCd)} AND ${tradeOnlySql("deal_type", lawdCd)}
+              AND CAST(deal_amount AS REAL) > 0
+            GROUP BY lawd_cd, year_month, dong`,
+      args: codes,
     }),
   ]);
+  /** 법정동 키: 구 하나는 bjdong 5자리(적재 코드와 같음), 여러 구는 구 코드를 붙인다. */
+  const dongKey = (lc: unknown, bj: unknown) => (multi ? `${String(lc)}${String(bj)}` : String(bj));
+  const volumeKey = (lc: unknown, name: string) => `${String(lc)}|${name}`;
 
   const volume = new Map<string, number>();
   const dongVolume = new Map<string, Map<number, number>>();
@@ -234,17 +252,18 @@ export async function computeRegionPriceSeries(
     volume.set(ym, (volume.get(ym) ?? 0) + c);
     const dn = String(row.dong ?? "").trim();
     if (dn) {
-      const byMonth = dongVolume.get(dn) ?? new Map<number, number>();
+      const vk = volumeKey(row.lc, dn);
+      const byMonth = dongVolume.get(vk) ?? new Map<number, number>();
       const m = monthIndex(ym);
       byMonth.set(m, (byMonth.get(m) ?? 0) + c);
-      dongVolume.set(dn, byMonth);
+      dongVolume.set(vk, byMonth);
     }
   }
 
   type TypeSeries = { cid: string; months: number[]; values: number[]; cursor: number };
   const types = new Map<string, TypeSeries>();
   const weights = new Map<string, number>();
-  const complexDong = new Map<string, { bj: string; name: string }>();
+  const complexDong = new Map<string, { bj: string; name: string; lc: string }>();
   for (const row of typeRows.rows) {
     const ym = String(row.ym);
     const v = Number(row.v);
@@ -253,7 +272,7 @@ export async function computeRegionPriceSeries(
     const w = Number(row.w);
     if (Number.isFinite(w) && w > 0) weights.set(cid, w);
     if (row.bj != null && row.dn != null && !complexDong.has(cid)) {
-      complexDong.set(cid, { bj: String(row.bj), name: String(row.dn) });
+      complexDong.set(cid, { bj: dongKey(row.lc, row.bj), name: String(row.dn), lc: String(row.lc) });
     }
     const key = `${cid}|${row.ec}`;
     let t = types.get(key);
@@ -276,7 +295,12 @@ export async function computeRegionPriceSeries(
   const last = Math.max(...allMonths, monthIndex(seoulToday().slice(0, 7).replace("-", "")));
 
   const nameOf = new Map<string, string>();
-  for (const d of complexDong.values()) if (!nameOf.has(d.bj)) nameOf.set(d.bj, d.name);
+  const lawdOf = new Map<string, string>();
+  for (const d of complexDong.values()) {
+    if (nameOf.has(d.bj)) continue;
+    nameOf.set(d.bj, d.name);
+    lawdOf.set(d.bj, d.lc);
+  }
   const dongPoints = new Map<string, RegionPriceRawPoint[]>();
   for (const bj of nameOf.keys()) dongPoints.set(bj, []);
 
@@ -321,7 +345,7 @@ export async function computeRegionPriceSeries(
         yearMonth: ym,
         pyeongPrice: d && d.den > 0 ? d.num / d.den : null,
         complexCount: d?.n ?? 0,
-        tradeCount: dongVolume.get(nameOf.get(bj)!)?.get(m) ?? 0,
+        tradeCount: dongVolume.get(volumeKey(lawdOf.get(bj), nameOf.get(bj)!))?.get(m) ?? 0,
       });
     }
   }
@@ -348,8 +372,13 @@ function dongCodeRange(lawdCd: string): [string, string] {
   return [`${lawdCd}00000`, `${lawdCd}99999`];
 }
 
-/** 적재본이 있으면 구 시계열 전체와 최근 13개월 법정동 값만 읽는다. 없으면 null. */
+/**
+ * 적재본이 있으면 구 시계열 전체와 최근 13개월 법정동 값만 읽는다. 없으면 null.
+ * 여러 구로 나뉜 시 범위는 적재본이 없다(구 값은 세대수 가중 평균이라 합칠 수 없다) →
+ * null을 돌려 모든 구 거래로 바로 계산한다(성남 3구 약 4초, 1시간 캐시).
+ */
 async function readMaterialized(db: RankingReader, lawdCd: string): Promise<RegionPriceTrend | null> {
+  if (isMultiLawdScope(lawdCd)) return null;
   const [lo, hi] = dongCodeRange(lawdCd);
   const readDongs = (fromYm: string) =>
     db.execute({

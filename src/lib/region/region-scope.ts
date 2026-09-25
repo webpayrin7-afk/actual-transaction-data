@@ -6,13 +6,55 @@
  * 으로 좁힌 값이다.
  */
 export type RegionScope = {
-  /** 5자리 시·군·구 코드. */
+  /**
+   * 5자리 시·군·구 코드. 여러 구로 나뉜 시(성남·수원·고양 등) 전체는
+   * 구 코드를 쉼표로 이은 값(예: "41131,41133,41135") — `regionScopeLawdCd`로 만든다.
+   */
   lawdCd: string;
-  /** 법정동 이름 (예: "잠실동"). 없으면 구 전체. */
+  /** 법정동 이름 (예: "잠실동"). 없으면 구 전체. 동 범위는 구 코드 하나만. */
   dong?: string | null;
 };
 
 const LAWD_RE = /^[0-9]{5}$/;
+/** 구가 가장 많은 시는 4개(수원·화성). 여유를 두되 임의 목록은 막는다. */
+const MAX_SCOPE_LAWD_CODES = 6;
+
+/**
+ * 지역 화면 범위 코드: 구 하나면 그 코드, 여러 구로 나뉜 시는 모든 구 코드를 쉼표로 잇는다.
+ * (첫 구만 쓰면 성남시 화면이 수정구만 집계됐다.)
+ */
+export function regionScopeLawdCd(lawdCodes: readonly string[] | undefined): string | null {
+  const codes = [...new Set((lawdCodes ?? []).map((c) => c.trim()).filter((c) => LAWD_RE.test(c)))];
+  if (!codes.length || codes.length > MAX_SCOPE_LAWD_CODES) return null;
+  return codes.join(",");
+}
+
+/** 범위 코드(`lawdCd`)의 구 코드 목록. */
+export function scopeLawdCodes(lawdCd: string): string[] {
+  return lawdCd.split(",");
+}
+
+/** 여러 구를 묶은 시 범위인지. */
+export function isMultiLawdScope(lawdCd: string): boolean {
+  return lawdCd.includes(",");
+}
+
+/** SQL 조건: 구 하나면 `col = ?`, 여러 구면 `col IN (?, …)`. 인자는 `scopeLawdCodes(lawdCd)`. */
+export function lawdInSql(col: string, lawdCd: string): string {
+  const n = scopeLawdCodes(lawdCd).length;
+  return n === 1 ? `${col} = ?` : `${col} IN (${Array.from({ length: n }, () => "?").join(", ")})`;
+}
+
+/**
+ * 매매만 거르는 조건. 여러 구(`lawd_cd IN (…)`)와 `deal_type = 'trade'`를 함께 쓰면 플래너가
+ * idx_tx_type_first_seen(deal_type)으로 전국 매매를 훑는다(성남 3구 COUNT 85초). 여러 구일 때는
+ * 단항 `+`로 deal_type 인덱스를 빼서 idx_tx_lawd_ym_type(lawd_cd, year_month, deal_type)을 쓰게 한다.
+ * 구 하나는 기존 조건 그대로.
+ */
+export function tradeOnlySql(col: string, lawdCd: string): string {
+  return isMultiLawdScope(lawdCd) ? `+${col} = 'trade'` : `${col} = 'trade'`;
+}
+
 /** 법정동 이름: 한글·숫자·가운뎃점 (예: 잠실동, 을지로1가, 신당동). */
 const DONG_RE = /^[가-힣0-9·.]{1,20}$/;
 
@@ -55,10 +97,14 @@ export function regionScopeParams(scope: RegionScope): string {
 export function parseRegionScope(
   params: URLSearchParams,
 ): { scope: RegionScope; error?: undefined } | { scope?: undefined; error: string } {
-  const lawdCd = params.get("lawd_cd")?.trim() ?? "";
-  if (!LAWD_RE.test(lawdCd)) return { error: "lawd_cd가 필요합니다." };
+  const raw = params.get("lawd_cd")?.trim() ?? "";
+  const parts = raw.split(",");
+  if (!parts.every((c) => LAWD_RE.test(c))) return { error: "lawd_cd가 필요합니다." };
+  const lawdCd = regionScopeLawdCd(parts);
+  if (!lawdCd || lawdCd !== raw) return { error: "lawd_cd가 필요합니다." };
   const rawDong = params.get("dong");
   if (rawDong == null || rawDong.trim() === "") return { scope: { lawdCd } };
+  if (isMultiLawdScope(lawdCd)) return { error: "동 범위는 구 코드 하나만 받습니다." };
   const dong = normalizeScopeDongName(rawDong);
   if (!dong) return { error: "dong 값이 올바르지 않습니다." };
   return { scope: { lawdCd, dong } };

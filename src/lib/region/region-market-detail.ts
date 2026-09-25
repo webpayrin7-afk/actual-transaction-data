@@ -8,7 +8,12 @@
  */
 import type { RankingReader } from "@/lib/region-ranking/query";
 import { seoulToday } from "@/lib/market/time";
-import { regionScopeKey } from "@/lib/region/region-scope";
+import {
+  lawdInSql,
+  regionScopeKey,
+  scopeLawdCodes,
+  tradeOnlySql,
+} from "@/lib/region/region-scope";
 
 export type TradeDirection = "up" | "down" | "other";
 export type DirectionCounts = Record<TradeDirection, number>;
@@ -101,16 +106,20 @@ function breakdownRows(
     .sort((a, b) => b.up + b.down + b.other - (a.up + a.down + a.other));
 }
 
+/**
+ * `{{LAWD}}`: 구 하나는 `lawd_cd = ?`, 여러 구로 나뉜 시는 `lawd_cd IN (…)`.
+ * `{{TRADE}}`: 매매 조건(`tradeOnlySql` — 여러 구일 때 인덱스 선택을 고정).
+ */
 const TRADES_CTE = `
   t AS (
-    SELECT id, apt_name, apt_name_norm AS n, dong,
+    SELECT id, apt_name, lawd_cd || '|' || apt_name_norm AS n, dong,
            CAST(exclusive_area AS REAL) AS ea,
            ROUND(CAST(exclusive_area AS REAL), 0) AS ar,
            deal_date AS d, year_month AS ym,
            CAST(deal_amount AS REAL) AS a,
            floor
     FROM transactions
-    WHERE lawd_cd = ? AND deal_type = 'trade' AND year_month >= ?
+    WHERE {{LAWD}} AND {{TRADE}} AND year_month >= ?
       AND CAST(deal_amount AS REAL) > 0 AND CAST(exclusive_area AS REAL) > 0
   )`;
 
@@ -121,7 +130,7 @@ const TRADES_CTE = `
  * 결과는 구 결과를 동으로 거른 것과 같다.
  */
 const DONG_TRADES_CTE = TRADES_CTE.replace(
-  "WHERE lawd_cd = ? AND deal_type = 'trade' AND year_month >= ?",
+  "WHERE {{LAWD}} AND {{TRADE}} AND year_month >= ?",
   "WHERE lawd_cd = ? AND deal_type = 'trade' AND year_month >= ? AND dong = ?",
 );
 
@@ -141,10 +150,16 @@ export async function readRegionMarketDetail(
   const analysisStart = shiftMonthsDay(today, -ANALYSIS_MONTHS);
   const highlightStart = shiftDays(today, -(HIGHLIGHT_DAYS - 1));
 
-  const tradesCte = dong ? DONG_TRADES_CTE : TRADES_CTE;
+  // 여러 구로 나뉜 시는 모든 구 거래를 함께 읽는다. 단지 키(n)에 lawd_cd를 붙여 구가 달라도 섞이지 않는다.
+  const tradesCte = dong
+    ? DONG_TRADES_CTE
+    : TRADES_CTE.replace("{{LAWD}}", lawdInSql("lawd_cd", lawdCd)).replace(
+        "{{TRADE}}",
+        tradeOnlySql("deal_type", lawdCd),
+      );
   /** 구: 동별 구성, 동: 단지별 구성. */
   const groupCol = dong ? "apt_name" : "dong";
-  const scopeArgs = dong ? [lawdCd, lookbackYm, dong] : [lawdCd, lookbackYm];
+  const scopeArgs = dong ? [lawdCd, lookbackYm, dong] : [...scopeLawdCodes(lawdCd), lookbackYm];
 
   const [agg, recent] = await Promise.all([
     db.execute({

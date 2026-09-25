@@ -255,7 +255,8 @@ export function RegionPriceTrendChart({
       const body = (await res.json()) as SeoulRank | { status: string };
       return body.status === "ok" ? (body as SeoulRank) : null;
     },
-    enabled: !!lawdCd && !dongScope,
+    // 서울 구 코드(11xxx) 하나일 때만 — 여러 구로 나뉜 시 범위("41131,41133,…")는 해당 없음.
+    enabled: /^11[0-9]{3}$/.test(lawdCd) && !dongScope,
     staleTime: 60 * 60_000,
     retry: 0,
   });

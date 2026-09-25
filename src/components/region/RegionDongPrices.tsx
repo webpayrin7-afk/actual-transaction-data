@@ -10,6 +10,7 @@ import { LabStatTiles, type LabStatTile } from "@/components/ui/LabStatTiles";
 import { LabTag } from "@/components/ui/LabTag";
 import { LabTextLink } from "@/components/ui/LabListRow";
 import { useRegionPriceTrend } from "@/components/region/useRegionScopeQueries";
+import { districtNameFromCode } from "@/lib/constants/regions";
 import { regionDongHref } from "@/lib/molit/region-paths";
 import type { RegionDongPrice } from "@/lib/region/region-price-trend";
 
@@ -240,7 +241,14 @@ export function RegionDongPricesSection({
                     </div>
                   ) : (
                     <Link
-                      href={regionDongHref(regionSlug, d.name)}
+                      href={regionDongHref(
+                        regionSlug,
+                        d.name,
+                        // 여러 구로 나뉜 시 목록(10자리 코드)은 구를 붙여 같은 이름 동을 구분한다.
+                        d.bjdongCd.length === 10
+                          ? districtNameFromCode(d.bjdongCd.slice(0, 5)) || undefined
+                          : undefined,
+                      )}
                       className="lab-row-press relative -mx-2 flex min-h-11 flex-col gap-1.5 rounded-lg px-2 py-2.5 pr-8"
                     >
                       {body}
