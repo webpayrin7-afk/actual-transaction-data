@@ -259,7 +259,7 @@ export function RegionRankingTable({
                 return (
                   <li key={row.complex_id}>
                     {href ? (
-                      <Link href={href} className={`${cls} hover:bg-slate-50`}>
+                      <Link href={href} className={`${cls} lab-row-press rounded-lg`}>
                         {body}
                       </Link>
                     ) : (

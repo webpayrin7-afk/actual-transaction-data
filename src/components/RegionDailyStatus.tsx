@@ -176,7 +176,7 @@ function FeaturedDealCard({
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="block rounded-xl border border-teal-200 bg-teal-50 px-3 py-2.5 transition hover:border-teal-300 hover:bg-teal-50"
+      className="lab-row-press block rounded-xl border border-teal-200 bg-teal-50 px-3 py-2.5 hover:border-teal-300"
     >
       <SingogaBadge variant="featured">
         {singogaLabel(deal.singogaKind)}
@@ -233,7 +233,7 @@ function SingogaRowCard({
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="block rounded-xl border border-slate-200 px-3 py-2.5 transition hover:border-teal-200 hover:bg-teal-50/40"
+      className="lab-row-press block rounded-xl border border-slate-200 px-3 py-2.5 hover:border-teal-200"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
@@ -285,7 +285,7 @@ function RegularDealCard({
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="block rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2.5 transition hover:border-slate-300 hover:bg-slate-50"
+      className="lab-row-press block rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2.5 hover:border-teal-200"
     >
       <p className="break-keep text-sm font-semibold leading-snug text-slate-900 line-clamp-2">
         {deal.aptName}
@@ -316,7 +316,7 @@ function HistoryDealCard({
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="block rounded-lg border border-solid border-slate-100 px-3 py-2 transition hover:bg-slate-50/80"
+      className="lab-row-press block rounded-lg border border-solid border-slate-100 px-3 py-2"
     >
       <div className="flex items-start justify-between gap-2">
         <p className="min-w-0 flex-1 break-keep text-sm font-semibold leading-snug text-slate-900 line-clamp-2">

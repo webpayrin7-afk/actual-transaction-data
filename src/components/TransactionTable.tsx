@@ -51,14 +51,14 @@ function MobileRow({ tx, regionSlug }: { tx: Transaction; regionSlug?: string })
           <time className="detail-meta tabular-nums">{formatDealDate(tx.dealDate)}</time>
         </p>
       </div>
-      {href ? <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden /> : null}
+      {href ? <ChevronRight className="lab-press-arrow h-4 w-4 shrink-0" aria-hidden /> : null}
     </>
   );
   const cls = "flex min-h-11 items-center gap-3 py-2.5";
   return (
     <li>
       {href ? (
-        <Link href={href} className={`${cls} hover:bg-slate-50`}>
+        <Link href={href} className={`${cls} lab-row-press -mx-2 rounded-lg px-2`}>
           {body}
         </Link>
       ) : (

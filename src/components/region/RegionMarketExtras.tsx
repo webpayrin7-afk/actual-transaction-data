@@ -76,7 +76,7 @@ function HighlightRow({
     <li>
       <Link
         href={aptDetailHref(deal.aptName, regionSlug, guName)}
-        className="flex min-h-[64px] items-center gap-3 py-3"
+        className="lab-row-press -mx-2 flex min-h-[64px] items-center gap-3 rounded-lg px-2 py-3"
       >
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
@@ -96,7 +96,7 @@ function HighlightRow({
           <p className="detail-list-title mt-1 break-keep">{deal.aptName}</p>
           <p className="detail-meta break-keep">{meta}</p>
         </div>
-        <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
+        <ChevronRight className="lab-press-arrow h-4 w-4 shrink-0" aria-hidden />
       </Link>
     </li>
   );

@@ -126,7 +126,7 @@ function DistrictSchoolRow({
       type="button"
       onClick={onClick}
       aria-label={`${name} 상세 보기`}
-      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-[5px] text-left transition active:scale-[0.99] active:bg-slate-100 hover:bg-slate-50"
+      className="lab-row-press flex w-full items-center gap-2 rounded-lg px-2.5 py-[5px] text-left"
     >
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[13px] font-medium text-slate-800">
@@ -136,7 +136,7 @@ function DistrictSchoolRow({
           <span className="mt-0.5 block text-[13px] leading-5 text-slate-500">{meta}</span>
         ) : null}
       </span>
-      <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
+      <ChevronRight className="lab-press-arrow h-4 w-4 shrink-0" aria-hidden />
     </button>
   );
 }
