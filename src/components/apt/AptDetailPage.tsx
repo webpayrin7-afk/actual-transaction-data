@@ -180,7 +180,9 @@ export function AptDetailPage({
   const fullQuery = useQuery({
     queryKey: ["apt-detail", aptName, regionSlug, gu ?? "", "full", FULL_MONTHS],
     queryFn: () => fetchAptDetail(aptName, regionSlug, FULL_MONTHS, gu),
-    enabled: quickQuery.isSuccess,
+    // DB 모드는 첫 요청이 이미 전체 이력(partial=false) → 같은 4~5MB를 또 받지 않기.
+    // 과거 확장은 API/데모처럼 창이 잘린(partial) 응답일 때만.
+    enabled: quickQuery.isSuccess && quickQuery.data.partial !== false,
     staleTime: 30 * 60 * 1000,
   });
 

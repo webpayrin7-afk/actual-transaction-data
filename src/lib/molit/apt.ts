@@ -579,8 +579,13 @@ export async function getAptDetail(params: {
   const aptName = params.aptName.trim();
   if (!aptName) return null;
 
-  const monthCount = Math.min(Math.max(params.months ?? 120, 6), 120);
   const boundMonths = params.boundMonths === true;
+  // DB + unbounded = 전체 이력이라 months와 무관하게 결과가 같음 → 120으로 고정해
+  // 캐시 키 하나로 묶기 (months=36/120 요청이 같은 4~5MB를 DB에서 두 번 만들던 문제).
+  const monthCount =
+    hasDb() && !boundMonths
+      ? 120
+      : Math.min(Math.max(params.months ?? 120, 6), 120);
   const lawdCodes = resolveDetailLawdCodes(region, params.gu);
   const lawdScope = lawdCodes.slice().sort().join(",");
   const cacheKey = detailCacheKey(
@@ -774,17 +779,22 @@ async function buildAptDetail(params: {
       ? buildMarketGroupAreas(pilotBundle, deals)
       : (await import("@/lib/apt/area-groups")).groupAreaOptions(exclusiveAreas);
 
-  const buildYears = deals
-    .map((t) => t.buildYear)
-    .filter((y): y is number => typeof y === "number" && y > 1900);
-  const buildYear =
-    buildYears.length > 0
-      ? buildYears.sort(
-          (a, b) =>
-            buildYears.filter((x) => x === b).length -
-            buildYears.filter((x) => x === a).length,
-        )[0]
-      : null;
+  // 최빈 준공연도 — 한 번 세기 (정렬 비교마다 전체 filter 하던 O(n² log n)이
+  // 은마 1.5만 건에서 ~12초). 동률은 먼저 나온(최근 거래) 연도 — 기존 stable sort와 동일.
+  const buildYearCount = new Map<number, number>();
+  for (const tx of deals) {
+    const y = tx.buildYear;
+    if (typeof y !== "number" || y <= 1900) continue;
+    buildYearCount.set(y, (buildYearCount.get(y) ?? 0) + 1);
+  }
+  let buildYear: number | null = null;
+  let buildYearTop = 0;
+  for (const [y, n] of buildYearCount) {
+    if (n > buildYearTop) {
+      buildYear = y;
+      buildYearTop = n;
+    }
+  }
 
   let baselinePriorMax: Map<string, number> | undefined;
   if (useMarketGroups && pilotBundle) {
