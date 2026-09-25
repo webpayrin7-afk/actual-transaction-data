@@ -280,6 +280,11 @@ export function formatYyyymmBasisLabel(yyyymm: string): string {
 export async function getComplexDetailV1(params: {
   aptName: string;
   lawdCd?: string;
+  /**
+   * lawdCd를 모를 때(구가 여럿인 시에서 ?gu= 없이 들어온 링크) 후보 구 코드.
+   * 이 코드들 안에서 이름이 같은 단지가 딱 하나일 때만 연결한다 (둘 이상이면 비워 둔다).
+   */
+  lawdCodes?: string[];
 }): Promise<ComplexDetailV1> {
   const t0 = performance.now();
   const empty: ComplexDetailV1 = {
@@ -310,6 +315,9 @@ export async function getComplexDetailV1(params: {
   }
 
   const tMaster = performance.now();
+  const candidateCodes = [
+    ...new Set((params.lawdCodes ?? []).map((c) => c.trim()).filter(Boolean)),
+  ];
   const masterResult = params.lawdCd?.trim()
     ? await db.execute({
         sql: `SELECT complex_id, apt_name, apt_name_norm, sido, sigungu,
@@ -319,6 +327,18 @@ export async function getComplexDetailV1(params: {
               LIMIT 1`,
         args: [aptNorm, params.lawdCd.trim()],
       })
+    : candidateCodes.length > 0
+    ? await db
+        .execute({
+          // idx_acm_lawd_norm (lawd_cd, apt_name_norm) — 2행까지만 읽어 유일한지 본다.
+          sql: `SELECT complex_id, apt_name, apt_name_norm, sido, sigungu,
+                       legal_dong_name, jibun, road_address, lawd_cd, bjdong_cd
+                FROM apt_complex_master
+                WHERE apt_name_norm = ? AND lawd_cd IN (${candidateCodes.map(() => "?").join(",")})
+                LIMIT 2`,
+          args: [aptNorm, ...candidateCodes],
+        })
+        .then((r) => (r.rows.length === 1 ? r : { ...r, rows: [] }))
     : await db.execute({
         sql: `SELECT complex_id, apt_name, apt_name_norm, sido, sigungu,
                      legal_dong_name, jibun, road_address, lawd_cd, bjdong_cd
