@@ -113,32 +113,32 @@ export function ComplexCommerceStats({
     <div className="space-y-0">
       {/* 생활 상권 규모 */}
       <section>
-        <div className="flex items-baseline justify-between gap-2">
-          <SectionHeading>생활 상권</SectionHeading>
-        </div>
-        {/* 숫자 오른쪽에 범위·기준 시점, 안내 ⓘ는 여기 하나만 */}
-        <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-          <p className="detail-summary-value leading-none">
-            {formatCommerceCount(snapshot.p2Total)}
-            <span className="detail-label ml-0.5">개</span>
-          </p>
-          <span className="detail-meta">
+        {/* 제목 줄: 생활 상권 ⓘ ··· 반경·기준 시점 (오른쪽) */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center">
+            <SectionHeading>생활 상권</SectionHeading>
+            <InfoTip aria-label="생활 상권 집계 안내">
+              <p className="detail-body">
+                단지 중심 반경 {radiusKm} 내 상가업소 중 일상생활과 밀접한 업종을
+                집계합니다. 거리는 직선거리 기준입니다.
+                <br />
+                <br />
+                {snapshot.sourcePeriodLabel} 소상공인시장진흥공단 상가업소 데이터
+                기준.
+                <br />
+                전체 상가업소 {formatCommerceCount(snapshot.p0Total)}개 중 생활
+                밀착 업종 {formatCommerceCount(snapshot.p2Total)}개.
+              </p>
+            </InfoTip>
+          </div>
+          <span className="detail-meta shrink-0 text-right">
             반경 {radiusKm} · {snapshot.sourcePeriodLabel}
           </span>
-          <InfoTip aria-label="생활 상권 집계 안내" className="-ml-1.5">
-            <p className="detail-body">
-              단지 중심 반경 {radiusKm} 내 상가업소 중 일상생활과 밀접한 업종을
-              집계합니다. 거리는 직선거리 기준입니다.
-              <br />
-              <br />
-              {snapshot.sourcePeriodLabel} 소상공인시장진흥공단 상가업소 데이터
-              기준.
-              <br />
-              전체 상가업소 {formatCommerceCount(snapshot.p0Total)}개 중 생활
-              밀착 업종 {formatCommerceCount(snapshot.p2Total)}개.
-            </p>
-          </InfoTip>
         </div>
+        <p className="detail-summary-value mt-1.5 leading-none">
+          {formatCommerceCount(snapshot.p2Total)}
+          <span className="detail-label ml-0.5">개</span>
+        </p>
         {leadingComposition && leadingComposition.key === "음식/외식" ? (
           <p className="detail-body mt-1.5">음식/외식 업종 비중이 가장 높아요.</p>
         ) : null}
