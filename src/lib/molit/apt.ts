@@ -587,8 +587,13 @@ export async function getAptDetail(params: {
   const aptName = params.aptName.trim();
   if (!aptName) return null;
 
-  const monthCount = Math.min(Math.max(params.months ?? 120, 6), 120);
   const boundMonths = params.boundMonths === true;
+  // DB + unbounded = 전체 이력이라 months와 무관하게 결과가 같음 → 120으로 고정해
+  // 캐시 키 하나로 묶기 (months=36/120 요청이 같은 4~5MB를 DB에서 두 번 만들던 문제).
+  const monthCount =
+    hasDb() && !boundMonths
+      ? 120
+      : Math.min(Math.max(params.months ?? 120, 6), 120);
   const lawdCodes = resolveDetailLawdCodes(region, params.gu);
   const lawdScope = lawdCodes.slice().sort().join(",");
   const cacheKey = detailCacheKey(
