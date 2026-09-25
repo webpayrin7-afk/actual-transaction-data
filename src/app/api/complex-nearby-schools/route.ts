@@ -1,6 +1,7 @@
 /**
- * Lazy nearby-schools API — NEIS schoolInfo only.
- * Official coords when present; otherwise address for client NAVER Geocode.
+ * Lazy nearby-schools API.
+ * 잠실엘스 pilot: NEIS schoolInfo (official coords, else client NAVER Geocode).
+ * 그 외 단지: complex_nearby_schools + school_master (미리 계산, 1.5km).
  * No DB write. No catchment / assignment claim.
  */
 
@@ -18,6 +19,88 @@ import {
 import { buildSchoolDistrictsPayload } from "@/lib/complex-detail/school-district-server";
 import { buildAttendanceZonePayload } from "@/lib/complex-detail/attendance-zone-server";
 import { JAMSIL_ELS_MAP_PILOT } from "@/lib/nearby-map/jamsil-els-pilot";
+import { readMaterializedNearbySchools } from "@/lib/school-materialization/read-nearby";
+
+const NOT_APPLICABLE_DISTRICTS = {
+  middle: null,
+  high: null,
+  middleStatus: "NOT_APPLICABLE",
+  highStatus: "NOT_APPLICABLE",
+} as const;
+
+const NOT_APPLICABLE_ATTENDANCE = {
+  elementary: null,
+  elementaryStatus: "NOT_APPLICABLE",
+} as const;
+
+const NEARBY_DISCLAIMER =
+  "학교 위치 기반 인근 정보이며 배정학교/통학구역을 의미하지 않습니다.";
+
+/**
+ * 잠실엘스 외 단지 — 미리 계산된 인근 학교(complex_nearby_schools · 학교알리미 좌표).
+ * 계산 행이 없는 단지는 EMPTY (pilot 안내 문구 대신).
+ */
+async function materializedResponse(complexId: string) {
+  const base = {
+    source: "NEIS" as const,
+    cacheVersion: SCHOOL_CACHE_VERSION,
+    displayMaxMeters: SCHOOL_DISPLAY_MAX_METERS,
+    maxPerLevel: SCHOOL_MAX_PER_LEVEL,
+    disclaimer: NEARBY_DISCLAIMER,
+    assignmentSupported: false,
+    needsClientGeocode: false,
+    categories: [],
+    schoolDistricts: NOT_APPLICABLE_DISTRICTS,
+    attendanceZone: NOT_APPLICABLE_ATTENDANCE,
+  };
+  const empty = {
+    ...base,
+    status: "EMPTY",
+    reason: "현재 확인 가능한 인근 학교 정보가 없습니다.",
+    schools: [],
+  };
+  if (!complexId) return NextResponse.json(empty);
+
+  try {
+    const mat = await readMaterializedNearbySchools(complexId);
+    const schools = (mat?.schools ?? [])
+      .filter((s) => s.lat != null && s.lng != null)
+      .map((s) => ({
+        id: `school-${s.level}-${s.schoolCode}`,
+        schoolCode: s.schoolCode,
+        name: s.name,
+        level: s.level,
+        schoolLevel: toSchoolLevelCode(s.level),
+        establishment: s.establishment,
+        address: s.address,
+        roadAddress: s.roadAddress,
+        geocodeQuery: schoolGeocodeQuery(s.address, s.roadAddress),
+        lat: s.lat,
+        lng: s.lng,
+        distanceMeters: s.distanceMeters,
+        distanceLabel: null,
+        coordSource: "NEIS" as const,
+        source: "NEIS" as const,
+      }));
+    if (!schools.length) return NextResponse.json(empty);
+    return NextResponse.json({
+      ...base,
+      status: "READY",
+      reason: null,
+      attribution: mat?.attribution ?? "출처: 학교알리미",
+      sourceAsOf: mat?.sourceAsOf ?? null,
+      distanceBasis: "단지 대표 필지 좌표 · 직선거리",
+      schools,
+    });
+  } catch {
+    return NextResponse.json({
+      ...base,
+      status: "ERROR",
+      reason: "인근 학교 정보를 불러오지 못했습니다.",
+      schools: [],
+    });
+  }
+}
 
 export const dynamic = "force-dynamic";
 export const revalidate = 86400;
@@ -62,27 +145,7 @@ export async function GET(req: NextRequest) {
     complexId === JAMSIL_ELS_MAP_PILOT.complexId;
 
   if (!pilot) {
-    return NextResponse.json({
-      status: "PILOT_ONLY",
-      reason: "인근 학교 실데이터는 잠실엘스 pilot만 지원합니다.",
-      source: "NEIS",
-      cacheVersion: SCHOOL_CACHE_VERSION,
-      displayMaxMeters: SCHOOL_DISPLAY_MAX_METERS,
-      maxPerLevel: SCHOOL_MAX_PER_LEVEL,
-      schools: [],
-      categories: [],
-      needsClientGeocode: false,
-      schoolDistricts: {
-        middle: null,
-        high: null,
-        middleStatus: "NOT_APPLICABLE",
-        highStatus: "NOT_APPLICABLE",
-      },
-      attendanceZone: {
-        elementary: null,
-        elementaryStatus: "NOT_APPLICABLE",
-      },
-    });
+    return materializedResponse(complexId);
   }
 
   // District / attendance payloads are independent of NEIS nearby fetch.

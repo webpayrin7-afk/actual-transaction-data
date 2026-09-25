@@ -1436,7 +1436,7 @@ export function ComplexNearbyLifeSection({
                 <br />
                 거리: 직선거리
                 <br />
-                학교: NEIS schoolInfo (인근 학교 · 배정/통학구역 아님)
+                학교: 학교알리미·NEIS schoolInfo (인근 학교 · 배정/통학구역 아님)
                 <br />
                 생활시설: NAVER 지역 검색
                 <br />
