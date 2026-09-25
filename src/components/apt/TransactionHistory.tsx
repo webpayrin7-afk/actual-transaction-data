@@ -22,6 +22,7 @@ import {
 import {
   archiveBuildingDongLabel,
   archiveStatusLabel,
+  type ArchiveStatus,
 } from "@/lib/apt/transaction-row-display";
 
 
@@ -365,8 +366,15 @@ function archivePriceLabel(
   return formatEokDetail(tx.dealAmount);
 }
 
-function StatusBadge({ label }: { label: "신규" | "갱신" }) {
-  const renewal = label === "갱신";
+function StatusBadge({ label }: { label: ArchiveStatus }) {
+  if (label === "미등기") {
+    return (
+      <span className="inline-flex items-center rounded px-1 py-0.5 text-[0.8125rem] font-semibold leading-none text-amber-700 bg-amber-50">
+        {label}
+      </span>
+    );
+  }
+  const renewal = label === "갱신" || label === "등기";
   return (
     <span
       className={
@@ -460,7 +468,7 @@ export function GroupedTransactionList({
 
           <ul>
             {group.items.map((tx, idx) => {
-              const status = archiveStatusLabel(mode, tx.dealingGbn);
+              const status = archiveStatusLabel(mode, tx.dealingGbn, tx);
               const dong = archiveBuildingDongLabel(tx);
               return (
                 <li

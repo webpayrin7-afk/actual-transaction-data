@@ -438,7 +438,7 @@ export async function queryAptTransactions(params: {
   // exact apt_name_norm = ? → idx_tx_lawd_apt_ym 사용.
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong
           FROM transactions
           WHERE lawd_cd IN (${lawdPlaceholders})
             ${ymClause}
@@ -467,6 +467,8 @@ export async function queryAptTransactions(params: {
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
     dealingGbn: String(row.dealing_gbn ?? ""),
+    rgstDate: row.rgst_date == null || String(row.rgst_date).trim() === "" ? null : String(row.rgst_date),
+    aptDong: row.apt_dong == null || String(row.apt_dong).trim() === "" ? null : String(row.apt_dong).trim(),
   }));
 }
 
@@ -525,6 +527,8 @@ function mapArchiveRow(row: Record<string, unknown>): Transaction {
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
     dealingGbn: String(row.dealing_gbn ?? ""),
+    rgstDate: row.rgst_date == null || String(row.rgst_date).trim() === "" ? null : String(row.rgst_date),
+    aptDong: row.apt_dong == null || String(row.apt_dong).trim() === "" ? null : String(row.apt_dong).trim(),
   };
 }
 
@@ -693,7 +697,7 @@ export async function queryAptArchivePage(params: {
   const offset = Math.max(params.offset, 0);
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong
           FROM transactions INDEXED BY idx_tx_lawd_apt_ym
           WHERE ${w.sql}
           ORDER BY deal_date DESC, id DESC
@@ -720,7 +724,7 @@ export async function queryTradePool(params: {
   const writeDiscoveryCol = await hasDiscoveryAtColumn(db);
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn,
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong,
                  first_seen_at${writeDiscoveryCol ? ", discovery_at" : ""}
           FROM transactions
           WHERE lawd_cd IN (${lawdPlaceholders})
@@ -743,6 +747,8 @@ export async function queryTradePool(params: {
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
     dealingGbn: String(row.dealing_gbn ?? ""),
+    rgstDate: row.rgst_date == null || String(row.rgst_date).trim() === "" ? null : String(row.rgst_date),
+    aptDong: row.apt_dong == null || String(row.apt_dong).trim() === "" ? null : String(row.apt_dong).trim(),
     firstSeenAt: isoOrNull(row.first_seen_at),
     ...(writeDiscoveryCol
       ? { discoveryAt: isoOrNull(row.discovery_at) }
@@ -768,6 +774,8 @@ function mapTradeQueryRow(
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
     dealingGbn: String(row.dealing_gbn ?? ""),
+    rgstDate: row.rgst_date == null || String(row.rgst_date).trim() === "" ? null : String(row.rgst_date),
+    aptDong: row.apt_dong == null || String(row.apt_dong).trim() === "" ? null : String(row.apt_dong).trim(),
     firstSeenAt: isoOrNull(row.first_seen_at),
     ...(writeDiscoveryCol
       ? { discoveryAt: isoOrNull(row.discovery_at) }
@@ -825,7 +833,7 @@ export async function queryRegionTrades(params: {
   const writeDiscoveryCol = await hasDiscoveryAtColumn(db);
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn,
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong,
                  first_seen_at${writeDiscoveryCol ? ", discovery_at" : ""}
           FROM transactions
           WHERE lawd_cd IN (${lawdPh})
@@ -852,7 +860,7 @@ export async function queryRegionDiscoveries(params: {
     : "AND first_seen_at IS NOT NULL AND first_seen_at != ''";
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn,
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong,
                  first_seen_at${writeDiscoveryCol ? ", discovery_at" : ""}
           FROM transactions
           WHERE lawd_cd IN (${lawdPh})
@@ -1054,7 +1062,7 @@ export async function queryRentPool(params: {
 
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong
           FROM transactions
           WHERE lawd_cd IN (${lawdPlaceholders})
             AND year_month IN (${ymPlaceholders})
@@ -1077,6 +1085,8 @@ export async function queryRentPool(params: {
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
     dealingGbn: String(row.dealing_gbn ?? ""),
+    rgstDate: row.rgst_date == null || String(row.rgst_date).trim() === "" ? null : String(row.rgst_date),
+    aptDong: row.apt_dong == null || String(row.apt_dong).trim() === "" ? null : String(row.apt_dong).trim(),
   }));
 }
 
@@ -1097,7 +1107,7 @@ export async function queryRegionMonthPool(params: {
 
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong
           FROM transactions
           WHERE lawd_cd IN (${lawdPlaceholders})
             AND year_month IN (${ymPlaceholders})
@@ -1120,6 +1130,8 @@ export async function queryRegionMonthPool(params: {
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
     dealingGbn: String(row.dealing_gbn ?? ""),
+    rgstDate: row.rgst_date == null || String(row.rgst_date).trim() === "" ? null : String(row.rgst_date),
+    aptDong: row.apt_dong == null || String(row.apt_dong).trim() === "" ? null : String(row.apt_dong).trim(),
   }));
 }
 

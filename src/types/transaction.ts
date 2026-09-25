@@ -21,6 +21,10 @@ export interface Transaction {
   buildYear: number | null;
   jibun: string;
   dealingGbn: string;
+  /** 매매 등기일 (국토부 rgstDate, 2023년 거래부터 제공). 없으면 null, 읽지 않은 경로는 undefined */
+  rgstDate?: string | null;
+  /** 매매 거래 동 (국토부 aptDong, 등기된 2023년 이후 거래). 예: "107" */
+  aptDong?: string | null;
   /** 법정동코드 (웨어하우스 적재용) */
   lawdCd?: string;
   /**
