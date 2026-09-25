@@ -222,6 +222,7 @@ export class Complex3dScene {
     this.mPerLng = 111_320 * Math.cos((data.center.lat * Math.PI) / 180);
     for (const g of Object.values(this.groups)) g.clear();
     this.ownMeshes.clear();
+    this.labelEls.clear();
 
     // 우리 단지 동
     const edgeMat = new THREE.LineBasicMaterial({ color: OWN_EDGE, transparent: true, opacity: 0.55 });
@@ -248,6 +249,7 @@ export class Complex3dScene {
         const obj = new CSS2DObject(el);
         obj.position.set(c.x, h + 4, c.z);
         this.groups.labels.add(obj);
+        this.labelEls.set(b.id, { el, x: c.x, y: h + 4, z: c.z });
       }
     }
 
@@ -690,7 +692,30 @@ export class Complex3dScene {
     this.paint();
   }
 
+  private labelEls = new Map<string, { el: HTMLElement; x: number; y: number; z: number }>();
+  private marker: CSS2DObject | null = null;
+
+  /** 고른 동 — 이름표를 칠하고, 이름표 위에 통통 튀는 화살표 */
+  private markSelected() {
+    for (const [id, l] of this.labelEls) l.el.classList.toggle("complex3d-label--on", id === this.selectedId);
+    const l = this.selectedId ? this.labelEls.get(this.selectedId) : null;
+    if (!l) {
+      if (this.marker) this.marker.visible = false;
+      return;
+    }
+    if (!this.marker) {
+      const el = document.createElement("div");
+      el.className = "complex3d-marker";
+      el.innerHTML = '<span class="complex3d-marker__pin"></span>';
+      this.marker = new CSS2DObject(el);
+      this.scene.add(this.marker);
+    }
+    this.marker.visible = true;
+    this.marker.position.set(l.x, l.y, l.z);
+  }
+
   private paint() {
+    this.markSelected();
     for (const [id, mesh] of this.ownMeshes) {
       mesh.material =
         id === this.selectedId

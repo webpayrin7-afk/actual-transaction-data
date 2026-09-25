@@ -1423,6 +1423,35 @@ h3 {
   line-height: 16px;
   white-space: nowrap;
 }
+.complex3d-label--on {
+  background: var(--lab-teal-700);
+  border-color: var(--lab-teal-700);
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 8px;
+  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.35);
+}
+.complex3d-marker {
+  pointer-events: none;
+}
+.complex3d-marker__pin {
+  display: block;
+  width: 0;
+  height: 0;
+  margin-top: -36px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 11px solid var(--lab-teal-700);
+  filter: drop-shadow(0 2px 2px rgba(15, 23, 42, 0.25));
+  animation: complex3d-bounce 0.9s ease-in-out infinite;
+}
+@keyframes complex3d-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .complex3d-marker__pin { animation: none; }
+}
 .complex3d-far .complex3d-label {
   padding: 0 3px;
   font-size: 9px;
