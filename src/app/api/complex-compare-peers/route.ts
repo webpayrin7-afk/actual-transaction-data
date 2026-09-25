@@ -52,9 +52,10 @@ export async function GET(request: NextRequest) {
       limit: 2,
     });
     const res = NextResponse.json({ peers });
+    // 쿼리 파라미터만으로 정해지는 공개 데이터 — CDN 에 1시간 캐시(거래 동기화는 일 1회).
     res.headers.set(
       "Cache-Control",
-      "private, max-age=120, stale-while-revalidate=600",
+      "public, s-maxage=3600, stale-while-revalidate=86400",
     );
     return res;
   } catch (error) {
