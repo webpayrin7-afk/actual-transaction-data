@@ -871,24 +871,11 @@ export function ComplexNearbyLifeSection({
         }
         return;
       }
-      if (tab !== "living" || id === "complex") {
-        pendingListScrollIdRef.current = null;
-        return;
-      }
-      const idx = livingValidPlaces.findIndex((p) => p.id === id);
-      if (idx < 0) {
-        pendingListScrollIdRef.current = null;
-        return;
-      }
-      pendingListScrollIdRef.current = id;
-      if (idx >= LIST_LIMIT && !expanded) {
-        setExpanded(true);
-      }
+      // 마커를 누르면 지도 위 이름 말풍선만 — 목록으로 내려가거나 펼치지 않는다
+      pendingListScrollIdRef.current = null;
     },
     [
       tab,
-      livingValidPlaces,
-      expanded,
       schoolQuery.data?.places,
       tabMarkers,
       openSchoolDetail,
