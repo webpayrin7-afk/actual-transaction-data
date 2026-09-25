@@ -565,9 +565,18 @@ export class Complex3dScene {
           : [...this.ownMeshes.values()];
     const hit = this.raycaster.intersectObjects(pool, false)[0];
     const id = (hit?.object.userData.id as string | undefined) ?? null;
+    // 한 번 탭 = 선택만, 같은 동을 두 번 탭 = 그 동으로 다가가기
+    const now = performance.now();
+    if (id && this.lastTap && this.lastTap.id === id && now - this.lastTap.at < 350) {
+      this.lastTap = null;
+      this.focus(id);
+      return;
+    }
+    this.lastTap = id ? { id, at: now } : null;
     this.select(id);
     this.onSelect(id);
   };
+  private lastTap: { id: string; at: number } | null = null;
 
   resize() {
     const w = this.host.clientWidth;
