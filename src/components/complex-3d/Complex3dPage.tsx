@@ -53,6 +53,19 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   const [nearest, setNearest] = useState<{ dong: string | null; meters: number } | null>(null);
   const [heading, setHeading] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const dragY = useRef<number | null>(null);
+
+  // 모형을 끌 때 브라우저가 같이 당겨지지 않게 (당겨서 새로고침·바운스 끄기)
+  useEffect(() => {
+    const html = document.documentElement;
+    const prev = [html.style.overscrollBehavior, document.body.style.overflow];
+    html.style.overscrollBehavior = "none";
+    document.body.style.overflow = "hidden";
+    return () => {
+      html.style.overscrollBehavior = prev[0]!;
+      document.body.style.overflow = prev[1]!;
+    };
+  }, []);
 
   const query = useQuery({ queryKey: ["complex-3d", complexId], queryFn: () => fetch3d(complexId), staleTime: 60 * 60_000 });
   const d = query.data;
@@ -197,7 +210,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
               : `학교·역 ${d?.pois.length ?? 0}곳`;
 
   return (
-    <div className="relative w-full overflow-hidden bg-[#f4f7f9]" style={{ height: "100dvh" }}>
+    <div className="fixed inset-0 overflow-hidden bg-[#f4f7f9]" style={{ touchAction: "none", overscrollBehavior: "none" }}>
       {/* 캔버스 — 화면 전체 */}
       <div ref={hostRef} className="absolute inset-0 touch-none" style={{ isolation: "isolate" }} />
       {query.isLoading ? <div className="absolute inset-0 flex items-center justify-center detail-meta">3D 모형을 불러오는 중…</div> : null}
@@ -226,6 +239,37 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             <p className="truncate text-[15px] font-bold leading-5 text-[color:var(--lab-navy-950)]">{d?.name ?? "3D 단지 탐색"}</p>
             {d ? <p className="truncate text-[11px] leading-4 text-[color:var(--lab-muted)]">{d.place}</p> : null}
           </div>
+          {ready ? (
+            <div className="pointer-events-auto ml-auto flex shrink-0 gap-1.5">
+              <button
+                type="button"
+                onClick={() => sceneRef.current?.northUp()}
+                aria-label="북쪽을 위로"
+                className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
+              >
+                <svg viewBox="0 0 24 24" className="h-6 w-6" style={{ transform: `rotate(${heading}deg)` }} aria-hidden>
+                  <path d="M12 3 L15.5 12 H8.5 Z" fill="#e11d48" />
+                  <path d="M12 21 L8.5 12 H15.5 Z" fill="#94a3b8" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => sceneRef.current?.resetView()}
+                aria-label="단지 전체 보기"
+                className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
+              >
+                <Maximize2 className="h-[18px] w-[18px] text-[color:var(--lab-navy-950)]" aria-hidden />
+              </button>
+              <button
+                type="button"
+                onClick={() => sceneRef.current?.topView()}
+                aria-label="위에서 보기"
+                className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
+              >
+                <SquareDashed className="h-[18px] w-[18px] text-[color:var(--lab-navy-950)]" aria-hidden />
+              </button>
+            </div>
+          ) : null}
         </div>
         <div className="pointer-events-auto flex gap-1.5 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {MODES.map((m) => (
@@ -251,48 +295,23 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         ) : null}
       </div>
 
-      {/* 오른쪽: 나침반 · 처음 시점 · 위에서 보기 */}
-      {ready ? (
-        <div className="absolute right-3 z-10 flex flex-col gap-2" style={{ top: "calc(env(safe-area-inset-top) + 104px)" }}>
-          <button
-            type="button"
-            onClick={() => sceneRef.current?.northUp()}
-            aria-label="북쪽을 위로"
-            className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
-          >
-            <svg viewBox="0 0 24 24" className="h-6 w-6" style={{ transform: `rotate(${heading}deg)` }} aria-hidden>
-              <path d="M12 3 L15.5 12 H8.5 Z" fill="#e11d48" />
-              <path d="M12 21 L8.5 12 H15.5 Z" fill="#94a3b8" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            onClick={() => sceneRef.current?.resetView()}
-            aria-label="단지 전체 보기"
-            className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
-          >
-            <Maximize2 className="h-[18px] w-[18px] text-[color:var(--lab-navy-950)]" aria-hidden />
-          </button>
-          <button
-            type="button"
-            onClick={() => sceneRef.current?.topView()}
-            aria-label="위에서 보기"
-            className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
-          >
-            <SquareDashed className="h-[18px] w-[18px] text-[color:var(--lab-navy-950)]" aria-hidden />
-          </button>
-        </div>
-      ) : null}
-
       {/* 아래: 접히는 시트 — 접으면 한 줄 요약, 펼치면 모드별 내용 */}
       {d && hasShape ? (
         <div className="absolute inset-x-0 bottom-0 z-10 sm:bottom-3 sm:left-3 sm:right-auto sm:w-[400px]">
           <div className="rounded-t-2xl bg-white shadow-[0_-4px_20px_rgba(15,23,42,0.12)] sm:rounded-2xl">
             <button
               type="button"
-              onClick={() => setSheetOpen((v) => !v)}
+              onPointerDown={(e) => {
+                dragY.current = e.clientY;
+                e.currentTarget.setPointerCapture(e.pointerId);
+              }}
+              onPointerUp={(e) => {
+                const dy = e.clientY - (dragY.current ?? e.clientY);
+                dragY.current = null;
+                setSheetOpen((v) => (dy < -20 ? true : dy > 20 ? false : !v));
+              }}
               aria-expanded={sheetOpen}
-              className="flex w-full flex-col items-stretch px-4 pb-2.5 pt-2 text-left"
+              className="flex w-full touch-none flex-col items-stretch px-4 pb-2.5 pt-2 text-left"
             >
               <span className="mx-auto mb-2 h-1 w-9 rounded-full bg-slate-200 sm:hidden" aria-hidden />
               <span className="flex items-center gap-2">
@@ -344,7 +363,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             ) : null}
 
             {sheetOpen ? (
-              <div className="max-h-[42dvh] overflow-y-auto border-t border-[color:var(--lab-border)] px-4 pb-3 pt-3">
+              <div style={{ touchAction: "pan-y", overscrollBehavior: "contain" }} className="max-h-[42dvh] overflow-y-auto border-t border-[color:var(--lab-border)] px-4 pb-3 pt-3">
                 {mode === "base" ? (
                   <div className="flex flex-col gap-3">
                     {sel ? <DongDetail sel={sel} nearest={nearest} /> : null}
