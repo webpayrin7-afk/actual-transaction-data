@@ -70,6 +70,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const [sheetH, setSheetH] = useState(80);
   const panelRef = useRef<HTMLDivElement>(null);
+  const [panelH, setPanelH] = useState(0);
   const [sunStats, setSunStats] = useState<SunHours | null>(null);
   const [pickedType, setPickedType] = useState<string | null>(null);
   // 모바일에서 시트가 가리는 만큼 모형 중심을 위로 (넓은 화면은 시트가 옆에 떠 있어 그대로)
@@ -79,6 +80,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     const sync = () => {
       setSheetH(el.offsetHeight);
       const panel = panelRef.current?.offsetHeight ?? 0;
+      setPanelH(panel);
       sceneRef.current?.setBottomInset(window.innerWidth < 640 ? el.offsetHeight + (panel ? panel + 8 : 0) : 0);
     };
     sync();
@@ -417,7 +419,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         <div
           role="status"
           className="pointer-events-none absolute left-1/2 z-30 -translate-x-1/2 whitespace-nowrap rounded-full bg-[color:var(--lab-navy-950)]/90 px-3.5 py-2 text-[13px] font-semibold text-white shadow-lg"
-          style={{ top: "calc(env(safe-area-inset-top) + 104px)" }}
+          style={{ bottom: sheetH + (wide ? 20 : 8) + (panelH ? panelH + 10 : 4) }}
         >
           {toast}
         </div>
