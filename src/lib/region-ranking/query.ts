@@ -144,8 +144,59 @@ export async function publishedRegionRanking(
     sort?: RankingV4Sort;
   },
 ) {
-  const regionScope = scopeOf(query.regionCode);
   const period = query.period ?? "12M";
+  const objective = query.areaBand === "TRADE_VOLUME" || query.areaBand === "PRICE_PER_SQM";
+  // 여러 구로 나뉜 시 전체("41131,41133,41135"): 구별 발행본을 모아 V4로 시 전체를 점수화한다.
+  // 객관 지표 보드(V3 행)는 구 단위로만 발행돼 시 전체 보드가 없다.
+  if (/^[0-9]{5}(,[0-9]{5}){1,5}$/.test(query.regionCode)) {
+    const board = objective
+      ? null
+      : await readRankingV4Board(db, {
+          regionCode: query.regionCode,
+          areaBand: query.areaBand as RankingAreaBandV3,
+          period,
+        });
+    if (!board?.published || !board.transactionAsOf) {
+      return {
+        published: false as const,
+        rankingType: query.areaBand,
+        regionScope: "gu" as const,
+        regionCode: query.regionCode,
+        rows: [] as Awaited<ReturnType<typeof regionTop>>,
+      };
+    }
+    const asOf = board.transactionAsOf;
+    return {
+      published: true as const,
+      rankingType: query.areaBand,
+      regionScope: "gu" as const,
+      regionCode: query.regionCode,
+      transactionAsOf: asOf,
+      rankingVersion: RANKING_V4_VERSION,
+      period,
+      regionTotal: board.rows.length,
+      rows: rerankRankingV4(board.rows, query.sort ?? "composite")
+        .slice(0, query.limit ?? 10)
+        .map((row) => ({
+          complexId: row.complexId,
+          name: row.name,
+          dong: row.dong,
+          buildYear: row.buildYear,
+          rank: row.rank,
+          regionTotal: row.regionTotal,
+          confidenceBucket: row.confidenceBucket,
+          transactionAsOf: asOf,
+          publicMetrics: {
+            median_price_per_sqm: row.metrics.medianPricePerSqm,
+            median_deal_amount: row.metrics.medianDealAmount,
+            trade_count: row.metrics.tradeCount,
+            latest_deal_date: row.metrics.latestDealDate,
+          } as Record<string, unknown>,
+          percentiles: row.percentiles,
+        })),
+    };
+  }
+  const regionScope = scopeOf(query.regionCode);
   if (!regionScope) return { published: false as const, reason: "bad_region" };
   const pub = await db.execute({
     sql: `SELECT active_ranking_run_id, ranking_version, transaction_as_of

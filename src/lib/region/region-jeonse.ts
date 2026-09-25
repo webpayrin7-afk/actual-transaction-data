@@ -20,7 +20,14 @@
 import type { RankingReader } from "@/lib/region-ranking/query";
 import { lastCompleteVolumeMonth } from "@/lib/market/deal-stats";
 import { seoulToday } from "@/lib/market/time";
-import { DONG_TX_FROM, DONG_TX_WHERE, regionScopeKey } from "@/lib/region/region-scope";
+import {
+  DONG_TX_FROM,
+  DONG_TX_WHERE,
+  isMultiLawdScope,
+  lawdInSql,
+  regionScopeKey,
+  scopeLawdCodes,
+} from "@/lib/region/region-scope";
 
 export const REGION_JEONSE_INDEX_TABLE = "region_jeonse_index";
 export const REGION_JEONSE_SNAPSHOT_TABLE = "region_jeonse_snapshot";
@@ -192,13 +199,13 @@ export async function computeRegionJeonse(
           JOIN apt_complex_master m
             ON m.lawd_cd = t.lawd_cd AND m.apt_name_norm = t.apt_name_norm
            AND m.legal_dong_name = t.dong
-          WHERE t.lawd_cd = ? AND t.year_month >= ?
+          WHERE ${lawdInSql("t.lawd_cd", lawdCd)} AND t.year_month >= ?
             AND CAST(t.deal_amount AS REAL) > 0 AND CAST(t.exclusive_area AS REAL) > 0
             AND ((t.deal_type = 'trade' AND COALESCE(t.dealing_gbn, '') <> '직거래')
               OR (t.deal_type = 'rent' AND COALESCE(CAST(t.monthly_rent AS REAL), 0) = 0
                   AND COALESCE(t.dealing_gbn, '') NOT IN ('갱신', '갱신계약')))
           GROUP BY m.complex_id, ar, t.year_month, t.deal_type`,
-    args: [lawdCd, fromYm],
+    args: [...scopeLawdCodes(lawdCd), fromYm],
   });
 
   const pairs = new Map<string, PairData>();
@@ -335,7 +342,12 @@ export function regionJeonseSnapshot(value: RegionJeonse): Snapshot {
   return { asOfMonth, latest, lowGap, highRatio, jeonseBelow2yAgo };
 }
 
+/**
+ * 구 적재본 읽기. 여러 구로 나뉜 시 범위는 적재본이 없다(구 값은 중앙값이라 합칠 수 없다) →
+ * null을 돌려 모든 구 거래로 바로 계산한다(성남 3구 약 3초, 1시간 캐시).
+ */
 async function readMaterialized(db: RankingReader, lawdCd: string): Promise<RegionJeonse | null> {
+  if (isMultiLawdScope(lawdCd)) return null;
   let seriesRows;
   let snapRows;
   try {

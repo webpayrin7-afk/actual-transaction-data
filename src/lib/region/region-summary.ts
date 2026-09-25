@@ -8,7 +8,13 @@
 import type { RankingReader } from "@/lib/region-ranking/query";
 import { marketPyeongLabelInteger } from "@/lib/unit-type/supply-label";
 import { seoulToday } from "@/lib/market/time";
-import { DONG_TX_FROM, DONG_TX_WHERE, regionScopeKey } from "@/lib/region/region-scope";
+import {
+  DONG_TX_FROM,
+  DONG_TX_WHERE,
+  lawdInSql,
+  regionScopeKey,
+  scopeLawdCodes,
+} from "@/lib/region/region-scope";
 
 export type RegionAptSummary = {
   status: "ok";
@@ -64,6 +70,9 @@ export async function readRegionAptSummary(
   const currentYear = Number(today.slice(0, 4));
   const dongSql = dong ? " AND m.legal_dong_name = ?" : "";
   const dongArgs = dong ? [dong] : [];
+  // 여러 구로 나뉜 시는 모든 구를 함께 센다(동 범위는 구 하나).
+  const masterLawd = lawdInSql("m.lawd_cd", lawdCd);
+  const lawdArgs = scopeLawdCodes(lawdCd);
 
   const [households, ages, units] = await Promise.all([
     db.execute({
@@ -71,7 +80,7 @@ export async function readRegionAptSummary(
               SELECT u.complex_id, SUM(u.household_count) AS hh
               FROM unit_type_household_counts u
               JOIN apt_complex_master m ON m.complex_id = u.complex_id
-              WHERE m.lawd_cd = ?${dongSql} AND u.household_count IS NOT NULL
+              WHERE ${masterLawd}${dongSql} AND u.household_count IS NOT NULL
               GROUP BY u.complex_id
             )
             SELECT COUNT(*) AS n,
@@ -80,34 +89,35 @@ export async function readRegionAptSummary(
             FROM apt_complex_master m
             LEFT JOIN apt_complex_profile p ON p.complex_id = m.complex_id
             LEFT JOIN u ON u.complex_id = m.complex_id
-            WHERE m.lawd_cd = ?${dongSql}`,
-      args: [lawdCd, ...dongArgs, lawdCd, ...dongArgs],
+            WHERE ${masterLawd}${dongSql}`,
+      args: [...lawdArgs, ...dongArgs, ...lawdArgs, ...dongArgs],
     }),
     db.execute(
       dong
         ? dongAgesQuery(lawdCd, dong, currentYear)
         : {
             sql: `WITH by AS (
-              SELECT apt_name_norm, dong, MAX(CAST(build_year AS INTEGER)) AS y
+              SELECT lawd_cd, apt_name_norm, dong, MAX(CAST(build_year AS INTEGER)) AS y
               FROM transactions
-              WHERE lawd_cd = ? AND year_month >= ?
+              WHERE ${lawdInSql("lawd_cd", lawdCd)} AND year_month >= ?
                 AND build_year IS NOT NULL AND build_year <> ''
-              GROUP BY apt_name_norm, dong
+              GROUP BY lawd_cd, apt_name_norm, dong
             )
             SELECT b.y AS y
             FROM apt_complex_master m
-            JOIN by b ON b.apt_name_norm = m.apt_name_norm AND b.dong = m.legal_dong_name
-            WHERE m.lawd_cd = ? AND b.y BETWEEN 1950 AND ?`,
-            args: [lawdCd, BUILD_YEAR_SINCE, lawdCd, currentYear],
+            JOIN by b ON b.lawd_cd = m.lawd_cd AND b.apt_name_norm = m.apt_name_norm
+             AND b.dong = m.legal_dong_name
+            WHERE ${masterLawd} AND b.y BETWEEN 1950 AND ?`,
+            args: [...lawdArgs, BUILD_YEAR_SINCE, ...lawdArgs, currentYear],
           },
     ),
     db.execute({
       sql: `SELECT u.supply_cents AS supply_cents, u.household_count AS hh
             FROM unit_type_household_counts u
             JOIN apt_complex_master m ON m.complex_id = u.complex_id
-            WHERE m.lawd_cd = ?${dongSql} AND u.ui_safe = 1
+            WHERE ${masterLawd}${dongSql} AND u.ui_safe = 1
               AND u.household_count IS NOT NULL AND u.supply_cents > 0`,
-      args: [lawdCd, ...dongArgs],
+      args: [...lawdArgs, ...dongArgs],
     }),
   ]);
 

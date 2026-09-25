@@ -61,7 +61,8 @@ export async function GET(request: NextRequest) {
   const rankingType = request.nextUrl.searchParams.get("ranking_type")?.trim() ?? "";
   const limitRaw = Number(request.nextUrl.searchParams.get("limit") ?? "10");
   const board = boardOf(rankingType);
-  if (!/^[0-9]{5}$|^[0-9]{10}$/.test(regionCode) || !board) {
+  // 5자리 구 · 10자리 법정동 · 여러 구로 나뉜 시 전체(구 코드를 쉼표로 이은 값).
+  if (!/^[0-9]{5}(,[0-9]{5}){0,5}$|^[0-9]{10}$/.test(regionCode) || !board) {
     return NextResponse.json({ error: "region_code와 ranking_type이 필요합니다." }, { status: 400 });
   }
   if (OBJECTIVE.has(rankingType) && regionCode.length !== 5) {

@@ -8,7 +8,7 @@ import { BackLink } from "@/components/layout/BackLink";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { LabTabs, labTabId, labTabPanelId } from "@/components/ui/LabTabs";
 import type { RegionDef } from "@/lib/constants/regions";
-import { regionRankingCode } from "@/lib/region-ranking/public";
+import { regionScopeLawdCd } from "@/lib/region/region-scope";
 
 export type RegionTab = "dong" | "stats";
 
@@ -33,7 +33,8 @@ export function Dashboard({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const tab = parseTab(searchParams.get("tab")) ?? initialTab ?? "stats";
-  const lawdCd = regionRankingCode(region.lawdCodes);
+  // 여러 구로 나뉜 시(성남·수원 등)는 모든 구를 함께 집계한다(첫 구만 쓰면 수정구만 셌다).
+  const lawdCd = regionScopeLawdCd(region.lawdCodes);
 
   const selectTab = (next: RegionTab) => {
     if (next === tab) return;

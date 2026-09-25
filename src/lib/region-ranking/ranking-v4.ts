@@ -135,10 +135,136 @@ export function scoreRankingV4(candidates: Candidate[]): Omit<RankingV4Row, "reg
     .map((row, index) => ({ ...row, rank: index + 1 }));
 }
 
+/** 여러 구로 나뉜 시 범위 코드("41131,41133,41135")의 구 코드 목록. 아니면 null. */
+function cityLawdCodes(regionCode: string): string[] | null {
+  if (!regionCode.includes(",")) return null;
+  const codes = regionCode.split(",");
+  return codes.length >= 2 && codes.length <= 6 && codes.every((c) => /^[0-9]{5}$/.test(c))
+    ? codes
+    : null;
+}
+
+/** 한 구(또는 법정동)의 발행 피처 스냅샷 후보. */
+async function readV4Candidates(
+  db: RankingReader,
+  featureRunId: string,
+  lawd: string,
+  areaBand: RankingAreaBandV3,
+  bjdong: string | null,
+): Promise<Candidate[]> {
+  const result = await db.execute({
+    sql: `WITH uh AS (
+            SELECT u.complex_id, SUM(u.household_count) AS h
+            FROM unit_type_household_counts u
+            JOIN apt_complex_master mm ON mm.complex_id = u.complex_id
+            WHERE mm.lawd_cd = ? AND u.household_count IS NOT NULL
+            GROUP BY u.complex_id
+          )
+          SELECT f.complex_id, f.median_price_per_sqm, f.median_deal_amount, f.trade_count,
+                 COALESCE(f.household_count, uh.h) AS households,
+                 f.active_month_count, f.latest_deal_date, f.profile_confidence,
+                 m.apt_name, m.apt_name_norm, m.legal_dong_name, p.approval_date
+          FROM ranking_feature_snapshots f
+          LEFT JOIN apt_complex_master m ON m.complex_id = f.complex_id
+          LEFT JOIN apt_complex_profile p ON p.complex_id = f.complex_id
+          LEFT JOIN uh ON uh.complex_id = f.complex_id
+          WHERE f.feature_run_id = ? AND f.lawd_cd = ? AND f.area_band = ?
+            AND f.eligible_input = 1
+            ${bjdong ? "AND f.bjdong_cd = ?" : ""}`,
+    args: bjdong
+      ? [lawd, featureRunId, lawd, areaBand, bjdong]
+      : [lawd, featureRunId, lawd, areaBand],
+  });
+
+  return result.rows.map((row) => {
+    const approval = row.approval_date == null ? null : String(row.approval_date);
+    const year = approval ? /^(\d{4})/.exec(approval)?.[1] : null;
+    return {
+      complexId: String(row.complex_id),
+      name:
+        row.apt_name != null
+          ? String(row.apt_name)
+          : row.apt_name_norm != null
+            ? String(row.apt_name_norm)
+            : null,
+      dong: row.legal_dong_name == null ? null : String(row.legal_dong_name),
+      buildYear: year ? Number(year) : null,
+      price: row.median_price_per_sqm == null ? 0 : Number(row.median_price_per_sqm),
+      amount: row.median_deal_amount == null ? null : Number(row.median_deal_amount),
+      trades: Number(row.trade_count ?? 0),
+      activeMonths: Number(row.active_month_count ?? 0),
+      households: row.households == null ? null : Number(row.households),
+      latestDealDate: row.latest_deal_date == null ? null : String(row.latest_deal_date),
+      confidence: row.profile_confidence == null ? null : String(row.profile_confidence),
+    };
+  });
+}
+
+/**
+ * 여러 구로 나뉜 시 전체 보드: 각 구의 발행 피처 스냅샷 후보를 모아 시 전체를 한 코호트로
+ * 같은 V4 방식으로 점수화한다. 한 구라도 발행 전이면 미발행(일부 구만으로 시 순위를 만들지 않는다).
+ * 기준일은 구 발행본 중 가장 이른 거래 기준일.
+ */
+async function readRankingV4CityBoard(
+  db: RankingReader,
+  codes: string[],
+  query: { regionCode: string; areaBand: RankingAreaBandV3; period?: string },
+): Promise<RankingV4Board> {
+  const period = query.period ?? "12M";
+  const pub = await db.execute({
+    sql: `SELECT region_code, feature_run_id, transaction_as_of FROM region_ranking_publications
+          WHERE region_scope = 'gu' AND region_code IN (${codes.map(() => "?").join(", ")})
+            AND area_band = ? AND period = ?`,
+    args: [...codes, query.areaBand, period],
+  });
+  const runs = new Map<string, { featureRunId: string; asOf: string }>();
+  for (const row of pub.rows) {
+    if (row.feature_run_id == null) continue;
+    runs.set(String(row.region_code), {
+      featureRunId: String(row.feature_run_id),
+      asOf: String(row.transaction_as_of),
+    });
+  }
+  const asOfs = [...runs.values()].map((r) => r.asOf).sort();
+  const empty: RankingV4Board = {
+    published: false,
+    regionScope: "gu",
+    regionCode: query.regionCode,
+    areaBand: query.areaBand,
+    transactionAsOf: asOfs[0] ?? null,
+    featureRunId: null,
+    candidateTotal: 0,
+    rows: [],
+  };
+  if (!codes.every((c) => runs.has(c))) return empty;
+
+  const featureRunId = codes.map((c) => runs.get(c)!.featureRunId).join(",");
+  const key = `${featureRunId}|city|${query.regionCode}|${query.areaBand}`;
+  const hit = cache.get(key);
+  if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.value;
+
+  const perGu = await Promise.all(
+    codes.map((c) => readV4Candidates(db, runs.get(c)!.featureRunId, c, query.areaBand, null)),
+  );
+  const candidates = perGu.flat();
+  const scored = scoreRankingV4(candidates);
+  const value: RankingV4Board = {
+    ...empty,
+    published: true,
+    featureRunId,
+    candidateTotal: candidates.length,
+    rows: scored.map((row) => ({ ...row, regionTotal: scored.length })),
+  };
+  cache.set(key, { at: Date.now(), value });
+  return value;
+}
+
 export async function readRankingV4Board(
   db: RankingReader,
   query: { regionCode: string; areaBand: RankingAreaBandV3; period?: string },
 ): Promise<RankingV4Board> {
+  const city = cityLawdCodes(query.regionCode);
+  if (city) return readRankingV4CityBoard(db, city, query);
   const regionScope = scopeOf(query.regionCode);
   const period = query.period ?? "12M";
   if (!regionScope) {
@@ -178,52 +304,7 @@ export async function readRankingV4Board(
 
   const lawd = query.regionCode.slice(0, 5);
   const bjdong = regionScope === "dong" ? query.regionCode.slice(5) : null;
-  const result = await db.execute({
-    sql: `WITH uh AS (
-            SELECT u.complex_id, SUM(u.household_count) AS h
-            FROM unit_type_household_counts u
-            JOIN apt_complex_master mm ON mm.complex_id = u.complex_id
-            WHERE mm.lawd_cd = ? AND u.household_count IS NOT NULL
-            GROUP BY u.complex_id
-          )
-          SELECT f.complex_id, f.median_price_per_sqm, f.median_deal_amount, f.trade_count,
-                 COALESCE(f.household_count, uh.h) AS households,
-                 f.active_month_count, f.latest_deal_date, f.profile_confidence,
-                 m.apt_name, m.apt_name_norm, m.legal_dong_name, p.approval_date
-          FROM ranking_feature_snapshots f
-          LEFT JOIN apt_complex_master m ON m.complex_id = f.complex_id
-          LEFT JOIN apt_complex_profile p ON p.complex_id = f.complex_id
-          LEFT JOIN uh ON uh.complex_id = f.complex_id
-          WHERE f.feature_run_id = ? AND f.lawd_cd = ? AND f.area_band = ?
-            AND f.eligible_input = 1
-            ${bjdong ? "AND f.bjdong_cd = ?" : ""}`,
-    args: bjdong
-      ? [lawd, featureRunId, lawd, query.areaBand, bjdong]
-      : [lawd, featureRunId, lawd, query.areaBand],
-  });
-
-  const candidates: Candidate[] = result.rows.map((row) => {
-    const approval = row.approval_date == null ? null : String(row.approval_date);
-    const year = approval ? /^(\d{4})/.exec(approval)?.[1] : null;
-    return {
-      complexId: String(row.complex_id),
-      name:
-        row.apt_name != null
-          ? String(row.apt_name)
-          : row.apt_name_norm != null
-            ? String(row.apt_name_norm)
-            : null,
-      dong: row.legal_dong_name == null ? null : String(row.legal_dong_name),
-      buildYear: year ? Number(year) : null,
-      price: row.median_price_per_sqm == null ? 0 : Number(row.median_price_per_sqm),
-      amount: row.median_deal_amount == null ? null : Number(row.median_deal_amount),
-      trades: Number(row.trade_count ?? 0),
-      activeMonths: Number(row.active_month_count ?? 0),
-      households: row.households == null ? null : Number(row.households),
-      latestDealDate: row.latest_deal_date == null ? null : String(row.latest_deal_date),
-      confidence: row.profile_confidence == null ? null : String(row.profile_confidence),
-    };
-  });
+  const candidates = await readV4Candidates(db, featureRunId, lawd, query.areaBand, bjdong);
   const scored = scoreRankingV4(candidates);
   const value: RankingV4Board = {
     ...empty,
