@@ -61,10 +61,16 @@ export function isImmersivePath(pathname: string): boolean {
   return /^\/complex-3d\/[^/]+\/?$/.test(pathname);
 }
 
+/** 메인 메뉴(하단 독) 화면만 상단바·사이드바를 둔다. 나머지는 단지 상세처럼 자기 제목줄(← 뒤로)로. */
+const MAIN_MENU_PATHS = new Set(["/", "/map", "/regions", "/complexes", "/presale"]);
+export function isMainMenuPath(pathname: string): boolean {
+  return MAIN_MENU_PATHS.has(pathname.replace(/\/+$/, "") || "/");
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const immersive = isImmersivePath(pathname);
-  const fullPage = immersive || isDetailFullPagePath(pathname);
+  const fullPage = immersive || isDetailFullPagePath(pathname) || !isMainMenuPath(pathname);
 
   // Sync before paint so sticky offsets don't briefly assume global header height.
   useLayoutEffect(() => {

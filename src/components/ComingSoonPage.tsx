@@ -1,3 +1,4 @@
+import { BackLink } from "@/components/layout/BackLink";
 import Link from "next/link";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
@@ -13,6 +14,7 @@ export function ComingSoonPage({
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
+        leading={<BackLink fallback="/" compact hideLabel />}
         title={title}
         titleClassName="detail-page-title"
         titleSuffix={group}

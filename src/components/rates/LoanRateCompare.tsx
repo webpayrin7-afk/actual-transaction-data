@@ -1,5 +1,6 @@
 "use client";
 
+import { BackLink } from "@/components/layout/BackLink";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -109,6 +110,7 @@ export function LoanRateCompare() {
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
+        leading={<BackLink fallback="/tools" compact hideLabel />}
         title="금리비교"
         titleClassName="detail-page-title"
         description="서울시 시중은행협력자금 취급 은행별 최근 3개월 실행 금리(대출·보전)를 비교합니다. 최저금리 순으로 정렬해 한눈에 볼 수 있습니다."

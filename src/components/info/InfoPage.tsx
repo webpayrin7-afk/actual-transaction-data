@@ -1,3 +1,4 @@
+import { BackLink } from "@/components/layout/BackLink";
 import type { ReactNode } from "react";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
@@ -14,7 +15,7 @@ export function InfoPage({
   return (
     <main className="flex-1">
       <div className={PAGE_SHELL}>
-        <PageHeader title={title} titleClassName="detail-page-title" description={description} />
+        <PageHeader leading={<BackLink fallback="/" compact hideLabel />} title={title} titleClassName="detail-page-title" description={description} />
         <article className="detail-body max-w-3xl space-y-8 text-[color:var(--lab-body)]">
           {children}
         </article>

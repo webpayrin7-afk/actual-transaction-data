@@ -1,5 +1,6 @@
 "use client";
 
+import { BackLink } from "@/components/layout/BackLink";
 import { useCallback, useId, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -137,6 +138,7 @@ export function MarketTrendsPage() {
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
+        leading={<BackLink fallback="/" compact hideLabel />}
         title="시장 흐름"
         titleClassName="detail-page-title"
         showDivider={false}

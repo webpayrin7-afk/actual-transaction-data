@@ -1,5 +1,6 @@
 "use client";
 
+import { BackLink } from "@/components/layout/BackLink";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LoanLimitCalculator } from "@/components/loan/LoanLimitCalculator";
@@ -210,6 +211,7 @@ export function LoanCalculator() {
   return (
     <div className={`${PAGE_SHELL} max-w-3xl overflow-x-hidden`}>
       <PageHeader
+        leading={<BackLink fallback="/tools" compact hideLabel />}
         title="대출 계산기"
         description="LTV·DSR·DTI 한도와 월 상환액·총이자를 계산합니다. 금리 정보는 메뉴의 금리정보에서 확인하세요."
       />

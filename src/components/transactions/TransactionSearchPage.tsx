@@ -1,5 +1,6 @@
 "use client";
 
+import { BackLink } from "@/components/layout/BackLink";
 import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
@@ -68,6 +69,7 @@ export function TransactionSearchPage({
     <div className={PAGE_SHELL}>
       <header className="-mt-1 sm:-mt-1.5">
         <PageHeader
+          leading={<BackLink fallback="/" compact hideLabel />}
           title="실거래 검색"
           titleClassName="detail-page-title"
           description="지역과 조건을 골라 아파트 매매·전월세 실거래를 찾아보세요."
