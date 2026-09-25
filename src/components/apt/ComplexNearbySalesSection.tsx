@@ -240,8 +240,12 @@ export function ComplexNearbySalesSection({
   const [expandedFor, setExpandedFor] = useState<string | null>(null);
   const expanded = expandedFor === key;
   const visibleItems = expanded ? items : items.slice(0, LAB_LIST_PREVIEW);
-  const emptyReason =
-    q.data?.reason ||
+  // 키 누락·조회 오류는 '공급 없음'이 아니라 불러오기 실패로 안내한다.
+  const unavailable =
+    q.isError || q.data?.status === "NO_API_KEY" || q.data?.status === "ERROR";
+  const emptyReason = unavailable
+    ? "주변 공급 정보를 불러오지 못했습니다."
+    : q.data?.reason ||
     (key
       ? `현재 ${key}에 확인된 청약·입주예정 아파트가 없습니다.`
       : "표시할 공급 정보가 없습니다.");
