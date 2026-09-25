@@ -216,7 +216,7 @@ export function ComplexTypeDongMap({
   return (
     <div
       ref={hostRef}
-      className="h-64 w-full overflow-hidden rounded-xl border border-[color:var(--lab-border)] sm:h-[420px]"
+      className="h-48 w-full overflow-hidden rounded-xl border border-[color:var(--lab-border)] sm:h-[420px]"
       role="application"
       aria-label="타입이 있는 동 지도"
     />
