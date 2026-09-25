@@ -198,9 +198,9 @@ export function ComplexTypeDongSection({
         ))}
       </div>
 
-      {/* 이 영역에선 부수 정보 — 낮은 두 칸 요약 (이름 / 값 / 보조) */}
-      <dl className="grid grid-cols-2 divide-x divide-[color:var(--lab-border)] rounded-lg bg-[color:var(--lab-surface-subtle)] py-2 tabular-nums">
-        <div className="min-w-0 px-3">
+      {/* 부수 정보 — 흰 카드 두 개 (이름 / 값 / 보조) */}
+      <dl className="grid grid-cols-2 gap-2 tabular-nums">
+        <div className="min-w-0 rounded-xl border border-[color:var(--lab-border)] bg-white px-3 py-2">
           <dt className="text-[13px] leading-[18px] text-[color:var(--lab-muted)]">최근 매매</dt>
           <dd className="text-[16px] font-bold leading-6 text-[color:var(--lab-navy-950)]">
             {latest ? formatEok(Number(latest.dealAmount)) : "거래 없음"}
@@ -212,7 +212,7 @@ export function ComplexTypeDongSection({
             </dd>
           ) : null}
         </div>
-        <div className="min-w-0 px-3">
+        <div className="min-w-0 rounded-xl border border-[color:var(--lab-border)] bg-white px-3 py-2">
           <dt className="text-[13px] leading-[18px] text-[color:var(--lab-muted)]">최근 1년 거래</dt>
           <dd className="text-[16px] font-bold leading-6 text-[color:var(--lab-navy-950)]">
             {trades1y.length.toLocaleString("ko-KR")}건
