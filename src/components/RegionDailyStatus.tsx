@@ -822,6 +822,8 @@ export function RegionDailyStatus({
     [latest],
   );
   const heroDate = latest?.selectedDate ?? null;
+  // 확인일(discovery_at) 적재는 아직 서울·경기만 — 그 밖 지역은 '신고가 없음'이 아니라 미지원.
+  const seenTrackingOff = latest != null && !latest.firstSeenReady;
 
   function changeActivityMonth(next: string) {
     requestEpoch.current += 1;
@@ -1007,6 +1009,11 @@ export function RegionDailyStatus({
               />
             ) : null}
           </>
+        ) : seenTrackingOff ? (
+          <p className="detail-body">
+            새로 확인된 신고가는 아직 수도권(서울·경기)만 추적합니다. 계약일 기준
+            거래는 아래 지역 거래 내역에서 볼 수 있습니다.
+          </p>
         ) : (
           <p className="detail-body">
             {latest?.bulkIngestDay
@@ -1014,15 +1021,17 @@ export function RegionDailyStatus({
               : "최근 확인된 거래 중 신고가가 없습니다."}
           </p>
         )}
-        <Link
-          href={`/market/price-moves?region=${encodeURIComponent(regionSlug)}`}
-          className="lab-button lab-button-secondary mt-1 w-full"
-        >
-          {regionName} 신고가 · 하락 거래 전체 보기
-          <span aria-hidden className="ml-1">
-            →
-          </span>
-        </Link>
+        {seenTrackingOff ? null : (
+          <Link
+            href={`/market/price-moves?region=${encodeURIComponent(regionSlug)}`}
+            className="lab-button lab-button-secondary mt-1 w-full"
+          >
+            {regionName} 신고가 · 하락 거래 전체 보기
+            <span aria-hidden className="ml-1">
+              →
+            </span>
+          </Link>
+        )}
       </section>
 
       {lawdCodes.length > 0 ? (
