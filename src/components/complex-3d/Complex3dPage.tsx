@@ -1010,7 +1010,6 @@ function DongHeader({
     .join(" · ");
   const around = nearest
     ? [
-        nearest.facing,
         nearest.front
           ? `앞 동 ${nearest.front.dong ?? ""} ${nearest.front.meters}m`
           : "앞이 트임",
