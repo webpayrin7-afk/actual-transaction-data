@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDown, Maximize2, SquareDashed, X } from "lucide-react";
+import Link from "next/link";
+import { ChevronDown, ChevronRight, Maximize2, SquareDashed, X } from "lucide-react";
 import type { Complex3d } from "@/lib/complex-3d/read";
 import { BackLink } from "@/components/layout/BackLink";
 import type {
@@ -453,11 +454,22 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           <div className={`pointer-events-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${FLOAT}`}>
             <BackLink fallback={d?.href ?? "/complexes"} compact hideLabel />
           </div>
-          <p
-            className={`pointer-events-auto flex h-8 min-w-0 items-center truncate rounded-full px-3 text-[14px] font-bold text-[color:var(--lab-navy-950)] ${FLOAT}`}
-          >
-            <span className="truncate">{d?.name ?? "3D 단지 탐색"}</span>
-          </p>
+          {d?.href ? (
+            <Link
+              href={d.href}
+              aria-label={`${d.name} 단지 상세로`}
+              className={`pointer-events-auto flex h-8 min-w-0 items-center gap-0.5 rounded-full pl-3 pr-2 text-[14px] font-bold text-[color:var(--lab-navy-950)] transition active:scale-95 ${FLOAT}`}
+            >
+              <span className="truncate">{d.name}</span>
+              <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
+            </Link>
+          ) : (
+            <p
+              className={`pointer-events-auto flex h-8 min-w-0 items-center rounded-full px-3 text-[14px] font-bold text-[color:var(--lab-navy-950)] ${FLOAT}`}
+            >
+              <span className="truncate">{d?.name ?? "3D 단지 탐색"}</span>
+            </p>
+          )}
           {d && hasShape ? (
             <div className="pointer-events-auto ml-auto flex shrink-0 gap-1.5">
               {(
