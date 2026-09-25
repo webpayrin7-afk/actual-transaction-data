@@ -15,7 +15,7 @@ import type { Complex3d, Complex3dBuilding, FloorBand, Poi3d, Ring } from "@/lib
 export const FLOOR_M = 3;
 const TEAL = 0x0e9aa0;
 const TEAL_DARK = 0x087f83;
-const OWN = 0xdff3f3;
+const OWN = 0x9fd9d6; // 단지 동 — 주변 회색 건물과 구분되는 중간 톤 청록
 const OWN_EDGE = 0x0e9aa0;
 const NEIGHBOR = 0xe6e9ee;
 
