@@ -774,17 +774,22 @@ async function buildAptDetail(params: {
       ? buildMarketGroupAreas(pilotBundle, deals)
       : (await import("@/lib/apt/area-groups")).groupAreaOptions(exclusiveAreas);
 
-  const buildYears = deals
-    .map((t) => t.buildYear)
-    .filter((y): y is number => typeof y === "number" && y > 1900);
-  const buildYear =
-    buildYears.length > 0
-      ? buildYears.sort(
-          (a, b) =>
-            buildYears.filter((x) => x === b).length -
-            buildYears.filter((x) => x === a).length,
-        )[0]
-      : null;
+  // 최빈 준공연도 — 한 번 훑어 세기 (거래 1.6만 건 단지에서 filter-in-sort는 수 초).
+  // 동률이면 deals 순서(최근 거래)에서 먼저 나온 연도 = 기존 안정 정렬 결과와 동일.
+  const buildYearCount = new Map<number, number>();
+  for (const tx of deals) {
+    const y = tx.buildYear;
+    if (typeof y !== "number" || y <= 1900) continue;
+    buildYearCount.set(y, (buildYearCount.get(y) ?? 0) + 1);
+  }
+  let buildYear: number | null = null;
+  let buildYearTop = 0;
+  for (const [y, count] of buildYearCount) {
+    if (count > buildYearTop) {
+      buildYear = y;
+      buildYearTop = count;
+    }
+  }
 
   let baselinePriorMax: Map<string, number> | undefined;
   if (useMarketGroups && pilotBundle) {
