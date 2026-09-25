@@ -75,11 +75,11 @@ function lineOrder(a: string, b: string): number {
 
 let tableChecked: boolean | null = null;
 
-/** 반경 안 역 (가까운 순). 테이블이 없거나 실패하면 빈 목록. */
+/** 반경 안 역 (가까운 순). 테이블이 없거나 실패하면 빈 목록 — 실패는 onFailure로 알린다. */
 export async function readNearbyRailStations(
   db: Client,
   center: LatLng,
-  opts?: { maxMeters?: number; limit?: number },
+  opts?: { maxMeters?: number; limit?: number; onFailure?: (source: string) => void },
 ): Promise<NearbyRailStation[]> {
   const maxMeters = opts?.maxMeters ?? 800;
   try {
@@ -143,6 +143,7 @@ export async function readNearbyRailStations(
     }));
     return opts?.limit != null ? out.slice(0, opts.limit) : out;
   } catch {
+    opts?.onFailure?.("rail-stations");
     return [];
   }
 }

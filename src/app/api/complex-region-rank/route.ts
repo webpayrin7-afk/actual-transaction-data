@@ -14,6 +14,9 @@ import {
 
 export const dynamic = "force-dynamic";
 
+// 공개 순위(일 1회 갱신)라 CDN에 1시간 캐시. 쿼리스트링이 캐시 키. 오류(500)는 캐시 안 함.
+const CACHE_OK = { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" };
+
 type Slot = {
   published?: boolean;
   status: string;
@@ -112,7 +115,7 @@ export async function GET(request: NextRequest) {
         area: null,
         selectedMarketPyeongLabel,
         regionPyeongDecade,
-      });
+      }, { headers: CACHE_OK });
     }
     const byBand = new Map(data.positions.map((item) => [item.areaBand, item]));
     const all = byBand.get("ALL");
@@ -149,7 +152,7 @@ export async function GET(request: NextRequest) {
             dong: selectedDong,
           }
         : null,
-    });
+    }, { headers: CACHE_OK });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "단지 순위를 불러오지 못했습니다." }, { status: 500 });

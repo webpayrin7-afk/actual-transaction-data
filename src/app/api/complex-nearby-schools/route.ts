@@ -20,6 +20,7 @@ import { buildSchoolDistrictsPayload } from "@/lib/complex-detail/school-distric
 import { buildAttendanceZonePayload } from "@/lib/complex-detail/attendance-zone-server";
 import { JAMSIL_ELS_MAP_PILOT } from "@/lib/nearby-map/jamsil-els-pilot";
 import { readMaterializedNearbySchools } from "@/lib/school-materialization/read-nearby";
+import { getDb } from "@/lib/db/client";
 
 const NOT_APPLICABLE_DISTRICTS = {
   middle: null,
@@ -59,7 +60,11 @@ async function materializedResponse(complexId: string) {
     reason: "현재 확인 가능한 인근 학교 정보가 없습니다.",
     schools: [],
   };
-  if (!complexId) return NextResponse.json(empty);
+  const ok = { headers: { "Cache-Control": CACHE_OK } };
+  const short = { headers: { "Cache-Control": CACHE_SHORT } };
+  if (!complexId) return NextResponse.json(empty, ok);
+  // DB가 없으면 reader가 null(=계산 행 없음)을 돌려줘 EMPTY와 구분이 안 된다 → 짧게.
+  if (!getDb()) return NextResponse.json(empty, short);
 
   try {
     const mat = await readMaterializedNearbySchools(complexId);
@@ -82,28 +87,38 @@ async function materializedResponse(complexId: string) {
         coordSource: "NEIS" as const,
         source: "NEIS" as const,
       }));
-    if (!schools.length) return NextResponse.json(empty);
-    return NextResponse.json({
-      ...base,
-      status: "READY",
-      reason: null,
-      attribution: mat?.attribution ?? "출처: 학교알리미",
-      sourceAsOf: mat?.sourceAsOf ?? null,
-      distanceBasis: "단지 대표 필지 좌표 · 직선거리",
-      schools,
-    });
+    if (!schools.length) return NextResponse.json(empty, ok);
+    return NextResponse.json(
+      {
+        ...base,
+        status: "READY",
+        reason: null,
+        attribution: mat?.attribution ?? "출처: 학교알리미",
+        sourceAsOf: mat?.sourceAsOf ?? null,
+        distanceBasis: "단지 대표 필지 좌표 · 직선거리",
+        schools,
+      },
+      ok,
+    );
   } catch {
-    return NextResponse.json({
-      ...base,
-      status: "ERROR",
-      reason: "인근 학교 정보를 불러오지 못했습니다.",
-      schools: [],
-    });
+    return NextResponse.json(
+      {
+        ...base,
+        status: "ERROR",
+        reason: "인근 학교 정보를 불러오지 못했습니다.",
+        schools: [],
+      },
+      short,
+    );
   }
 }
 
 export const dynamic = "force-dynamic";
-export const revalidate = 86400;
+
+// force-dynamic 라우트에선 revalidate가 안 먹는다 → Cache-Control로 CDN 1시간 캐시.
+// 쿼리스트링(단지·좌표)이 캐시 키. 조회 실패(NEIS·DB 오류, DB 미연결)는 60초만.
+const CACHE_OK = "public, s-maxage=3600, stale-while-revalidate=86400";
+const CACHE_SHORT = "public, s-maxage=60";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
@@ -196,45 +211,57 @@ export async function GET(req: NextRequest) {
     const ok =
       result.status === "SUCCESS" || result.status === "CATCHMENT_UNVERIFIED";
 
-    return NextResponse.json({
-      status: ok
-        ? schools.length > 0
-          ? "READY"
-          : "EMPTY"
-        : result.status === "PILOT_ONLY"
-          ? "PILOT_ONLY"
-          : result.status === "NO_RESULTS"
-            ? "EMPTY"
-            : "ERROR",
-      reason: ok
-        ? null
-        : result.reason || "인근 학교 정보를 불러오지 못했습니다.",
-      source: "NEIS",
-      attribution: result.attribution,
-      cacheVersion: SCHOOL_CACHE_VERSION,
-      displayMaxMeters: SCHOOL_DISPLAY_MAX_METERS,
-      maxPerLevel: SCHOOL_MAX_PER_LEVEL,
-      distanceBasis: "complexMapAnchor · haversine · 직선거리",
-      disclaimer:
-        "학교 위치 기반 인근 정보이며 배정학교/통학구역을 의미하지 않습니다.",
-      assignmentSupported: false,
-      needsClientGeocode,
-      schools,
-      categories: [],
-      schoolDistricts,
-      attendanceZone,
-    });
+    const status = ok
+      ? schools.length > 0
+        ? "READY"
+        : "EMPTY"
+      : result.status === "PILOT_ONLY"
+        ? "PILOT_ONLY"
+        : result.status === "NO_RESULTS"
+          ? "EMPTY"
+          : "ERROR";
+
+    return NextResponse.json(
+      {
+        status,
+        reason: ok
+          ? null
+          : result.reason || "인근 학교 정보를 불러오지 못했습니다.",
+        source: "NEIS",
+        attribution: result.attribution,
+        cacheVersion: SCHOOL_CACHE_VERSION,
+        displayMaxMeters: SCHOOL_DISPLAY_MAX_METERS,
+        maxPerLevel: SCHOOL_MAX_PER_LEVEL,
+        distanceBasis: "complexMapAnchor · haversine · 직선거리",
+        disclaimer:
+          "학교 위치 기반 인근 정보이며 배정학교/통학구역을 의미하지 않습니다.",
+        assignmentSupported: false,
+        needsClientGeocode,
+        schools,
+        categories: [],
+        schoolDistricts,
+        attendanceZone,
+      },
+      {
+        headers: {
+          "Cache-Control": status === "ERROR" ? CACHE_SHORT : CACHE_OK,
+        },
+      },
+    );
   } catch {
-    return NextResponse.json({
-      status: "ERROR",
-      reason: "인근 학교 정보를 불러오지 못했습니다.",
-      source: "NEIS",
-      cacheVersion: SCHOOL_CACHE_VERSION,
-      schools: [],
-      categories: [],
-      needsClientGeocode: false,
-      schoolDistricts,
-      attendanceZone,
-    });
+    return NextResponse.json(
+      {
+        status: "ERROR",
+        reason: "인근 학교 정보를 불러오지 못했습니다.",
+        source: "NEIS",
+        cacheVersion: SCHOOL_CACHE_VERSION,
+        schools: [],
+        categories: [],
+        needsClientGeocode: false,
+        schoolDistricts,
+        attendanceZone,
+      },
+      { headers: { "Cache-Control": CACHE_SHORT } },
+    );
   }
 }
