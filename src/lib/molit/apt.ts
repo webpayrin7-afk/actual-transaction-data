@@ -772,7 +772,7 @@ async function buildAptDetail(params: {
   const areas: AptAreaOption[] =
     useMarketGroups && pilotBundle
       ? buildMarketGroupAreas(pilotBundle, deals)
-      : exclusiveAreas;
+      : (await import("@/lib/apt/area-groups")).groupAreaOptions(exclusiveAreas);
 
   const buildYears = deals
     .map((t) => t.buildYear)

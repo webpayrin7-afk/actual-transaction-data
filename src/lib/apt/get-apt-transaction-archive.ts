@@ -3,6 +3,7 @@
  * Read-only. No public MOLIT calls. No writes.
  * When the warehouse is unavailable, fall back to the same payload as 단지상세.
  */
+import { groupAreaOptions, parseAreaRangeKey, resolveAreaKeyAlias } from "@/lib/apt/area-groups";
 import { getRegion } from "@/lib/constants/regions";
 import { getDb, hasDb } from "@/lib/db/client";
 import {
@@ -72,6 +73,9 @@ function areaFilterFor(
   areas: AptAreaOption[],
 ): AptArchiveAreaFilter {
   if (!areaKey || areaKey === "all") return { kind: "all" };
+  // 묶인 평형("84.92-84.99")은 key만으로 범위를 안다 — 면적 목록 없이 오는 다음 페이지 요청도 같게 거른다
+  const range = parseAreaRangeKey(areaKey);
+  if (range) return { kind: "range", min: range.min - 0.005, max: range.max + 0.005 };
   const selected = areas.find((a) => a.key === areaKey);
   if (
     selected?.selectorKind === "market_group" &&
@@ -169,12 +173,10 @@ export function buildArchiveFromDetail(
   const includeMeta = offset === 0;
   const areas = detail.areas ?? [];
   const requestedArea = params.areaKey?.trim() || "";
+  const aliased = requestedArea ? resolveAreaKeyAlias(requestedArea, areas) : null;
   const areaKey =
-    requestedArea &&
-    (requestedArea === "all" ||
-      areas.length === 0 ||
-      areas.some((a) => a.key === requestedArea))
-      ? requestedArea
+    requestedArea && (areas.length === 0 || aliased)
+      ? (aliased ?? requestedArea)
       : (areas[0]?.key ?? (requestedArea || "all"));
   const area = areaFilterFor(areaKey, areas);
 
@@ -365,12 +367,16 @@ async function loadWarehouseArchive(
         return { ...g, count };
       });
     } else {
-      areas = exclusiveAreasFromBuckets(yearBuckets).map((area) =>
-        attachCanonicalPyeongLabelSource(area, pilotBundle),
+      areas = groupAreaOptions(
+        exclusiveAreasFromBuckets(yearBuckets).map((area) =>
+          attachCanonicalPyeongLabelSource(area, pilotBundle),
+        ),
       );
       if (areas.length === 0) {
-        areas = exclusiveAreasFromBuckets(lifetimeBuckets).map((area) =>
-          attachCanonicalPyeongLabelSource(area, pilotBundle),
+        areas = groupAreaOptions(
+          exclusiveAreasFromBuckets(lifetimeBuckets).map((area) =>
+            attachCanonicalPyeongLabelSource(area, pilotBundle),
+          ),
         );
       }
     }
@@ -379,10 +385,10 @@ async function loadWarehouseArchive(
   }
 
   const requestedArea = params.areaKey?.trim() || "";
+  const aliasedArea = requestedArea ? resolveAreaKeyAlias(requestedArea, areas) : null;
   const areaKey =
-    requestedArea &&
-    (areas.length === 0 || areas.some((a) => a.key === requestedArea))
-      ? requestedArea
+    requestedArea && (areas.length === 0 || aliasedArea)
+      ? (aliasedArea ?? requestedArea)
       : (areas[0]?.key ?? (requestedArea || "all"));
   const area = areaFilterFor(areaKey, areas);
 

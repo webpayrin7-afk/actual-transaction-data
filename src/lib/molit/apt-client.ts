@@ -31,6 +31,8 @@ export interface AptAreaOption {
   supplyAreaMax?: number | null;
   secondaryLabel?: string | null;
   marketLabel?: number | null;
+  /** 이 평형의 세대수 (단지 타입 자료 합계) — 모르면 없음 */
+  households?: number | null;
 }
 
 export interface AptHistoryItem extends Transaction {

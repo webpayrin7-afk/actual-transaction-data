@@ -14,7 +14,12 @@ export async function fetchComplexTypes(complexId: string): Promise<{ types: Uni
 
 export function attachTypeSupply(areas: AptAreaOption[], types: UnitTypeInfo[]): AptAreaOption[] {
   if (!types.length) return areas;
-  return areas.map((area) => {
+  return areas.map((raw) => {
+    const exLo = raw.exclusiveAreaMin ?? raw.exclusiveArea;
+    const exHi = raw.exclusiveAreaMax ?? raw.exclusiveArea;
+    const matched = types.filter((t) => t.exclusiveSqm >= exLo - 0.05 && t.exclusiveSqm <= exHi + 0.05);
+    const hh = matched.map((t) => t.households).filter((v): v is number => v != null && v > 0);
+    const area = hh.length ? { ...raw, households: hh.reduce((s, v) => s + v, 0) } : raw;
     const hasMarket = area.marketLabel != null && Number.isFinite(area.marketLabel);
     const hasSupply = area.supplyAreaMin != null && area.supplyAreaMax != null && area.supplyAreaMin > 0 && area.supplyAreaMax > 0;
     if (hasMarket || hasSupply) return area;

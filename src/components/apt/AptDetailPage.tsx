@@ -33,6 +33,7 @@ import {
   PeriodRangeSlider,
 } from "@/components/apt/AptPriceChart";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
+import { resolveAreaKeyAlias } from "@/lib/apt/area-groups";
 import { AptStickyNav } from "@/components/apt/AptStickyNav";
 import { ComplexPurchaseCalculatorSection } from "@/components/apt/calculator/ComplexPurchaseCalculatorSection";
 import {
@@ -189,6 +190,9 @@ export function AptDetailPage({
     if (initialAreaKey && isValidAreaKey(initialAreaKey, data.areas)) {
       return initialAreaKey;
     }
+    // 예전 링크의 전용 key("84.98")는 그 전용이 든 묶음 평형으로
+    const aliased = initialAreaKey ? resolveAreaKeyAlias(initialAreaKey, data.areas) : null;
+    if (aliased) return aliased;
     return resolveDefaultAreaKey(data.areas, data.items);
   }, [data, initialAreaKey]);
 

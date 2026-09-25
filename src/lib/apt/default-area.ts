@@ -44,7 +44,13 @@ export function buildAreaTradeStats(
 
   for (const item of items) {
     if (item.dealType !== "trade") continue;
-    const key = normalizeAreaKey(item.exclusiveArea);
+    // 묶인 평형(전용 범위)이면 그 범위에 드는 거래를 모두 센다
+    const owner = areas.find((a) =>
+      a.exclusiveAreaMin != null && a.exclusiveAreaMax != null
+        ? item.exclusiveArea >= a.exclusiveAreaMin - 0.005 && item.exclusiveArea <= a.exclusiveAreaMax + 0.005
+        : normalizeAreaKey(a.exclusiveArea) === normalizeAreaKey(item.exclusiveArea),
+    );
+    const key = owner?.key ?? normalizeAreaKey(item.exclusiveArea);
     let stat = map.get(key);
     if (!stat) {
       stat = {

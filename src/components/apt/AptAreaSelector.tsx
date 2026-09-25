@@ -376,6 +376,7 @@ function AreaSheet({
                 }
                 supplyLabel={areaSelectorSupplyLabel(area)}
                 dealLabel={areaSelectorDealCountLabel(area.count)}
+                householdsLabel={area.households ? `${area.households.toLocaleString("ko-KR")}세대` : null}
               />
               {index < areas.length - 1 ? (
                 <div
@@ -399,6 +400,7 @@ function AreaOptionRow({
   exclusiveLabel,
   supplyLabel,
   dealLabel,
+  householdsLabel = null,
 }: {
   active: boolean;
   buttonRef?: React.RefObject<HTMLButtonElement | null>;
@@ -407,6 +409,7 @@ function AreaOptionRow({
   exclusiveLabel: string;
   supplyLabel: string | null;
   dealLabel: string;
+  householdsLabel?: string | null;
 }) {
   return (
     <button
@@ -418,8 +421,9 @@ function AreaOptionRow({
       }`}
     >
       <span className="min-w-0 flex-1">
-        <span className="detail-number block leading-snug text-[color:var(--lab-teal-700)]">
-          {pyeongLabel}
+        <span className="flex items-baseline gap-2">
+          <span className="detail-number leading-snug text-[color:var(--lab-teal-700)]">{pyeongLabel}</span>
+          {householdsLabel ? <span className="detail-meta tabular-nums">{householdsLabel}</span> : null}
         </span>
         <span className="mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
           {exclusiveLabel ? (
