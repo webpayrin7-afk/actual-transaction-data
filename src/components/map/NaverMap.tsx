@@ -889,8 +889,8 @@ export function NaverMap({
       const eastM = Math.max(lngDelta * 111320 * cos, 40);
       const mpp = Math.max((2 * eastM) / usableW, (2 * northM) / usableH);
       const z = Math.log2((156543.03392 * cos) / mpp);
-      // Allow 17 so commerce/school clusters can zoom in from a living overview.
-      return Math.max(12, Math.min(17, Math.round(z)));
+      // 마커가 가까이 몰려도 너무 확대하지 않는다(최대 16 — 동네 한 블록 이상 보이게)
+      return Math.max(12, Math.min(16, Math.floor(z)));
     };
 
     /** Native NAVER zoom — never step setZoom per-frame (that stutters). */
@@ -1001,13 +1001,12 @@ export function NaverMap({
           (111320 * Math.max(0.25, Math.cos((anchor.lat * Math.PI) / 180)));
       }
 
-      const pad = 1.08;
-      const latDelta = Math.max(maxLatDelta * pad, 0.001);
-      const lngDelta = Math.max(maxLngDelta * pad, 0.001);
-      const z = Math.max(
-        12,
-        Math.min(18, estimateZoom(anchor, latDelta, lngDelta)),
-      );
+      // 여유를 두고, 가장 가까운 경우에도 단지 둘레 반경 약 500m는 보이게
+      const pad = 1.2;
+      const minDelta = 500 / 111320;
+      const latDelta = Math.max(maxLatDelta * pad, minDelta);
+      const lngDelta = Math.max(maxLngDelta * pad, minDelta);
+      const z = Math.max(12, Math.min(16, estimateZoom(anchor, latDelta, lngDelta)));
 
       applyZoom(anchorLatLng, z);
     };
