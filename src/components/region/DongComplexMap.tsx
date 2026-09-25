@@ -25,8 +25,13 @@ export function DongComplexMap({
   selectedId,
   onSelect,
   ariaLabel,
+  lawdCd,
+  dong,
 }: {
   complexes: Pt[];
+  /** 동 경계 — 메인 지도와 같은 /api/map/region-shape */
+  lawdCd?: string | null;
+  dong?: string;
   selectedId: string | null;
   onSelect: (id: string) => void;
   ariaLabel: string;
@@ -35,6 +40,7 @@ export function DongComplexMap({
   const hostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapWithBounds | null>(null);
   const markersRef = useRef<NaverMarkerInstance[]>([]);
+  const shapeRef = useRef<{ setMap: (m: null) => void } | null>(null);
   const [data, setData] = useState<MapComplex[]>([]);
   const [failed, setFailed] = useState(false);
   const pickRef = useRef(onSelect);
@@ -75,6 +81,28 @@ export function DongComplexMap({
         ),
         { top: 60, right: 30, bottom: 20, left: 30 },
       );
+      // 동 경계 (없으면 단지 범위 점선)
+      if (lawdCd && dong) {
+        fetch(`/api/map/region-shape?lawd=${lawdCd}&dong=${encodeURIComponent(dong)}`)
+          .then((r) => r.json())
+          .then((d: { source?: string; paths?: Array<Array<{ lat: number; lng: number }>> }) => {
+            if (cancelled || !d.paths?.length || !maps.Polygon) return;
+            const boundary = d.source === "boundary";
+            shapeRef.current = new maps.Polygon({
+              map,
+              paths: d.paths.map((path) => path.map((q) => new maps.LatLng(q.lat, q.lng))),
+              fillColor: "#0E9AA0",
+              fillOpacity: boundary ? 0.06 : 0.08,
+              strokeColor: "#0F766E",
+              strokeOpacity: 1,
+              strokeWeight: 3,
+              strokeStyle: boundary ? "solid" : "shortdash",
+              clickable: false,
+              zIndex: 1,
+            });
+          })
+          .catch(() => {});
+      }
       // 동이 넓어도 메인 지도 API 범위 안(약 0.12°)에서 받도록 동 범위로 직접 묻는다
       const pad = 0.004;
       const qs = new URLSearchParams({
@@ -97,11 +125,12 @@ export function DongComplexMap({
     return () => {
       cancelled = true;
     };
-  }, [pts]);
+  }, [pts, lawdCd, dong]);
 
   useEffect(
     () => () => {
       for (const m of markersRef.current) m.setMap(null);
+      shapeRef.current?.setMap(null);
       mapRef.current?.destroy?.();
       mapRef.current = null;
     },

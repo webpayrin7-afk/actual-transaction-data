@@ -1,5 +1,6 @@
 "use client";
 
+import { LabMoreButton } from "@/components/ui/LabMoreButton";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -248,14 +249,12 @@ export function RegionLeaderboard({
         </ol>
       )}
 
-      {board?.status === "ok" && rows.length > PREVIEW_COUNT && !expanded ? (
-        <button
-          type="button"
-          onClick={() => setExpanded(true)}
-          className="lab-button lab-button-secondary mt-3 w-full min-h-10 text-sm"
-        >
-          전체 순위 보기
-        </button>
+      {board?.status === "ok" && rows.length > PREVIEW_COUNT ? (
+        <LabMoreButton
+          expanded={expanded}
+          onToggle={() => setExpanded((v) => !v)}
+          label={`${Math.min(10, rows.length) - PREVIEW_COUNT}곳 더보기`}
+        />
       ) : null}
     </section>
   );

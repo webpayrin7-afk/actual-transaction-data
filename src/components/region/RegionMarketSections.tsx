@@ -86,7 +86,7 @@ function strengthTags(
 }
 
 const RANK_PREVIEW = LAB_LIST_PREVIEW;
-const RANK_FULL = 20;
+const RANK_FULL = 10; // 랭킹 공통: 최대 10개, 처음 5개 + 더보기
 
 const RANK_TABS = [
   { id: "COMPOSITE", label: "종합" },

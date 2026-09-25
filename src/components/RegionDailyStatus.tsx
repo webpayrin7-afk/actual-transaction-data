@@ -120,7 +120,7 @@ function DealMetaLine({
   );
 }
 
-const SINGOGA_PREVIEW = 2;
+const SINGOGA_PREVIEW = 5; // 카드 목록 공통: 처음 5개 + 더보기
 
 function singogaLabel(kind: RegionDailyDeal["singogaKind"]): string {
   if (kind === "type") return "타입 신고가";

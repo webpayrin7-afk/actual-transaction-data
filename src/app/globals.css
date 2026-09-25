@@ -829,15 +829,15 @@ h2.detail-section-title {
 .lab-press:active { transform: scale(.98); background: var(--lab-brand-subtle); }
 .lab-press-arrow { color: #94a3b8; transition: transform .15s, color .15s; }
 .lab-press:active .lab-press-arrow, .lab-row-press:active .lab-press-arrow { color: var(--lab-brand-primary); }
-.lab-row-press { transition: background-color .15s; }
-.lab-row-press:active { background: var(--lab-brand-subtle); }
+.lab-row-press { transition: background-color .15s, transform .1s; -webkit-tap-highlight-color: transparent; }
+.lab-row-press:active { background: var(--lab-brand-subtle); transform: scale(.99); }
 .lab-button { transition: background-color .15s, border-color .15s, color .15s, transform .1s; }
 .lab-button:active:not(:disabled) { transform: scale(.98); }
 .lab-button-secondary { box-shadow: 0 1px 2px rgba(15,23,42,.06); }
 @media (hover: hover) {
   .lab-press:hover { border-color: var(--lab-brand-border); background: var(--lab-brand-subtle); }
   .lab-press:hover .lab-press-arrow, .lab-row-press:hover .lab-press-arrow { transform: translateX(2px); color: var(--lab-brand-primary); }
-  .lab-row-press:hover { background: var(--lab-surface-subtle); }
+  .lab-row-press:hover { background: var(--lab-brand-subtle); }
 }
 /*
  * 더보기/접기 — 실행(primary)·이동(secondary, →)과 구분되는 텍스트형 (policy §6).

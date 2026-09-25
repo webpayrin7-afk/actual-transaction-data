@@ -157,6 +157,8 @@ export function RegionDongComplexesSection({
                   selectedId={selectedId}
                   onSelect={(id) => setSelectedId((prev) => (prev === id ? null : id))}
                   ariaLabel={`${dong} 아파트 단지 지도`}
+                  lawdCd={data?.lawdCd ?? null}
+                  dong={dong}
                 />
               </div>
               {selected ? (
