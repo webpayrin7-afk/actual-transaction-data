@@ -471,7 +471,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
               className={`pointer-events-auto flex h-8 min-w-0 items-center gap-0.5 rounded-full pl-3 pr-2 text-[14px] font-bold text-[color:var(--lab-navy-950)] transition active:scale-95 ${FLOAT}`}
             >
               <span className="min-w-0 truncate">{d.name}</span>
-              <span className="ml-1 shrink-0 text-[12px] font-semibold text-[color:var(--lab-muted)]">상세 보기</span>
+              <span className="ml-1 shrink-0 text-[12px] font-semibold text-[color:var(--lab-muted)]">상세</span>
               <ChevronRight
                 className="h-4 w-4 shrink-0 text-slate-400"
                 aria-hidden
