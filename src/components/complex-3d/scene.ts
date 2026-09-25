@@ -356,8 +356,8 @@ export class Complex3dScene {
     if (!b?.rings) return;
     const c = this.ringCenter(b.rings);
     const { h } = buildingHeight(b);
-    // 동 가운데 높이를 보며, 지금 방위는 유지하고 위에서 비스듬히(천정에서 50°) — 옆 동까지 조금 보이게 여유 있게
-    const target = new THREE.Vector3(c.x, h * 0.5, c.z);
+    // 동 꼭대기 근처를 보며(바닥이 화면 아래쪽으로), 지금 방위는 유지하고 위에서 비스듬히(천정에서 50°) — 옆 동까지 조금 보이게 여유 있게
+    const target = new THREE.Vector3(c.x, h * 0.95, c.z);
     const off = this.camera.position.clone().sub(this.controls.target);
     const az = Math.atan2(off.x, off.z);
     const polar = (50 * Math.PI) / 180;
