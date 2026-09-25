@@ -32,9 +32,12 @@ import { pickRepresentativeSupply, pyeongRangeLabel } from "../../src/lib/unit-t
 
 config({ path: ".env.local", quiet: true });
 
-const TARGETS = "data/poc/supply/nt-pnu-cadastre.jsonl";
+// Overridable for the parcel relink (scripts/supply-fill/relink): same logic, other inputs.
+const TARGETS = process.env.NT_TARGETS ?? "data/poc/supply/nt-pnu-cadastre.jsonl";
 const EXPOS = "data/poc/supply/nt-expos.jsonl";
-const RECOVERY = "supply_fill_local_nt_2026_09";
+const EXPOS_FILE = process.env.NT_EXPOS_FILE ?? "";
+const RECOVERY = process.env.NT_RECOVERY ?? "supply_fill_local_nt_2026_09";
+const OUT_DIR = process.env.NT_OUT_DIR ?? "data/poc/supply";
 const RULE = "max_household_then_smaller_supply";
 /** Held when the kept types cover fewer than this share of the parcel's apartment units. */
 const MIN_COVERAGE = 0.5;
@@ -52,6 +55,8 @@ type Target = {
   identityStatus: string;
   cadastre: string;
   pnuOwners: number;
+  /** Provenance identity (relink); default = phase-3 K-apt PNU. */
+  identity?: string;
 };
 
 type FileRow = ExposRow & { pnu: string; exposCd?: string; mainAtchCd?: string; mainPurpsCd?: string };
@@ -99,8 +104,8 @@ async function main() {
     .filter((t) => !prefix || t.lawdCd.startsWith(prefix));
   const wanted = new Set(targets.flatMap((t) => t.registryPnus));
   const byPnu = new Map<string, ExposRow[]>();
-  if (!prefix) throw new Error("pass a sido prefix; one sido per run (memory)");
-  const exposFile = EXPOS.replace(".jsonl", `-${prefix}.jsonl`);
+  if (!prefix && !EXPOS_FILE) throw new Error("pass a sido prefix; one sido per run (memory)");
+  const exposFile = EXPOS_FILE || EXPOS.replace(".jsonl", `-${prefix}.jsonl`);
   if (!existsSync(exposFile)) throw new Error(`${exposFile} missing — run scan-buildinghub-pnus.py + split-nt-expos.py first`);
   const rl = createInterface({ input: createReadStream(exposFile, { encoding: "utf8" }), crlfDelay: Infinity });
   for await (const line of rl) {
@@ -155,7 +160,7 @@ async function main() {
       hold(k);
       s.held[k] = (s.held[k] ?? 0) + 1;
     };
-    if (t.identityStatus !== "AS_IS" && t.identityStatus !== "REMAPPED") {
+    if (t.identityStatus !== "AS_IS" && t.identityStatus !== "REMAPPED" && t.identityStatus !== "RELINKED") {
       sHold(t.identityStatus);
       continue;
     }
@@ -243,7 +248,7 @@ async function main() {
               household_count: v.householdCount,
               registry_pnu: usedPnu,
               cadastre_pnu: t.cadastrePnu,
-              identity: "KAPT_PNU_EXACT+CADASTRE",
+              identity: t.identity ?? "KAPT_PNU_EXACT+CADASTRE",
               bulk_source_month: "2026-08",
             }),
             now,
@@ -317,8 +322,8 @@ async function main() {
   };
   const tag = prefix || "all";
   if (!apply) {
-    writeFileSync(`data/poc/supply/nt-plan-${tag}.json`, JSON.stringify({ at: now, statements: statements.length, ...summary }, null, 1));
-    writeFileSync(`data/poc/supply/nt-plan-${tag}-rows.jsonl`, planRows.map((r) => JSON.stringify(r)).join("\n") + "\n");
+    writeFileSync(`${OUT_DIR}/nt-plan-${tag}.json`, JSON.stringify({ at: now, statements: statements.length, ...summary }, null, 1));
+    writeFileSync(`${OUT_DIR}/nt-plan-${tag}-rows.jsonl`, planRows.map((r) => JSON.stringify(r)).join("\n") + "\n");
     console.log(JSON.stringify({ apply: false, statements: statements.length, ...summary, bySido: undefined, lawdCodes: undefined }));
     return;
   }
@@ -327,7 +332,7 @@ async function main() {
     const results = await db.batch(statements.slice(i, i + 100), "write");
     affected += results.reduce((n, r) => n + r.rowsAffected, 0);
   }
-  writeFileSync(`data/poc/supply/nt-apply-${tag}.json`, JSON.stringify({ at: now, affected, statements: statements.length, ...summary }, null, 1));
+  writeFileSync(`${OUT_DIR}/nt-apply-${tag}.json`, JSON.stringify({ at: now, affected, statements: statements.length, ...summary }, null, 1));
   console.log(JSON.stringify({ apply: true, affected, statements: statements.length, ...summary, bySido: undefined, lawdCodes: undefined }));
 }
 

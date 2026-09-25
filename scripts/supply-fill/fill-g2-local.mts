@@ -23,9 +23,11 @@ import { supplyPyeongDisplayLabel } from "../../src/lib/unit-type/supply-label";
 
 config({ path: ".env.local", quiet: true });
 
-const CADASTRAL = "data/poc/supply/g2-pnu-cadastre.jsonl";
-const EXPOS = "data/poc/supply/g2-expos.jsonl";
-const RECOVERY = "supply_fill_local_g2_2026_09";
+// Overridable for the parcel relink (scripts/supply-fill/relink): same logic, other inputs.
+const CADASTRAL = process.env.G2_TARGETS ?? "data/poc/supply/g2-pnu-cadastre.jsonl";
+const EXPOS = process.env.G2_EXPOS_FILE ?? "data/poc/supply/g2-expos.jsonl";
+const RECOVERY = process.env.G2_RECOVERY ?? "supply_fill_local_g2_2026_09";
+const OUT_DIR = process.env.G2_OUT_DIR ?? "data/poc/supply";
 
 type ComplexRow = {
   complexId: string;
@@ -235,11 +237,11 @@ async function main() {
       affected += results.reduce((n, result) => n + result.rowsAffected, 0);
     }
     totals.recovered = totals.recovered;
-    writeFileSync("data/poc/supply/g2-apply.json", JSON.stringify({ at: now, affected, totals }, null, 2));
+    writeFileSync(`${OUT_DIR}/g2-apply.json`, JSON.stringify({ at: now, affected, totals }, null, 2));
     console.log(JSON.stringify({ apply: true, affected, ...totals }, null, 2));
   } else {
     writeFileSync(
-      "data/poc/supply/g2-plan-rows.jsonl",
+      `${OUT_DIR}/g2-plan-rows.jsonl`,
       statements
         .filter((s) => s.sql.includes("apt_canonical_unit_types"))
         .map((s) => {
@@ -249,7 +251,7 @@ async function main() {
         .join("\n") + "\n",
     );
     writeFileSync(
-      "data/poc/supply/g2-plan.json",
+      `${OUT_DIR}/g2-plan.json`,
       JSON.stringify({ at: now, statements: statements.length, totals }, null, 2),
     );
     console.log(JSON.stringify({ apply: false, statements: statements.length, ...totals }, null, 2));
