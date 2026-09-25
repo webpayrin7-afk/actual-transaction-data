@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { AptDetailPage } from "@/components/apt/AptDetailPage";
 import { AptDetailEnterTransition } from "@/components/apt/AptDetailEnterTransition";
 import { getRegion } from "@/lib/constants/regions";
-import { getComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
+import {
+  getComplexDetailV1,
+  resolveComplexLawdCodes,
+} from "@/lib/complex-detail/get-complex-detail-v1";
 
 type PageProps = {
   params: Promise<{ name: string }>;
@@ -39,12 +42,13 @@ export default async function AptPage({ params, searchParams }: PageProps) {
 
   // Enrichment is optional and must not block market rendering.
   const region = getRegion(regionSlug);
-  const lawdCd = region?.lawdCodes?.[0];
+  // 다구 도시(성남·수원 등)는 ?gu= 로 구를 고르고, 없으면 지역 전체 코드로 찾는다.
+  const lawdCodes = resolveComplexLawdCodes(region, gu);
   let complexDetail = null;
   try {
     complexDetail = await getComplexDetailV1({
       aptName,
-      lawdCd,
+      lawdCodes,
     });
   } catch (err) {
     console.error("[apt-page] complex detail enrichment failed", err);
