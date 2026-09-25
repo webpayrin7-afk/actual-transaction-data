@@ -770,7 +770,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             {mode === "base" && !sel && !picked ? (
               <p className="text-[13px] text-[color:var(--lab-navy-950)]">
                 <b>동 정보</b>
-                <span className="ml-1.5 text-[13px] text-[color:var(--lab-muted)]">
+                <span className="mt-0.5 block text-[13px] text-[color:var(--lab-muted)]">
                   상단의 타입·동을 선택하시거나 건물을 직접 눌러보세요.
                 </span>
               </p>
@@ -911,7 +911,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   </>
                 ) : (
                   <p className="text-[13px] text-[color:var(--lab-muted)]">
-                    동을 누르면 그 동·층의 하루 일조 시간을 계산해요.
+                    동을 선택하면 그 동·층의 하루 일조 시간을 계산해요.
                   </p>
                 )}
               </div>
@@ -950,7 +950,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                 </div>
               ) : (
                 <p className="mt-1 text-[13px] text-[color:var(--lab-muted)]">
-                  조망을 볼 동을 모형이나 아래 목록에서 골라 주세요.
+                  동을 선택하면 층별 조망을 계산해요.
                 </p>
               )
             ) : null}
