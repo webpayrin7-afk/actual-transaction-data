@@ -8,8 +8,12 @@ import type { UnitTypeInfo } from "@/lib/apt/unit-types-dongs";
  * 공급면적은 세대가 가장 많은 값, 세대수·동별 세대는 더한다. 타입 글자가 서로 다르면 합치지 않는다.
  */
 export function mergeNearSupply(types: UnitTypeInfo[]): UnitTypeInfo[] {
+  // 실거래에서만 나온 타입(공급·세대·동 모두 없음 — 예: 원베일리 전용 168.87㎡, 대장엔 없는 신고값)은 뺀다.
+  // 그 거래는 위 차트·거래내역의 평형 묶음에 그대로 들어가고, 가까운 대장 타입에 붙이지는 않는다(추정 금지).
+  const registered = types.filter((t) => t.supplySqm != null || (t.households ?? 0) > 0 || t.dongs.length > 0);
+  const source = registered.length ? registered : types;
   const out: UnitTypeInfo[] = [];
-  for (const t of [...types].sort((a, b) => (b.households ?? 0) - (a.households ?? 0))) {
+  for (const t of [...source].sort((a, b) => (b.households ?? 0) - (a.households ?? 0))) {
     const host = out.find(
       (o) =>
         Math.abs(o.exclusiveSqm - t.exclusiveSqm) < 0.005 &&
