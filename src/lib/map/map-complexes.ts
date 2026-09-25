@@ -50,8 +50,6 @@ export type MapComplex = {
   /** 최근 12개월 대표 평형 거래 범위 (만원) */
   rangeMinMan: number | null;
   rangeMaxMan: number | null;
-  /** 최근 12개월 선택 면적·거래유형 중위가 (만원) — 전세가율·갭 계산용 */
-  medianPriceMan: number | null;
   /** 대표 평형 이름 "33평" — 단지 상세 평형 선택과 같은 규칙(공급면적 가운데 ÷ 3.3058). 모르면 null */
   pyeongLabel: string | null;
   /** 3.3㎡당 가격 (만원) — 공급 평을 알면 공급 기준, 모르면 전용 기준 */
@@ -65,8 +63,6 @@ export type MapComplex = {
   /** 건축년도 (거래 신고의 build_year, 없으면 사용승인일 연도) */
   buildYear: number | null;
   tradeCount12m: number;
-  latestDealDate: string | null;
-  latestPriceMan: number | null;
   /** 대표 평형 최근 전세가 ÷ 최근 매매가 (%) — 단지 상세와 같은 정의, 둘 다 있을 때만 */
   jeonseRatioPct: number | null;
   /** 대표 평형 최근 매매가 − 최근 전세가 (만원). 음수면 역전(마이너스 갭) */
@@ -91,6 +87,8 @@ export type MapComplex = {
 
 export const MAP_MAX_COMPLEXES = 400;
 const WINDOW_MONTHS = 12;
+/** 거래 쿼리 한 번에 넣는 단지 이름 수 — 조각을 작게 나눠 콜드 읽기를 병렬로 */
+const TX_NAMES_PER_QUERY = 40;
 
 function median(values: number[]): number | null {
   if (values.length === 0) return null;
@@ -188,7 +186,10 @@ function num(v: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-/** complex_map_anchor (NAVER geocode) exists? Cached per server instance. */
+/**
+ * complex_map_anchor (NAVER geocode) exists? Cached per server instance.
+ * readMapComplexes 는 이 확인 왕복 없이 anchor 조인을 먼저 시도하고, 표가 없을 때만 필지 좌표로 다시 읽는다.
+ */
 let anchorTable: boolean | null = null;
 export async function hasAnchorTable(db: Client): Promise<boolean> {
   if (anchorTable != null) return anchorTable;
@@ -218,13 +219,8 @@ const PICK = {
   gbn: (d: Deal) => d.gbn,
 };
 
-export async function readMapComplexes(
-  db: Client,
-  bbox: MapBBox,
-  area: MapAreaRange,
-  deal: MapDealKind = "trade",
-): Promise<{ complexes: MapComplex[]; truncated: boolean }> {
-  const anchored = await hasAnchorTable(db);
+/** 영역 안 단지 (좌표·속성) — 세대수 큰 순 최대 MAP_MAX_COMPLEXES+1 */
+function readMasterRows(db: Client, bbox: MapBBox, anchored: boolean) {
   const lat = anchored ? "COALESCE(a.lat, m.latitude)" : "m.latitude";
   const lng = anchored ? "COALESCE(a.lng, m.longitude)" : "m.longitude";
   const box = [bbox.swLat, bbox.neLat, bbox.swLng, bbox.neLng];
@@ -237,7 +233,7 @@ export async function readMapComplexes(
              UNION
              SELECT complex_id FROM apt_complex_master WHERE latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ?)`
     : "";
-  const master = await db.execute({
+  return db.execute({
     // 영역에 단지가 많으면 세대수 큰 단지부터 (주요 단지가 먼저 보이게).
     sql: `SELECT m.complex_id, m.apt_name, m.apt_name_norm, m.lawd_cd, m.legal_dong_name, m.sigungu,
                  ${lat} AS latitude, ${lng} AS longitude, p.household_count, p.approval_date,
@@ -251,6 +247,28 @@ export async function readMapComplexes(
           LIMIT ?`,
     args: [...box, ...(anchored ? [...box, ...box] : []), MAP_MAX_COMPLEXES + 1],
   });
+}
+
+export async function readMapComplexes(
+  db: Client,
+  bbox: MapBBox,
+  area: MapAreaRange,
+  deal: MapDealKind = "trade",
+): Promise<{ complexes: MapComplex[]; truncated: boolean }> {
+  // 콜드 인스턴스에서 sqlite_master 확인 왕복(약 0.3초)을 앞에 두지 않는다 — anchor 조인을 바로 시도.
+  let master;
+  if (anchorTable === false) {
+    master = await readMasterRows(db, bbox, false);
+  } else {
+    try {
+      master = await readMasterRows(db, bbox, true);
+      anchorTable = true;
+    } catch (error) {
+      if (anchorTable === true || !/no such table/i.test(String(error))) throw error;
+      anchorTable = false;
+      master = await readMasterRows(db, bbox, false);
+    }
+  }
   const truncated = master.rows.length > MAP_MAX_COMPLEXES;
   const rows = master.rows.slice(0, MAP_MAX_COMPLEXES);
   if (rows.length === 0) return { complexes: [], truncated: false };
@@ -273,9 +291,30 @@ export async function readMapComplexes(
     byLawd.set(String(r.lawd_cd), list);
   }
   const jobs: Array<Promise<void>> = [];
-  for (const [lawd, names] of byLawd) {
-    for (let i = 0; i < names.length; i += 80) {
-      const slice = names.slice(i, i + 80);
+  // 랭킹 보드는 두 번 왕복(발행 포인터 → 후보)이라 가장 먼저 띄운다.
+  // 구별 종합 랭킹 상위 3 (발행된 스냅샷 · 30분 캐시). 실패해도 지도는 그대로.
+  const guRanks = new Map<string, 1 | 2 | 3>();
+  jobs.push(
+    Promise.all(
+      [...byLawd.keys()].map((lawd) =>
+        readRankingV4Board(db, { regionCode: lawd, areaBand: "ALL" }).catch(() => null),
+      ),
+    ).then((boards) => {
+      for (const b of boards) {
+        for (const row of b?.rows ?? []) {
+          if (row.rank >= 1 && row.rank <= 3) guRanks.set(row.complexId, row.rank as 1 | 2 | 3);
+        }
+      }
+    }),
+  );
+  // 이름은 세대수 큰 순이라 앞에서부터 자르면 첫 조각에 거래가 몰렸다(콜드에서 한 쿼리 9천 행·2초).
+  // 조각마다 큰·작은 단지가 섞이도록 번갈아 나눠 조각별 행 수를 고르게 한다 — 단지별 거래는 그대로.
+  for (const [lawd, all] of byLawd) {
+    // 같은 (lawd, 이름) 단지가 둘이면 한 조각에만 넣는다 — 두 조각에서 읽으면 거래가 겹친다.
+    const names = [...new Set(all)];
+    const parts = Math.ceil(names.length / TX_NAMES_PER_QUERY);
+    for (let p = 0; p < parts; p++) {
+      const slice = names.filter((_, j) => j % parts === p);
       jobs.push(
         db
           .execute({
@@ -313,31 +352,16 @@ export async function readMapComplexes(
       );
     }
   }
-  // 구별 종합 랭킹 상위 3 (발행된 스냅샷 · 30분 캐시). 실패해도 지도는 그대로.
-  const guRanks = new Map<string, 1 | 2 | 3>();
-  jobs.push(
-    Promise.all(
-      [...byLawd.keys()].map((lawd) =>
-        readRankingV4Board(db, { regionCode: lawd, areaBand: "ALL" }).catch(() => null),
-      ),
-    ).then((boards) => {
-      for (const b of boards) {
-        for (const row of b?.rows ?? []) {
-          if (row.rank >= 1 && row.rank <= 3) guRanks.set(row.complexId, row.rank as 1 | 2 | 3);
-        }
-      }
-    }),
-  );
   // 평형 이름 — 단지 평형 목록(공급 평)에서. 실패해도 지도는 그대로.
   const unitTypes = new Map<string, Array<{ area: number; supplySqm: number | null }>>();
   const ids = rows.map((r) => String(r.complex_id));
-  for (let i = 0; i < ids.length; i += 200) {
-    const chunk = ids.slice(i, i + 200);
+  for (let i = 0; i < ids.length; i += 100) {
+    const chunk = ids.slice(i, i + 100);
     jobs.push(
       db
         .execute({
           sql: `SELECT complex_id, exclusive_area, supply_pyeong FROM apt_canonical_unit_types
-                WHERE complex_id IN (${chunk.map(() => "?").join(",")})`,
+                WHERE complex_id IN (${chunk.map(() => "?").join(",")}) AND supply_pyeong > 0`,
           args: chunk,
         })
         .then((res) => {
@@ -345,6 +369,7 @@ export async function readMapComplexes(
             const k = String(u.complex_id);
             const sp = num(u.supply_pyeong);
             const list = unitTypes.get(k) ?? [];
+            // 공급 평이 없는 평형은 쓰이지 않아(아래 supplySqm != null) 쿼리에서 뺀다.
             list.push({ area: Number(u.exclusive_area), supplySqm: sp && sp > 0 ? sp * PYEONG : null });
             unitTypes.set(k, list);
           }
@@ -386,7 +411,6 @@ export async function readMapComplexes(
     const jeonses = all.filter((d) => d.kind === "jeonse");
     const wolses = all.filter((d) => d.kind === "wolse");
     const selected = deal === "trade" ? trades : jeonses;
-    const latest = selected.reduce<Deal | null>((acc, d) => (!acc || d.date > acc.date ? d : acc), null);
     // 전세가율·갭·월세수익률 — 단지 상세와 같은 정의: 매매 대표 평형(±1㎡)의 최근 매매가·최근 전세가
     const tradeMain = modeArea(trades.map((d) => d.area));
     const inMain = (d: Deal) => tradeMain != null && Math.abs(d.area - tradeMain) < 1;
@@ -424,7 +448,6 @@ export async function readMapComplexes(
       householdCount: num(r.household_count),
       href: aptDetailHref(String(r.apt_name), regionSlugFor(lawd), gu || undefined),
       ...rp,
-      medianPriceMan: median(selected.map((d) => d.amount)),
       pyeongLabel: pyeong ? `${pyeong}평` : null,
       perPyeongMan,
       move: rp.priceMan != null ? (moves.get(`${lawd}|${r.apt_name_norm}|${rp.priceDate}|${rp.priceMan}`) ?? null) : null,
@@ -432,8 +455,6 @@ export async function readMapComplexes(
       mainAreaSqm: main,
       buildYear: all.find((d) => d.buildYear != null)?.buildYear ?? approvalYear,
       tradeCount12m: selected.length,
-      latestDealDate: latest?.date ?? null,
-      latestPriceMan: latest?.amount ?? null,
       jeonseRatioPct: tradeNow && jeonseNow ? Math.round((jeonseNow / tradeNow) * 1000) / 10 : null,
       gapMan: tradeNow != null && jeonseNow != null ? Math.round(tradeNow - jeonseNow) : null,
       rentYieldPct: yields.length ? Math.round(median(yields)! * 100) / 100 : null,

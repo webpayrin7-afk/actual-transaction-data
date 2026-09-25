@@ -34,7 +34,8 @@ export async function GET(request: NextRequest) {
     const result = await readMapComplexes(db, { swLat, swLng, neLat, neLng }, area, deal);
     return NextResponse.json(
       { status: "ok", area, deal, ...result },
-      { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=3600" } },
+      // 실거래 동기화는 하루 1회 — CDN 1시간 + SWR 1일 (다른 단지 API와 같은 수준).
+      { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } },
     );
   } catch (error) {
     console.error(error);
