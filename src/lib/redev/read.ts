@@ -131,7 +131,15 @@ export async function readComplexRedev(db: Client, complexId: string): Promise<C
       const row = r as unknown as Record<string, unknown>;
       return { zone: toZone(row), project: row.code != null ? toProject(row) : null };
     });
-    return out.sort((a, b) => Number(!!b.project) - Number(!!a.project));
+    // 이미 끝난 사업은 빼기 — 구역 지정 뒤에 사용승인된 단지는 그 구역 사업으로 새로 지은 단지다 (예: 래미안원베일리)
+    const ap = await db
+      .execute({ sql: `SELECT approval_date FROM apt_complex_profile WHERE complex_id = ?`, args: [complexId] })
+      .catch(() => ({ rows: [] as Array<Record<string, unknown>> }));
+    const approval = String(ap.rows[0]?.approval_date ?? "").slice(0, 10);
+    const active = approval
+      ? out.filter((x) => !(x.zone.noticeDate && x.zone.noticeDate.slice(0, 10) < approval))
+      : out;
+    return active.sort((a, b) => Number(!!b.project) - Number(!!a.project));
   } catch {
     return [];
   }

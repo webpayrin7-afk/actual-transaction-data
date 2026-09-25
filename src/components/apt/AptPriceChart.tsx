@@ -166,7 +166,7 @@ function TooltipBox({
 }
 
 /** Keep price + volume plot gutters identical so month X positions align. */
-const PRICE_CHART_MARGIN = { top: 14, right: 6, left: 0, bottom: 4 } as const;
+const PRICE_CHART_MARGIN = { top: 18, right: 6, left: 0, bottom: 4 } as const;
 const VOLUME_CHART_MARGIN = { top: 2, right: 6, left: 34, bottom: 0 } as const;
 const PRICE_Y_AXIS_WIDTH = 34;
 /** Finger/cursor proximity for promoting 최고/최저 over nearby deals or the line. */
@@ -378,7 +378,8 @@ function ExtremeDot(
       {label ? (
         <text
           x={cx}
-          y={cy - 9}
+          // 위에 자리가 없으면(차트 맨 위 점) 점 아래에
+          y={cy < 22 ? cy + 18 : cy - 9}
           textAnchor="middle"
           fill={fill}
           fontSize={12}
