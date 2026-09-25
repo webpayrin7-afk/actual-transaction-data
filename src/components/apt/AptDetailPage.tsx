@@ -66,6 +66,7 @@ import { LabTabs } from "@/components/ui/LabTabs";
 import { Complex3dEntryCard } from "@/components/complex-3d/Complex3dEntry";
 import { ComplexRedevSection } from "@/components/apt/ComplexRedevSection";
 import { ComplexTypeDongSection } from "@/components/apt/ComplexTypeDongSection";
+import { attachTypeSupply, fetchComplexTypes } from "@/lib/apt/area-supply";
 import { pickLatestDeal } from "@/lib/deals/latest";
 
 const DETAIL_PICK = {
@@ -291,9 +292,22 @@ export function AptDetailPage({
     );
   }, [data, areaKey]);
 
+  // 평형 목록의 공급면적 — 타입·동 섹션과 같은 캐시(complex-types)를 쓴다
+  const typesComplexId = complexDetail?.identity?.complexId ?? null;
+  const typesQuery = useQuery({
+    queryKey: ["complex-types", typesComplexId],
+    queryFn: () => fetchComplexTypes(typesComplexId!),
+    enabled: !!typesComplexId,
+    staleTime: 60 * 60 * 1000,
+  });
+  const areasWithSupply = useMemo(
+    () => attachTypeSupply(data?.areas ?? [], typesQuery.data?.types ?? []),
+    [data, typesQuery.data],
+  );
+
   const selectedArea = useMemo(
-    () => data?.areas.find((a) => a.key === areaKey) ?? null,
-    [data, areaKey],
+    () => areasWithSupply.find((a) => a.key === areaKey) ?? null,
+    [areasWithSupply, areaKey],
   );
 
   const periodItems = (() => {
@@ -596,7 +610,7 @@ export function AptDetailPage({
       <AptStickyNav
         anchor={stickyAnchorRef}
         aptName={data.aptName}
-        areas={data.areas}
+        areas={areasWithSupply}
         areaKey={areaKey}
         onAreaChange={(key) => setAreaOverride({ forId: aptIdentity, key })}
       />
@@ -646,7 +660,7 @@ export function AptDetailPage({
             ]}
           />
           <AptAreaSelector
-            areas={data.areas}
+            areas={areasWithSupply}
             value={areaKey}
             onChange={(key) => {
               setAreaOverride({ forId: aptIdentity, key });
@@ -871,7 +885,7 @@ export function AptDetailPage({
       <LabSectionBoundary id="section-unit-mix" title="평형 구성">
         <ComplexUnitMixSection
           unitMix={complexDetail?.unitMix}
-          areas={data.areas}
+          areas={areasWithSupply}
           areaKey={areaKey}
           onAreaChange={(key) => setAreaOverride({ forId: aptIdentity, key })}
           complexHouseholdCount={complexDetail?.basic?.householdCount ?? null}

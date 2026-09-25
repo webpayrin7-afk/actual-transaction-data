@@ -457,7 +457,7 @@ function AreaOptionRow({
           </span>
         </span>
         {supplyLabel ? (
-          <span className="detail-meta mt-0.5 hidden tabular-nums sm:block">
+          <span className="detail-meta mt-0.5 block tabular-nums">
             {supplyLabel}
           </span>
         ) : null}

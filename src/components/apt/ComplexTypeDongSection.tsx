@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { fetchComplexTypes } from "@/lib/apt/area-supply";
 import { Crown } from "lucide-react";
 import { LabSection } from "@/components/ui/LabSection";
 import { LabMoreButton } from "@/components/ui/LabMoreButton";
@@ -11,11 +12,6 @@ import { formatDealDate, formatEok } from "@/lib/utils/format";
 import type { UnitTypeInfo } from "@/lib/apt/unit-types-dongs";
 import type { AptAreaOption, AptHistoryItem } from "@/lib/molit/apt-client";
 
-async function fetchTypes(complexId: string): Promise<{ types: UnitTypeInfo[] }> {
-  const res = await fetch(`/api/complex-types/${complexId}`);
-  if (!res.ok) return { types: [] };
-  return res.json();
-}
 
 const PICK = {
   date: (i: AptHistoryItem) => i.dealDate,
@@ -132,7 +128,7 @@ export function ComplexTypeDongSection({
 }) {
   const query = useQuery({
     queryKey: ["complex-types", complexId],
-    queryFn: () => fetchTypes(complexId),
+    queryFn: () => fetchComplexTypes(complexId),
     staleTime: 60 * 60 * 1000,
   });
   const all = useMemo(() => mergeNearSupply(query.data?.types ?? []), [query.data]);
