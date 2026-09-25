@@ -53,7 +53,39 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   const [nearest, setNearest] = useState<{ dong: string | null; meters: number } | null>(null);
   const [heading, setHeading] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const dragY = useRef<number | null>(null);
+  const drag = useRef<{ y: number; moved: boolean } | null>(null);
+  const [dragDy, setDragDy] = useState<number | null>(null);
+  const [sheetMax, setSheetMax] = useState(340);
+  useEffect(() => {
+    const sync = () => setSheetMax(Math.round(window.innerHeight * 0.42));
+    sync();
+    window.addEventListener("resize", sync);
+    return () => window.removeEventListener("resize", sync);
+  }, []);
+  const contentHeight = Math.max(0, Math.min(sheetMax, (sheetOpen ? sheetMax : 0) - (dragDy ?? 0)));
+  // 시트 손잡이·요약 줄·출처 줄을 위아래로 끌어 열고 닫기 (짧게 누르면 토글)
+  const endDrag = (dy: number) => {
+    const d0 = drag.current;
+    drag.current = null;
+    setDragDy(null);
+    if (!d0) return;
+    if (!d0.moved) setSheetOpen((v) => !v);
+    else setSheetOpen((v) => (v ? dy < 60 : dy < -40));
+  };
+  const dragHandlers = {
+    onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
+      drag.current = { y: e.clientY, moved: false };
+      e.currentTarget.setPointerCapture(e.pointerId);
+    },
+    onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
+      if (!drag.current) return;
+      const dy = e.clientY - drag.current.y;
+      if (Math.abs(dy) > 6) drag.current.moved = true;
+      if (drag.current.moved) setDragDy(dy);
+    },
+    onPointerUp: (e: React.PointerEvent<HTMLElement>) => endDrag(e.clientY - (drag.current?.y ?? e.clientY)),
+    onPointerCancel: () => endDrag(dragDy ?? 0),
+  };
 
   // 모형을 끌 때 브라우저가 같이 당겨지지 않게 (당겨서 새로고침·바운스 끄기)
   useEffect(() => {
@@ -304,17 +336,15 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           <div className="rounded-t-2xl bg-white shadow-[0_-4px_20px_rgba(15,23,42,0.12)] sm:rounded-2xl">
             <button
               type="button"
-              onPointerDown={(e) => {
-                dragY.current = e.clientY;
-                e.currentTarget.setPointerCapture(e.pointerId);
-              }}
-              onPointerUp={(e) => {
-                const dy = e.clientY - (dragY.current ?? e.clientY);
-                dragY.current = null;
-                setSheetOpen((v) => (dy < -20 ? true : dy > 20 ? false : !v));
+              {...dragHandlers}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setSheetOpen((v) => !v);
+                }
               }}
               aria-expanded={sheetOpen}
-              className="flex w-full touch-none flex-col items-stretch px-4 pb-2.5 pt-2 text-left"
+              className="flex w-full touch-none select-none flex-col items-stretch px-4 pb-2.5 pt-2 text-left"
             >
               <span className="mx-auto mb-2 h-1 w-9 rounded-full bg-slate-200 sm:hidden" aria-hidden />
               <span className="flex items-center gap-2">
@@ -365,8 +395,18 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
               </div>
             ) : null}
 
-            {sheetOpen ? (
-              <div style={{ touchAction: "pan-y", overscrollBehavior: "contain" }} className="max-h-[42dvh] overflow-y-auto px-4 pb-3 pt-1">
+            {/* 펼친 내용 — 드래그하는 동안 손가락을 따라 높이가 바뀌고, 놓으면 열림·닫힘으로 붙는다 */}
+            <div
+              aria-hidden={!sheetOpen && dragDy == null}
+              style={{
+                maxHeight: contentHeight,
+                overflowY: sheetOpen && dragDy == null ? "auto" : "hidden",
+                transition: dragDy == null ? "max-height 220ms ease" : "none",
+                touchAction: "pan-y",
+                overscrollBehavior: "contain",
+              }}
+            >
+              <div className="px-4 pb-3 pt-1">
                 {mode === "base" ? (
                   <div className="flex flex-col gap-3">
                     {sel ? <DongDetail sel={sel} nearest={nearest} /> : null}
@@ -474,9 +514,9 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   )
                 ) : null}
               </div>
-            ) : null}
+            </div>
 
-            <p className="px-4 pb-[calc(env(safe-area-inset-bottom)+6px)] text-[10px] leading-4 text-[color:var(--lab-muted)] sm:pb-2">
+            <p {...dragHandlers} className="touch-none select-none px-4 pb-[calc(env(safe-area-inset-bottom)+6px)] text-[10px] leading-4 text-[color:var(--lab-muted)] sm:pb-2">
               건물: 국토교통부 GIS건물통합정보 · 지도 © NAVER Corp.{estimated ? " · 일부 높이는 층수×3m" : ""}
             </p>
           </div>
