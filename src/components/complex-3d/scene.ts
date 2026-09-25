@@ -15,7 +15,6 @@ const TEAL_DARK = 0x087f83;
 const OWN = 0xdff3f3;
 const OWN_EDGE = 0x0e9aa0;
 const NEIGHBOR = 0xe6e9ee;
-const SELECT = 0x0f766e;
 
 export type SceneMode = "base" | "floors" | "types" | "sun" | "view" | "around";
 
@@ -99,7 +98,6 @@ export class Complex3dScene {
   };
   private ownMeshes = new Map<string, THREE.Mesh>();
   private ownMaterial = new THREE.MeshStandardMaterial({ color: OWN, roughness: 0.85, metalness: 0 });
-  private selectMaterial = new THREE.MeshStandardMaterial({ color: SELECT, roughness: 0.7, metalness: 0 });
   private raycaster = new THREE.Raycaster();
   private data: Complex3d | null = null;
   private mPerLat = 111_320;
@@ -678,42 +676,31 @@ export class Complex3dScene {
 
   private paint() {
     this.markSelected();
-    // 타입을 고른 상태에서 그 타입 동을 고르면 타입 색은 그대로 두고 진한 테두리로 선택 표시
-    const keepTypeColor = !!(this.selectedId && this.highlight?.has(this.selectedId));
+    // 고른 동은 칠은 그대로(타입 색 또는 기본색 — 흐리게 된 동이면 기본색으로) 두고 얇은 진한 남색 테두리로만 표시 (기본 동 테두리는 연한 청록)
     for (const [id, mesh] of this.ownMeshes) {
-      mesh.material =
-        id === this.selectedId && !keepTypeColor
-          ? this.selectMaterial
-          : !this.highlight
+      const typed = !!this.highlight?.has(id);
+      mesh.material = !this.highlight
+        ? this.ownMaterial
+        : typed
+          ? this.hiMaterial
+          : id === this.selectedId
             ? this.ownMaterial
-            : this.highlight.has(id)
-              ? this.hiMaterial
-              : this.dimMaterial;
+            : this.dimMaterial;
     }
     if (this.selOutline) {
       this.scene.remove(this.selOutline);
       this.selOutline.traverse((o) => (o as THREE.LineSegments).geometry?.dispose?.());
       this.selOutline = null;
     }
-    const sel = keepTypeColor ? this.ownMeshes.get(this.selectedId!) : null;
+    const sel = this.selectedId ? this.ownMeshes.get(this.selectedId) : null;
     if (sel) {
-      // WebGL 선은 굵기가 1px이라 조금씩 키운 테두리 세 겹으로 굵게 보이게
-      const edges = new THREE.EdgesGeometry(sel.geometry, 30);
-      const mat = new THREE.LineBasicMaterial({ color: 0x0f172a, depthTest: false, transparent: true, opacity: 0.95 });
       const group = new THREE.Group();
-      sel.geometry.computeBoundingBox();
-      const c = sel.geometry.boundingBox!.getCenter(new THREE.Vector3());
-      for (const k of [1, 1.012, 1.024]) {
-        const line = new THREE.LineSegments(edges, mat);
-        line.position.copy(c).multiplyScalar(1 - k);
-        line.scale.setScalar(k);
-        line.renderOrder = 10;
-        group.add(line);
-      }
+      group.add(new THREE.LineSegments(new THREE.EdgesGeometry(sel.geometry, 30), this.selectEdgeMaterial));
       this.scene.add(group);
       this.selOutline = group;
     }
   }
+  private selectEdgeMaterial = new THREE.LineBasicMaterial({ color: 0x0f172a });
 
   /**
    * 동 주변 — 향(정면 = 긴 변 중 남쪽을 향한 쪽), 앞 동(정면으로 가장 먼저 닿는 단지 동), 옆 동(외곽선 사이 가장 가까운 동).

@@ -930,19 +930,18 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                         </b>
                       </p>
                       <OpenDirections view={view} />
-                      <p className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[12px] text-[color:var(--lab-muted)]">
-                        
+                      <p className="flex items-center gap-2.5 whitespace-nowrap text-[12px] text-[color:var(--lab-muted)]">
                         <span className="flex items-center gap-1">
                           <span className="h-2 w-2 rounded-sm" style={{ background: "#0e9aa0" }} aria-hidden />
-                          200m 넘게 막힘없음
+                          200m+ 트임
                         </span>
                         <span className="flex items-center gap-1">
                           <span className="h-2 w-2 rounded-sm" style={{ background: "#f59e0b" }} aria-hidden />
-                          80~200m에 건물
+                          80~200m 건물
                         </span>
                         <span className="flex items-center gap-1">
                           <span className="h-2 w-2 rounded-sm" style={{ background: "#ef4444" }} aria-hidden />
-                          80m 안에 건물
+                          80m 안 가림
                         </span>
                       </p>
                     </>
