@@ -21,6 +21,17 @@ export function normalizeDongName(raw: string | null | undefined): string | null
   return dong && DONG_RE.test(dong) ? dong : null;
 }
 
+/**
+ * 읍·면 리 이름(예: "가평읍 대곡리")은 DB에 공백 하나로 저장돼 있다.
+ * 동 화면·동 범위 API는 공백을 하나로 모아 남긴다(`normalizeDongName`은 공백을 지운 저장 키용).
+ */
+const SCOPE_DONG_RE = /^[가-힣0-9·.]{1,20}( [가-힣0-9·.]{1,20})?$/;
+
+export function normalizeScopeDongName(raw: string | null | undefined): string | null {
+  const dong = (raw ?? "").replace(/\s+/g, " ").trim();
+  return dong && SCOPE_DONG_RE.test(dong) ? dong : null;
+}
+
 export function isDongScope(scope: RegionScope): scope is RegionScope & { dong: string } {
   return Boolean(scope.dong);
 }
@@ -48,7 +59,7 @@ export function parseRegionScope(
   if (!LAWD_RE.test(lawdCd)) return { error: "lawd_cd가 필요합니다." };
   const rawDong = params.get("dong");
   if (rawDong == null || rawDong.trim() === "") return { scope: { lawdCd } };
-  const dong = normalizeDongName(rawDong);
+  const dong = normalizeScopeDongName(rawDong);
   if (!dong) return { error: "dong 값이 올바르지 않습니다." };
   return { scope: { lawdCd, dong } };
 }

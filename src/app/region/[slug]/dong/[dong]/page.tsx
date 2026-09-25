@@ -10,7 +10,7 @@ import {
 import { getDb } from "@/lib/db/client";
 import { regionDongHref } from "@/lib/molit/region-paths";
 import { resolveDongLawdCd } from "@/lib/region/region-dong-overview";
-import { normalizeDongName } from "@/lib/region/region-scope";
+import { normalizeScopeDongName } from "@/lib/region/region-scope";
 
 type SearchParams = Promise<{
   gu?: string;
@@ -23,7 +23,7 @@ function dongFromParam(raw: string): string | null {
   } catch {
     /* already decoded */
   }
-  return normalizeDongName(decoded);
+  return normalizeScopeDongName(decoded);
 }
 
 /** 여러 구로 나뉜 시: ?gu=(예: "수원시 장안구", "장안구")로 구 코드를 고른다. */
