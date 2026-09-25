@@ -33,6 +33,8 @@ export interface AptAreaOption {
   marketLabel?: number | null;
   /** 이 평형의 세대수 (단지 타입 자료 합계) — 모르면 없음 */
   households?: number | null;
+  /** 이 평형의 가장 최근 매매 실거래 (단지 상세가 불러온 거래에서) */
+  latestTrade?: { amount: number; date: string; singoga: boolean } | null;
 }
 
 export interface AptHistoryItem extends Transaction {

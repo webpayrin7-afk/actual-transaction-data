@@ -9,6 +9,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronDown } from "lucide-react";
+import { formatEok } from "@/lib/utils/format";
 import type { AptAreaOption } from "@/lib/molit/apt-client";
 import {
   areaSelectorClosedLabel,
@@ -230,6 +231,10 @@ function AreaSheet({
   const [isDragging, setIsDragging] = useState(false);
 
   const totalDeals = areas.reduce((sum, a) => sum + a.count, 0);
+  const latestOfAll = areas.reduce<AptAreaOption["latestTrade"]>(
+    (best, a) => (a.latestTrade && (!best || a.latestTrade.date > best.date) ? a.latestTrade : best),
+    null,
+  );
 
   useLayoutEffect(() => {
     const run = () => {
@@ -354,9 +359,10 @@ function AreaSheet({
             buttonRef={value === "all" ? activeRef : undefined}
             onClick={() => onPick("all")}
             pyeongLabel="전체 면적"
-            exclusiveLabel={`타입 ${areas.length.toLocaleString("ko-KR")}개`}
+            exclusiveLabel={`평형 ${areas.length.toLocaleString("ko-KR")}개`}
             supplyLabel={null}
             dealLabel={areaSelectorDealCountLabel(totalDeals)}
+            latest={latestOfAll}
           />
           <div className="mx-4 border-b border-slate-100" aria-hidden />
           {areas.map((area, index) => (
@@ -377,6 +383,7 @@ function AreaSheet({
                 supplyLabel={areaSelectorSupplyLabel(area)}
                 dealLabel={areaSelectorDealCountLabel(area.count)}
                 householdsLabel={area.households ? `${area.households.toLocaleString("ko-KR")}세대` : null}
+                latest={area.latestTrade}
               />
               {index < areas.length - 1 ? (
                 <div
@@ -392,6 +399,15 @@ function AreaSheet({
   );
 }
 
+/** 26.05.29 */
+function shortDate(d: string): string {
+  return d.length >= 10 ? `${d.slice(2, 4)}.${d.slice(5, 7)}.${d.slice(8, 10)}` : d;
+}
+
+/**
+ * 평형 한 줄 — 왼쪽: 평형·세대 / 전용·공급, 오른쪽: 최근 매매 실거래가 / 계약일·거래 건수.
+ * 호가가 아니라 실거래라 날짜를 같이 둔다. 신고가면 작은 표시.
+ */
 function AreaOptionRow({
   active,
   buttonRef,
@@ -401,6 +417,7 @@ function AreaOptionRow({
   supplyLabel,
   dealLabel,
   householdsLabel = null,
+  latest,
 }: {
   active: boolean;
   buttonRef?: React.RefObject<HTMLButtonElement | null>;
@@ -410,7 +427,9 @@ function AreaOptionRow({
   supplyLabel: string | null;
   dealLabel: string;
   householdsLabel?: string | null;
+  latest?: AptAreaOption["latestTrade"];
 }) {
+  const sub = [exclusiveLabel, supplyLabel].filter(Boolean).join(" · ");
   return (
     <button
       ref={buttonRef}
@@ -425,21 +444,29 @@ function AreaOptionRow({
           <span className="detail-number leading-snug text-[color:var(--lab-teal-700)]">{pyeongLabel}</span>
           {householdsLabel ? <span className="detail-meta tabular-nums">{householdsLabel}</span> : null}
         </span>
-        <span className="mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          {exclusiveLabel ? (
-            <span className="detail-meta tabular-nums">
-              {exclusiveLabel}
+        {sub ? <span className="detail-meta mt-0.5 block tabular-nums">{sub}</span> : null}
+      </span>
+      <span className="shrink-0 text-right">
+        {latest !== undefined ? (
+          <>
+            <span className="flex items-center justify-end gap-1">
+              {latest?.singoga ? (
+                <span className="shrink-0 whitespace-nowrap rounded border border-rose-400 px-1 py-px text-[12px] font-semibold leading-4 text-rose-600">
+                  신고가
+                </span>
+              ) : null}
+              <span className={`detail-number leading-snug tabular-nums ${latest ? "text-[color:var(--lab-navy-950)]" : "text-slate-400"}`}>
+                {latest ? formatEok(latest.amount) : "매매 없음"}
+              </span>
             </span>
-          ) : null}
-          <span className="detail-meta tabular-nums">
-            {dealLabel}
-          </span>
-        </span>
-        {supplyLabel ? (
-          <span className="detail-meta mt-0.5 block tabular-nums">
-            {supplyLabel}
-          </span>
-        ) : null}
+            <span className="detail-meta mt-0.5 block tabular-nums">
+              {latest ? `${shortDate(latest.date)} · ` : ""}
+              {dealLabel}
+            </span>
+          </>
+        ) : (
+          <span className="detail-meta tabular-nums">{dealLabel}</span>
+        )}
       </span>
       <span className="flex w-5 shrink-0 items-center justify-center">
         {active ? (

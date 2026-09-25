@@ -33,7 +33,7 @@ import {
   PeriodRangeSlider,
 } from "@/components/apt/AptPriceChart";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
-import { resolveAreaKeyAlias } from "@/lib/apt/area-groups";
+import { areaOptionContains, resolveAreaKeyAlias } from "@/lib/apt/area-groups";
 import { AptStickyNav } from "@/components/apt/AptStickyNav";
 import { ComplexPurchaseCalculatorSection } from "@/components/apt/calculator/ComplexPurchaseCalculatorSection";
 import {
@@ -304,10 +304,17 @@ export function AptDetailPage({
     enabled: !!typesComplexId,
     staleTime: 60 * 60 * 1000,
   });
-  const areasWithSupply = useMemo(
-    () => attachTypeSupply(data?.areas ?? [], typesQuery.data?.types ?? []),
-    [data, typesQuery.data],
-  );
+  const areasWithSupply = useMemo(() => {
+    const withSupply = attachTypeSupply(data?.areas ?? [], typesQuery.data?.types ?? []);
+    // 평형 시트에 보여줄 평형별 최근 매매 실거래
+    const trades = filterTransactionsByType(data?.items ?? [], "trade");
+    return withSupply.map((area) => {
+      const tx = trades.find((t) => areaOptionContains(area, Number(t.exclusiveArea)));
+      return tx
+        ? { ...area, latestTrade: { amount: tx.dealAmount, date: tx.dealDate, singoga: tx.isSingoga } }
+        : { ...area, latestTrade: null };
+    });
+  }, [data, typesQuery.data]);
 
   const selectedArea = useMemo(
     () => areasWithSupply.find((a) => a.key === areaKey) ?? null,
