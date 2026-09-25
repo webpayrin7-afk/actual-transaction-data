@@ -356,11 +356,15 @@ export class Complex3dScene {
     if (!b?.rings) return;
     const c = this.ringCenter(b.rings);
     const { h } = buildingHeight(b);
-    const target = new THREE.Vector3(c.x, h * 0.45, c.z);
-    const dir = this.camera.position.clone().sub(this.controls.target).normalize();
-    // 시트가 화면 아래를 가리면 보이는 높이가 줄어드니 그만큼 멀리서
+    // 동 가운데 높이를 보며, 지금 방위는 유지하고 위에서 비스듬히(천정에서 50°) — 옆 동까지 조금 보이게 여유 있게
+    const target = new THREE.Vector3(c.x, h * 0.5, c.z);
+    const off = this.camera.position.clone().sub(this.controls.target);
+    const az = Math.atan2(off.x, off.z);
+    const polar = (50 * Math.PI) / 180;
+    // 아래 패널이 화면을 가리면 보이는 높이가 줄어드니 그만큼 멀리서
     const visible = Math.max(0.35, 1 - this.insetTarget / Math.max(1, this.host.clientHeight));
-    const dist = Math.max(170, h * 4.2) / visible;
+    const dist = Math.max(240, h * 5.5) / visible;
+    const dir = new THREE.Vector3(Math.sin(polar) * Math.sin(az), Math.cos(polar), Math.sin(polar) * Math.cos(az));
     this.flyTo(target.clone().add(dir.multiplyScalar(dist)), target);
   }
 

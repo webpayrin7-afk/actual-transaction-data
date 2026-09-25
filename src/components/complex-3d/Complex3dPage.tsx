@@ -28,7 +28,7 @@ async function fetch3d(id: string): Promise<Complex3d> {
 }
 
 const MODES: Array<{ id: SceneMode; label: string }> = [
-  { id: "base", label: "단지" },
+  { id: "base", label: "동 정보" },
   { id: "floors", label: "층별가" },
   { id: "sun", label: "일조" },
   { id: "view", label: "조망" },
@@ -373,7 +373,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   };
 
   // 정보 패널 — 모드마다 보여줄 내용 (없으면 패널을 숨긴다)
-  const showPanel = !!d && hasShape && (mode !== "base" || !!sel || !!picked);
+  const showPanel = !!d && hasShape;
   const modeTitle = MODES.find((m) => m.id === mode)!.label;
 
   const floorSlider = sel ? (
@@ -678,6 +678,24 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
               </p>
             )}
 
+            {mode === "base" && !sel && !picked ? (
+              <p className="text-[13px] text-[color:var(--lab-navy-950)]">
+                <b>동 정보</b>
+                <span className="ml-1.5 text-[12px] text-[color:var(--lab-muted)]">위 [동]·[타입]에서 고르거나 모형의 동을 눌러 보세요</span>
+              </p>
+            ) : null}
+            {mode === "base" && sel ? (
+              <p className="mt-0.5 text-[12px] tabular-nums text-[color:var(--lab-muted)]">
+                {[
+                  sel.floors ? `지상 ${sel.floors}층` : null,
+                  sel.floorsBelow ? `지하 ${sel.floorsBelow}층` : null,
+                  sel.heightM ? `높이 ${Math.round(sel.heightM)}m` : null,
+                  sel.lines?.length ? `${new Set(sel.lines.map((l) => l.line)).size}개 라인` : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
+            ) : null}
             {mode === "base" && sel ? (
               <DongLines lines={selLines} fallback={sel.units} />
             ) : null}
