@@ -175,7 +175,6 @@ export function ComplexTypeDongSection({
     <LabSection
       id="section-type-dong"
       title="타입·동 정보"
-      meta={selectedArea ? selectedArea.label : "전체 평형"}
       tip={
         <p>
           같은 평형 안에서도 공급면적(타입)에 따라 구조와 가격이 다릅니다. 타입은 건축물대장의 공급·전용면적으로 나누고, 동별
@@ -198,10 +197,6 @@ export function ComplexTypeDongSection({
           </Chip>
         ))}
       </div>
-      <p className="detail-meta -mt-1 tabular-nums">
-        공급 {type.supplySqm ?? "—"}㎡ · 전용 {type.exclusiveSqm}㎡
-        {type.households != null ? ` · ${type.households.toLocaleString("ko-KR")}세대` : ""}
-      </p>
 
       {/* 이 영역에선 부수 정보 — 낮은 두 칸 요약 (이름 / 값 / 보조) */}
       <dl className="grid grid-cols-2 divide-x divide-[color:var(--lab-border)] rounded-lg bg-[color:var(--lab-surface-subtle)] py-2 tabular-nums">
