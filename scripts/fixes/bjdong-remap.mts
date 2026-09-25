@@ -179,8 +179,13 @@ async function main() {
       backup[t]!.push(...r.rows.map((x) => ({ ...x })));
     }
   }
-  writeFileSync(join(OUT, "backup.json"), JSON.stringify(backup));
-  writeFileSync(planPath, JSON.stringify({ built_at: new Date().toISOString(), fixes, held }, null, 1));
+  // 백업·계획은 고칠 게 있을 때만, 시각을 붙여 새 파일로 쓴다 — 적용 뒤 다시 돌려도 이전 백업을 덮어쓰지 않게
+  if (fixes.length) {
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    writeFileSync(join(OUT, `backup-${stamp}.json`), JSON.stringify(backup));
+    writeFileSync(join(OUT, `mapping-${stamp}.json`), JSON.stringify({ built_at: new Date().toISOString(), fixes, held }, null, 1));
+    writeFileSync(planPath, JSON.stringify({ built_at: new Date().toISOString(), fixes, held }, null, 1));
+  }
 
   const perLawd: Record<string, { fix: number; held: number }> = {};
   for (const f of fixes) (perLawd[f.lawd_cd] ??= { fix: 0, held: 0 }).fix++;
