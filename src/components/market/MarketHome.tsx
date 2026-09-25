@@ -457,6 +457,12 @@ export function MarketHome() {
           <LabSection
             id="market-volume"
             title="거래량 급증 단지"
+            meta={
+              // 타일은 전체 곳 수, 목록은 순위 상위 10곳까지 — 둘이 다르면 '상위 N곳'으로 밝힌다
+              (data.kpis.volumeSurgeCount ?? 0) > (data.volumeSurges ?? []).length
+                ? `${(data.kpis.volumeSurgeCount ?? 0).toLocaleString("ko-KR")}곳 중 상위 ${(data.volumeSurges ?? []).length}곳`
+                : undefined
+            }
             tip={
               <p>
                 계약일 기준 최근 30일 매매가 5건 이상이면서 직전 30일(3건 이상)의 2배 이상으로 늘어난
