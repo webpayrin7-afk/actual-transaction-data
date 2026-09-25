@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-25T23:47:59.466Z",
+  "generated_at": "2026-09-25T23:54:24.325Z",
   "wave": "gwangju-jeonnam",
   "region": "gwangju-jeonnam",
   "production_write": false,
@@ -10,9 +10,9 @@
   "http_429_count": 0,
   "http_5xx": 0,
   "timeouts": 0,
-  "api_calls": 47138,
-  "reused_ops": 1563,
-  "retries": 4,
+  "api_calls": 47141,
+  "reused_ops": 1589,
+  "retries": 7,
   "reuse_confirmation_api_calls": null,
   "selected_sidos": [
     "12"
