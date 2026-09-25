@@ -3,8 +3,6 @@
 import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import type { DealStatsPayload } from "@/lib/market/deal-stats";
 import { Area, ComposedChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
@@ -66,41 +64,11 @@ export function RegionJeonseSection({
 }) {
   const place = label ?? regionName;
   const query = useRegionJeonse(scope);
-  const dealQuery = useQuery({
-    queryKey: ["market-deal-stats", "dong", scope.lawdCd, scope.dong ?? ""],
-    enabled: !!scope.dong,
-    staleTime: 30 * 60_000,
-    retry: 1,
-    queryFn: async (): Promise<DealStatsPayload> => {
-      const params = new URLSearchParams({ lawd: scope.lawdCd, dong: scope.dong! });
-      const res = await fetch(`/api/market-deal-stats?${params}`);
-      if (!res.ok) throw new Error("실거래 집계를 불러오지 못했습니다.");
-      return res.json();
-    },
-  });
   const [tab, setTab] = useState<TabId>("gap");
   const [expanded, setExpanded] = useState(false);
   const data = query.data?.status === "ok" ? query.data : null;
 
   const [period, setPeriod] = useState<PeriodId>("5y");
-  const dealRatios = useMemo(() => {
-    const points = dealQuery.data?.points ?? [];
-    const trade = new Map<string, number>();
-    const jeonse = new Map<string, number>();
-    for (const p of points) {
-      if (p.area !== "all" || p.median == null || p.median <= 0 || p.count <= 0) continue;
-      if (p.kind === "trade") trade.set(p.ym, p.median);
-      if (p.kind === "jeonse") jeonse.set(p.ym, p.median);
-    }
-    const out: Array<{ label: string; ratio: number }> = [];
-    for (const ym of [...trade.keys()].sort()) {
-      const t = trade.get(ym);
-      const j = jeonse.get(ym);
-      if (t == null || j == null) continue;
-      out.push({ label: monthLabel(ym), ratio: Math.round((j / t) * 1000) / 10 });
-    }
-    return out;
-  }, [dealQuery.data]);
   const pairPoints = useMemo(() => {
     const series = data?.series ?? [];
     const first = series.findIndex((p) => p.jeonseRatio != null);
@@ -109,8 +77,7 @@ export function RegionJeonseSection({
       ratio: p.jeonseRatio == null ? null : Math.round(p.jeonseRatio * 1000) / 10,
     }));
   }, [data]);
-  const usingDealStats = !!scope.dong && dealRatios.length > 1;
-  const allPoints = usingDealStats ? dealRatios : pairPoints;
+  const allPoints = pairPoints;
   const hasLongHistory = allPoints.length > RECENT_MONTHS;
   const points =
     hasLongHistory && period === "5y" ? allPoints.slice(-RECENT_MONTHS) : allPoints;
@@ -165,8 +132,10 @@ export function RegionJeonseSection({
           <p>
             같은 단지·면적에서 최근 매매 가격 대비 전세 가격 수준입니다. 갭은 매매가와
             전세가의 차이이며, 전세 하락은 2년 전 계약 때보다 전세 가격이 낮아진 단지를
-            보여줍니다(2년 전과 비교할 수 있는 단지 중 하락한 곳 수). 월세 낀 계약은
-            제외합니다.
+            보여줍니다(2년 전과 비교할 수 있는 단지 중 하락한 곳 수). 월세 낀 계약,
+            전세 갱신 계약(인상 상한이 있는 재계약), 매매 직거래는 제외하고, 매매·전세가
+            각각 2건 이상인 단지·면적만 씁니다. 신고기한(계약 후 30일)이 지난 달까지를
+            기준으로 합니다.
           </p>
         }
       />
@@ -226,12 +195,6 @@ export function RegionJeonseSection({
                 onChange={setPeriod}
               />
             </div>
-          ) : null}
-          {usingDealStats ? (
-            <p className="detail-meta">
-              그래프는 이 동 전체의 월별 매매 중위가 대비 전세 중위가입니다. 위의 숫자와 단지 목록은 단지·면적별
-              최근 3개월 전세가율의 중앙값입니다.
-            </p>
           ) : null}
           {points.length > 1 ? (
             <div className="h-[120px] w-full">

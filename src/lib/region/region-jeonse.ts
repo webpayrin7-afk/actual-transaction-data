@@ -18,12 +18,13 @@
  *   3개월 전세 중앙값보다 낮은 pair. 두 시점 모두 전세 2건 이상인 pair만 대상(eligible).
  */
 import type { RankingReader } from "@/lib/region-ranking/query";
+import { lastCompleteVolumeMonth } from "@/lib/market/deal-stats";
 import { seoulToday } from "@/lib/market/time";
 import { DONG_TX_FROM, DONG_TX_WHERE, regionScopeKey } from "@/lib/region/region-scope";
 
 export const REGION_JEONSE_INDEX_TABLE = "region_jeonse_index";
 export const REGION_JEONSE_SNAPSHOT_TABLE = "region_jeonse_snapshot";
-export const REGION_JEONSE_METHOD = "PAIR_TRAILING_3M_MEDIAN_V1";
+export const REGION_JEONSE_METHOD = "PAIR_TRAILING_3M_MEDIAN_V2";
 
 export const REGION_JEONSE_DDL = [
   `CREATE TABLE IF NOT EXISTS ${REGION_JEONSE_INDEX_TABLE} (
@@ -167,8 +168,9 @@ const DONG_JEONSE_SQL = `SELECT m.complex_id AS c, MAX(m.apt_name) AS apt_name, 
           FROM ${DONG_TX_FROM}
           WHERE ${DONG_TX_WHERE}
             AND CAST(t.deal_amount AS REAL) > 0 AND CAST(t.exclusive_area AS REAL) > 0
-            AND (t.deal_type = 'trade'
-              OR (t.deal_type = 'rent' AND COALESCE(CAST(t.monthly_rent AS REAL), 0) = 0))
+            AND ((t.deal_type = 'trade' AND COALESCE(t.dealing_gbn, '') <> '직거래')
+              OR (t.deal_type = 'rent' AND COALESCE(CAST(t.monthly_rent AS REAL), 0) = 0
+                  AND COALESCE(t.dealing_gbn, '') NOT IN ('갱신', '갱신계약')))
           GROUP BY m.complex_id, ar, t.year_month, t.deal_type`;
 
 export async function computeRegionJeonse(
@@ -192,8 +194,9 @@ export async function computeRegionJeonse(
            AND m.legal_dong_name = t.dong
           WHERE t.lawd_cd = ? AND t.year_month >= ?
             AND CAST(t.deal_amount AS REAL) > 0 AND CAST(t.exclusive_area AS REAL) > 0
-            AND (t.deal_type = 'trade'
-              OR (t.deal_type = 'rent' AND COALESCE(CAST(t.monthly_rent AS REAL), 0) = 0))
+            AND ((t.deal_type = 'trade' AND COALESCE(t.dealing_gbn, '') <> '직거래')
+              OR (t.deal_type = 'rent' AND COALESCE(CAST(t.monthly_rent AS REAL), 0) = 0
+                  AND COALESCE(t.dealing_gbn, '') NOT IN ('갱신', '갱신계약')))
           GROUP BY m.complex_id, ar, t.year_month, t.deal_type`,
     args: [lawdCd, fromYm],
   });
@@ -230,7 +233,9 @@ export async function computeRegionJeonse(
       if (ym < jeonseFromIdx) jeonseFromIdx = ym;
     }
   }
-  asOfIdx = asOfIdx < 0 ? currentIdx - 1 : Math.min(asOfIdx, currentIdx - 1);
+  // 신고기한(계약 후 30일)이 지난 마지막 달까지만 — 아직 신고가 덜 된 달은 기준에서 뺀다
+  const completeIdx = monthIndex(lastCompleteVolumeMonth());
+  asOfIdx = asOfIdx < 0 ? completeIdx : Math.min(asOfIdx, completeIdx);
 
   const coveredFromIdx = Math.max(tradeFromIdx, jeonseFromIdx) + WINDOW_MONTHS - 1;
   const seriesFromIdx = Math.max(
@@ -242,9 +247,10 @@ export async function computeRegionJeonse(
     const ratios: number[] = [];
     if (m >= coveredFromIdx) {
       for (const p of pairs.values()) {
-        const t = median(windowValues(p.trade, m));
-        const j = median(windowValues(p.jeonse, m));
-        if (t != null && j != null) ratios.push(j / t);
+        const tv = windowValues(p.trade, m);
+        const jv = windowValues(p.jeonse, m);
+        if (tv.length < MIN_LIST_SAMPLE || jv.length < MIN_LIST_SAMPLE) continue;
+        ratios.push(median(jv)! / median(tv)!);
       }
     }
     const r = median(ratios);
