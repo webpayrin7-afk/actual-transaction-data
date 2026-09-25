@@ -4,7 +4,7 @@ import {
   metroFromLawdNationwide,
   slugFromLawd,
 } from "@/lib/constants/nationwide-lawd";
-import { getDb, hasDb, ensureSchema } from "@/lib/db/client";
+import { getDb, hasDb, ensureSchemaForRead } from "@/lib/db/client";
 import { labCoverageLabel, labCoverageShort } from "@/lib/lab/coverage";
 import { LAB_FEATURED_ID, getLabDef, type LabExperimentId } from "@/lib/lab/definitions";
 import type {
@@ -254,7 +254,7 @@ export async function getLabHome(): Promise<LabHomeResponse> {
 
   const tAll = performance.now();
   const timings: Record<string, number> = {};
-  await ensureSchema();
+  await ensureSchemaForRead();
   const db = getDb()!;
 
   const asOfDate = await timed(timings, "asOf", async () => {

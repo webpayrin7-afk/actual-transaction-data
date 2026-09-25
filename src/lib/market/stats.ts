@@ -1,4 +1,4 @@
-import { getDb, hasDb, ensureSchema } from "@/lib/db/client";
+import { getDb, hasDb, ensureSchema, ensureSchemaForRead } from "@/lib/db/client";
 import { LAWD_TO_REGION, ALL_REGIONS } from "@/lib/constants/regions";
 import {
   MARKET_COMPLEX_KEY_VERSION,
@@ -968,7 +968,7 @@ export async function getMarketStats(params: {
   if (!hasDb()) {
     return emptyStats(params.period, params.scope, "실거래 데이터를 불러올 수 없습니다.");
   }
-  await ensureSchema();
+  await ensureSchemaForRead();
 
   const meta = await loadMeta();
   if (!meta) {

@@ -1,5 +1,5 @@
 import type { Client } from "@libsql/client";
-import { getDb, ensureSchema } from "@/lib/db/client";
+import { getDb, ensureSchemaForRead } from "@/lib/db/client";
 import {
   isSameTransactionContent,
   snapshotFromTx,
@@ -22,18 +22,11 @@ function yearMonthFromDealDate(dealDate: string): string {
   return `${dealDate.slice(0, 4)}${dealDate.slice(5, 7)}`;
 }
 
-/** 로컬/원격 DB 스키마 준비 (한 번만) */
-let schemaReady: Promise<void> | null = null;
+/** DB 핸들 (원격 Turso 는 스키마 DDL 생략 — ensureSchemaForRead 참고) */
 async function readyDb(): Promise<Client | null> {
   const db = getDb();
   if (!db) return null;
-  if (!schemaReady) {
-    schemaReady = ensureSchema(db).catch((err) => {
-      schemaReady = null;
-      throw err;
-    });
-  }
-  await schemaReady;
+  await ensureSchemaForRead(db);
   return db;
 }
 
@@ -1401,19 +1394,32 @@ export async function rebuildAptCatalog(): Promise<number> {
   return Number(count.rows[0]?.cnt ?? 0);
 }
 
-export async function getSyncStats(): Promise<{
+/**
+ * 적재 상태 요약.
+ * - syncedRowCount: 월별 적재 행수(sync_months.row_count) 합 — 싸다(~4.6만 행).
+ *   sync 가 기록한 "마지막 적재 시 API 행수"라 실제 transactions 행수와 다르다(과소 집계).
+ * - transactions: 정확한 COUNT(*) — 1,300만 행 전체 스캔(수십 초·행 읽기 비용).
+ *   exact=true 일 때만 계산하고, 아니면 null.
+ */
+export async function getSyncStats(opts?: { exact?: boolean }): Promise<{
   months: number;
-  transactions: number;
+  syncedRowCount: number;
+  transactions: number | null;
 }> {
   const db = await readyDb();
-  if (!db) return { months: 0, transactions: 0 };
+  if (!db) return { months: 0, syncedRowCount: 0, transactions: opts?.exact ? 0 : null };
   const [m, t] = await Promise.all([
-    db.execute(`SELECT COUNT(*) AS cnt FROM sync_months`),
-    db.execute(`SELECT COUNT(*) AS cnt FROM transactions`),
+    db.execute(
+      `SELECT COUNT(*) AS months, COALESCE(SUM(row_count), 0) AS synced FROM sync_months`,
+    ),
+    opts?.exact
+      ? db.execute(`SELECT COUNT(*) AS cnt FROM transactions`)
+      : Promise.resolve(null),
   ]);
   return {
-    months: Number(m.rows[0]?.cnt ?? 0),
-    transactions: Number(t.rows[0]?.cnt ?? 0),
+    months: Number(m.rows[0]?.months ?? 0),
+    syncedRowCount: Number(m.rows[0]?.synced ?? 0),
+    transactions: t ? Number(t.rows[0]?.cnt ?? 0) : null,
   };
 }
 
