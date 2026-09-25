@@ -24,7 +24,8 @@ const HIGH_PRICE_MAN = 200_000; // 20억
 const VOLUME_WINDOW_DAYS = 30;
 /** 거래량 급증: 개수는 이만큼까지 세고(요약 타일), 목록은 VOLUME_LIST_LIMIT개만 보낸다 */
 const VOLUME_SCAN_LIMIT = 1000;
-const VOLUME_LIST_LIMIT = 20;
+/** 늘어난 건수 순위라 순위 정책(최대 10 · 5개 + 더보기)을 따른다 */
+const VOLUME_LIST_LIMIT = 10;
 const MIN_RECENT_VOLUME = 5;
 const MIN_PRIOR_VOLUME = 3;
 const MIN_VOLUME_GROWTH_RATIO = 2;
