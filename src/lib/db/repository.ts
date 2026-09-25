@@ -1324,21 +1324,34 @@ async function queryRegionBrowseAptsUncached(
   if (!db) return null;
 
   const placeholders = lawdCodes.map(() => "?").join(",");
-  const result = await db.execute({
-    sql: `SELECT MAX(apt_name) AS apt_name,
-                 MAX(gu) AS gu,
-                 MAX(dong) AS dong,
-                 COUNT(*) AS deal_count,
-                 MAX(deal_amount) AS max_deal_amount,
-                 MAX(deal_date) AS latest_deal_date,
-                 MAX(build_year) AS build_year
-          FROM transactions
-          WHERE lawd_cd IN (${placeholders})
-            AND deal_type = 'trade'
-            AND TRIM(dong) != ''
-          GROUP BY apt_name_norm, gu, dong`,
-    args: [...lawdCodes],
-  });
+  // 법정동코드가 2개 이상(성남·고양·화성 등)이면 sqlite_stat1이 없어 플래너가
+  // idx_tx_type_first_seen(deal_type=?)로 전국 매매를 훑음(30~60초).
+  // 매매 전용 부분 인덱스(lawd_cd 선두)를 지정 — 구 1개일 때 쓰던 것과 같은 인덱스.
+  // (+deal_type로 막으면 구 1개 지역이 전월세 행까지 읽어 0.4초→6~8초로 느려짐)
+  // 로컬 file: DB 등 인덱스가 없으면 힌트 없이 다시 조회.
+  const buildSql = (indexHint: string) =>
+    `SELECT MAX(apt_name) AS apt_name,
+            MAX(gu) AS gu,
+            MAX(dong) AS dong,
+            COUNT(*) AS deal_count,
+            MAX(deal_amount) AS max_deal_amount,
+            MAX(deal_date) AS latest_deal_date,
+            MAX(build_year) AS build_year
+     FROM transactions${indexHint}
+     WHERE lawd_cd IN (${placeholders})
+       AND deal_type = 'trade'
+       AND TRIM(dong) != ''
+     GROUP BY apt_name_norm, gu, dong`;
+  let result;
+  try {
+    result = await db.execute({
+      sql: buildSql(" INDEXED BY idx_tx_trade_lawd_apt_ym"),
+      args: [...lawdCodes],
+    });
+  } catch (error) {
+    if (!String(error).includes("no such index")) throw error;
+    result = await db.execute({ sql: buildSql(""), args: [...lawdCodes] });
+  }
 
   if (!result.rows.length) return null;
 
