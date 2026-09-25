@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-25T11:56:15.985Z",
+  "generated_at": "2026-09-25T12:58:20.355Z",
   "driver_status": "gwangju-jeonnam acquiring",
   "fee_table": {
     "rows": 5898,
     "complexes": 5785
   },
-  "api_calls_total": 99912,
+  "api_calls_total": 103431,
   "applied_rows_total": 2975,
   "provinces": [
     {
@@ -74,15 +74,15 @@
       "sido": "전남광주통합특별시",
       "phase": "ACQUIRING",
       "cohort": 1646,
-      "terminal": 240,
-      "unfinished": 1406,
-      "COMPLETE": 228,
-      "NO_PUBLISHED_MONTH": 12,
+      "terminal": 360,
+      "unfinished": 1286,
+      "COMPLETE": 345,
+      "NO_PUBLISHED_MONTH": 15,
       "PARTIAL": 0,
       "MISSING": 0,
       "FAILED": 0,
       "IDENTITY_CONFLICT": 0,
-      "api_calls": 6876,
+      "api_calls": 10395,
       "http_429": 0,
       "retries": 0,
       "dryrun_gate": null,
