@@ -1,4 +1,4 @@
-import { getDb, hasDb, ensureSchema } from "@/lib/db/client";
+import { getDb, hasDb, ensureSchema, ensureSchemaForRead } from "@/lib/db/client";
 import { hasDiscoveryAtColumn } from "@/lib/db/discovery-axis";
 import {
   LAWD_TO_REGION,
@@ -190,7 +190,7 @@ function emptyResponse(warning?: string): MarketHomeResponse {
 export async function readMarketHomeSnapshot(): Promise<MarketHomeResponse | null> {
   if (readCache && readCache.expiresAt > Date.now()) return readCache.data;
   if (!hasDb()) return null;
-  await ensureSchema();
+  await ensureSchemaForRead();
   const db = getDb();
   if (!db) return null;
   try {

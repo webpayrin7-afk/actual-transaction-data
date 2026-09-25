@@ -1,5 +1,5 @@
 import type { Client } from "@libsql/client";
-import { getDb, ensureSchema } from "@/lib/db/client";
+import { getDb, ensureSchema, shouldEnsureSchemaOnRead } from "@/lib/db/client";
 import type {
   AptComplexClassification,
   AptPyeongGroupRow,
@@ -259,10 +259,13 @@ export async function loadUnitTypeMasterByAptName(
   db: Client | null = getDb(),
 ): Promise<UnitTypeMasterBundle | null> {
   if (!db) return null;
-  try {
-    await ensureUnitTypeSchema(db);
-  } catch {
-    // schema create may fail on read-only; still try SELECT
+  // 원격 Turso 는 테이블이 이미 있다 — 요청마다 DDL 을 보내지 않는다.
+  if (shouldEnsureSchemaOnRead()) {
+    try {
+      await ensureUnitTypeSchema(db);
+    } catch {
+      // schema create may fail on read-only; still try SELECT
+    }
   }
   const classRes = await db.execute({
     sql: `SELECT * FROM apt_complex_classifications WHERE apt_name_norm = ? LIMIT 1`,

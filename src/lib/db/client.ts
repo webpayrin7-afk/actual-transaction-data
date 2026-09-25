@@ -35,6 +35,37 @@ export function hasDb(): boolean {
   return getDb() !== null;
 }
 
+/**
+ * 요청(읽기) 경로에서 ensureSchema(DDL 묶음 + PRAGMA)를 돌릴지.
+ * 원격 Turso(Production/Preview/로컬 next dev)는 스키마가 이미 있으므로 건너뛴다
+ * — 콜드 인스턴스마다 primary 로 DDL 을 보내던 왕복 제거.
+ * 로컬 file: DB(테스트 스크립트) 또는 ZIPLAB_ENSURE_SCHEMA=1 일 때만 실행.
+ * sync·rebuild 스크립트는 ensureSchema 를 직접 호출한다(이 게이트를 거치지 않음).
+ */
+export function shouldEnsureSchemaOnRead(): boolean {
+  if (process.env.ZIPLAB_ENSURE_SCHEMA === "1") return true;
+  if (process.env.ZIPLAB_ENSURE_SCHEMA === "0") return false;
+  if (process.env.VERCEL) return false;
+  const url = process.env.TURSO_DATABASE_URL?.trim() ?? "";
+  return url.startsWith("file:");
+}
+
+let readSchemaReady: Promise<void> | null = null;
+
+/** 읽기 경로용 ensureSchema — 게이트 + 인스턴스당 한 번만 */
+export async function ensureSchemaForRead(
+  db: Client | null = getDb(),
+): Promise<void> {
+  if (!db || !shouldEnsureSchemaOnRead()) return;
+  if (!readSchemaReady) {
+    readSchemaReady = ensureSchema(db).catch((err) => {
+      readSchemaReady = null;
+      throw err;
+    });
+  }
+  await readSchemaReady;
+}
+
 export async function ensureSchema(db: Client = getDb()!): Promise<void> {
   try {
     await db.executeMultiple(`
