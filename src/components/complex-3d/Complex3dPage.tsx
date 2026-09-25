@@ -239,37 +239,6 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             <p className="truncate text-[15px] font-bold leading-5 text-[color:var(--lab-navy-950)]">{d?.name ?? "3D 단지 탐색"}</p>
             {d ? <p className="truncate text-[11px] leading-4 text-[color:var(--lab-muted)]">{d.place}</p> : null}
           </div>
-          {ready ? (
-            <div className="pointer-events-auto ml-auto flex shrink-0 gap-1.5">
-              <button
-                type="button"
-                onClick={() => sceneRef.current?.northUp()}
-                aria-label="북쪽을 위로"
-                className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
-              >
-                <svg viewBox="0 0 24 24" className="h-6 w-6" style={{ transform: `rotate(${heading}deg)` }} aria-hidden>
-                  <path d="M12 3 L15.5 12 H8.5 Z" fill="#e11d48" />
-                  <path d="M12 21 L8.5 12 H15.5 Z" fill="#94a3b8" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={() => sceneRef.current?.resetView()}
-                aria-label="단지 전체 보기"
-                className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
-              >
-                <Maximize2 className="h-[18px] w-[18px] text-[color:var(--lab-navy-950)]" aria-hidden />
-              </button>
-              <button
-                type="button"
-                onClick={() => sceneRef.current?.topView()}
-                aria-label="위에서 보기"
-                className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
-              >
-                <SquareDashed className="h-[18px] w-[18px] text-[color:var(--lab-navy-950)]" aria-hidden />
-              </button>
-            </div>
-          ) : null}
         </div>
         <div className="pointer-events-auto flex gap-1.5 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {MODES.map((m) => (
@@ -294,6 +263,40 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           </p>
         ) : null}
       </div>
+
+      {/* 오른쪽: 나침반 · 단지 전체 · 위에서 보기 */}
+      {ready ? (
+        <div className="absolute right-3 z-10 flex flex-col gap-2" style={{ top: "calc(env(safe-area-inset-top) + 104px)" }}>
+          <button
+            type="button"
+            onClick={() => sceneRef.current?.northUp()}
+            aria-label="북쪽을 위로"
+            className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
+          >
+            <svg viewBox="0 0 24 24" className="h-6 w-6" style={{ transform: `rotate(${heading}deg)` }} aria-hidden>
+              <path d="M12 3 L15.5 12 H8.5 Z" fill="#e11d48" />
+              <path d="M12 21 L8.5 12 H15.5 Z" fill="#94a3b8" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={() => sceneRef.current?.resetView()}
+            aria-label="단지 전체 보기"
+            className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
+          >
+            <Maximize2 className="h-[18px] w-[18px] text-[color:var(--lab-navy-950)]" aria-hidden />
+          </button>
+          <button
+            type="button"
+            onClick={() => sceneRef.current?.topView()}
+            aria-label="위에서 보기"
+            className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
+          >
+            <SquareDashed className="h-[18px] w-[18px] text-[color:var(--lab-navy-950)]" aria-hidden />
+          </button>
+
+        </div>
+      ) : null}
 
       {/* 아래: 접히는 시트 — 접으면 한 줄 요약, 펼치면 모드별 내용 */}
       {d && hasShape ? (
