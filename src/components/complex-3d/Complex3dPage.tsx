@@ -88,6 +88,9 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           return;
         }
         scene.setData(d);
+        // 바닥 지도 — Static Map level 16, 1024 논리 px (웹 메르카토르 미터/px)
+        const mpp = (40075016.686 * Math.cos((d.center.lat * Math.PI) / 180)) / (256 * 2 ** 16);
+        scene.setGroundMap(`/api/complex-3d/${d.complexId}/ground`, 1024 * mpp);
         scene.setFloorBands(d.floorBands);
         scene.setPois(d.pois);
         const colors = new Map(typeLegend.map((t) => [t.label, t.color]));
@@ -174,7 +177,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           </p>
         ) : null}
         <p className="pointer-events-none absolute bottom-1 right-2 text-[11px] text-[color:var(--lab-muted)]">
-          건물: 국토교통부 GIS건물통합정보{estimated ? " · 일부 높이는 층수×3m로 표시" : ""}
+          건물: 국토교통부 GIS건물통합정보 · 지도 © NAVER Corp.{estimated ? " · 일부 높이는 층수×3m로 표시" : ""}
         </p>
       </div>
 

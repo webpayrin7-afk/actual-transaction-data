@@ -135,12 +135,41 @@ export class Complex3dScene {
     (grid.material as THREE.Material).transparent = true;
     (grid.material as THREE.Material).opacity = 0.6;
     this.scene.add(grid);
+    this.grid = grid;
     for (const g of Object.values(this.groups)) this.scene.add(g);
 
     this.renderer.domElement.addEventListener("pointerdown", this.onPointerDown);
     this.renderer.domElement.addEventListener("pointerup", this.onPointerUp);
     this.setSun(new Date(), 14);
     this.loop();
+  }
+
+  private grid: THREE.GridHelper | null = null;
+  private mapPlane: THREE.Mesh | null = null;
+
+  /**
+   * 바닥에 실제 지도 이미지를 깐다 — 단지 중심이 이미지 가운데, 한 변 sizeM 미터(웹 메르카토르라 가로·세로 축척 같음).
+   * 지도가 뜨면 격자는 숨긴다. 그림자는 지도 위에 그대로 떨어진다.
+   */
+  setGroundMap(url: string, sizeM: number) {
+    new THREE.TextureLoader().load(url, (tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = Math.min(8, this.renderer.capabilities.getMaxAnisotropy());
+      if (this.mapPlane) {
+        this.scene.remove(this.mapPlane);
+        (this.mapPlane.material as THREE.Material).dispose();
+      }
+      const plane = new THREE.Mesh(
+        new THREE.PlaneGeometry(sizeM, sizeM),
+        new THREE.MeshLambertMaterial({ map: tex }),
+      );
+      plane.rotation.x = -Math.PI / 2;
+      plane.position.y = 0.05;
+      plane.receiveShadow = true;
+      this.scene.add(plane);
+      this.mapPlane = plane;
+      if (this.grid) this.grid.visible = false;
+    });
   }
 
   private toLocal(lng: number, lat: number): Local {
