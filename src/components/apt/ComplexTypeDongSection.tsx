@@ -59,34 +59,35 @@ function mergeNearSupply(types: UnitTypeInfo[]): UnitTypeInfo[] {
 const sameSqm = (a: number, b: number) => Math.abs(a - b) < 0.005;
 
 /**
- * 타입 이름 (호갱노노 방식)
- *  - 분양 공고(청약홈) 타입 글자가 있으면 공급면적 정수 + 글자: "114A" (여러 글자면 그대로: "114A/C")
- *  - 글자가 없고 공급면적 정수가 다른 타입과 겹치면, 겹치는 타입끼리 전용면적이 작은 순서로 A·B·C: "109A", "109B"
- *    (공식 이름이 아니라 구분용 — 잠실엘스처럼 흔히 부르는 이름과 같게)
- *  - 겹치지 않으면 "111타입", 공급면적을 모르면 "전용 84㎡"
+ * 타입 이름 — 네이버(109.29A㎡)와 호갱노노(109A)의 중간: 공급면적 소수 둘째 자리 + 타입 글자
+ *  - 분양 공고(청약홈) 타입 글자가 있으면 그대로: "114.19A/C㎡"
+ *  - 글자가 없고 공급면적 정수가 다른 타입과 겹치면, 겹치는 타입끼리 전용면적이 작은 순서로 A·B·C: "109.29A㎡", "109.47B㎡"
+ *    (공식 이름이 아니라 구분용)
+ *  - 겹치지 않으면 "111.52㎡", 공급면적을 모르면 "전용 84.88㎡"
  */
 function supplyLabels(types: UnitTypeInfo[]): Map<string, string> {
   const out = new Map<string, string>();
   const groups = new Map<number, UnitTypeInfo[]>();
+  const sup = (v: number) => v.toFixed(2);
   for (const t of types) {
     if (t.supplySqm == null) {
-      out.set(t.id, `전용 ${Math.floor(t.exclusiveSqm)}㎡`);
+      out.set(t.id, `전용 ${t.exclusiveSqm.toFixed(2)}㎡`);
       continue;
     }
     if (t.typeName) {
-      out.set(t.id, `${Math.floor(t.supplySqm)}${t.typeName}`);
+      out.set(t.id, `${sup(t.supplySqm)}${t.typeName}㎡`);
       continue;
     }
     const whole = Math.floor(t.supplySqm);
     groups.set(whole, [...(groups.get(whole) ?? []), t]);
   }
-  for (const [whole, list] of groups) {
+  for (const list of groups.values()) {
     if (list.length === 1) {
-      out.set(list[0]!.id, `${whole}타입`);
+      out.set(list[0]!.id, `${sup(list[0]!.supplySqm!)}㎡`);
       continue;
     }
     const sorted = [...list].sort((x, y) => x.exclusiveSqm - y.exclusiveSqm || (x.supplySqm ?? 0) - (y.supplySqm ?? 0));
-    sorted.forEach((t, i) => out.set(t.id, `${whole}${String.fromCharCode(65 + i)}`));
+    sorted.forEach((t, i) => out.set(t.id, `${sup(t.supplySqm!)}${String.fromCharCode(65 + i)}㎡`));
   }
   return out;
 }
