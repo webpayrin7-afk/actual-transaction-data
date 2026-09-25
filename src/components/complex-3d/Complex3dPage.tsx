@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronUp, Maximize2, SquareDashed, X } from "lucide-react";
+import { ChevronDown, Maximize2, SquareDashed, X } from "lucide-react";
 import type { Complex3d } from "@/lib/complex-3d/read";
 import { BackLink } from "@/components/layout/BackLink";
 import { LabTabs } from "@/components/ui/LabTabs";
@@ -85,68 +85,24 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   useEffect(() => {
     showToastRef.current = showToast;
   });
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const drag = useRef<{ y: number; moved: boolean } | null>(null);
-  const sheetRef = useRef<HTMLDivElement>(null);
-  const [sheetH, setSheetH] = useState(80);
   const panelRef = useRef<HTMLDivElement>(null);
   const [panelH, setPanelH] = useState(0);
   const [sunStats, setSunStats] = useState<SunHours | null>(null);
   const [pickedType, setPickedType] = useState<string | null>(null);
-  // 모바일에서 시트가 가리는 만큼 모형 중심을 위로 (넓은 화면은 시트가 옆에 떠 있어 그대로)
+  const [picker, setPicker] = useState<"dong" | "type" | null>(null);
+  // 모바일에서 아래 정보 패널이 가리는 만큼 모형 중심을 위로 (넓은 화면은 패널이 옆에 떠 있어 그대로)
   useEffect(() => {
-    const el = sheetRef.current;
-    if (!el || !ready) return;
+    if (!ready) return;
     const sync = () => {
-      setSheetH(el.offsetHeight);
       const panel = panelRef.current?.offsetHeight ?? 0;
       setPanelH(panel);
-      sceneRef.current?.setBottomInset(
-        window.innerWidth < 640 ? el.offsetHeight + (panel ? panel + 8 : 0) : 0,
-      );
+      sceneRef.current?.setBottomInset(window.innerWidth < 640 && panel ? panel + 24 : 0);
     };
     sync();
     const ro = new ResizeObserver(sync);
-    ro.observe(el);
     if (panelRef.current) ro.observe(panelRef.current);
     return () => ro.disconnect();
-  }, [ready, mode, selected]);
-  const [dragDy, setDragDy] = useState<number | null>(null);
-  const [sheetMax, setSheetMax] = useState(340);
-  useEffect(() => {
-    const sync = () => setSheetMax(Math.round(window.innerHeight * 0.42));
-    sync();
-    window.addEventListener("resize", sync);
-    return () => window.removeEventListener("resize", sync);
-  }, []);
-  const contentHeight = Math.max(
-    0,
-    Math.min(sheetMax, (sheetOpen ? sheetMax : 0) - (dragDy ?? 0)),
-  );
-  // 시트 손잡이·요약 줄·출처 줄을 위아래로 끌어 열고 닫기 (짧게 누르면 토글)
-  const endDrag = (dy: number) => {
-    const d0 = drag.current;
-    drag.current = null;
-    setDragDy(null);
-    if (!d0) return;
-    if (!d0.moved) setSheetOpen((v) => !v);
-    else setSheetOpen((v) => (v ? dy < 60 : dy < -40));
-  };
-  const dragHandlers = {
-    onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
-      drag.current = { y: e.clientY, moved: false };
-      e.currentTarget.setPointerCapture(e.pointerId);
-    },
-    onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
-      if (!drag.current) return;
-      const dy = e.clientY - drag.current.y;
-      if (Math.abs(dy) > 6) drag.current.moved = true;
-      if (drag.current.moved) setDragDy(dy);
-    },
-    onPointerUp: (e: React.PointerEvent<HTMLElement>) =>
-      endDrag(e.clientY - (drag.current?.y ?? e.clientY)),
-    onPointerCancel: () => endDrag(dragDy ?? 0),
-  };
+  }, [ready, mode, selected, pickedType]);
 
   // 모형을 끌 때 브라우저가 같이 당겨지지 않게 (당겨서 새로고침·바운스 끄기)
   useEffect(() => {
@@ -410,20 +366,6 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
       )
       .map(([id, g]) => ({ id, ...g }));
   }, [sel, typeOptions, pickedType]);
-  const [wide, setWide] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 640px)");
-    const sync = () => setWide(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-
-  // 시트 요약 — 시트는 타입·동 고르기 전용
-  const summary = sel
-    ? `${sel.dong ?? "동"} 선택됨 · 동 ${dongs.length}개`
-    : `동 ${dongs.length}개 · 타입이나 동을 골라 보세요`;
-
   const closeDong = () => {
     sceneRef.current?.select(null);
     setSelected(null);
@@ -496,53 +438,157 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         </div>
       ) : null}
 
-      {/* 위: 뒤로·단지명 · 모드 */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col gap-2 pt-[calc(env(safe-area-inset-top)+8px)]">
-        <div className="flex items-center gap-2 px-3">
-          <div
-            className={`pointer-events-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${FLOAT}`}
-          >
+      {/* 위: 뒤로·단지명 · 동/타입 필터 · 모드 */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex flex-col gap-2 pt-[calc(env(safe-area-inset-top)+8px)]">
+        <div className="flex items-center gap-1.5 px-3">
+          <div className={`pointer-events-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${FLOAT}`}>
             <BackLink fallback={d?.href ?? "/complexes"} compact hideLabel />
           </div>
-          <div
-            className={`pointer-events-auto min-w-0 rounded-full px-3.5 py-1.5 ${FLOAT}`}
-          >
-            <p className="truncate text-[15px] font-bold leading-5 text-[color:var(--lab-navy-950)]">
-              {d?.name ?? "3D 단지 탐색"}
-            </p>
-            {d ? (
-              <p className="truncate text-[11px] leading-4 text-[color:var(--lab-muted)]">
-                {d.place}
-              </p>
-            ) : null}
-          </div>
-        </div>
-        <div className="pointer-events-auto flex gap-1.5 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {MODES.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => setMode(m.id)}
-              aria-pressed={mode === m.id}
-              className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition active:scale-95 ${
-                mode === m.id
-                  ? "bg-[color:var(--lab-brand-primary)] text-white shadow-[0_2px_10px_rgba(15,118,110,0.35)]"
-                  : `${FLOAT} text-[color:var(--lab-navy-950)]`
-              }`}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-        {d && hasShape && d.coverage.withShape < d.coverage.buildings ? (
           <p
-            className={`mx-3 self-start rounded-md px-2 py-1 text-[11px] text-[color:var(--lab-muted)] ${FLOAT}`}
+            className={`pointer-events-auto flex h-8 min-w-0 items-center truncate rounded-full px-3 text-[14px] font-bold text-[color:var(--lab-navy-950)] ${FLOAT}`}
           >
-            동 {d.coverage.buildings}개 중 {d.coverage.withShape}개 모양 ·
-            나머지는 준비 중
+            <span className="truncate">{d?.name ?? "3D 단지 탐색"}</span>
+          </p>
+          {d && hasShape ? (
+            <div className="pointer-events-auto ml-auto flex shrink-0 gap-1.5">
+              {(
+                [
+                  { id: "dong", label: sel?.dong ?? "동", on: !!sel },
+                  { id: "type", label: picked?.label ?? "타입", on: !!picked },
+                ] as const
+              ).map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setPicker((v) => (v === f.id ? null : f.id))}
+                  aria-expanded={picker === f.id}
+                  className={`flex h-8 items-center gap-1 rounded-full px-3 text-[13px] font-semibold tabular-nums transition active:scale-95 ${
+                    f.on
+                      ? "bg-[color:var(--lab-navy-950)] text-white shadow-[0_2px_10px_rgba(15,23,42,0.25)]"
+                      : `${FLOAT} text-[color:var(--lab-navy-950)]`
+                  }`}
+                >
+                  {f.id === "type" && picked ? (
+                    <span className="h-2 w-2 rounded-full" style={{ background: picked.color }} aria-hidden />
+                  ) : null}
+                  <span className="max-w-[92px] truncate">{f.label}</span>
+                  <ChevronDown className={`h-3.5 w-3.5 transition ${picker === f.id ? "rotate-180" : ""}`} aria-hidden />
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        {/* 필터 목록 */}
+        {picker && d ? (
+          <div
+            className="pointer-events-auto mx-3 overflow-y-auto rounded-2xl bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,0.18)]"
+            style={{ maxHeight: "52dvh", touchAction: "pan-y", overscrollBehavior: "contain" }}
+          >
+            {picker === "dong" ? (
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeDong();
+                    setPicker(null);
+                  }}
+                  className={`rounded-full border px-2.5 py-1 text-[12px] font-semibold ${
+                    !sel
+                      ? "border-[color:var(--lab-navy-950)] bg-[color:var(--lab-navy-950)] text-white"
+                      : "border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
+                  }`}
+                >
+                  전체
+                </button>
+                {(picked
+                  ? [...dongs].sort((a, b) => Number(picked.dongs.has(b.dong!)) - Number(picked.dongs.has(a.dong!)))
+                  : dongs
+                ).map((b) => (
+                  <button
+                    key={b.id}
+                    type="button"
+                    onClick={() => {
+                      pickDong(b.id);
+                      setPicker(null);
+                    }}
+                    className={`rounded-full border px-2.5 py-1 text-[12px] font-semibold tabular-nums transition active:scale-95 ${
+                      b.id === selected
+                        ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
+                        : picked && b.dong && !picked.dongs.has(b.dong)
+                          ? "border-[color:var(--lab-border)] text-slate-300"
+                          : "border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
+                    }`}
+                    style={
+                      picked && b.dong && picked.dongs.has(b.dong) && b.id !== selected ? { borderColor: picked.color } : undefined
+                    }
+                  >
+                    {b.dong}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <ul className="flex flex-col">
+                {[
+                  { id: null as string | null, label: "전체 타입", color: null as string | null, sub: `${typeOptions.length}개 타입` },
+                  ...typeOptions.map((t) => ({
+                    id: t.id as string | null,
+                    label: t.label,
+                    color: t.color as string | null,
+                    sub: `동 ${t.dongs.size}개 · ${t.households.toLocaleString("ko-KR")}세대`,
+                  })),
+                ].map((t) => (
+                  <li key={t.id ?? "all"}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPickedType(t.id);
+                        setPicker(null);
+                      }}
+                      className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition active:scale-[0.99] ${
+                        pickedType === t.id ? "bg-[color:var(--lab-brand-subtle)]" : ""
+                      }`}
+                    >
+                      <span
+                        className="h-2.5 w-2.5 shrink-0 rounded-full"
+                        style={{ background: t.color ?? "transparent", border: t.color ? undefined : "1px solid #cbd5e1" }}
+                        aria-hidden
+                      />
+                      <span className="flex-1 text-[14px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">{t.label}</span>
+                      <span className="text-[12px] tabular-nums text-[color:var(--lab-muted)]">{t.sub}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ) : (
+          <div className="pointer-events-auto flex gap-1.5 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {MODES.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => setMode(m.id)}
+                aria-pressed={mode === m.id}
+                className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition active:scale-95 ${
+                  mode === m.id
+                    ? "bg-[color:var(--lab-brand-primary)] text-white shadow-[0_2px_10px_rgba(15,118,110,0.35)]"
+                    : `${FLOAT} text-[color:var(--lab-navy-950)]`
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+        )}
+        {!picker && d && hasShape && d.coverage.withShape < d.coverage.buildings ? (
+          <p className={`mx-3 self-start rounded-md px-2 py-1 text-[11px] text-[color:var(--lab-muted)] ${FLOAT}`}>
+            동 {d.coverage.buildings}개 중 {d.coverage.withShape}개 모양 · 나머지는 준비 중
           </p>
         ) : null}
       </div>
+      {/* 필터 목록 바깥을 누르면 닫기 */}
+      {picker ? <button type="button" aria-label="닫기" className="absolute inset-0 z-20 cursor-default" onClick={() => setPicker(null)} /> : null}
 
       {/* 안내 토스트 */}
       {toast ? (
@@ -550,7 +596,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           role="status"
           className="pointer-events-none absolute left-1/2 z-30 -translate-x-1/2 whitespace-nowrap rounded-full bg-[color:var(--lab-navy-950)]/90 px-3.5 py-2 text-[13px] font-semibold text-white shadow-lg"
           style={{
-            bottom: sheetH + (wide ? 20 : 8) + (panelH ? panelH + 10 : 4),
+            bottom: panelH ? `calc(env(safe-area-inset-bottom) + ${panelH + 34}px)` : "calc(env(safe-area-inset-bottom) + 34px)",
           }}
         >
           {toast}
@@ -561,7 +607,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
       {ready ? (
         <div
           className="absolute right-3 z-10 flex flex-col gap-2"
-          style={{ top: "calc(env(safe-area-inset-top) + 104px)" }}
+          style={{ top: "calc(env(safe-area-inset-top) + 92px)" }}
         >
           <button
             type="button"
@@ -608,15 +654,12 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         </div>
       ) : null}
 
-      {/* 정보 패널 — 모드별 정보를 한곳에. 시트(고르기) 바로 위에 떠 있다 */}
+      {/* 정보 패널 — 동·타입 필터를 고른 상태에서 모드별 정보를 한곳에 */}
       {showPanel && d ? (
         <div
           ref={panelRef}
           className="absolute left-3 right-3 z-20 sm:right-auto sm:w-[400px]"
-          style={{
-            bottom: sheetH + (wide ? 20 : 8),
-            transition: dragDy == null ? "bottom 220ms ease" : "none",
-          }}
+          style={{ bottom: "calc(env(safe-area-inset-bottom) + 24px)" }}
         >
           <div
             className={`overflow-y-auto rounded-2xl border border-[color:var(--lab-brand-border)] bg-white px-3.5 py-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.14)]`}
@@ -805,136 +848,14 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         </div>
       ) : null}
 
-      {/* 아래: 시트 — 타입·동 고르기 */}
+      {/* 출처 */}
       {d && hasShape ? (
-        <div
-          ref={sheetRef}
-          className="absolute inset-x-0 bottom-0 z-10 sm:bottom-3 sm:left-3 sm:right-auto sm:w-[400px]"
+        <p
+          className="pointer-events-none absolute left-3 z-10 text-[10px] leading-4 text-[color:var(--lab-muted)]"
+          style={{ bottom: "calc(env(safe-area-inset-bottom) + 4px)" }}
         >
-          <div className="rounded-t-2xl bg-white shadow-[0_-4px_20px_rgba(15,23,42,0.12)] sm:rounded-2xl">
-            <button
-              type="button"
-              {...dragHandlers}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setSheetOpen((v) => !v);
-                }
-              }}
-              aria-expanded={sheetOpen}
-              className="flex w-full touch-none select-none flex-col items-stretch px-4 pb-2.5 pt-2 text-left"
-            >
-              <span
-                className="mx-auto mb-2 h-1 w-9 rounded-full bg-slate-200 sm:hidden"
-                aria-hidden
-              />
-              <span className="flex items-center gap-2">
-                <span className="min-w-0 flex-1 truncate text-[14px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
-                  {summary}
-                </span>
-                <ChevronUp
-                  className={`hidden h-4 w-4 shrink-0 text-slate-400 transition sm:block ${sheetOpen ? "rotate-180" : ""}`}
-                  aria-hidden
-                />
-              </span>
-            </button>
-
-            {/* 타입 고르기 — 늘 보인다 */}
-            {typeOptions.length ? (
-              <div
-                className="flex gap-1.5 overflow-x-auto px-4 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-                style={{ touchAction: "pan-x" }}
-              >
-                {[
-                  {
-                    id: null as string | null,
-                    label: "전체 타입",
-                    color: null as string | null,
-                  },
-                  ...typeOptions,
-                ].map((t) => {
-                  const on = pickedType === t.id;
-                  return (
-                    <button
-                      key={t.id ?? "all"}
-                      type="button"
-                      onClick={() => setPickedType(t.id)}
-                      aria-pressed={on}
-                      className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold tabular-nums transition active:scale-95 ${
-                        on
-                          ? "border-[color:var(--lab-navy-950)] bg-[color:var(--lab-navy-950)] text-white"
-                          : "border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-950)]"
-                      }`}
-                    >
-                      {t.color ? (
-                        <span
-                          className="h-2.5 w-2.5 rounded-full"
-                          style={{ background: t.color }}
-                          aria-hidden
-                        />
-                      ) : null}
-                      {t.label}
-                    </button>
-                  );
-                })}
-              </div>
-            ) : null}
-
-            {/* 동 고르기 — 끌어 올리면 보인다 */}
-            <div
-              aria-hidden={!sheetOpen && dragDy == null}
-              style={{
-                maxHeight: contentHeight,
-                overflowY: sheetOpen && dragDy == null ? "auto" : "hidden",
-                transition: dragDy == null ? "max-height 220ms ease" : "none",
-                touchAction: "pan-y",
-                overscrollBehavior: "contain",
-              }}
-            >
-              <div className="flex flex-wrap gap-1.5 px-4 pb-3 pt-1">
-                {(picked
-                  ? [...dongs].sort(
-                      (a, b) =>
-                        Number(picked.dongs.has(b.dong!)) -
-                        Number(picked.dongs.has(a.dong!)),
-                    )
-                  : dongs
-                ).map((b) => (
-                  <button
-                    key={b.id}
-                    type="button"
-                    onClick={() => pickDong(b.id)}
-                    className={`rounded-full border px-2.5 py-1 text-[12px] font-semibold tabular-nums transition active:scale-95 ${
-                      b.id === selected
-                        ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
-                        : picked && b.dong && !picked.dongs.has(b.dong)
-                          ? "border-[color:var(--lab-border)] text-slate-300"
-                          : "border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
-                    }`}
-                    style={
-                      picked &&
-                      b.dong &&
-                      picked.dongs.has(b.dong) &&
-                      b.id !== selected
-                        ? { borderColor: picked.color }
-                        : undefined
-                    }
-                  >
-                    {b.dong}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <p
-              {...dragHandlers}
-              className="touch-none select-none px-4 pb-[calc(env(safe-area-inset-bottom)+6px)] text-[10px] leading-4 text-[color:var(--lab-muted)] sm:pb-2"
-            >
-              건물: 국토교통부 GIS건물통합정보 · 지도 © NAVER Corp.
-              {estimated ? " · 일부 높이는 층수×3m" : ""}
-            </p>
-          </div>
-        </div>
+          건물: 국토교통부 GIS건물통합정보 · 지도 © NAVER Corp.{estimated ? " · 일부 높이는 층수×3m" : ""}
+        </p>
       ) : null}
     </div>
   );
