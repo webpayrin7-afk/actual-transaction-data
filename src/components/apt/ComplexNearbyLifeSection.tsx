@@ -1003,7 +1003,7 @@ export function ComplexNearbyLifeSection({
                             lines.map((line) => (
                               <span
                                 key={`${p.id}-${line}`}
-                                className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-black/25 detail-micro px-1 font-bold text-white shadow-sm"
+                                className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-black/25 px-1 text-[12px] font-bold leading-4 text-white shadow-sm"
                                 style={{
                                   backgroundColor: subwayLineColor(line),
                                 }}
@@ -1012,7 +1012,7 @@ export function ComplexNearbyLifeSection({
                               </span>
                             ))
                           ) : (
-                            <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-black/25 bg-amber-700 detail-micro px-1 font-bold text-white shadow-sm">
+                            <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-black/25 bg-amber-700 px-1 text-[12px] font-bold leading-4 text-white shadow-sm">
                               역
                             </span>
                           )}

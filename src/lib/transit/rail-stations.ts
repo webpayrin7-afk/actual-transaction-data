@@ -48,8 +48,15 @@ const LINE_ALIAS: Record<string, string> = {
   자기부상철도: "인천자기부상철도",
 };
 
-export function railLineLabel(raw: string): string {
+/**
+ * 경원선 중 용산~왕십리 구간(이촌·서빙고·한남·옥수·응봉·왕십리)은 1호선이 아니라 경의중앙선이 다닌다.
+ * 원천은 이 역들도 노선명을 "경원선"으로 적어 두어, 역 이름으로 가른다.
+ */
+const GYEONGUI_JUNGANG_ON_GYEONGWON = new Set(["이촌", "서빙고", "한남", "옥수", "응봉", "왕십리"]);
+
+export function railLineLabel(raw: string, stationName?: string): string {
   const t = raw.trim().replace(/\s+/g, " ");
+  if (t === "경원선" && stationName && GYEONGUI_JUNGANG_ON_GYEONGWON.has(baseName(stationName))) return "경의중앙선";
   if (LINE_ALIAS[t]) return LINE_ALIAS[t];
   const city = t.match(/^(부산|대구|대전) 도시철도 (\d+)호선$/);
   if (city) return `${city[1]}${city[2]}호선`;
@@ -100,7 +107,7 @@ export function rankNearbyRailStations(
       return {
         key: String(r.station_key),
         name: String(r.name),
-        line: railLineLabel(String(r.line_name)),
+        line: railLineLabel(String(r.line_name), String(r.name)),
         lat,
         lng,
         d: Math.round(haversineMeters(center.lat, center.lng, lat, lng)),

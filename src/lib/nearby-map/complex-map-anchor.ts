@@ -41,7 +41,22 @@ export const SEOUL_METRO_LINE_COLORS: Record<string, string> = {
   "9": "#BDB092",
 };
 
+/** 번호 없는 수도권 노선 색 (노선명 일부로 찾는다) */
+const NAMED_LINE_COLORS: Array<[string, string]> = [
+  ["경의중앙", "#77C4A3"],
+  ["수인분당", "#F5A200"],
+  ["신분당", "#D4003B"],
+  ["공항", "#0090D2"],
+  ["경춘", "#0C8E72"],
+  ["우이신설", "#B0CE18"],
+  ["신림", "#6789CA"],
+  ["서해", "#8FC31F"],
+  ["GTX", "#9A6292"],
+];
+
 export function subwayLineColor(lineOrSubcategory: string): string {
+  const named = NAMED_LINE_COLORS.find(([k]) => lineOrSubcategory.includes(k));
+  if (named) return named[1];
   const m = lineOrSubcategory.match(/(\d+)\s*호선/) || lineOrSubcategory.match(/^(\d+)$/);
   const n = m?.[1];
   return (n && SEOUL_METRO_LINE_COLORS[n]) || "#b45309";
