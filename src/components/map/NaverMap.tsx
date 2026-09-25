@@ -463,7 +463,7 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
   }
 
   const size = selected ? 10 : 7;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size * 2}" height="${size * 2}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="${color}" stroke="#fff" stroke-width="2" opacity="0.92"/></svg>`;
+  const svg = `<svg data-map-marker-id="${encodeURIComponent(marker.id)}" style="pointer-events:auto;cursor:pointer" xmlns="http://www.w3.org/2000/svg" width="${size * 2}" height="${size * 2}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="${color}" stroke="#fff" stroke-width="2" opacity="0.92"/></svg>`;
   return {
     content: svg,
     anchor: window.naver?.maps
@@ -753,6 +753,10 @@ export function NaverMap({
       maps.Event.addListener(marker, "click", () => {
         fireMarkerClick(item.id);
       });
+      // NAVER가 씌우는 바깥 상자는 아이콘을 transform으로 옮겨도 제자리(기준점 오른쪽 아래)에 남아
+      // 옆 마커 위를 덮고 클릭을 가로챈다 — 바깥 상자는 통과시키고, 보이는 아이콘(data-map-marker-id)만 눌리게.
+      const el = (marker as { getElement?: () => HTMLElement | null }).getElement?.();
+      if (el) el.style.pointerEvents = "none";
       markerMapRef.current.set(item.id, marker);
     }
 
