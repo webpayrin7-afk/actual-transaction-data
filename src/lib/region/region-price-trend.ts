@@ -439,6 +439,25 @@ async function readMaterializedDong(
   });
 }
 
+/** 구 적재본이 있는지. 있으면 적재 때 동 목록도 같은 계산으로 함께 들어갔다. */
+async function hasMaterializedGu(db: RankingReader, lawdCd: string): Promise<boolean> {
+  try {
+    const rows = await db.execute({
+      sql: `SELECT 1 FROM ${REGION_PRICE_INDEX_TABLE}
+            WHERE method_version = ? AND scope = 'gu' AND region_code = ?
+            LIMIT 1`,
+      args: [REGION_PRICE_INDEX_METHOD, lawdCd],
+    });
+    return rows.rows.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+function emptyDongTrend(lawdCd: string, dong: string): RegionPriceTrend {
+  return { ...emptyTrend(lawdCd), dong: { bjdongCd: "", name: dong } };
+}
+
 /** 적재본이 없을 때: 구 시계열을 계산해 해당 동만 꺼낸다(구 계산과 같은 비용). */
 async function computeDongPriceTrend(
   db: RankingReader,
@@ -447,8 +466,21 @@ async function computeDongPriceTrend(
 ): Promise<RegionPriceTrend> {
   const series = await computeRegionPriceSeries(db, lawdCd);
   const match = series.dongs.find((d) => d.name === dong);
-  if (!match) return { ...emptyTrend(lawdCd), dong: { bjdongCd: "", name: dong } };
+  if (!match) return emptyDongTrend(lawdCd, dong);
   return buildDongPriceTrend(lawdCd, match);
+}
+
+/**
+ * 동 적재본이 없을 때: 구 적재본이 있으면 그 동은 적재 계산에서 빠진 동(표본 부족·없는 동)이라
+ * 다시 계산해도 빈 결과다 — 구 전체 재계산(20초 이상) 없이 바로 빈 시계열을 준다.
+ */
+async function readDongFallback(
+  db: RankingReader,
+  lawdCd: string,
+  dong: string,
+): Promise<RegionPriceTrend> {
+  if (await hasMaterializedGu(db, lawdCd)) return emptyDongTrend(lawdCd, dong);
+  return computeDongPriceTrend(db, lawdCd, dong);
 }
 
 /**
@@ -468,7 +500,7 @@ export async function readRegionPriceTrend(
   const job = (
     dong
       ? readMaterializedDong(db, lawdCd, dong).then(
-          (stored) => stored ?? computeDongPriceTrend(db, lawdCd, dong),
+          (stored) => stored ?? readDongFallback(db, lawdCd, dong),
         )
       : readMaterialized(db, lawdCd).then((stored) => stored ?? computeRegionPriceTrend(db, lawdCd))
   )
