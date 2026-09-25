@@ -82,6 +82,8 @@ export function TrendsPriceIndexSection({
   loading,
   error,
   onRetry,
+  title = "가격 흐름",
+  footer,
 }: {
   regionLabel: string;
   tradeIndex: TrendPoint[] | null;
@@ -90,6 +92,10 @@ export function TrendsPriceIndexSection({
   loading: boolean;
   error: boolean;
   onRetry: () => void;
+  /** 영역 제목 (시장 홈에서는 "시장 흐름") */
+  title?: string;
+  /** 영역 맨 아래에 붙는 내용 (예: 자세히 보기 버튼) — 영역 카드 안에 들어간다 */
+  footer?: React.ReactNode;
 }) {
   const allRows = useMemo<Row[]>(() => {
     const jeonse = new Map((jeonseIndex ?? []).map((p) => [p.ym, p.value]));
@@ -122,7 +128,7 @@ export function TrendsPriceIndexSection({
   return (
     <LabSection
       id="price-index"
-      title="가격 흐름"
+      title={title}
       label={`${regionLabel} 아파트 가격지수 흐름`}
       meta={latest ? `${ymDot(latest.ym)} 기준 · 월간` : undefined}
       tip={
@@ -336,6 +342,7 @@ export function TrendsPriceIndexSection({
 
         </>
       )}
+      {footer ? <div className={LAB_SUBSECTION_RULE}>{footer}</div> : null}
     </LabSection>
   );
 }

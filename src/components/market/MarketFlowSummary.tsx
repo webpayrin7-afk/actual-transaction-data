@@ -25,8 +25,7 @@ export function MarketFlowSummary() {
   const regionLabel = trendRegionById(DEFAULT_TREND_REGION)?.label ?? "전국";
 
   return (
-    <div className="flex flex-col gap-3">
-      <TrendsPriceIndexSection
+    <TrendsPriceIndexSection
         regionLabel={regionLabel}
         tradeIndex={query.data?.tradeIndex ?? null}
         jeonseIndex={query.data?.jeonseIndex ?? null}
@@ -34,13 +33,16 @@ export function MarketFlowSummary() {
         loading={query.isLoading}
         error={query.isError}
         onRetry={() => void query.refetch()}
+        // 시장 홈 요약 — 이름은 이동할 화면(시장 흐름)과 맞추고, 자세히 보기 버튼은 영역 안 맨 아래에
+        title="시장 흐름"
+        footer={
+          <Link href="/stats" className="lab-button lab-button-secondary w-full">
+            지역별 · 기간별로 자세히 보기
+            <span aria-hidden className="ml-1">
+              →
+            </span>
+          </Link>
+        }
       />
-      <Link href="/stats" className="lab-button lab-button-secondary w-full">
-        지역별 · 장기 시장 흐름 보기
-        <span aria-hidden className="ml-1">
-          →
-        </span>
-      </Link>
-    </div>
   );
 }
