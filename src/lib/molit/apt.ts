@@ -126,7 +126,7 @@ function regionForTx(tx: Pick<Transaction, "lawdCd" | "gu">): RegionDef | undefi
 /**
  * 구명(gu)이 빈 채로 적재된 거래의 법정동코드 — 레지스트리에 코드가 들어오기 전에 적재돼 구명을 못 붙인 곳.
  * 코드가 바뀐 지역(광주·전남 12, 강원 51, 전북 52 — slug 는 옛 코드)과 인천 분할 신설 구.
- * (2026-09 확인: 전국 코드별 표본에서 빈 구명은 정확히 이 63개 코드에서만 나온다)
+ * (2026-09 확인: 전국 코드별 표본에서 빈 구명은 이 64개 코드 중 63개에서만 나왔다 — 나머지 1개는 표본 거래 없음)
  */
 const EMPTY_GU_LAWD_CODES: string[] = (() => {
   const codes = new Set<string>();
