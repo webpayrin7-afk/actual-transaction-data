@@ -27,17 +27,21 @@ function Chip({
   on,
   onClick,
   children,
+  flash,
 }: {
   on: boolean;
   onClick: () => void;
   children: React.ReactNode;
+  /** 지도에서 고른 동 — 버튼이 한 번 눌리는 모션으로 어디인지 알려 준다 */
+  flash?: number;
 }) {
   return (
     <button
+      key={flash}
       type="button"
       aria-pressed={on}
       onClick={onClick}
-      className={`inline-flex min-h-9 items-center gap-1 rounded-full border px-3 text-[14px] leading-5 tabular-nums transition active:scale-[0.97] ${
+      className={`inline-flex min-h-9 items-center gap-1 rounded-full border px-3 text-[14px] leading-5 tabular-nums transition active:scale-[0.97] ${flash ? "lab-chip-flash " : ""}${
         on
           ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]"
           : "border-[color:var(--lab-border)] bg-white font-medium text-[color:var(--lab-navy-950)]"
@@ -79,6 +83,7 @@ export function ComplexTypeDongSection({
   const [pickedType, setPickedType] = useState<string | null>(null);
   const [pickedDong, setPickedDong] = useState<string | null>(null);
   const [allDongs, setAllDongs] = useState(false);
+  const [flash, setFlash] = useState<{ dong: string; at: number } | null>(null);
   const crownId = useMemo(
     () => inArea.reduce<UnitTypeInfo | null>((b, t) => (!b || (t.households ?? 0) > (b.households ?? 0) ? t : b), null)?.id ?? null,
     [inArea],
@@ -166,7 +171,11 @@ export function ComplexTypeDongSection({
           typeDongs={type.dongs.map((d) => d.dong)}
           typeLabel={labels.get(type.id) ?? ""}
           pickedDong={dong?.dong ?? null}
-          onPickDong={(d) => setPickedDong(d)}
+          onPickDong={(d) => {
+            setPickedDong(d);
+            if (!allDongs && type.dongs.findIndex((x) => x.dong === d) >= DONG_PREVIEW) setAllDongs(true);
+            setFlash({ dong: d, at: Date.now() });
+          }}
         />
       ) : null}
 
@@ -177,7 +186,12 @@ export function ComplexTypeDongSection({
           </p>
           <div className="flex flex-wrap gap-2" role="group" aria-label="동">
             {(allDongs ? type.dongs : type.dongs.slice(0, DONG_PREVIEW)).map((d) => (
-              <Chip key={d.dong} on={d.dong === dong?.dong} onClick={() => setPickedDong(d.dong === dong?.dong ? null : d.dong)}>
+              <Chip
+                key={d.dong}
+                on={d.dong === dong?.dong}
+                flash={flash?.dong === d.dong ? flash.at : undefined}
+                onClick={() => setPickedDong(d.dong === dong?.dong ? null : d.dong)}
+              >
                 {d.dong}
               </Chip>
             ))}

@@ -831,6 +831,14 @@ h2.detail-section-title {
 .lab-press:active .lab-press-arrow, .lab-row-press:active .lab-press-arrow { color: var(--lab-brand-primary); }
 .lab-row-press { transition: background-color .15s, transform .1s; -webkit-tap-highlight-color: transparent; }
 .lab-row-press:active { background: var(--lab-brand-subtle); transform: scale(.99); }
+/* 지도 등 다른 곳에서 고른 항목의 버튼이 한 번 눌리는 모션 (어디가 골라졌는지 알려 줌) */
+@keyframes lab-chip-flash {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(14, 154, 160, 0.45); }
+  35% { transform: scale(0.93); box-shadow: 0 0 0 6px rgba(14, 154, 160, 0.18); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(14, 154, 160, 0); }
+}
+.lab-chip-flash { animation: lab-chip-flash 0.5s ease-out; }
+@media (prefers-reduced-motion: reduce) { .lab-chip-flash { animation: none; } }
 .lab-button { transition: background-color .15s, border-color .15s, color .15s, transform .1s; }
 .lab-button:active:not(:disabled) { transform: scale(.98); }
 .lab-button-secondary { box-shadow: 0 1px 2px rgba(15,23,42,.06); }
