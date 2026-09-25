@@ -521,10 +521,32 @@ export class Complex3dScene {
   }
 
   select(id: string | null) {
-    if (this.selectedId && this.ownMeshes.get(this.selectedId)) this.ownMeshes.get(this.selectedId)!.material = this.ownMaterial;
     this.selectedId = id;
-    const mesh = id ? this.ownMeshes.get(id) : null;
-    if (mesh) mesh.material = this.selectMaterial;
+    this.paint();
+  }
+
+  private highlight: Set<string> | null = null;
+  private hiMaterial = new THREE.MeshStandardMaterial({ color: 0x14b8a6, roughness: 0.8, metalness: 0 });
+  private dimMaterial = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.95, metalness: 0, transparent: true, opacity: 0.55 });
+
+  /** 타입 고르기 — 고른 타입이 있는 동만 그 색으로, 나머지는 흐리게 (null이면 원래대로) */
+  setHighlight(ids: Set<string> | null, color?: string) {
+    this.highlight = ids;
+    if (color) this.hiMaterial.color.set(color);
+    this.paint();
+  }
+
+  private paint() {
+    for (const [id, mesh] of this.ownMeshes) {
+      mesh.material =
+        id === this.selectedId
+          ? this.selectMaterial
+          : !this.highlight
+            ? this.ownMaterial
+            : this.highlight.has(id)
+              ? this.hiMaterial
+              : this.dimMaterial;
+    }
   }
 
   /** 두 동 외곽선 사이 최소 거리 (m, 평면) */

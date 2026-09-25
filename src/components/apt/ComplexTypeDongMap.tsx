@@ -6,7 +6,7 @@ import { loadNaverMapsSdk, type NaverMapInstance } from "@/lib/nearby-map/naver-
 import type { Complex3d, Ring } from "@/lib/complex-3d/read";
 
 async function fetch3d(complexId: string): Promise<Complex3d | null> {
-  const res = await fetch(`/api/complex-3d/${complexId}`);
+  const res = await fetch(`/api/complex-3d/${complexId}?v=2`);
   if (!res.ok) return null;
   return res.json();
 }

@@ -2,15 +2,17 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronUp, Maximize2, SquareDashed } from "lucide-react";
+import { ChevronUp, Maximize2, SquareDashed, X } from "lucide-react";
 import type { Complex3d } from "@/lib/complex-3d/read";
 import { BackLink } from "@/components/layout/BackLink";
 import { LabTabs } from "@/components/ui/LabTabs";
 import type { Complex3dScene, SceneMode, ViewResult } from "@/components/complex-3d/scene";
 import { TYPE_COLORS } from "@/components/complex-3d/palette";
+import { fetchComplexTypes } from "@/lib/apt/area-supply";
+import { mergeNearSupply, sameSqm, supplyLabels } from "@/lib/apt/type-labels";
 
 async function fetch3d(id: string): Promise<Complex3d> {
-  const res = await fetch(`/api/complex-3d/${encodeURIComponent(id)}`);
+  const res = await fetch(`/api/complex-3d/${encodeURIComponent(id)}?v=2`);
   if (!res.ok) throw new Error(res.status === 404 ? "단지를 찾지 못했습니다." : "3D 정보를 불러오지 못했습니다.");
   return res.json();
 }
@@ -55,11 +57,16 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const drag = useRef<{ y: number; moved: boolean } | null>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
+  const [sheetH, setSheetH] = useState(80);
+  const [pickedType, setPickedType] = useState<string | null>(null);
   // 모바일에서 시트가 가리는 만큼 모형 중심을 위로 (넓은 화면은 시트가 옆에 떠 있어 그대로)
   useEffect(() => {
     const el = sheetRef.current;
     if (!el || !ready) return;
-    const sync = () => sceneRef.current?.setBottomInset(window.innerWidth < 640 ? el.offsetHeight : 0);
+    const sync = () => {
+      setSheetH(el.offsetHeight);
+      sceneRef.current?.setBottomInset(window.innerWidth < 640 ? el.offsetHeight : 0);
+    };
     sync();
     const ro = new ResizeObserver(sync);
     ro.observe(el);
@@ -132,6 +139,39 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
       .sort((a, b) => pyeong(a[0]) - pyeong(b[0]))
       .map(([label, v], i) => ({ label, ...v, color: TYPE_COLORS[i % TYPE_COLORS.length]! }));
   }, [d]);
+
+  // 타입 (단지 상세 타입·동과 같은 이름·합치기) — 고르면 그 타입이 있는 동만 색칠
+  const typesQuery = useQuery({
+    queryKey: ["complex-types", complexId],
+    queryFn: () => fetchComplexTypes(complexId),
+    staleTime: 60 * 60_000,
+  });
+  const typeOptions = useMemo(() => {
+    const merged = mergeNearSupply(typesQuery.data?.types ?? []).filter((t) => t.supplySqm != null && t.dongs.length);
+    const labels = supplyLabels(merged);
+    return [...merged]
+      .sort((a, b) => (a.supplySqm ?? 0) - (b.supplySqm ?? 0) || a.exclusiveSqm - b.exclusiveSqm)
+      .map((t, i) => ({
+        id: t.id,
+        label: labels.get(t.id) ?? `${t.supplySqm}㎡`,
+        exclusive: t.exclusiveSqm,
+        supply: t.supplySqm!,
+        households: t.households ?? t.dongs.reduce((n, x) => n + x.households, 0),
+        dongs: new Set(t.dongs.map((x) => x.dong)),
+        color: TYPE_COLORS[i % TYPE_COLORS.length]!,
+      }));
+  }, [typesQuery.data]);
+  const picked = typeOptions.find((t) => t.id === pickedType) ?? null;
+
+  useEffect(() => {
+    const s = sceneRef.current;
+    if (!s || !d) return;
+    if (mode !== "base" || !picked) {
+      s.setHighlight(null);
+      return;
+    }
+    s.setHighlight(new Set(d.buildings.filter((b) => b.dong && picked.dongs.has(b.dong)).map((b) => b.id)), picked.color);
+  }, [picked, mode, d, ready]);
 
   // 동 목록 (모양이 있는 주거동, 동 번호 순)
   const dongs = useMemo(
@@ -220,22 +260,36 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     setNearest(s.nearestDistance(id));
   };
 
-  const selLine = sel
-    ? [
-        sel.dong ?? sel.name ?? "동",
-        sel.floors ? `${sel.floors}층` : null,
-        sel.households ? `${sel.households.toLocaleString("ko-KR")}세대` : null,
-      ]
-        .filter(Boolean)
-        .join(" · ")
-    : null;
+  // 고른 동의 호 라인을 타입별로 묶기 (고른 타입이 먼저)
+  const selLines = useMemo(() => {
+    if (!sel) return [];
+    const groups = new Map<string, { label: string; color: string | null; supply: number; lines: string[] }>();
+    for (const l of sel.lines ?? []) {
+      const t = typeOptions.find((x) => sameSqm(x.exclusive, l.exclusive) && Math.abs(x.supply - l.supply) < 1) ?? null;
+      const key = t?.id ?? `ex${l.exclusive}`;
+      const g = groups.get(key) ?? { label: t?.label ?? `전용 ${l.exclusive}㎡`, color: t?.color ?? null, supply: l.supply, lines: [] };
+      g.lines.push(String(Number(l.line)));
+      groups.set(key, g);
+    }
+    return [...groups.entries()]
+      .sort((a, b) => Number(b[0] === pickedType) - Number(a[0] === pickedType) || a[1].supply - b[1].supply)
+      .map(([id, g]) => ({ id, ...g }));
+  }, [sel, typeOptions, pickedType]);
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 640px)");
+    const sync = () => setWide(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   // 시트를 접었을 때 한 줄 요약
   const summary =
     mode === "base"
-      ? sheetOpen
-        ? `동 ${dongs.length}개`
-        : (selLine ?? `동 ${dongs.length}개 · 동을 눌러 보세요`)
+      ? picked
+        ? `${picked.label} · 동 ${picked.dongs.size}개 · ${picked.households.toLocaleString("ko-KR")}세대`
+        : `동 ${dongs.length}개 · 타입이나 동을 골라 보세요`
       : mode === "floors"
         ? `층 구간별 3.3㎡당 가격 · ${d?.floorBandsBasis ?? ""}`
         : mode === "types"
@@ -341,6 +395,25 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         </div>
       ) : null}
 
+      {/* 고른 동 정보 — 시트와 따로, 시트 바로 위에 떠 있다 */}
+      {sel && d && hasShape && mode !== "around" && mode !== "sun" ? (
+        <div
+          className="absolute left-3 right-3 z-20 sm:right-auto sm:w-[400px]"
+          style={{ bottom: sheetH + (wide ? 20 : 8), transition: dragDy == null ? "bottom 220ms ease" : "none" }}
+        >
+          <DongCard
+            sel={sel}
+            nearest={nearest}
+            lines={selLines}
+            onClose={() => {
+              sceneRef.current?.select(null);
+              setSelected(null);
+              setNearest(null);
+            }}
+          />
+        </div>
+      ) : null}
+
       {/* 아래: 접히는 시트 — 접으면 한 줄 요약, 펼치면 모드별 내용 */}
       {d && hasShape ? (
         <div ref={sheetRef} className="absolute inset-x-0 bottom-0 z-10 sm:bottom-3 sm:left-3 sm:right-auto sm:w-[400px]">
@@ -369,7 +442,33 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
               </span>
             </button>
 
-            {/* 조작은 접어도 보인다 — 일조 시각, 조망 층 */}
+            {/* 조작은 접어도 보인다 — 타입 고르기, 일조 시각, 조망 층 */}
+            {mode === "base" && typeOptions.length ? (
+              <div
+                className="flex gap-1.5 overflow-x-auto px-4 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                style={{ touchAction: "pan-x" }}
+              >
+                {[{ id: null as string | null, label: "전체 타입", color: null as string | null }, ...typeOptions].map((t) => {
+                  const on = pickedType === t.id;
+                  return (
+                    <button
+                      key={t.id ?? "all"}
+                      type="button"
+                      onClick={() => setPickedType(t.id)}
+                      aria-pressed={on}
+                      className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold tabular-nums transition active:scale-95 ${
+                        on
+                          ? "border-[color:var(--lab-navy-950)] bg-[color:var(--lab-navy-950)] text-white"
+                          : "border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-950)]"
+                      }`}
+                    >
+                      {t.color ? <span className="h-2.5 w-2.5 rounded-full" style={{ background: t.color }} aria-hidden /> : null}
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : null}
             {mode === "sun" ? (
               <div className="flex flex-col gap-2 px-4 pb-3">
                 <LabTabs
@@ -420,7 +519,6 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
               <div className="px-4 pb-3 pt-1">
                 {mode === "base" ? (
                   <div className="flex flex-col gap-3">
-                    {sel ? <DongDetail sel={sel} nearest={nearest} /> : null}
                     <div>
                       <div className="flex flex-wrap gap-1.5">
                         {dongs.map((b) => (
@@ -431,8 +529,11 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                             className={`rounded-full border px-2.5 py-1 text-[12px] font-semibold tabular-nums transition active:scale-95 ${
                               b.id === selected
                                 ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
-                                : "border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
+                                : picked && b.dong && !picked.dongs.has(b.dong)
+                                  ? "border-[color:var(--lab-border)] text-slate-300"
+                                  : "border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
                             }`}
+                            style={picked && b.dong && picked.dongs.has(b.dong) && b.id !== selected ? { borderColor: picked.color } : undefined}
                           >
                             {b.dong}
                           </button>
@@ -456,7 +557,6 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                       ))}
                     </div>
                     <p className="detail-meta">색이 진할수록 비싼 층 구간이에요.</p>
-                    {sel ? <DongDetail sel={sel} nearest={nearest} /> : null}
                   </div>
                 ) : null}
 
@@ -475,8 +575,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                           </li>
                         ))}
                       </ul>
-                      {sel ? <DongDetail sel={sel} nearest={nearest} /> : null}
-                    </div>
+                      </div>
                   ) : (
                     <p className="detail-body">이 단지는 동별 평형 정보가 아직 없어요.</p>
                   )
@@ -537,33 +636,51 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   );
 }
 
-function DongDetail({
+function DongCard({
   sel,
   nearest,
+  lines,
+  onClose,
 }: {
   sel: Complex3d["buildings"][number];
   nearest: { dong: string | null; meters: number } | null;
+  lines: Array<{ id: string; label: string; color: string | null; lines: string[] }>;
+  onClose: () => void;
 }) {
   const main = [
     sel.floors ? `${sel.floors}층` : null,
     sel.households ? `${sel.households.toLocaleString("ko-KR")}세대` : null,
+    nearest ? `옆 동 ${nearest.meters}m` : null,
   ]
     .filter(Boolean)
     .join(" · ");
   return (
-    <div className="rounded-xl border border-[color:var(--lab-brand-border)] bg-white px-3 py-2">
-      <p className="flex items-baseline gap-2">
+    <div className="rounded-2xl border border-[color:var(--lab-brand-border)] bg-white px-3.5 py-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.14)]">
+      <div className="flex items-center gap-2">
         <span className="text-[15px] font-bold text-[color:var(--lab-teal-700)]">{sel.dong ?? sel.name ?? "동"}</span>
-        {main ? <span className="text-[13px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">{main}</span> : null}
-      </p>
-      {sel.units.length || nearest ? (
-        <p className="mt-0.5 text-[12px] leading-[18px] tabular-nums text-[color:var(--lab-muted)]">
-          {[
-            sel.units.length ? sel.units.map((u) => `${u.label} ${u.households}세대`).join(" · ") : null,
-            nearest ? `옆 동 ${nearest.dong ?? ""} ${nearest.meters}m` : null,
-          ]
-            .filter(Boolean)
-            .join("  ·  ")}
+        <span className="min-w-0 flex-1 truncate text-[13px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">{main}</span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="닫기"
+          className="-mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-slate-400 active:scale-95"
+        >
+          <X className="h-4 w-4" aria-hidden />
+        </button>
+      </div>
+      {lines.length ? (
+        <ul className="mt-1 flex flex-col gap-0.5">
+          {lines.map((g) => (
+            <li key={g.id} className="flex items-center gap-1.5 text-[12px] leading-[18px] tabular-nums text-[color:var(--lab-navy-950)]">
+              <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: g.color ?? "#cbd5e1" }} aria-hidden />
+              <span className="font-semibold">{g.label}</span>
+              <span className="text-[color:var(--lab-muted)]">{g.lines.join("·")}호 라인</span>
+            </li>
+          ))}
+        </ul>
+      ) : sel.units.length ? (
+        <p className="mt-1 text-[12px] leading-[18px] tabular-nums text-[color:var(--lab-muted)]">
+          {sel.units.map((u) => `${u.label} ${u.households}세대`).join(" · ")}
         </p>
       ) : null}
     </div>

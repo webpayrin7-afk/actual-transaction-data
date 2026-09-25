@@ -25,6 +25,8 @@ export type Complex3dBuilding = {
   approvalDate: string | null;
   /** 동별 평형 구성 (건축HUB 전유부 기준) */
   units: Array<{ label: string; households: number }>;
+  /** 호 라인별 면적 (건축HUB 전유부, 호 번호 끝 두 자리) — 라인이 건물 어느 쪽인지는 원천에 없다 */
+  lines: Array<{ line: string; exclusive: number; supply: number; count: number; floorMin: number | null; floorMax: number | null }>;
   /** 외곽선 — GIS 건물과 연결되지 않으면 null */
   rings: Ring[] | null;
 };
@@ -106,7 +108,7 @@ export async function readComplex3d(db: Client, complexId: string): Promise<Comp
   const gu = (m.sigungu ? String(m.sigungu).split(/\s+/).pop() : null) || districtNameFromCode(lawd);
   const reg = LAWD_TO_REGION[lawd];
 
-  const [cbRes, unitRes] = await Promise.all([
+  const [cbRes, unitRes, lineRes] = await Promise.all([
     db.execute({
       sql: `SELECT building_id, mgm_bldrgst_pk, dong_label, building_name, main_usage, residential_flag,
                    household_count, floor_count, underground_floor_count, height_m
@@ -120,7 +122,28 @@ export async function readComplex3d(db: Client, complexId: string): Promise<Comp
             WHERE l.complex_id = ?`,
       args: [complexId],
     }),
+    db
+      .execute({
+        sql: `SELECT building_id, line, exclusive_area, supply_area, unit_count, floor_min, floor_max
+              FROM complex_unit_lines WHERE complex_id = ? ORDER BY building_id, line`,
+        args: [complexId],
+      })
+      .catch(() => ({ rows: [] as Array<Record<string, unknown>> })),
   ]);
+  const linesByBuilding = new Map<string, Complex3dBuilding["lines"]>();
+  for (const r of lineRes.rows) {
+    const k = String(r.building_id);
+    const list = linesByBuilding.get(k) ?? [];
+    list.push({
+      line: String(r.line),
+      exclusive: Number(r.exclusive_area),
+      supply: Number(r.supply_area),
+      count: Number(r.unit_count ?? 0),
+      floorMin: num(r.floor_min),
+      floorMax: num(r.floor_max),
+    });
+    linesByBuilding.set(k, list);
+  }
 
   const suffixes = cbRes.rows
     .map((r) => String(r.mgm_bldrgst_pk ?? ""))
@@ -171,6 +194,7 @@ export async function readComplex3d(db: Client, complexId: string): Promise<Comp
       heightM: num(r.height_m) ?? num(gis?.height_m),
       approvalDate: str(gis?.approval_date),
       units: (unitsByBuilding.get(String(r.building_id)) ?? []).sort((a, b) => b.households - a.households),
+      lines: linesByBuilding.get(String(r.building_id)) ?? [],
       rings: gis ? (JSON.parse(String(gis.rings)) as Ring[]) : null,
     };
   });
