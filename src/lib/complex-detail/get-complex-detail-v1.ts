@@ -212,8 +212,9 @@ function asNum(v: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/** transactions.apt_name_norm·apt_complex_master.apt_name_norm 과 같은 규칙 (공백 제거 + 소문자). */
 function normalizeAptName(name: string): string {
-  return name.replace(/\s+/g, "").trim();
+  return name.replace(/\s+/g, "").toLowerCase();
 }
 
 function statusFromRow(v: unknown): ComplexEnrichmentStatus {
@@ -297,6 +298,21 @@ export function resolveComplexLawdCodes(
   return [...region.lawdCodes];
 }
 
+/**
+ * 마스터 후보 중 하나 고르기. 코드가 여럿(다구 도시에서 ?gu= 없이 들어온 링크)이면
+ * 가장 높은 우선순위(pri)에서 단지가 딱 하나일 때만 연결 — 첫 구 코드로 붙이면
+ * 장안·수정 등 다른 구의 동명 단지로 잘못 연결된다.
+ */
+function pickMasterRow<T extends Record<string, unknown>>(
+  rows: T[],
+  codeCount: number,
+): T | undefined {
+  const first = rows[0];
+  if (!first || codeCount <= 1) return first;
+  const top = rows.filter((r) => r.pri === first.pri);
+  return new Set(top.map((r) => String(r.complex_id))).size === 1 ? first : undefined;
+}
+
 export async function getComplexDetailV1(params: {
   aptName: string;
   lawdCodes?: string[];
@@ -333,17 +349,28 @@ export async function getComplexDetailV1(params: {
   const lawdCodes = [
     ...new Set((params.lawdCodes ?? []).map((c) => c.trim()).filter(Boolean)),
   ];
-  // 후보 순서(첫 구 우선) → IDENTITY-READY 우선. idx_acm_lawd_norm 으로 코드별 SEARCH.
+  // 후보 시군구 코드 안에서 이름(시군구+단지명) 일치(pri 0) 우선, 안 맞으면 실거래 이름 → 단지 연결(pri 1).
+  // 지방 마스터는 K-apt 이름이라 실거래 이름과 다른 경우가 많다 (예: 골드디움3차 ↔ 옥암3차골드디움).
+  // 연결은 source='MOLIT', source_key='lawd|norm' PK 조회 — 지방은 필지(법정동·지번)가 정확히 같은 K-apt 단지로 만든 것.
+  // 이름은 idx_acm_lawd_norm 으로 코드별 SEARCH.
+  const codeIn = lawdCodes.map(() => "?").join(",");
   const masterResult = lawdCodes.length
     ? await db.execute({
-        sql: `SELECT complex_id, apt_name, apt_name_norm, sido, sigungu,
-                     legal_dong_name, jibun, road_address, lawd_cd, bjdong_cd
-              FROM apt_complex_master
-              WHERE apt_name_norm = ? AND lawd_cd IN (${lawdCodes.map(() => "?").join(",")})
-              ORDER BY CASE lawd_cd ${lawdCodes.map((_, i) => `WHEN ? THEN ${i}`).join(" ")} END,
-                       CASE WHEN identity_status = 'IDENTITY-READY' THEN 0 ELSE 1 END
-              LIMIT 1`,
-        args: [aptNorm, ...lawdCodes, ...lawdCodes],
+        sql: `SELECT * FROM (
+                SELECT 0 AS pri, complex_id, apt_name, apt_name_norm, sido, sigungu,
+                       legal_dong_name, jibun, road_address, lawd_cd, bjdong_cd, identity_status
+                FROM apt_complex_master
+                WHERE apt_name_norm = ? AND lawd_cd IN (${codeIn})
+                UNION ALL
+                SELECT 1 AS pri, m.complex_id, m.apt_name, m.apt_name_norm, m.sido, m.sigungu,
+                       m.legal_dong_name, m.jibun, m.road_address, m.lawd_cd, m.bjdong_cd, m.identity_status
+                FROM apt_complex_source_links l
+                JOIN apt_complex_master m ON m.complex_id = l.complex_id
+                WHERE l.source = 'MOLIT' AND l.source_key IN (${codeIn})
+              )
+              ORDER BY pri, CASE WHEN identity_status = 'IDENTITY-READY' THEN 0 ELSE 1 END
+              LIMIT 4`,
+        args: [aptNorm, ...lawdCodes, ...lawdCodes.map((c) => `${c}|${aptNorm}`)],
       })
     : await db.execute({
         sql: `SELECT complex_id, apt_name, apt_name_norm, sido, sigungu,
@@ -355,7 +382,7 @@ export async function getComplexDetailV1(params: {
         args: [aptNorm],
       });
   const masterMs = Math.round(performance.now() - tMaster);
-  const master = masterResult.rows[0];
+  const master = pickMasterRow(masterResult.rows, lawdCodes.length);
   if (!master) {
     empty.timingMs = {
       total: Math.round(performance.now() - t0),

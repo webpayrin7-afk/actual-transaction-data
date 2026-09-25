@@ -9,6 +9,7 @@ import { aptDetailHref } from "@/lib/molit/apt-client";
 import { LAWD_TO_REGION, districtNameFromCode } from "@/lib/constants/regions-registry";
 import { slugFromLawd } from "@/lib/constants/nationwide-lawd";
 import { readNearbyRailStations } from "@/lib/transit/rail-stations";
+import { complexTxNameNorms } from "@/lib/complex-detail/tx-name-norms";
 
 export type Ring = Array<[number, number]>; // [lng, lat]
 
@@ -220,11 +221,12 @@ export async function readComplex3d(db: Client, complexId: string): Promise<Comp
 
   // 층별 시세 — 최근 3년 매매, 최고층을 3등분 (저·중·고), 전용 3.3㎡당 중위가
   const since = `${new Date().getFullYear() - 3}${String(new Date().getMonth() + 1).padStart(2, "0")}`;
+  const txNorms = await complexTxNameNorms(db, complexId, lawd, String(m.apt_name_norm));
   const tres = await db.execute({
     sql: `SELECT floor, deal_amount, exclusive_area FROM transactions
-          WHERE lawd_cd = ? AND apt_name_norm = ? AND deal_type = 'trade' AND year_month >= ?
+          WHERE lawd_cd = ? AND apt_name_norm IN (${txNorms.map(() => "?").join(",")}) AND deal_type = 'trade' AND year_month >= ?
             AND deal_amount > 0 AND exclusive_area > 0 AND floor IS NOT NULL`,
-    args: [lawd, String(m.apt_name_norm), since],
+    args: [lawd, ...txNorms, since],
   });
   const deals = tres.rows
     .map((r) => ({ floor: Number(r.floor), ppp: Number(r.deal_amount) / (Number(r.exclusive_area) / PYEONG) }))

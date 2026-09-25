@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db/client";
+import { complexTxNameNorms } from "@/lib/complex-detail/tx-name-norms";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 15;
@@ -24,8 +25,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const row = m.rows[0];
     if (!row) return NextResponse.json({ trades: [], total: 0 }, { status: 404 });
     // 거래 동은 2023년부터라 year_month 조건으로 (lawd, 단지명, 연월) 색인을 타게 한다
-    const where = `lawd_cd = ? AND apt_name_norm = ? AND year_month >= '202301' AND deal_type = 'trade' AND (apt_dong = ? OR apt_dong = ?)`;
-    const args = [String(row.lawd_cd), String(row.apt_name_norm), dong, `${dong}동`];
+    // 단지명: 마스터 이름 + 실거래 이름 연결(지방은 K-apt 이름과 실거래 이름이 다른 경우가 많다)
+    const lawd = String(row.lawd_cd);
+    const norms = await complexTxNameNorms(db, complexId, lawd, String(row.apt_name_norm));
+    const namesIn = `apt_name_norm IN (${norms.map(() => "?").join(",")})`;
+    const where = `lawd_cd = ? AND ${namesIn} AND year_month >= '202301' AND deal_type = 'trade' AND (apt_dong = ? OR apt_dong = ?)`;
+    const args = [lawd, ...norms, dong, `${dong}동`];
     const [list, count, covered] = await Promise.all([
       db.execute({
         sql: `SELECT deal_date, deal_amount, exclusive_area, floor, rgst_date FROM transactions INDEXED BY idx_tx_lawd_apt_ym WHERE ${where}
@@ -35,8 +40,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       db.execute({ sql: `SELECT count(*) n FROM transactions INDEXED BY idx_tx_lawd_apt_ym WHERE ${where}`, args }),
       // 이 단지에 거래 동이 들어 있는지 (없으면 "아직 준비 중")
       db.execute({
-        sql: `SELECT 1 FROM transactions INDEXED BY idx_tx_lawd_apt_ym WHERE lawd_cd = ? AND apt_name_norm = ? AND year_month >= '202301' AND deal_type = 'trade' AND apt_dong IS NOT NULL AND apt_dong <> '' LIMIT 1`,
-        args: args.slice(0, 2),
+        sql: `SELECT 1 FROM transactions INDEXED BY idx_tx_lawd_apt_ym WHERE lawd_cd = ? AND ${namesIn} AND year_month >= '202301' AND deal_type = 'trade' AND apt_dong IS NOT NULL AND apt_dong <> '' LIMIT 1`,
+        args: [lawd, ...norms],
       }),
     ]);
     return NextResponse.json(
