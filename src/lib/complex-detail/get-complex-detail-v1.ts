@@ -2,6 +2,7 @@
  * Phase 7.2 — Complex Detail v1 server composition (enrichment only).
  * Market data continues to use the existing apt-detail path.
  */
+import type { RegionDef } from "@/lib/constants/regions";
 import { getDb } from "@/lib/db/client";
 import type {
   ComplexDetailBasic,
@@ -277,9 +278,28 @@ export function formatYyyymmBasisLabel(yyyymm: string): string {
   return `${yyyymm.slice(0, 4)}년 ${yyyymm.slice(4, 6)}월 기준`;
 }
 
+/**
+ * 단지 식별용 법정동코드 후보 — molit/apt resolveDetailLawdCodes 와 같은 규칙.
+ * 구명이 맞으면 그 구만, 아니면 지역 전체(다구 도시: 성남·수원·고양 등).
+ * lawdCodes[0]만 쓰면 분당구 단지가 수정구(41131)로 조회돼 상세가 비었다.
+ */
+export function resolveComplexLawdCodes(
+  region: RegionDef | undefined,
+  gu?: string,
+): string[] {
+  if (!region) return [];
+  const needle = gu?.trim();
+  if (!needle) return [...region.lawdCodes];
+  const hit = region.districts.find(
+    (d) => needle === d.name || needle.includes(d.name) || d.name.includes(needle),
+  );
+  if (hit) return [hit.code];
+  return [...region.lawdCodes];
+}
+
 export async function getComplexDetailV1(params: {
   aptName: string;
-  lawdCd?: string;
+  lawdCodes?: string[];
 }): Promise<ComplexDetailV1> {
   const t0 = performance.now();
   const empty: ComplexDetailV1 = {
@@ -310,14 +330,20 @@ export async function getComplexDetailV1(params: {
   }
 
   const tMaster = performance.now();
-  const masterResult = params.lawdCd?.trim()
+  const lawdCodes = [
+    ...new Set((params.lawdCodes ?? []).map((c) => c.trim()).filter(Boolean)),
+  ];
+  // 후보 순서(첫 구 우선) → IDENTITY-READY 우선. idx_acm_lawd_norm 으로 코드별 SEARCH.
+  const masterResult = lawdCodes.length
     ? await db.execute({
         sql: `SELECT complex_id, apt_name, apt_name_norm, sido, sigungu,
                      legal_dong_name, jibun, road_address, lawd_cd, bjdong_cd
               FROM apt_complex_master
-              WHERE apt_name_norm = ? AND lawd_cd = ?
+              WHERE apt_name_norm = ? AND lawd_cd IN (${lawdCodes.map(() => "?").join(",")})
+              ORDER BY CASE lawd_cd ${lawdCodes.map((_, i) => `WHEN ? THEN ${i}`).join(" ")} END,
+                       CASE WHEN identity_status = 'IDENTITY-READY' THEN 0 ELSE 1 END
               LIMIT 1`,
-        args: [aptNorm, params.lawdCd.trim()],
+        args: [aptNorm, ...lawdCodes, ...lawdCodes],
       })
     : await db.execute({
         sql: `SELECT complex_id, apt_name, apt_name_norm, sido, sigungu,
@@ -354,8 +380,9 @@ export async function getComplexDetailV1(params: {
     roadAddress: asStr(master.road_address),
   };
 
+  // master 뒤 조회는 서로 독립 — 한 번에 병렬(왕복 4→2). profile·fees 시간은 같은 묶음.
   const tProfile = performance.now();
-  const [profileRes, stateRes, unitMixRes] = await Promise.all([
+  const [profileRes, stateRes, unitMixRes, feeRes, anchorRes] = await Promise.all([
     db.execute({
       sql: `SELECT household_count, building_count, approval_date, heating_type,
                    management_type, parking_total, parking_per_household,
@@ -379,8 +406,29 @@ export async function getComplexDetailV1(params: {
             ORDER BY exclusive_cents`,
       args: [complexId],
     }),
+    // Read up to 24 months for season windows; averages still use ≤12 continuous.
+    db.execute({
+      sql: `SELECT period_yyyymm, common_fee, individual_fee, long_term_repair_reserve,
+                   household_basis,
+                   per_area_common_fee, per_area_individual_fee, per_area_reserve_fee,
+                   per_area_total_fee, area_basis_sqm, area_basis, fee_status,
+                   total_fee, source, source_version
+            FROM apt_complex_mgmt_fee_monthly
+            WHERE complex_id = ?
+            ORDER BY period_yyyymm DESC
+            LIMIT 24`,
+      args: [complexId],
+    }),
+    // Optional table (scripts/map-anchor) — absent until the first apply; never fail the page on it.
+    db
+      .execute({
+        sql: `SELECT lat, lng, matched_road, matched_jibun FROM complex_map_anchor WHERE complex_id = ? LIMIT 1`,
+        args: [complexId],
+      })
+      .catch(() => null),
   ]);
   const profileMs = Math.round(performance.now() - tProfile);
+  const feesMs = profileMs;
 
   const statusMap = new Map<string, ComplexEnrichmentStatus>();
   for (const row of stateRes.rows) {
@@ -418,22 +466,6 @@ export async function getComplexDetailV1(params: {
       candidate.bcrRatio != null;
     building = hasBuilding ? candidate : null;
   }
-
-  const tFees = performance.now();
-  // Read up to 24 months for season windows; averages still use ≤12 continuous.
-  const feeRes = await db.execute({
-    sql: `SELECT period_yyyymm, common_fee, individual_fee, long_term_repair_reserve,
-                 household_basis,
-                 per_area_common_fee, per_area_individual_fee, per_area_reserve_fee,
-                 per_area_total_fee, area_basis_sqm, area_basis, fee_status,
-                 total_fee, source, source_version
-          FROM apt_complex_mgmt_fee_monthly
-          WHERE complex_id = ?
-          ORDER BY period_yyyymm DESC
-          LIMIT 24`,
-    args: [complexId],
-  });
-  const feesMs = Math.round(performance.now() - tFees);
 
   const householdCount =
     basic?.householdCount && basic.householdCount > 0
@@ -579,23 +611,18 @@ export async function getComplexDetailV1(params: {
       ? { rows: unitMixRows, sourceAsOf: unitMixAsOf ?? null }
       : null;
 
-  // Optional table (scripts/map-anchor) — absent until the first apply; never fail the page on it.
   let mapAnchor: ComplexMapAnchorV1 | null = null;
-  try {
-    const a = await db.execute({
-      sql: `SELECT lat, lng, matched_road, matched_jibun FROM complex_map_anchor WHERE complex_id = ? LIMIT 1`,
-      args: [complexId],
-    });
-    const row = a.rows[0];
-    if (row && Number.isFinite(Number(row.lat)) && Number.isFinite(Number(row.lng))) {
-      mapAnchor = {
-        lat: Number(row.lat),
-        lng: Number(row.lng),
-        matchedAddress: asStr(row.matched_road) ?? asStr(row.matched_jibun),
-      };
-    }
-  } catch {
-    mapAnchor = null;
+  const anchorRow = anchorRes?.rows[0];
+  if (
+    anchorRow &&
+    Number.isFinite(Number(anchorRow.lat)) &&
+    Number.isFinite(Number(anchorRow.lng))
+  ) {
+    mapAnchor = {
+      lat: Number(anchorRow.lat),
+      lng: Number(anchorRow.lng),
+      matchedAddress: asStr(anchorRow.matched_road) ?? asStr(anchorRow.matched_jibun),
+    };
   }
 
   return {
