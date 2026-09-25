@@ -340,9 +340,6 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     return () => window.clearTimeout(t);
   }, [mode, selected, viewFloor, ready]);
 
-  const estimated = (d?.buildings ?? []).some(
-    (b) => b.rings && !(b.heightM && b.heightM > 0),
-  );
   const maxFloors = sel?.floors ?? 1;
   const floorNow = Math.min(viewFloor, maxFloors);
 
@@ -773,7 +770,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             {mode === "base" && !sel && !picked ? (
               <p className="text-[13px] text-[color:var(--lab-navy-950)]">
                 <b>동 정보</b>
-                <span className="ml-1.5 text-[12px] text-[color:var(--lab-muted)]">
+                <span className="ml-1.5 text-[13px] text-[color:var(--lab-muted)]">
                   상단의 타입·동을 선택하시거나 건물을 직접 눌러보세요.
                 </span>
               </p>
@@ -802,7 +799,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   {typeGroups.map((g) => (
                     <li
                       key={g.key}
-                      className="text-[12px] leading-[18px] tabular-nums"
+                      className="text-[13px] leading-[20px] tabular-nums"
                     >
                       <span className="font-semibold text-[color:var(--lab-navy-950)]">
                         {g.key}
@@ -825,19 +822,19 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                       key={b.label}
                       className="rounded-lg border border-[color:var(--lab-border)] px-2 py-1.5"
                     >
-                      <p className="text-[11px] text-[color:var(--lab-muted)] tabular-nums">
+                      <p className="text-[12px] text-[color:var(--lab-muted)] tabular-nums">
                         {b.label} {b.fromFloor}~{b.toFloor}층
                       </p>
                       <p className="text-[14px] font-bold tabular-nums text-[color:var(--lab-navy-950)]">
                         {b.perPyeong != null ? man(b.perPyeong) : "—"}
                       </p>
-                      <p className="text-[11px] tabular-nums text-[color:var(--lab-muted)]">
+                      <p className="text-[12px] tabular-nums text-[color:var(--lab-muted)]">
                         {b.count}건
                       </p>
                     </div>
                   ))}
                 </div>
-                <p className="text-[11px] text-[color:var(--lab-muted)]">
+                <p className="text-[12px] text-[color:var(--lab-muted)]">
                   전용 3.3㎡당 · {d.floorBandsBasis} · 색이 진할수록 비싼 층
                 </p>
               </div>
@@ -846,7 +843,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             {mode === "sun" ? (
               <div className="mt-1.5 flex flex-col gap-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="min-w-0 truncate text-[11px] tabular-nums text-[color:var(--lab-muted)]">
+                  <span className="min-w-0 truncate text-[12px] tabular-nums text-[color:var(--lab-muted)]">
                     {sunInfo && sunInfo.altitude > 0
                       ? `해 ${Math.round((sunInfo.altitude * 180) / Math.PI)}° ${dirOf((sunInfo.azimuth * 180) / Math.PI)}쪽`
                       : "해 진 뒤"}
@@ -859,7 +856,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                         type="button"
                         onClick={() => setSeason(x.id)}
                         aria-pressed={season === x.id}
-                        className={`rounded-full px-2 py-0.5 text-[11px] font-semibold transition active:scale-95 ${
+                        className={`rounded-full px-2 py-0.5 text-[12px] font-semibold transition active:scale-95 ${
                           season === x.id
                             ? "bg-white text-[color:var(--lab-navy-950)] shadow-sm"
                             : "text-[color:var(--lab-muted)]"
@@ -871,7 +868,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   </div>
                 </div>
                 <label className="flex items-center gap-2">
-                  <span className="w-[74px] shrink-0 text-[12px] text-[color:var(--lab-muted)]">
+                  <span className="w-[92px] shrink-0 whitespace-nowrap text-[13px] text-[color:var(--lab-muted)]">
                     그림자{" "}
                     <b className="text-[13px] tabular-nums text-[color:var(--lab-navy-950)]">
                       {String(hour).padStart(2, "0")}:00
@@ -891,7 +888,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                 {sel ? (
                   <>
                     <label className="flex items-center gap-2">
-                      <span className="w-[74px] shrink-0 text-[12px] text-[color:var(--lab-muted)]">
+                      <span className="w-[92px] shrink-0 whitespace-nowrap text-[13px] text-[color:var(--lab-muted)]">
                         층{" "}
                         <b className="text-[13px] tabular-nums text-[color:var(--lab-navy-950)]">
                           {floorNow}층
@@ -913,7 +910,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                     ) : null}
                   </>
                 ) : (
-                  <p className="text-[12px] text-[color:var(--lab-muted)]">
+                  <p className="text-[13px] text-[color:var(--lab-muted)]">
                     동을 누르면 그 동·층의 하루 일조 시간을 계산해요.
                   </p>
                 )}
@@ -933,7 +930,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                         </b>
                       </p>
                       <OpenDirections view={view} />
-                      <p className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[11px] text-[color:var(--lab-muted)]">
+                      <p className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[12px] text-[color:var(--lab-muted)]">
                         <span className="text-[color:var(--lab-navy-950)]">모형 위 부채꼴 색</span>
                         <span className="flex items-center gap-1">
                           <span className="h-2 w-2 rounded-sm" style={{ background: "#0e9aa0" }} aria-hidden />
@@ -952,7 +949,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   ) : null}
                 </div>
               ) : (
-                <p className="mt-1 text-[12px] text-[color:var(--lab-muted)]">
+                <p className="mt-1 text-[13px] text-[color:var(--lab-muted)]">
                   조망을 볼 동을 모형이나 아래 목록에서 골라 주세요.
                 </p>
               )
@@ -964,7 +961,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   {d.pois.map((p) => (
                     <li
                       key={`${p.kind}-${p.name}`}
-                      className="flex items-center justify-between gap-3 py-1.5 text-[12px]"
+                      className="flex items-center justify-between gap-3 py-1.5 text-[13px]"
                     >
                       <span className="min-w-0 truncate">
                         <span className="font-semibold text-[color:var(--lab-navy-950)]">
@@ -982,14 +979,11 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   ))}
                 </ul>
               ) : (
-                <p className="mt-1 text-[12px] text-[color:var(--lab-muted)]">
+                <p className="mt-1 text-[13px] text-[color:var(--lab-muted)]">
                   주변 학교·역 정보가 없어요.
                 </p>
               )
             ) : null}
-            <p className="mt-1 text-right text-[9px] leading-3 text-slate-400">
-              건물 국토부 GIS · 지도 NAVER{estimated ? " · 일부 높이 추정" : ""}
-            </p>
           </div>
         </div>
       ) : null}
@@ -1043,7 +1037,7 @@ function DongHeader({
         </button>
       </div>
       {around ? (
-        <p className="-mt-0.5 text-[12px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
+        <p className="-mt-0.5 text-[13px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
           {around}
         </p>
       ) : null}
@@ -1069,7 +1063,7 @@ function DongLines({
         {lines.map((g) => (
           <li
             key={g.id}
-            className="flex items-center gap-1.5 text-[12px] leading-[18px] tabular-nums text-[color:var(--lab-navy-950)]"
+            className="flex items-center gap-1.5 text-[13px] leading-[20px] tabular-nums text-[color:var(--lab-navy-950)]"
           >
             <span
               className="h-2 w-2 shrink-0 rounded-full"
@@ -1087,7 +1081,7 @@ function DongLines({
   }
   if (!fallback.length) return null;
   return (
-    <p className="mt-1 text-[12px] leading-[18px] tabular-nums text-[color:var(--lab-muted)]">
+    <p className="mt-1 text-[13px] leading-[20px] tabular-nums text-[color:var(--lab-muted)]">
       {fallback.map((u) => `${u.label} ${u.households}세대`).join(" · ")}
     </p>
   );
@@ -1104,7 +1098,7 @@ function SunStatsView({ stats, season }: { stats: SunHours; season: Season }) {
     <div className="flex flex-col gap-1.5">
       <div className="grid grid-cols-2 gap-1.5">
         <div className="rounded-lg bg-[color:var(--lab-brand-subtle)] px-2.5 py-1.5">
-          <p className="text-[11px] text-[color:var(--lab-teal-700)]">
+          <p className="text-[12px] text-[color:var(--lab-teal-700)]">
             하루 해 드는 시간
           </p>
           <p className="text-[16px] font-bold tabular-nums text-[color:var(--lab-navy-950)]">
@@ -1112,12 +1106,13 @@ function SunStatsView({ stats, season }: { stats: SunHours; season: Season }) {
           </p>
         </div>
         <div className="rounded-lg bg-[color:var(--lab-brand-subtle)] px-2.5 py-1.5">
-          <p className="flex items-center justify-between gap-1 text-[11px] text-[color:var(--lab-teal-700)]">
-            9~15시 연속 최대
+          <p className="whitespace-nowrap text-[12px] text-[color:var(--lab-teal-700)]">9~15시 연속 최대</p>
+          <p className="flex items-center gap-1.5 whitespace-nowrap text-[16px] font-bold tabular-nums text-[color:var(--lab-navy-950)]">
+            {hm(stats.best9to15Min)}
             {season === "winter" ? (
               <span className="flex items-center">
                 <span
-                  className={`rounded px-1 text-[10px] font-bold ${stats.best9to15Min >= 120 ? "bg-white text-[color:var(--lab-teal-700)]" : "bg-rose-50 text-rose-600"}`}
+                  className={`rounded px-1 text-[11px] font-bold ${stats.best9to15Min >= 120 ? "bg-white text-[color:var(--lab-teal-700)]" : "bg-rose-50 text-rose-600"}`}
                 >
                   {stats.best9to15Min >= 120 ? "기준 충족" : "기준 미달"}
                 </span>
@@ -1128,9 +1123,6 @@ function SunStatsView({ stats, season }: { stats: SunHours; season: Season }) {
                 </InfoTip>
               </span>
             ) : null}
-          </p>
-          <p className="text-[16px] font-bold tabular-nums text-[color:var(--lab-navy-950)]">
-            {hm(stats.best9to15Min)}
           </p>
         </div>
       </div>
@@ -1149,7 +1141,7 @@ function SunStatsView({ stats, season }: { stats: SunHours; season: Season }) {
             />
           ))}
         </div>
-        <div className="mt-0.5 flex justify-between text-[10px] tabular-nums text-[color:var(--lab-muted)]">
+        <div className="mt-0.5 flex justify-between text-[11px] tabular-nums text-[color:var(--lab-muted)]">
           <span>7시</span>
           <span>9</span>
           <span>12</span>
@@ -1238,18 +1230,18 @@ function DongTrades({ complexId, dong }: { complexId: string; dong: string }) {
   const { total, available, trades } = q.data;
   return (
     <div className="mt-1.5 border-t border-[color:var(--lab-border)] pt-1.5">
-      <p className="flex items-baseline justify-between text-[12px] font-semibold text-[color:var(--lab-navy-950)]">
+      <p className="flex items-baseline justify-between text-[13px] font-semibold text-[color:var(--lab-navy-950)]">
         {dong} 실거래
-        <span className="text-[11px] font-normal tabular-nums text-[color:var(--lab-muted)]">
+        <span className="text-[12px] font-normal tabular-nums text-[color:var(--lab-muted)]">
           {available ? `2023년~ ${total}건` : "준비 중"}
         </span>
       </p>
       {!available ? (
-        <p className="text-[11px] text-[color:var(--lab-muted)]">이 단지는 동별 실거래를 모으는 중이에요.</p>
+        <p className="text-[12px] text-[color:var(--lab-muted)]">이 단지는 동별 실거래를 모으는 중이에요.</p>
       ) : trades.length ? (
         <ul className="mt-0.5 flex flex-col">
           {trades.slice(0, 3).map((t, i) => (
-            <li key={i} className="flex items-baseline gap-2 text-[12px] leading-[18px] tabular-nums">
+            <li key={i} className="flex items-baseline gap-2 text-[13px] leading-[20px] tabular-nums">
               <span className="w-[54px] shrink-0 text-[color:var(--lab-muted)]">{t.dealDate.slice(2).replace(/-/g, ".")}</span>
               <span className="font-bold text-[color:var(--lab-teal-700)]">{eok(t.amount)}</span>
               <span className="ml-auto text-[color:var(--lab-muted)]">
@@ -1259,7 +1251,7 @@ function DongTrades({ complexId, dong }: { complexId: string; dong: string }) {
           ))}
         </ul>
       ) : (
-        <p className="text-[11px] text-[color:var(--lab-muted)]">2023년 이후 등기된 매매가 없어요.</p>
+        <p className="text-[12px] text-[color:var(--lab-muted)]">2023년 이후 등기된 매매가 없어요.</p>
       )}
     </div>
   );
