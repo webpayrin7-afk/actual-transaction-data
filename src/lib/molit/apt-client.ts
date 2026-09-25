@@ -9,8 +9,9 @@ import type { Transaction } from "@/types/transaction";
 /**
  * 단지 상세·거래 API 응답 모양이 바뀌면 올린다 — 브라우저 캐시(max-age)에 남은 예전 응답을 안 쓰게 요청 주소에 붙인다.
  * 2: 평형 묶기(전용 소수점 차이를 한 평형으로)
+ * 3: /api/apt-detail items를 압축 형식(itemsPacked)으로 — v<3 요청(예전 화면)은 기존 items 그대로
  */
-export const APT_API_VERSION = "2";
+export const APT_API_VERSION = "3";
 
 export interface AptSuggestion {
   aptName: string;
