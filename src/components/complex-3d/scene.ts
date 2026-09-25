@@ -248,7 +248,7 @@ export class Complex3dScene {
         const obj = new CSS2DObject(el);
         obj.position.set(c.x, h + 4, c.z);
         this.groups.labels.add(obj);
-        this.labelEls.set(b.id, { el, x: c.x, y: h + 4, z: c.z });
+        this.labelEls.set(b.id, { el, dong: b.dong, x: c.x, y: h + 4, z: c.z });
       }
     }
 
@@ -630,13 +630,27 @@ export class Complex3dScene {
   private dimMaterial = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.95, metalness: 0, transparent: true, opacity: 0.55 });
 
   /** 타입 고르기 — 고른 타입이 있는 동만 그 색으로, 나머지는 흐리게 (null이면 원래대로) */
-  setHighlight(ids: Set<string> | null, color?: string) {
+  /**
+   * 타입 고르기 — ids 동을 color로 칠하고 나머지는 흐리게 (null이면 원래대로).
+   * partial: 그 타입이 동의 일부 라인에만 있는 동 → 연한 색. notes: 동 이름표 뒤에 붙일 글 ("2·3호").
+   */
+  setHighlight(ids: Set<string> | null, color?: string, opts?: { partial?: Set<string>; notes?: Map<string, string> }) {
     this.highlight = ids;
-    if (color) this.hiMaterial.color.set(color);
+    this.partial = opts?.partial ?? null;
+    if (color) {
+      this.hiMaterial.color.set(color);
+      this.partialMaterial.color.set(color).lerp(new THREE.Color(0xffffff), 0.55);
+    }
+    for (const [id, l] of this.labelEls) {
+      const note = ids ? opts?.notes?.get(id) : undefined;
+      l.el.textContent = note ? `${l.dong} · ${note}` : l.dong;
+    }
     this.paint();
   }
+  private partial: Set<string> | null = null;
+  private partialMaterial = new THREE.MeshStandardMaterial({ color: 0x99f6e4, roughness: 0.85, metalness: 0 });
 
-  private labelEls = new Map<string, { el: HTMLElement; x: number; y: number; z: number }>();
+  private labelEls = new Map<string, { el: HTMLElement; dong: string; x: number; y: number; z: number }>();
   private marker: CSS2DObject | null = null;
 
   /** 고른 동 — 이름표를 칠하고, 이름표 위에 통통 튀는 화살표 */
@@ -667,7 +681,9 @@ export class Complex3dScene {
           : !this.highlight
             ? this.ownMaterial
             : this.highlight.has(id)
-              ? this.hiMaterial
+              ? this.partial?.has(id)
+                ? this.partialMaterial
+                : this.hiMaterial
               : this.dimMaterial;
     }
   }

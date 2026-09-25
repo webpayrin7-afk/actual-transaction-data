@@ -175,6 +175,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         supply: t.supplySqm!,
         households: t.households ?? t.dongs.reduce((n, x) => n + x.households, 0),
         dongs: new Set(t.dongs.map((x) => x.dong)),
+        dongHouseholds: new Map(t.dongs.map((x) => [x.dong, x.households])),
         color: TYPE_COLORS[i % TYPE_COLORS.length]!,
       }));
   }, [typesQuery.data]);
@@ -187,7 +188,26 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
       s.setHighlight(null);
       return;
     }
-    s.setHighlight(new Set(d.buildings.filter((b) => b.dong && picked.dongs.has(b.dong)).map((b) => b.id)), picked.color);
+    // 동 전체가 그 타입이면 진하게, 일부 라인만이면 연하게 + 이름표에 해당 호 라인
+    const ids = new Set<string>();
+    const partial = new Set<string>();
+    const notes = new Map<string, string>();
+    for (const b of d.buildings) {
+      if (!b.dong || !picked.dongs.has(b.dong)) continue;
+      ids.add(b.id);
+      const lines = b.lines ?? [];
+      const mine = lines.filter((l) => sameSqm(l.exclusive, picked.exclusive) && Math.abs(l.supply - picked.supply) < 1);
+      if (lines.length) {
+        const all = new Set(lines.map((l) => l.line));
+        const own = new Set(mine.map((l) => l.line));
+        if (own.size < all.size) partial.add(b.id);
+        if (own.size) notes.set(b.id, `${[...own].map(Number).sort((x, y) => x - y).join("·")}호`);
+      } else {
+        const hh = picked.dongHouseholds.get(b.dong) ?? 0;
+        if (b.households && hh < b.households) partial.add(b.id);
+      }
+    }
+    s.setHighlight(ids, picked.color, { partial, notes });
   }, [picked, mode, d, ready]);
 
   // 동 목록 (모양이 있는 주거동, 동 번호 순)
@@ -649,6 +669,17 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   );
                 })}
               </div>
+            ) : null}
+
+            {picked ? (
+              <p className="-mt-1.5 flex items-center gap-3 px-4 pb-2.5 text-[11px] text-[color:var(--lab-muted)]">
+                <span className="flex items-center gap-1">
+                  <span className="h-2.5 w-2.5 rounded-sm" style={{ background: picked.color }} aria-hidden />동 전체가 이 타입
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="h-2.5 w-2.5 rounded-sm" style={{ background: picked.color, opacity: 0.45 }} aria-hidden />일부 라인만
+                </span>
+              </p>
             ) : null}
 
             {/* 동 고르기 — 끌어 올리면 보인다 */}
