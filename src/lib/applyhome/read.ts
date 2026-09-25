@@ -51,8 +51,6 @@ export type ApplyhomeOverview = {
   upcoming: ApplyhomeNotice[];
   /** 최근 30일 접수 마감, 경쟁률 높은 순 */
   competition: ApplyhomeCompetition[];
-  /** 최근 12개월 접수 마감, 최신순 (경쟁률 없는 공고 포함 — rate 0) */
-  history: ApplyhomeCompetition[];
   moveIn: { fromYm: string; toYm: string; byMetro: Record<string, MoveInRegion[]> };
 };
 
@@ -143,7 +141,8 @@ export async function readApplyhomeOverview(db: Client): Promise<ApplyhomeOvervi
 
   const fromYm = ymOf(today, 1);
   const toYm = ymOf(today, 24);
-  const [upcomingRes, historyRes, moveRes] = await Promise.all([
+  const since30 = addDays(today, -30);
+  const [upcomingRes, recentRes, moveRes] = await Promise.all([
     // 접수가 끝나지 않은 공고 (특별공급 시작일 → 1순위 시작일 순)
     db.execute({
       sql: `SELECT ${NOTICE_COLS} FROM applyhome_notices n
@@ -151,13 +150,13 @@ export async function readApplyhomeOverview(db: Client): Promise<ApplyhomeOvervi
             ORDER BY COALESCE(n.special_rcept_begin, n.rcept_begin), n.rcept_begin`,
       args: [today],
     }),
-    // 최근 12개월 접수가 끝난 공고 + 1순위 경쟁률
+    // 최근 30일 접수가 끝난 공고 + 1순위 경쟁률 (경쟁률 카드용 — 12개월치를 내려주면 응답이 10배 커짐)
     db.execute({
       sql: `SELECT ${NOTICE_COLS}, ${RATE_COLS}
             FROM applyhome_notices n
             WHERE n.rcept_end >= ? AND n.rcept_end < ?
             ORDER BY n.rcept_end DESC, n.house_manage_no DESC`,
-      args: [addDays(today, -365), today],
+      args: [since30, today],
     }),
     // 앞으로 24개월 입주 예정 (공급 세대 기준, 임대 제외)
     db.execute({
@@ -184,10 +183,9 @@ export async function readApplyhomeOverview(db: Client): Promise<ApplyhomeOvervi
     }
     for (const n of upcoming) n.areas = byId.get(n.id) ?? [];
   }
-  const history = historyRes.rows.map((r) => withRate(r as DbRow));
-  const since30 = addDays(today, -30);
-  const competition = history
-    .filter((x) => !x.remndr && (x.rceptEnd ?? "") >= since30 && x.generalSupply >= 10 && x.firstRankRequests > 0)
+  const competition = recentRes.rows
+    .map((r) => withRate(r as DbRow))
+    .filter((x) => !x.remndr && x.generalSupply >= 10 && x.firstRankRequests > 0)
     .sort((a, b) => b.rate - a.rate);
 
   const agg = new Map<string, MoveInRegion & { metro: string }>();
@@ -215,7 +213,7 @@ export async function readApplyhomeOverview(db: Client): Promise<ApplyhomeOvervi
   for (const { metro, ...e } of agg.values()) (byMetro[metro] ??= []).push(e);
   for (const list of Object.values(byMetro)) list.sort((a, b) => b.households - a.households);
 
-  const value = { today, upcoming, competition, history, moveIn: { fromYm, toYm, byMetro } };
+  const value = { today, upcoming, competition, moveIn: { fromYm, toYm, byMetro } };
   cache = { at: Date.now(), key: today, value };
   return value;
 }
