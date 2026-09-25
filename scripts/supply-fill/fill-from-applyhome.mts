@@ -15,7 +15,8 @@
  *   3. 법정동: master.legal_dong_name 이 공고 주소 문자열 안에 그대로 있어야 한다.
  *   4. 전용면적 집합: 단지 유형의 전용(0.01㎡)이 모두 공고 주택형 전용(0.01㎡)에 있고,
  *      공고에만 있는 전용도 없어야 한다(집합이 같음). 단지에 유형 행이 하나도 없으면 건너뜀(새로 만들지 않음).
- *      --allow-subset: 진단용. 공고에만 있는 전용을 허용(단지 ⊆ 공고). 기본값은 끔.
+ *      --allow-subset: 공고에만 있는 전용을 허용(단지 ⊆ 공고). 2026-09-25 owner 승인, 이 방식으로 적용함.
+ *        공고에만 있는 전용은 행을 새로 만들지 않는다(기존 행만 채움).
  *   5. 단지마다 1~4를 통과한 공고가 하나이거나, 여럿이면 모든 (전용 → 공급) 값이 서로 같아야 한다.
  *      무순위(notice_type='remndr')는 일반 공고가 하나도 통과하지 못했을 때만 쓴다.
  *      공고 하나가 단지 둘 이상에 붙으면 모두 보류.
@@ -32,7 +33,7 @@
  *   - 값이 있는 supply_area·type_name 은 덮어쓰지 않는다. 행을 지우지 않는다.
  *
  *   npx tsx --env-file=.env.local scripts/supply-fill/fill-from-applyhome.mts plan [--allow-subset]
- *   npx tsx --env-file=.env.local scripts/supply-fill/fill-from-applyhome.mts apply
+ *   npx tsx --env-file=.env.local scripts/supply-fill/fill-from-applyhome.mts apply [--allow-subset]
  *
  * plan: DB 쓰기 없음. 계획·연결표·백업(바뀔 행의 지금 값)을 OUT 폴더에 쓴다.
  * apply: plan.json 그대로 실행. 행마다 "아직 비어 있음" 조건을 WHERE에 걸어 다시 확인한다.
@@ -576,8 +577,8 @@ async function main() {
     return;
   }
   if (mode === "apply") {
-    if (allowSubset) throw new Error("--allow-subset 계획은 진단용이라 apply하지 않습니다.");
-    if (!existsSync(planPath)) throw new Error("먼저 plan을 돌려 plan.json을 만드세요.");
+    // --allow-subset: 2026-09-25 owner 승인 (단지 전용 ⊆ 공고 전용). 공고에만 있는 전용으로 새 행은 만들지 않는다.
+    if (!existsSync(planPath)) throw new Error(`먼저 plan${allowSubset ? " --allow-subset" : ""}을 돌려 ${planPath}를 만드세요.`);
     const plan = JSON.parse(readFileSync(planPath, "utf8")) as { statements: Array<Stmt & { kind: string }> };
     const done: Record<string, number> = {};
     const planned: Record<string, number> = {};
