@@ -572,14 +572,14 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             )}
           </div>
         ) : (
-          <div className="pointer-events-auto flex justify-end gap-1 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="pointer-events-auto flex gap-1.5 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {MODES.map((m) => (
               <button
                 key={m.id}
                 type="button"
                 onClick={() => setMode(m.id)}
                 aria-pressed={mode === m.id}
-                className={`shrink-0 rounded-full px-2.5 py-1 text-[12px] font-semibold transition active:scale-95 ${
+                className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition active:scale-95 ${
                   mode === m.id
                     ? "bg-[color:var(--lab-brand-primary)] text-white shadow-[0_2px_10px_rgba(15,118,110,0.35)]"
                     : `${FLOAT} text-[color:var(--lab-navy-950)]`
@@ -769,27 +769,28 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
 
             {mode === "sun" ? (
               <div className="mt-1.5 flex flex-col gap-1.5">
-                <div className="flex items-center gap-1">
-                  {SEASONS.map((x) => (
-                    <button
-                      key={x.id}
-                      type="button"
-                      onClick={() => setSeason(x.id)}
-                      aria-pressed={season === x.id}
-                      className={`rounded-full px-2.5 py-1 text-[12px] font-semibold transition active:scale-95 ${
-                        season === x.id
-                          ? "bg-[color:var(--lab-navy-950)] text-white"
-                          : "bg-slate-100 text-[color:var(--lab-navy-950)]"
-                      }`}
-                    >
-                      {x.label}
-                    </button>
-                  ))}
-                  <span className="ml-auto text-[11px] tabular-nums text-[color:var(--lab-muted)]">
+                <div className="flex items-center gap-2">
+                  <span className="min-w-0 truncate text-[11px] tabular-nums text-[color:var(--lab-muted)]">
                     {sunInfo && sunInfo.altitude > 0
                       ? `해 ${Math.round((sunInfo.altitude * 180) / Math.PI)}° ${dirOf((sunInfo.azimuth * 180) / Math.PI)}쪽`
                       : "해 진 뒤"}
+                    {sel ? " · 남쪽 창 기준 추정" : ""}
                   </span>
+                  <div className="ml-auto flex shrink-0 rounded-full bg-slate-100 p-0.5">
+                    {SEASONS.map((x) => (
+                      <button
+                        key={x.id}
+                        type="button"
+                        onClick={() => setSeason(x.id)}
+                        aria-pressed={season === x.id}
+                        className={`rounded-full px-2 py-0.5 text-[11px] font-semibold transition active:scale-95 ${
+                          season === x.id ? "bg-white text-[color:var(--lab-navy-950)] shadow-sm" : "text-[color:var(--lab-muted)]"
+                        }`}
+                      >
+                        {x.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <label className="flex items-center gap-2">
                   <span className="w-[74px] shrink-0 text-[12px] text-[color:var(--lab-muted)]">
@@ -994,8 +995,16 @@ function SunStatsView({ stats, season }: { stats: SunHours; season: Season }) {
           </p>
         </div>
         <div className="rounded-lg bg-[color:var(--lab-brand-subtle)] px-2.5 py-1.5">
-          <p className="text-[11px] text-[color:var(--lab-teal-700)]">
+          <p className="flex items-center justify-between gap-1 text-[11px] text-[color:var(--lab-teal-700)]">
             9~15시 연속 최대
+            {season === "winter" ? (
+              <span
+                title="동지 9~15시 연속 2시간 이상이면 일조 기준 충족"
+                className={`rounded px-1 text-[10px] font-bold ${stats.best9to15Min >= 120 ? "bg-white text-[color:var(--lab-teal-700)]" : "bg-rose-50 text-rose-600"}`}
+              >
+                {stats.best9to15Min >= 120 ? "기준 충족" : "기준 미달"}
+              </span>
+            ) : null}
           </p>
           <p className="text-[16px] font-bold tabular-nums text-[color:var(--lab-navy-950)]">
             {hm(stats.best9to15Min)}
@@ -1025,12 +1034,6 @@ function SunStatsView({ stats, season }: { stats: SunHours; season: Season }) {
           <span>18시</span>
         </div>
       </div>
-      <p className="text-[11px] leading-4 text-[color:var(--lab-muted)]">
-        남쪽 벽 가운데 창 기준 추정
-        {season === "winter"
-          ? " · 동지 9~15시 연속 2시간 이상이면 일조 기준 충족"
-          : ""}
-      </p>
     </div>
   );
 }
