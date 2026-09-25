@@ -26,6 +26,15 @@ export function dominantUnit(b: Complex3dBuilding): { label: string; share: numb
   return top && total > 0 ? { label: top.label, share: top.households / total } : null;
 }
 
+export type SunHours = {
+  /** 해가 드는 시간 합계 (분) */
+  totalMin: number;
+  /** 9~15시 사이 연속으로 해가 드는 가장 긴 시간 (분) */
+  best9to15Min: number;
+  /** 7시부터 10분 간격, 해가 들면 true (해가 없으면 null) */
+  slots: Array<boolean | null>;
+};
+
 export type ViewResult = {
   /** 72방향(5°) 첫 가림까지 거리(m), 막힘 없으면 null */
   rays: Array<{ azimuth: number; distance: number | null }>;
@@ -76,6 +85,7 @@ export class Complex3dScene {
     labels: new THREE.Group(),
     view: new THREE.Group(),
     pois: new THREE.Group(),
+    lineOverlay: new THREE.Group(),
   };
   private ownMeshes = new Map<string, THREE.Mesh>();
   private ownMaterial = new THREE.MeshStandardMaterial({ color: OWN, roughness: 0.85, metalness: 0 });
@@ -115,13 +125,13 @@ export class Complex3dScene {
     Object.assign(this.labels.domElement.style, { position: "absolute", inset: "0", pointerEvents: "none" });
     host.appendChild(this.labels.domElement);
 
-    this.camera = new THREE.PerspectiveCamera(45, w / h, 1, 9000);
+    this.camera = new THREE.PerspectiveCamera(45, w / h, 1, 14000);
     this.camera.position.set(220, 260, 320);
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.maxPolarAngle = Math.PI / 2 - 0.05;
     this.controls.minDistance = 40;
-    this.controls.maxDistance = 3200;
+    this.controls.maxDistance = 6000;
 
     this.sun.castShadow = true;
     const cam = this.sun.shadow.camera;
@@ -375,6 +385,61 @@ export class Complex3dScene {
     this.groups.view.visible = mode === "view";
     this.groups.pois.visible = mode === "around";
     this.groups.labels.visible = mode !== "around";
+    this.groups.lineOverlay.visible = mode === "base";
+  }
+
+  private lineMaterial = new THREE.MeshStandardMaterial({ color: 0x14b8a6, roughness: 0.8, metalness: 0 });
+
+  /**
+   * (시험) 호 라인 위치 추정 색칠 — 동 외곽선의 긴 축을 라인 수로 똑같이 나눠, 고른 타입 라인 칸만 칠한다.
+   * 라인이 건물 어느 쪽인지는 원천에 없어 1호 라인을 서쪽(긴 축이 남북이면 남쪽) 끝으로 가정한다.
+   */
+  setLineOverlay(items: Array<{ id: string; slots: number[]; count: number }> | null, color?: string) {
+    this.groups.lineOverlay.clear();
+    if (color) this.lineMaterial.color.set(color);
+    if (!items || !this.data) return;
+    for (const it of items) {
+      const b = this.data.buildings.find((x) => x.id === it.id);
+      if (!b?.rings?.[0] || it.count < 1) continue;
+      const pts = b.rings[0].map(([lng, lat]) => this.toLocal(lng, lat));
+      // 긴 축: 점들의 주성분
+      const mx = pts.reduce((a, q) => a + q.x, 0) / pts.length;
+      const mz = pts.reduce((a, q) => a + q.z, 0) / pts.length;
+      let sxx = 0, szz = 0, sxz = 0;
+      for (const q of pts) {
+        sxx += (q.x - mx) ** 2;
+        szz += (q.z - mz) ** 2;
+        sxz += (q.x - mx) * (q.z - mz);
+      }
+      const ang = 0.5 * Math.atan2(2 * sxz, sxx - szz);
+      let ux = Math.cos(ang);
+      let uz = Math.sin(ang);
+      // 1호 라인 = 서쪽 끝 (긴 축이 남북에 가까우면 남쪽 끝, z가 클수록 남쪽)
+      if (Math.abs(ux) >= Math.abs(uz) ? ux < 0 : uz < 0) {
+        ux = -ux;
+        uz = -uz;
+      }
+      if (Math.abs(ux) < Math.abs(uz)) {
+        ux = -ux;
+        uz = -uz;
+      }
+      const proj = pts.map((q) => q.x * ux + q.z * uz);
+      const lo = Math.min(...proj);
+      const len = Math.max(...proj) - lo;
+      const { h } = buildingHeight(b);
+      for (const slot of it.slots) {
+        const a0 = lo + (len * slot) / it.count;
+        const a1 = lo + (len * (slot + 1)) / it.count;
+        const poly = clipSlab(pts, ux, uz, a0 + 0.3, a1 - 0.3);
+        if (poly.length < 3) continue;
+        const shape = new THREE.Shape(poly.map((q) => new THREE.Vector2(q.x, -q.z)));
+        const g = new THREE.ExtrudeGeometry(shape, { depth: h + 0.6, bevelEnabled: false });
+        g.rotateX(-Math.PI / 2);
+        const m = new THREE.Mesh(g, this.lineMaterial);
+        m.scale.set(1.004, 1, 1.004);
+        this.groups.lineOverlay.add(m);
+      }
+    }
   }
 
   /** 층별 시세 — 각 동을 저·중·고 구간으로 잘라 구간 평당가에 따라 색을 입힌다 */
@@ -496,6 +561,95 @@ export class Complex3dScene {
     }
     const openShare = rays.filter((r) => r.distance == null || r.distance >= 200).length / rays.length;
     return { rays, openShare };
+  }
+
+  /** 주변 — 단지와 표시한 학교·역이 모두 들어오게 위에서 비스듬히 */
+  fitPois() {
+    if (!this.data) return;
+    const { cx, cz, halfW, halfD } = this.bounds;
+    let minX = cx - halfW;
+    let maxX = cx + halfW;
+    let minZ = cz - halfD;
+    let maxZ = cz + halfD;
+    for (const q of this.data.pois) {
+      const l = this.toLocal(q.lng, q.lat);
+      if (Math.hypot(l.x, l.z) > 900) continue;
+      minX = Math.min(minX, l.x);
+      maxX = Math.max(maxX, l.x);
+      minZ = Math.min(minZ, l.z);
+      maxZ = Math.max(maxZ, l.z);
+    }
+    const hw = (maxX - minX) / 2 + 30;
+    const hd = (maxZ - minZ) / 2 + 30;
+    const vfov = (this.camera.fov * Math.PI) / 180;
+    const hfov = 2 * Math.atan(Math.tan(vfov / 2) * this.camera.aspect);
+    const polar = (30 * Math.PI) / 180;
+    const visible = Math.max(0.35, 1 - this.insetTarget / Math.max(1, this.host.clientHeight));
+    const dist = Math.min(this.controls.maxDistance, (Math.max(hw / Math.tan(hfov / 2), (hd * Math.cos(polar)) / (Math.tan(vfov / 2) * visible)) * 1.25));
+    const target = new THREE.Vector3((minX + maxX) / 2, 0, (minZ + maxZ) / 2);
+    this.flyTo(new THREE.Vector3(target.x, target.y + dist * Math.cos(polar), target.z + dist * Math.sin(polar)), target, 550);
+  }
+
+  /**
+   * 일조 시간 — 고른 동의 정면(긴 변 중 남쪽을 향한 벽) 가운데, floor층 창 높이에서 7~18시를 10분마다 해 쪽으로 광선을 쏴
+   * 다른 건물(단지 동·주변 건물)에 막히지 않으면 해가 드는 것으로 센다. 해가 벽 뒤쪽이면 들지 않는 것으로 본다.
+   */
+  computeSunHours(buildingId: string, floor: number, date: Date): SunHours | null {
+    if (!this.data) return null;
+    const b = this.data.buildings.find((x) => x.id === buildingId);
+    if (!b?.rings?.[0]) return null;
+    const pts = b.rings[0].map(([lng, lat]) => this.toLocal(lng, lat));
+    const mx = pts.reduce((a, q) => a + q.x, 0) / pts.length;
+    const mz = pts.reduce((a, q) => a + q.z, 0) / pts.length;
+    let sxx = 0, szz = 0, sxz = 0;
+    for (const q of pts) {
+      sxx += (q.x - mx) ** 2;
+      szz += (q.z - mz) ** 2;
+      sxz += (q.x - mx) * (q.z - mz);
+    }
+    const ang = 0.5 * Math.atan2(2 * sxz, sxx - szz);
+    // 정면 = 긴 축에 수직, 남쪽(z+) 쪽
+    let nx = -Math.sin(ang);
+    let nz = Math.cos(ang);
+    if (nz < 0) {
+      nx = -nx;
+      nz = -nz;
+    }
+    const face = Math.max(...pts.map((q) => (q.x - mx) * nx + (q.z - mz) * nz));
+    const { h } = buildingHeight(b);
+    const floors = b.floors ?? Math.max(1, Math.round(h / FLOOR_M));
+    const y = Math.min(h - 0.5, ((Math.min(floor, floors) - 0.5) * h) / floors);
+    const origin = new THREE.Vector3(mx + nx * (face + 0.6), y, mz + nz * (face + 0.6));
+    const targets: THREE.Object3D[] = [...this.groups.neighbors.children];
+    for (const [id, mesh] of this.ownMeshes) if (id !== buildingId) targets.push(mesh);
+    const c = this.data.center;
+    const slots: Array<boolean | null> = [];
+    for (let m = 7 * 60; m < 18 * 60; m += 10) {
+      const sp = sunPosition(c.lat, c.lng, date, (m + 5) / 60);
+      if (sp.altitude <= 0.01) {
+        slots.push(null);
+        continue;
+      }
+      const dir = new THREE.Vector3(Math.sin(sp.azimuth) * Math.cos(sp.altitude), Math.sin(sp.altitude), -Math.cos(sp.azimuth) * Math.cos(sp.altitude));
+      if (dir.x * nx + dir.z * nz <= 0) {
+        slots.push(false);
+        continue;
+      }
+      this.raycaster.set(origin, dir);
+      this.raycaster.far = 1500;
+      slots.push(this.raycaster.intersectObjects(targets, false).length === 0);
+    }
+    const totalMin = slots.filter((x) => x === true).length * 10;
+    let best = 0;
+    let run = 0;
+    slots.forEach((x, i) => {
+      const t = 7 * 60 + i * 10;
+      if (x === true && t >= 9 * 60 && t < 15 * 60) {
+        run += 10;
+        best = Math.max(best, run);
+      } else run = 0;
+    });
+    return { totalMin, best9to15Min: best, slots };
   }
 
   /** 주변 학교·역 핀 */
@@ -675,4 +829,26 @@ export class Complex3dScene {
     this.renderer.domElement.remove();
     this.labels.domElement.remove();
   }
+}
+
+/** 다각형을 두 평행선 사이(a0 ≤ 점·u ≤ a1)로 자르기 (Sutherland–Hodgman) */
+function clipSlab(pts: Local[], ux: number, uz: number, a0: number, a1: number): Local[] {
+  const cut = (poly: Local[], keep: (d: number) => boolean, edge: number): Local[] => {
+    const out: Local[] = [];
+    for (let i = 0; i < poly.length; i++) {
+      const p = poly[i]!;
+      const q = poly[(i + 1) % poly.length]!;
+      const dp = p.x * ux + p.z * uz;
+      const dq = q.x * ux + q.z * uz;
+      const kp = keep(dp);
+      const kq = keep(dq);
+      if (kp) out.push(p);
+      if (kp !== kq) {
+        const t = (edge - dp) / (dq - dp);
+        out.push({ x: p.x + (q.x - p.x) * t, z: p.z + (q.z - p.z) * t });
+      }
+    }
+    return out;
+  };
+  return cut(cut(pts, (d) => d >= a0, a0), (d) => d <= a1, a1);
 }

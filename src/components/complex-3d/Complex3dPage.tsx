@@ -6,7 +6,7 @@ import { ChevronUp, Maximize2, SquareDashed, X } from "lucide-react";
 import type { Complex3d } from "@/lib/complex-3d/read";
 import { BackLink } from "@/components/layout/BackLink";
 import { LabTabs } from "@/components/ui/LabTabs";
-import type { Complex3dScene, SceneMode, ViewResult } from "@/components/complex-3d/scene";
+import type { Complex3dScene, SceneMode, SunHours, ViewResult } from "@/components/complex-3d/scene";
 import { TYPE_COLORS } from "@/components/complex-3d/palette";
 import { fetchComplexTypes } from "@/lib/apt/area-supply";
 import { mergeNearSupply, sameSqm, supplyLabels } from "@/lib/apt/type-labels";
@@ -58,6 +58,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   const drag = useRef<{ y: number; moved: boolean } | null>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
   const [sheetH, setSheetH] = useState(80);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [sunStats, setSunStats] = useState<SunHours | null>(null);
   const [pickedType, setPickedType] = useState<string | null>(null);
   // 모바일에서 시트가 가리는 만큼 모형 중심을 위로 (넓은 화면은 시트가 옆에 떠 있어 그대로)
   useEffect(() => {
@@ -65,13 +67,15 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     if (!el || !ready) return;
     const sync = () => {
       setSheetH(el.offsetHeight);
-      sceneRef.current?.setBottomInset(window.innerWidth < 640 ? el.offsetHeight : 0);
+      const panel = panelRef.current?.offsetHeight ?? 0;
+      sceneRef.current?.setBottomInset(window.innerWidth < 640 ? el.offsetHeight + (panel ? panel + 8 : 0) : 0);
     };
     sync();
     const ro = new ResizeObserver(sync);
     ro.observe(el);
+    if (panelRef.current) ro.observe(panelRef.current);
     return () => ro.disconnect();
-  }, [ready]);
+  }, [ready, mode, selected]);
   const [dragDy, setDragDy] = useState<number | null>(null);
   const [sheetMax, setSheetMax] = useState(340);
   useEffect(() => {
@@ -166,10 +170,32 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   useEffect(() => {
     const s = sceneRef.current;
     if (!s || !d) return;
-    if (mode !== "base" || !picked) {
+    if (mode === "floors" || mode === "types" || !picked) {
       s.setHighlight(null);
+      s.setLineOverlay(null);
       return;
     }
+    // (시험) ?lines=1 — 동 전체 대신 라인 위치를 추정해 칠하기
+    if (new URLSearchParams(window.location.search).get("lines") === "1") {
+      s.setHighlight(new Set(), picked.color);
+      s.setLineOverlay(
+        d.buildings
+          .filter((b) => b.rings && (b.lines ?? []).length)
+          .map((b) => {
+            const lines = [...new Set((b.lines ?? []).map((l) => Number(l.line)))].sort((x, y) => x - y);
+            const mine = new Set(
+              (b.lines ?? [])
+                .filter((l) => sameSqm(l.exclusive, picked.exclusive) && Math.abs(l.supply - picked.supply) < 1)
+                .map((l) => Number(l.line)),
+            );
+            return { id: b.id, count: lines.length, slots: lines.map((n, i) => (mine.has(n) ? i : -1)).filter((i) => i >= 0) };
+          })
+          .filter((x) => x.slots.length),
+        picked.color,
+      );
+      return;
+    }
+    s.setLineOverlay(null);
     s.setHighlight(new Set(d.buildings.filter((b) => b.dong && picked.dongs.has(b.dong)).map((b) => b.id)), picked.color);
   }, [picked, mode, d, ready]);
 
@@ -240,6 +266,25 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
 
   const sel = useMemo(() => d?.buildings.find((b) => b.id === selected) ?? null, [d, selected]);
 
+  // 일조 시간 — 고른 동·층·계절이 바뀔 때
+  useEffect(() => {
+    if (mode !== "sun" || !selected || !ready) return;
+    const t = window.setTimeout(() => {
+      const se = SEASONS.find((x) => x.id === season)!;
+      const date = new Date(Date.UTC(new Date().getFullYear(), se.md[0] - 1, se.md[1]));
+      setSunStats(sceneRef.current?.computeSunHours(selected, viewFloor, date) ?? null);
+    }, 60);
+    return () => window.clearTimeout(t);
+  }, [mode, selected, viewFloor, season, ready]);
+
+  // 주변 — 표시한 곳이 모두 보이게
+  useEffect(() => {
+    if (mode !== "around" || !ready) return;
+    // 정보 패널 높이가 잡힌 뒤에 맞춘다
+    const t = window.setTimeout(() => sceneRef.current?.fitPois(), 350);
+    return () => window.clearTimeout(t);
+  }, [mode, ready]);
+
   // 조망 계산 — 고른 동과 층이 바뀔 때
   useEffect(() => {
     if (mode !== "view" || !selected || !ready) return;
@@ -284,27 +329,43 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     return () => mq.removeEventListener("change", sync);
   }, []);
 
-  // 시트를 접었을 때 한 줄 요약
-  const summary =
-    mode === "base"
-      ? picked
-        ? `${picked.label} · 동 ${picked.dongs.size}개 · ${picked.households.toLocaleString("ko-KR")}세대`
-        : `동 ${dongs.length}개 · 타입이나 동을 골라 보세요`
-      : mode === "floors"
-        ? `층 구간별 3.3㎡당 가격 · ${d?.floorBandsBasis ?? ""}`
-        : mode === "types"
-          ? `평형 ${typeLegend.length}개 · 동별 주력 평형 색`
-          : mode === "sun"
-            ? `${SEASONS.find((x) => x.id === season)!.label} ${String(hour).padStart(2, "0")}:00 · ${
-                sunInfo && sunInfo.altitude > 0
-                  ? `해 ${Math.round((sunInfo.altitude * 180) / Math.PI)}° ${dirOf((sunInfo.azimuth * 180) / Math.PI)}쪽`
-                  : "해 진 뒤"
-              }`
-            : mode === "view"
-              ? sel
-                ? `${sel.dong ?? "이 동"} ${floorNow}층 · 트인 방향 ${view ? Math.round(view.openShare * 100) : "—"}%`
-                : "조망을 볼 동을 눌러 주세요"
-              : `학교·역 ${d?.pois.length ?? 0}곳`;
+  // 시트 요약 — 시트는 타입·동 고르기 전용
+  const summary = picked
+    ? `${picked.label} · 동 ${picked.dongs.size}개 · ${picked.households.toLocaleString("ko-KR")}세대`
+    : sel
+      ? `${sel.dong ?? "동"} 선택됨 · 동 ${dongs.length}개`
+      : `동 ${dongs.length}개 · 타입이나 동을 골라 보세요`;
+
+  const closeDong = () => {
+    sceneRef.current?.select(null);
+    setSelected(null);
+    setNearest(null);
+  };
+
+  // 정보 패널 — 모드마다 보여줄 내용 (없으면 패널을 숨긴다)
+  const showPanel = !!d && hasShape && (mode !== "base" || !!sel);
+  const modeTitle = MODES.find((m) => m.id === mode)!.label;
+
+  const floorSlider = sel ? (
+    <label className="flex flex-col gap-1">
+      <span className="flex items-baseline justify-between text-[12px] text-[color:var(--lab-muted)]">
+        <span>
+          몇 층에서 볼까요? <b className="text-[14px] tabular-nums text-[color:var(--lab-navy-950)]">{floorNow}층</b>
+        </span>
+        <span className="tabular-nums">1층 ~ {maxFloors}층</span>
+      </span>
+      <input
+        type="range"
+        min={1}
+        max={Math.max(1, maxFloors)}
+        step={1}
+        value={floorNow}
+        onChange={(e) => setViewFloor(Number(e.target.value))}
+        className="w-full accent-[color:var(--lab-brand-primary)]"
+        aria-label="층"
+      />
+    </label>
+  ) : null;
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-[#f4f7f9]" style={{ touchAction: "none", overscrollBehavior: "none" }}>
@@ -377,8 +438,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           </button>
           <button
             type="button"
-            onClick={() => sceneRef.current?.resetView()}
-            aria-label="단지 전체 보기"
+            onClick={() => (mode === "around" ? sceneRef.current?.fitPois() : sceneRef.current?.resetView())}
+            aria-label="전체 보기"
             className={`flex h-10 w-10 items-center justify-center rounded-full ${FLOAT} active:scale-95`}
           >
             <Maximize2 className="h-[18px] w-[18px] text-[color:var(--lab-navy-950)]" aria-hidden />
@@ -391,30 +452,147 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           >
             <SquareDashed className="h-[18px] w-[18px] text-[color:var(--lab-navy-950)]" aria-hidden />
           </button>
-
         </div>
       ) : null}
 
-      {/* 고른 동 정보 — 시트와 따로, 시트 바로 위에 떠 있다 */}
-      {sel && d && hasShape && mode !== "around" && mode !== "sun" ? (
+      {/* 정보 패널 — 모드별 정보를 한곳에. 시트(고르기) 바로 위에 떠 있다 */}
+      {showPanel && d ? (
         <div
+          ref={panelRef}
           className="absolute left-3 right-3 z-20 sm:right-auto sm:w-[400px]"
           style={{ bottom: sheetH + (wide ? 20 : 8), transition: dragDy == null ? "bottom 220ms ease" : "none" }}
         >
-          <DongCard
-            sel={sel}
-            nearest={nearest}
-            lines={selLines}
-            onClose={() => {
-              sceneRef.current?.select(null);
-              setSelected(null);
-              setNearest(null);
-            }}
-          />
+          <div
+            className={`overflow-y-auto rounded-2xl border border-[color:var(--lab-brand-border)] bg-white px-3.5 py-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.14)]`}
+            style={{ maxHeight: mode === "around" ? "24dvh" : "38dvh", touchAction: "pan-y", overscrollBehavior: "contain" }}
+          >
+            {/* 고른 동 (모든 모드 공통 머리) */}
+            {sel ? (
+              <DongHeader sel={sel} nearest={nearest} onClose={closeDong} />
+            ) : (
+              <p className="text-[13px] font-bold text-[color:var(--lab-navy-950)]">{modeTitle}</p>
+            )}
+
+            {mode === "base" && sel ? <DongLines lines={selLines} fallback={sel.units} /> : null}
+
+            {mode === "floors" ? (
+              <div className="mt-2 flex flex-col gap-1.5">
+                <div className="grid grid-cols-3 gap-1.5">
+                  {d.floorBands.map((b) => (
+                    <div key={b.label} className="rounded-lg border border-[color:var(--lab-border)] px-2 py-1.5">
+                      <p className="text-[11px] text-[color:var(--lab-muted)] tabular-nums">
+                        {b.label} {b.fromFloor}~{b.toFloor}층
+                      </p>
+                      <p className="text-[14px] font-bold tabular-nums text-[color:var(--lab-navy-950)]">{b.perPyeong != null ? man(b.perPyeong) : "—"}</p>
+                      <p className="text-[11px] tabular-nums text-[color:var(--lab-muted)]">{b.count}건</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[11px] text-[color:var(--lab-muted)]">전용 3.3㎡당 · {d.floorBandsBasis} · 색이 진할수록 비싼 층</p>
+              </div>
+            ) : null}
+
+            {mode === "types" ? (
+              typeLegend.length ? (
+                <ul className="mt-1.5 flex flex-col gap-1">
+                  {typeLegend.map((t) => (
+                    <li key={t.label} className="flex items-center gap-2 text-[12px] leading-[18px] tabular-nums">
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: t.color }} aria-hidden />
+                      <span className="font-semibold text-[color:var(--lab-navy-950)]">{t.label}</span>
+                      <span className="text-[color:var(--lab-muted)]">{t.households.toLocaleString("ko-KR")}세대 · 주력 동 {t.mainDongs.length}개</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-1 text-[12px] text-[color:var(--lab-muted)]">이 단지는 동별 평형 정보가 아직 없어요.</p>
+              )
+            ) : null}
+
+            {mode === "sun" ? (
+              <div className="mt-2 flex flex-col gap-2.5">
+                <LabTabs
+                  variant="compact"
+                  ariaLabel="계절"
+                  items={SEASONS.map((s) => ({ id: s.id, label: s.label }))}
+                  value={season}
+                  onChange={setSeason}
+                />
+                <label className="flex flex-col gap-1">
+                  <span className="flex items-baseline justify-between text-[12px] text-[color:var(--lab-muted)]">
+                    <span>
+                      그림자 시각 <b className="text-[14px] tabular-nums text-[color:var(--lab-navy-950)]">{String(hour).padStart(2, "0")}:00</b>
+                    </span>
+                    <span className="tabular-nums">
+                      {sunInfo && sunInfo.altitude > 0
+                        ? `해 높이 ${Math.round((sunInfo.altitude * 180) / Math.PI)}° · ${dirOf((sunInfo.azimuth * 180) / Math.PI)}쪽`
+                        : "해 진 뒤"}
+                    </span>
+                  </span>
+                  <input
+                    type="range"
+                    min={6}
+                    max={19}
+                    step={1}
+                    value={hour}
+                    onChange={(e) => setHour(Number(e.target.value))}
+                    className="w-full accent-[color:var(--lab-brand-primary)]"
+                    aria-label="시각"
+                  />
+                </label>
+                {sel ? (
+                  <>
+                    {floorSlider}
+                    {sunStats ? <SunStatsView stats={sunStats} season={season} /> : null}
+                  </>
+                ) : (
+                  <p className="text-[12px] text-[color:var(--lab-muted)]">동을 누르면 그 동·층의 하루 일조 시간을 계산해요.</p>
+                )}
+              </div>
+            ) : null}
+
+            {mode === "view" ? (
+              sel ? (
+                <div className="mt-2 flex flex-col gap-2">
+                  {floorSlider}
+                  {view ? (
+                    <>
+                      <p className="text-[13px] tabular-nums text-[color:var(--lab-navy-950)]">
+                        {floorNow}층 눈높이에서 200m 안에 막힘없는 방향 <b className="text-[15px]">{Math.round(view.openShare * 100)}%</b>
+                      </p>
+                      <OpenDirections view={view} />
+                      <p className="text-[11px] text-[color:var(--lab-muted)]">청록 200m 이상 트임 · 주황 80~200m · 빨강 80m 안 가림</p>
+                    </>
+                  ) : null}
+                </div>
+              ) : (
+                <p className="mt-1 text-[12px] text-[color:var(--lab-muted)]">조망을 볼 동을 모형이나 아래 목록에서 골라 주세요.</p>
+              )
+            ) : null}
+
+            {mode === "around" ? (
+              d.pois.length ? (
+                <ul className="mt-1 divide-y divide-[color:var(--lab-border)]">
+                  {d.pois.map((p) => (
+                    <li key={`${p.kind}-${p.name}`} className="flex items-center justify-between gap-3 py-1.5 text-[12px]">
+                      <span className="min-w-0 truncate">
+                        <span className="font-semibold text-[color:var(--lab-navy-950)]">{p.name}</span>
+                        <span className="ml-1.5 text-[color:var(--lab-muted)]">{p.kind === "school" ? schoolLevel(p.sub) : p.sub}</span>
+                      </span>
+                      <span className="shrink-0 tabular-nums text-[color:var(--lab-muted)]">
+                        {p.distanceM.toLocaleString("ko-KR")}m · 약 {Math.max(1, Math.round(p.distanceM / 67))}분
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-1 text-[12px] text-[color:var(--lab-muted)]">주변 학교·역 정보가 없어요.</p>
+              )
+            ) : null}
+          </div>
         </div>
       ) : null}
 
-      {/* 아래: 접히는 시트 — 접으면 한 줄 요약, 펼치면 모드별 내용 */}
+      {/* 아래: 시트 — 타입·동 고르기 */}
       {d && hasShape ? (
         <div ref={sheetRef} className="absolute inset-x-0 bottom-0 z-10 sm:bottom-3 sm:left-3 sm:right-auto sm:w-[400px]">
           <div className="rounded-t-2xl bg-white shadow-[0_-4px_20px_rgba(15,23,42,0.12)] sm:rounded-2xl">
@@ -442,8 +620,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
               </span>
             </button>
 
-            {/* 조작은 접어도 보인다 — 타입 고르기, 일조 시각, 조망 층 */}
-            {mode === "base" && typeOptions.length ? (
+            {/* 타입 고르기 — 늘 보인다 */}
+            {typeOptions.length ? (
               <div
                 className="flex gap-1.5 overflow-x-auto px-4 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 style={{ touchAction: "pan-x" }}
@@ -469,43 +647,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                 })}
               </div>
             ) : null}
-            {mode === "sun" ? (
-              <div className="flex flex-col gap-2 px-4 pb-3">
-                <LabTabs
-                  variant="compact"
-                  ariaLabel="계절"
-                  items={SEASONS.map((s) => ({ id: s.id, label: s.label }))}
-                  value={season}
-                  onChange={setSeason}
-                />
-                <input
-                  type="range"
-                  min={6}
-                  max={19}
-                  step={1}
-                  value={hour}
-                  onChange={(e) => setHour(Number(e.target.value))}
-                  className="w-full accent-[color:var(--lab-brand-primary)]"
-                  aria-label="시각"
-                />
-              </div>
-            ) : null}
-            {mode === "view" && sel ? (
-              <div className="px-4 pb-3">
-                <input
-                  type="range"
-                  min={1}
-                  max={Math.max(1, maxFloors)}
-                  step={1}
-                  value={floorNow}
-                  onChange={(e) => setViewFloor(Number(e.target.value))}
-                  className="w-full accent-[color:var(--lab-brand-primary)]"
-                  aria-label="층"
-                />
-              </div>
-            ) : null}
 
-            {/* 펼친 내용 — 드래그하는 동안 손가락을 따라 높이가 바뀌고, 놓으면 열림·닫힘으로 붙는다 */}
+            {/* 동 고르기 — 끌어 올리면 보인다 */}
             <div
               aria-hidden={!sheetOpen && dragDy == null}
               style={{
@@ -516,113 +659,24 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                 overscrollBehavior: "contain",
               }}
             >
-              <div className="px-4 pb-3 pt-1">
-                {mode === "base" ? (
-                  <div className="flex flex-col gap-3">
-                    <div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {dongs.map((b) => (
-                          <button
-                            key={b.id}
-                            type="button"
-                            onClick={() => pickDong(b.id)}
-                            className={`rounded-full border px-2.5 py-1 text-[12px] font-semibold tabular-nums transition active:scale-95 ${
-                              b.id === selected
-                                ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
-                                : picked && b.dong && !picked.dongs.has(b.dong)
-                                  ? "border-[color:var(--lab-border)] text-slate-300"
-                                  : "border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
-                            }`}
-                            style={picked && b.dong && picked.dongs.has(b.dong) && b.id !== selected ? { borderColor: picked.color } : undefined}
-                          >
-                            {b.dong}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-
-                {mode === "floors" ? (
-                  <div className="flex flex-col gap-2">
-                    <div className="grid grid-cols-3 gap-2">
-                      {d.floorBands.map((b) => (
-                        <div key={b.label} className="rounded-lg border border-[color:var(--lab-border)] px-2.5 py-2">
-                          <p className="detail-label">
-                            {b.label} {b.fromFloor}~{b.toFloor}층
-                          </p>
-                          <p className="detail-data-value-emphasis tabular-nums">{b.perPyeong != null ? man(b.perPyeong) : "—"}</p>
-                          <p className="detail-meta tabular-nums">{b.count}건</p>
-                        </div>
-                      ))}
-                    </div>
-                    <p className="detail-meta">색이 진할수록 비싼 층 구간이에요.</p>
-                  </div>
-                ) : null}
-
-                {mode === "types" ? (
-                  typeLegend.length ? (
-                    <div className="flex flex-col gap-2">
-                      <ul className="flex flex-col gap-1.5">
-                        {typeLegend.map((t) => (
-                          <li key={t.label} className="flex items-start gap-2">
-                            <span className="mt-1 h-3 w-3 shrink-0 rounded-sm" style={{ background: t.color }} aria-hidden />
-                            <span className="min-w-0 flex-1">
-                              <span className="detail-data-value tabular-nums">{t.label}</span>
-                              <span className="detail-meta ml-1.5 tabular-nums">{t.households.toLocaleString("ko-KR")}세대</span>
-                              {t.mainDongs.length ? <span className="detail-meta block">주력 동 {t.mainDongs.join(", ")}</span> : null}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                      </div>
-                  ) : (
-                    <p className="detail-body">이 단지는 동별 평형 정보가 아직 없어요.</p>
-                  )
-                ) : null}
-
-                {mode === "sun" ? (
-                  <p className="detail-meta">
-                    계절과 시각을 바꾸면 그 시각의 그림자가 보여요. 주변 건물 모양이 없는 곳은 그림자가 빠질 수 있어요.
-                  </p>
-                ) : null}
-
-                {mode === "view" ? (
-                  sel && view ? (
-                    <div className="flex flex-col gap-2">
-                      <p className="detail-body tabular-nums">
-                        {sel.dong ?? "이 동"} {floorNow}층 눈높이에서 200m 안에 가리는 건물이 없는 방향이{" "}
-                        <b>{Math.round(view.openShare * 100)}%</b>예요.
-                      </p>
-                      <OpenDirections view={view} />
-                      <p className="detail-meta">
-                        청록 = 200m 이상 트임 · 주황 = 80~200m · 빨강 = 80m 안 가림. 주변 건물 모양이 없는 곳은 트인 것으로 보일 수 있어요.
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="detail-body">모형에서 동을 누르면 층별 조망을 계산해요.</p>
-                  )
-                ) : null}
-
-                {mode === "around" ? (
-                  d.pois.length ? (
-                    <ul className="divide-y divide-[color:var(--lab-border)]">
-                      {d.pois.map((p) => (
-                        <li key={`${p.kind}-${p.name}`} className="flex items-center justify-between gap-3 py-2">
-                          <span className="min-w-0">
-                            <span className="detail-data-value">{p.name}</span>
-                            <span className="detail-meta ml-1.5">{p.kind === "school" ? schoolLevel(p.sub) : p.sub}</span>
-                          </span>
-                          <span className="detail-meta shrink-0 tabular-nums">
-                            직선 {p.distanceM.toLocaleString("ko-KR")}m · 약 {Math.max(1, Math.round(p.distanceM / 67))}분
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="detail-body">주변 학교·역 정보가 없어요.</p>
-                  )
-                ) : null}
+              <div className="flex flex-wrap gap-1.5 px-4 pb-3 pt-1">
+                {dongs.map((b) => (
+                  <button
+                    key={b.id}
+                    type="button"
+                    onClick={() => pickDong(b.id)}
+                    className={`rounded-full border px-2.5 py-1 text-[12px] font-semibold tabular-nums transition active:scale-95 ${
+                      b.id === selected
+                        ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
+                        : picked && b.dong && !picked.dongs.has(b.dong)
+                          ? "border-[color:var(--lab-border)] text-slate-300"
+                          : "border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
+                    }`}
+                    style={picked && b.dong && picked.dongs.has(b.dong) && b.id !== selected ? { borderColor: picked.color } : undefined}
+                  >
+                    {b.dong}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -636,15 +690,13 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   );
 }
 
-function DongCard({
+function DongHeader({
   sel,
   nearest,
-  lines,
   onClose,
 }: {
   sel: Complex3d["buildings"][number];
   nearest: { dong: string | null; meters: number } | null;
-  lines: Array<{ id: string; label: string; color: string | null; lines: string[] }>;
   onClose: () => void;
 }) {
   const main = [
@@ -655,34 +707,82 @@ function DongCard({
     .filter(Boolean)
     .join(" · ");
   return (
-    <div className="rounded-2xl border border-[color:var(--lab-brand-border)] bg-white px-3.5 py-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.14)]">
-      <div className="flex items-center gap-2">
-        <span className="text-[15px] font-bold text-[color:var(--lab-teal-700)]">{sel.dong ?? sel.name ?? "동"}</span>
-        <span className="min-w-0 flex-1 truncate text-[13px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">{main}</span>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="닫기"
-          className="-mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-slate-400 active:scale-95"
-        >
-          <X className="h-4 w-4" aria-hidden />
-        </button>
+    <div className="flex items-center gap-2">
+      <span className="text-[15px] font-bold text-[color:var(--lab-teal-700)]">{sel.dong ?? sel.name ?? "동"}</span>
+      <span className="min-w-0 flex-1 truncate text-[13px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">{main}</span>
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="동 선택 해제"
+        className="-mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-slate-400 active:scale-95"
+      >
+        <X className="h-4 w-4" aria-hidden />
+      </button>
+    </div>
+  );
+}
+
+function DongLines({
+  lines,
+  fallback,
+}: {
+  lines: Array<{ id: string; label: string; color: string | null; lines: string[] }>;
+  fallback: Array<{ label: string; households: number }>;
+}) {
+  if (lines.length) {
+    return (
+      <ul className="mt-1 flex flex-col gap-0.5">
+        {lines.map((g) => (
+          <li key={g.id} className="flex items-center gap-1.5 text-[12px] leading-[18px] tabular-nums text-[color:var(--lab-navy-950)]">
+            <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: g.color ?? "#cbd5e1" }} aria-hidden />
+            <span className="font-semibold">{g.label}</span>
+            <span className="text-[color:var(--lab-muted)]">{g.lines.join("·")}호 라인</span>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+  if (!fallback.length) return null;
+  return (
+    <p className="mt-1 text-[12px] leading-[18px] tabular-nums text-[color:var(--lab-muted)]">
+      {fallback.map((u) => `${u.label} ${u.households}세대`).join(" · ")}
+    </p>
+  );
+}
+
+const hm = (min: number) => (min >= 60 ? `${Math.floor(min / 60)}시간${min % 60 ? ` ${min % 60}분` : ""}` : `${min}분`);
+
+/** 하루 일조 — 큰 숫자 두 개 + 7~18시 막대 */
+function SunStatsView({ stats, season }: { stats: SunHours; season: Season }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="grid grid-cols-2 gap-1.5">
+        <div className="rounded-lg bg-[color:var(--lab-brand-subtle)] px-2.5 py-1.5">
+          <p className="text-[11px] text-[color:var(--lab-teal-700)]">하루 해 드는 시간</p>
+          <p className="text-[16px] font-bold tabular-nums text-[color:var(--lab-navy-950)]">{hm(stats.totalMin)}</p>
+        </div>
+        <div className="rounded-lg bg-[color:var(--lab-brand-subtle)] px-2.5 py-1.5">
+          <p className="text-[11px] text-[color:var(--lab-teal-700)]">9~15시 연속 최대</p>
+          <p className="text-[16px] font-bold tabular-nums text-[color:var(--lab-navy-950)]">{hm(stats.best9to15Min)}</p>
+        </div>
       </div>
-      {lines.length ? (
-        <ul className="mt-1 flex flex-col gap-0.5">
-          {lines.map((g) => (
-            <li key={g.id} className="flex items-center gap-1.5 text-[12px] leading-[18px] tabular-nums text-[color:var(--lab-navy-950)]">
-              <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: g.color ?? "#cbd5e1" }} aria-hidden />
-              <span className="font-semibold">{g.label}</span>
-              <span className="text-[color:var(--lab-muted)]">{g.lines.join("·")}호 라인</span>
-            </li>
+      <div>
+        <div className="flex h-3 overflow-hidden rounded-full bg-slate-100" aria-label="시간대별 해 드는 때">
+          {stats.slots.map((x, i) => (
+            <span key={i} className="h-full flex-1" style={{ background: x ? "#f59e0b" : x === false ? "#e2e8f0" : "#f1f5f9" }} />
           ))}
-        </ul>
-      ) : sel.units.length ? (
-        <p className="mt-1 text-[12px] leading-[18px] tabular-nums text-[color:var(--lab-muted)]">
-          {sel.units.map((u) => `${u.label} ${u.households}세대`).join(" · ")}
-        </p>
-      ) : null}
+        </div>
+        <div className="mt-0.5 flex justify-between text-[10px] tabular-nums text-[color:var(--lab-muted)]">
+          <span>7시</span>
+          <span>9</span>
+          <span>12</span>
+          <span>15</span>
+          <span>18시</span>
+        </div>
+      </div>
+      <p className="text-[11px] leading-4 text-[color:var(--lab-muted)]">
+        남쪽 벽 가운데 창 기준 추정{season === "winter" ? " · 동지 9~15시 연속 2시간 이상이면 일조 기준 충족" : ""}
+      </p>
     </div>
   );
 }
