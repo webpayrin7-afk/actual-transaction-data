@@ -44,7 +44,9 @@ export function RegionBudgetFinderSection({
   });
   if (query.isError) return null;
   const data = query.data?.status === "ok" ? query.data : null;
-  const bands = data?.bands ?? [];
+  // 평형대 보드가 아직 없는 지역(현재 서울 외)은 '예산 이하 단지 없음'이 아니라 준비 중으로 안내한다.
+  const notReady = data?.ready === false;
+  const bands = notReady ? [] : (data?.bands ?? []);
   const current = bands.find((b) => b.key === band) ?? bands[0] ?? null;
   const budgetLabel = BUDGETS.find((b) => b.id === budget)?.label ?? "";
   const listKey = `${budget}|${current?.key ?? ""}`;
@@ -68,7 +70,12 @@ export function RegionBudgetFinderSection({
           </p>
         }
       />
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      {notReady ? (
+        <p className="detail-body">
+          {regionName} 평형대별 예산 찾기는 준비 중입니다. 서울 지역부터 먼저 제공하고 있어요.
+        </p>
+      ) : null}
+      <div className={`${notReady ? "hidden" : "flex"} flex-wrap items-center justify-between gap-2`}>
         <p className="detail-label">매매 예산</p>
         <LabTabs
           variant="compact"
@@ -95,7 +102,9 @@ export function RegionBudgetFinderSection({
           ))}
         </div>
       ) : current ? (
-        current.items.length === 0 ? (
+        current.published === false ? (
+          <p className="detail-body">{current.label} 예산 찾기는 준비 중입니다.</p>
+        ) : current.items.length === 0 ? (
           <p className="detail-body">
             {budgetLabel} 이하로 거래된 {current.label} 단지가 없습니다.
           </p>

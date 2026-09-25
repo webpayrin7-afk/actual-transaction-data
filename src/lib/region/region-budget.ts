@@ -27,9 +27,12 @@ export type RegionBudgetResult = {
   lawdCd: string;
   budget: number;
   transactionAsOf: string | null;
+  /** 평형대 보드가 하나라도 발행됐는지. false면 '예산 이하 단지 없음'이 아니라 아직 준비 전이다(현재 서울 외 지역). */
+  ready: boolean;
   bands: Array<{
     key: RankingAreaBandV3;
     label: string;
+    published: boolean;
     matched: number;
     total: number;
     items: RegionBudgetItem[];
@@ -49,6 +52,7 @@ export async function readRegionBudget(
     lawdCd,
     budget,
     transactionAsOf: boards.find((b) => b.transactionAsOf)?.transactionAsOf ?? null,
+    ready: boards.some((b) => b.published),
     bands: BUDGET_BANDS.map((band, index) => {
       const rows = boards[index]?.rows ?? [];
       const matched = rows.filter(
@@ -57,6 +61,7 @@ export async function readRegionBudget(
       return {
         key: band.key,
         label: band.label,
+        published: boards[index]?.published ?? false,
         matched: matched.length,
         total: rows.length,
         items: matched.slice(0, ITEMS_PER_BAND).map((row) => ({
