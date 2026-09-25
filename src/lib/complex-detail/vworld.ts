@@ -53,6 +53,7 @@ async function searchVworld(
   coords: LatLng,
   key: string,
   signal?: AbortSignal,
+  onFailure?: () => void,
 ): Promise<VworldItem[]> {
   const url = new URL("https://api.vworld.kr/req/search");
   url.searchParams.set("service", "search");
@@ -78,15 +79,25 @@ async function searchVworld(
       signal: ctrl.signal,
       // cache via route Cache-Control when needed
     });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      onFailure?.();
+      return [];
+    }
     const json = (await res.json()) as {
       response?: {
         result?: { items?: VworldItem[] };
         status?: string;
       };
     };
+    // NOT_FOUND는 정상 '없음', ERROR는 실패
+    if (json.response?.status === "ERROR") {
+      onFailure?.();
+      return [];
+    }
     return json.response?.result?.items ?? [];
   } catch {
+    // 4.5초 시간 초과 포함
+    onFailure?.();
     return [];
   } finally {
     clearTimeout(timer);
@@ -101,6 +112,8 @@ async function searchVworld(
 export async function fetchNearbySurroundings(params: {
   coords: LatLng;
   signal?: AbortSignal;
+  /** 검색어 하나라도 실패(오류·시간 초과)하면 호출 — 결과가 일부만 찼다는 뜻 */
+  onFailure?: (query: string) => void;
 }): Promise<SurroundingPlace[]> {
   const key = vworldApiKey();
   if (!key) return [];
@@ -112,6 +125,7 @@ export async function fetchNearbySurroundings(params: {
         params.coords,
         key,
         params.signal,
+        () => params.onFailure?.(q.query),
       );
       const found: SurroundingPlace[] = [];
       for (const item of items) {

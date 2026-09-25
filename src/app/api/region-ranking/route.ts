@@ -11,6 +11,9 @@ import { DECADE_KEYS_V3 } from "@/lib/region-ranking/ranking-v3";
 
 export const dynamic = "force-dynamic";
 
+// 공개 순위(일 1회 갱신)라 CDN에 1시간 캐시. 쿼리스트링이 캐시 키. 오류(500)는 캐시 안 함.
+const CACHE_OK = { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" };
+
 const LEGACY = new Set(["ALL", "59", "84", "114"]);
 const OBJECTIVE = new Set(["TRADE_VOLUME", "PRICE_PER_SQM"]);
 
@@ -71,7 +74,7 @@ export async function GET(request: NextRequest) {
       period: null,
       regionTotal: null,
       rows: [],
-    });
+    }, { headers: CACHE_OK });
   }
   const db = getDb();
   if (!db) {
@@ -96,7 +99,7 @@ export async function GET(request: NextRequest) {
         period: null,
         regionTotal: null,
         rows: [],
-      });
+      }, { headers: CACHE_OK });
     }
     const smallCohort =
       regionCode.length === 10 &&
@@ -159,7 +162,7 @@ export async function GET(request: NextRequest) {
           percentiles: row.percentiles ?? null,
         };
       }),
-    });
+    }, { headers: CACHE_OK });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "지역 순위를 불러오지 못했습니다." }, { status: 500 });

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@libsql/client";
+import { getDb } from "@/lib/db/client";
+import { normalizeAptName } from "@/lib/db/repository";
 import { isValidLatLng } from "@/lib/complex-detail/geo";
 import { fetchNearbySurroundings } from "@/lib/complex-detail/vworld";
 import { vworldReadiness } from "@/lib/complex-detail/source-status";
@@ -20,13 +21,16 @@ import { readNearbyBusStops } from "@/lib/transit/bus-stops";
 export const dynamic = "force-dynamic";
 export const maxDuration = 25;
 
-function dbUrl(): string | null {
-  return process.env.TURSO_DATABASE_URL?.trim() || null;
-}
+// 단지명+좌표로만 정해지는 공용 데이터(개인화 없음) → CDN 캐시. 쿼리스트링이 캐시 키라 단지끼리 섞이지 않는다.
+// 긴 캐시는 모든 원천(주소·역·정류장·노선·생활 POI)이 실제로 응답했을 때만.
+// 하나라도 실패·시간 초과(각 reader가 빈 목록으로 삼키는 경우 포함)면 60초만 — 빠진 채로 하루 넘게 굳지 않게.
+const CACHE_LONG = "public, s-maxage=86400, stale-while-revalidate=604800";
+const CACHE_SHORT = "public, s-maxage=60";
 
-function dbAuth(): string | undefined {
-  return process.env.TURSO_AUTH_TOKEN?.trim() || undefined;
-}
+type AddressRow = Record<string, unknown>;
+
+const ADDRESS_SQL = `SELECT road_address, jibun, sido, sigungu, legal_dong_name
+            FROM apt_complex_master`;
 
 function straightDistanceLabel(meters: number): string {
   if (!Number.isFinite(meters) || meters < 0) return "—";
@@ -35,63 +39,74 @@ function straightDistanceLabel(meters: number): string {
   return `직선거리 ${km < 10 ? km.toFixed(1) : Math.round(km)}km`;
 }
 
-async function resolveCanonicalAddress(aptName: string): Promise<{
+function addressFromRows(rows: AddressRow[]) {
+  for (const row of rows) {
+    const road = String(row.road_address ?? "").trim();
+    if (road) {
+      return {
+        available: true,
+        address: road,
+        addressType: "road" as const,
+        addressSource: "apt_complex_master.road_address",
+      };
+    }
+    const sido = String(row.sido ?? "").trim();
+    const sigungu = String(row.sigungu ?? "").trim();
+    const dong = String(row.legal_dong_name ?? "").trim();
+    const jibun = String(row.jibun ?? "").trim();
+    if (sido && sigungu && dong && jibun) {
+      return {
+        available: true,
+        address: `${sido} ${sigungu} ${dong} ${jibun}`,
+        addressType: "jibun_composed" as const,
+        addressSource: "apt_complex_master.sido+sigungu+legal_dong_name+jibun",
+      };
+    }
+  }
+  return null;
+}
+
+type CanonicalAddress = {
   available: boolean;
   address: string | null;
   addressType: "road" | "jibun_composed" | null;
   addressSource: string | null;
-}> {
-  const url = dbUrl();
-  if (!url || !aptName.trim()) {
-    return {
-      available: false,
-      address: null,
-      addressType: null,
-      addressSource: null,
-    };
-  }
-  try {
-    const client = createClient({ url, authToken: dbAuth() });
-    const rs = await client.execute({
-      sql: `SELECT road_address, jibun, sido, sigungu, legal_dong_name
-            FROM apt_complex_master
-            WHERE apt_name = ? OR apt_name_norm = ? OR apt_name LIKE ?
-            LIMIT 5`,
-      args: [aptName, aptName, `%${aptName}%`],
-    });
-    for (const row of rs.rows) {
-      const road = String(row.road_address ?? "").trim();
-      if (road) {
-        return {
-          available: true,
-          address: road,
-          addressType: "road",
-          addressSource: "apt_complex_master.road_address",
-        };
-      }
-      const sido = String(row.sido ?? "").trim();
-      const sigungu = String(row.sigungu ?? "").trim();
-      const dong = String(row.legal_dong_name ?? "").trim();
-      const jibun = String(row.jibun ?? "").trim();
-      if (sido && sigungu && dong && jibun) {
-        return {
-          available: true,
-          address: `${sido} ${sigungu} ${dong} ${jibun}`,
-          addressType: "jibun_composed",
-          addressSource:
-            "apt_complex_master.sido+sigungu+legal_dong_name+jibun",
-        };
-      }
-    }
-  } catch {
-    /* fail-closed */
-  }
-  return {
+};
+
+/** failed: DB 오류로 못 찾음(짧게 캐시). 응답 JSON에는 address만 나간다. */
+async function resolveCanonicalAddress(
+  aptName: string,
+): Promise<{ address: CanonicalAddress; failed: boolean }> {
+  const db = getDb();
+  const empty: CanonicalAddress = {
     available: false,
     address: null,
     addressType: null,
     addressSource: null,
   };
+  if (!db || !aptName.trim()) return { address: empty, failed: false };
+  try {
+    // apt_name_norm = normalizeAptName(apt_name) 이라 이름 일치는 idx_acm_name_norm 한 번으로 찾는다.
+    const exact = await db.execute({
+      sql: `${ADDRESS_SQL}
+            WHERE apt_name_norm = ?
+            LIMIT 5`,
+      args: [normalizeAptName(aptName)],
+    });
+    const hit = addressFromRows(exact.rows);
+    if (hit) return { address: hit, failed: false };
+    // 이름이 딱 맞는 단지가 없을 때만 예전 부분일치(LIKE, 풀스캔)로.
+    const rs = await db.execute({
+      sql: `${ADDRESS_SQL}
+            WHERE apt_name = ? OR apt_name_norm = ? OR apt_name LIKE ?
+            LIMIT 5`,
+      args: [aptName, aptName, `%${aptName}%`],
+    });
+    return { address: addressFromRows(rs.rows) ?? empty, failed: false };
+  } catch {
+    /* fail-closed */
+    return { address: empty, failed: true };
+  }
 }
 
 type PoiItem = {
@@ -129,23 +144,27 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "aptName required" }, { status: 400 });
   }
 
-  const address = await resolveCanonicalAddress(aptName);
+  const { address, failed: addressFailed } =
+    await resolveCanonicalAddress(aptName);
   const coords = isValidLatLng({ lat, lng }) ? { lat, lng } : null;
 
   if (!coords) {
-    return NextResponse.json({
-      address,
-      coords: null,
-      transport: { status: "NEED_COORDS", items: [] },
-      living: { status: "NEED_COORDS", items: [] },
-      commerce: {
-        status: "NOT_READY",
-        reason: "상권 상세 분석 준비 중",
-        summary: null,
-        items: [],
+    return NextResponse.json(
+      {
+        address,
+        coords: null,
+        transport: { status: "NEED_COORDS", items: [] },
+        living: { status: "NEED_COORDS", items: [] },
+        commerce: {
+          status: "NOT_READY",
+          reason: "상권 상세 분석 준비 중",
+          summary: null,
+          items: [],
+        },
+        school: { status: "NEED_COORDS", items: [], note: null },
       },
-      school: { status: "NEED_COORDS", items: [], note: null },
-    });
+      { headers: { "Cache-Control": CACHE_SHORT } },
+    );
   }
 
   let transportItems: PoiItem[] = [];
@@ -154,6 +173,11 @@ export async function GET(request: NextRequest) {
   let livingStatus: "READY" | "EMPTY" | "ERROR" = "EMPTY";
   let transportReason = "";
   let livingReason = "";
+  // 일부 원천 실패 기록(응답 JSON에는 안 나간다) — 하나라도 있으면 짧은 캐시.
+  const failedSources = new Set<string>();
+  const onFailure = (source: string) => {
+    failedSources.add(source);
+  };
   let transportMeta: {
     subwaySource: string;
     subwayFiles?: string[];
@@ -251,12 +275,16 @@ export async function GET(request: NextRequest) {
     };
   } else {
     // 그 밖 단지: 전국 도시철도 역(rail_stations) 800m 안 + 버스정류장(bus_stops) 500m 안 가까운 6곳.
-    const url = dbUrl();
-    const db = url ? createClient({ url, authToken: dbAuth() }) : null;
+    const db = getDb();
+    if (!db) failedSources.add("db");
     const [stations, stops] = db
       ? await Promise.all([
-          readNearbyRailStations(db, coords, { maxMeters: 800 }),
-          readNearbyBusStops(db, coords, { maxMeters: 500, limit: 6 }),
+          readNearbyRailStations(db, coords, { maxMeters: 800, onFailure }),
+          readNearbyBusStops(db, coords, {
+            maxMeters: 500,
+            limit: 6,
+            onFailure,
+          }),
         ])
       : [[], []];
     const busItems: PoiItem[] = stops.map((b) => ({
@@ -307,7 +335,10 @@ export async function GET(request: NextRequest) {
       livingStatus = "EMPTY";
       livingReason = "현재 확인 가능한 주변 생활 정보가 없습니다.";
     } else {
-      const places = await fetchNearbySurroundings({ coords });
+      const places = await fetchNearbySurroundings({
+        coords,
+        onFailure: (query) => onFailure(`vworld:${query}`),
+      });
       const toItem = (
         p: (typeof places)[number],
         subcategory: string,
@@ -351,6 +382,7 @@ export async function GET(request: NextRequest) {
   } catch {
     livingStatus = "EMPTY";
     livingReason = "현재 확인 가능한 주변 생활 정보가 없습니다.";
+    failedSources.add("living");
   }
 
   // School tab uses lazy /api/complex-nearby-schools (NEIS + client NAVER Geocode).
@@ -369,32 +401,38 @@ export async function GET(request: NextRequest) {
   const schoolNote: string | null =
     "학교 탭 진입 시 NEIS 인근 학교를 불러옵니다.";
 
-  return NextResponse.json({
-    address,
-    coords,
-    coordClassification: "NAVER_GEOCODE",
-    coordAccuracy: "ADDRESS_POINT",
-    transport: {
-      status: transportStatus,
-      reason: transportReason,
-      items: transportItems,
-      meta: transportMeta,
+  if (addressFailed) failedSources.add("address");
+  const cacheControl = failedSources.size > 0 ? CACHE_SHORT : CACHE_LONG;
+
+  return NextResponse.json(
+    {
+      address,
+      coords,
+      coordClassification: "NAVER_GEOCODE",
+      coordAccuracy: "ADDRESS_POINT",
+      transport: {
+        status: transportStatus,
+        reason: transportReason,
+        items: transportItems,
+        meta: transportMeta,
+      },
+      living: {
+        status: livingStatus,
+        reason: livingReason,
+        items: livingItems,
+      },
+      commerce: {
+        status: "NOT_READY",
+        reason: "상권 상세 분석 준비 중",
+        summary: null,
+        items: [],
+      },
+      school: {
+        status: schoolStatus,
+        note: schoolNote,
+        items: schoolItems,
+      },
     },
-    living: {
-      status: livingStatus,
-      reason: livingReason,
-      items: livingItems,
-    },
-    commerce: {
-      status: "NOT_READY",
-      reason: "상권 상세 분석 준비 중",
-      summary: null,
-      items: [],
-    },
-    school: {
-      status: schoolStatus,
-      note: schoolNote,
-      items: schoolItems,
-    },
-  });
+    { headers: { "Cache-Control": cacheControl } },
+  );
 }
