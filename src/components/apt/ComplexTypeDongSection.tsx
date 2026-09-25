@@ -26,6 +26,36 @@ const PICK = {
 
 const DONG_PREVIEW = 12;
 
+/**
+ * 전용면적이 같고 공급면적 차이가 1㎡ 미만인 타입은 한 타입으로 본다 (측정 차이 — 네이버 부동산도 한 줄로 합친다).
+ * 공급면적은 세대가 가장 많은 값, 세대수·동별 세대는 더한다. 타입 글자가 서로 다르면 합치지 않는다.
+ */
+function mergeNearSupply(types: UnitTypeInfo[]): UnitTypeInfo[] {
+  const out: UnitTypeInfo[] = [];
+  for (const t of [...types].sort((a, b) => (b.households ?? 0) - (a.households ?? 0))) {
+    const host = out.find(
+      (o) =>
+        Math.abs(o.exclusiveSqm - t.exclusiveSqm) < 0.005 &&
+        o.supplySqm != null &&
+        t.supplySqm != null &&
+        Math.abs(o.supplySqm - t.supplySqm) < 1 &&
+        (o.typeName ?? "") === (t.typeName ?? ""),
+    );
+    if (!host) {
+      out.push({ ...t, dongs: [...t.dongs] });
+      continue;
+    }
+    host.households = (host.households ?? 0) + (t.households ?? 0);
+    for (const d of t.dongs) {
+      const hit = host.dongs.find((x) => x.dong === d.dong);
+      if (hit) hit.households += d.households;
+      else host.dongs.push({ ...d });
+    }
+    host.dongs.sort((a, b) => a.dong.localeCompare(b.dong, "ko", { numeric: true }));
+  }
+  return out.sort((a, b) => a.exclusiveSqm - b.exclusiveSqm || (a.supplySqm ?? 0) - (b.supplySqm ?? 0));
+}
+
 const sameSqm = (a: number, b: number) => Math.abs(a - b) < 0.005;
 
 /**
@@ -104,7 +134,7 @@ export function ComplexTypeDongSection({
     queryFn: () => fetchTypes(complexId),
     staleTime: 60 * 60 * 1000,
   });
-  const all = useMemo(() => query.data?.types ?? [], [query.data]);
+  const all = useMemo(() => mergeNearSupply(query.data?.types ?? []), [query.data]);
   const labels = useMemo(() => supplyLabels(all), [all]);
 
   const inArea = useMemo(() => {
