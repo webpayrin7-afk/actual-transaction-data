@@ -1,7 +1,7 @@
 /**
  * 단지 타입·동 — 평형 안의 공급·전용면적 조합(타입)과 그 타입이 있는 동(건축물대장 전유부 기준 세대수).
  * 원천: apt_canonical_unit_types · unit_type_building_links · complex_buildings. 읽기 전용, 값은 원천 그대로.
- * 타입 이름(A/B 등)은 원천에 없어서 만들지 않는다 — 면적으로 부른다.
+ * 타입 글자(A/B 등)는 분양 공고(청약홈)에서 확인된 것만 type_name에 있다 — 없으면 면적으로 부른다.
  */
 import type { Client } from "@libsql/client";
 
@@ -12,6 +12,8 @@ export type UnitTypeInfo = {
   exclusiveSqm: number;
   supplySqm: number | null;
   pyeongLabel: string | null;
+  /** 분양 공고의 타입 글자 ("A", "A/C") — 모르면 null */
+  typeName: string | null;
   households: number | null;
   dongs: UnitTypeDong[];
 };
@@ -25,7 +27,7 @@ function dongOrder(a: string, b: string): number {
 export async function readUnitTypesWithDongs(db: Client, complexId: string): Promise<UnitTypeInfo[]> {
   const [types, links] = await Promise.all([
     db.execute({
-      sql: `SELECT unit_type_id, exclusive_area, supply_area, display_pyeong_label, household_count
+      sql: `SELECT unit_type_id, exclusive_area, supply_area, display_pyeong_label, type_name, household_count
             FROM apt_canonical_unit_types WHERE complex_id = ? ORDER BY exclusive_area, supply_area`,
       args: [complexId],
     }),
@@ -54,6 +56,7 @@ export async function readUnitTypesWithDongs(db: Client, complexId: string): Pro
       exclusiveSqm: Number(r.exclusive_area),
       supplySqm: num(r.supply_area),
       pyeongLabel: r.display_pyeong_label == null ? null : String(r.display_pyeong_label),
+      typeName: r.type_name == null || String(r.type_name).trim() === "" ? null : String(r.type_name).trim(),
       households: num(r.household_count),
       dongs: (byType.get(id) ?? []).sort((a, b) => dongOrder(a.dong, b.dong)),
     };

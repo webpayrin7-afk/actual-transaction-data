@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Crown } from "lucide-react";
 import { LabSection } from "@/components/ui/LabSection";
 import { LabMoreButton } from "@/components/ui/LabMoreButton";
+import { ComplexTypeDongMap } from "@/components/apt/ComplexTypeDongMap";
 import { pickLatestDeal } from "@/lib/deals/latest";
 import { formatDealDate, formatEok } from "@/lib/utils/format";
 import type { UnitTypeInfo } from "@/lib/apt/unit-types-dongs";
@@ -27,17 +28,26 @@ const DONG_PREVIEW = 12;
 
 const sameSqm = (a: number, b: number) => Math.abs(a - b) < 0.005;
 
-/** 공급면적 표기 — 소수점 아래는 버린다(흔히 부르는 "109타입"과 같게). 같은 정수로 겹치면 소수 첫째 자리까지 */
+/**
+ * 타입 이름 (호갱노노 방식)
+ *  - 분양 공고 타입 글자가 있으면 공급면적 정수 + 글자: "109A" (여러 글자면 첫 글자만: "114A/C" → "114A")
+ *  - 글자가 없으면 "111타입" — 같은 정수 공급면적이 둘이면 소수 첫째 자리까지 ("109.3타입")
+ *  - 공급면적을 모르면 "전용 84㎡"
+ */
 function supplyLabels(types: UnitTypeInfo[]): Map<string, string> {
   const out = new Map<string, string>();
   for (const t of types) {
     if (t.supplySqm == null) {
-      out.set(t.id, `전용 ${t.exclusiveSqm}㎡`);
+      out.set(t.id, `전용 ${Math.floor(t.exclusiveSqm)}㎡`);
       continue;
     }
     const whole = Math.floor(t.supplySqm);
+    if (t.typeName) {
+      out.set(t.id, `${whole}${t.typeName}`);
+      continue;
+    }
     const clash = types.some((o) => o.id !== t.id && o.supplySqm != null && Math.floor(o.supplySqm) === whole);
-    out.set(t.id, `${clash ? t.supplySqm.toFixed(1) : whole}㎡`);
+    out.set(t.id, `${clash ? t.supplySqm.toFixed(1) : whole}타입`);
   }
   return out;
 }
@@ -177,6 +187,16 @@ export function ComplexTypeDongSection({
       </dl>
       {sharedExclusive.length ? (
         <p className="detail-meta -mt-1">전용면적이 같은 다른 타입({sharedExclusive.map((t) => labels.get(t.id)).join(", ")})과는 실거래를 나눌 수 없어 합쳐서 보여줘요.</p>
+      ) : null}
+
+      {type.dongs.length ? (
+        <ComplexTypeDongMap
+          complexId={complexId}
+          typeDongs={type.dongs.map((d) => d.dong)}
+          typeLabel={labels.get(type.id) ?? ""}
+          pickedDong={dong?.dong ?? null}
+          onPickDong={(d) => setPickedDong(d)}
+        />
       ) : null}
 
       {type.dongs.length ? (
