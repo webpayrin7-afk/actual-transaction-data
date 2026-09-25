@@ -41,11 +41,11 @@ async function fetchMarketHome(): Promise<MarketHomeResponse> {
 const MARKET_SECTIONS = [
   { id: "market-summary", label: "요약" },
   { id: "market-price-issues", label: "가격" },
-  { id: "market-headlines", label: "뉴스" },
-  { id: "market-policy", label: "정책" },
   { id: "market-regions", label: "지역" },
   { id: "market-volume", label: "거래량" },
   { id: "price-index", label: "흐름" },
+  { id: "market-headlines", label: "뉴스" },
+  { id: "market-policy", label: "정책" },
   { id: "market-lab", label: "실험실" },
 ] as const;
 
@@ -443,19 +443,11 @@ export function MarketHome() {
         </section>
       ) : null}
 
-      {/* 정책 발표는 시장 데이터와 별도로 불러와 먼저 보일 수 있다 */}
+      {/* 오늘 시장 데이터 — 가격 이슈 · 지역별 새 거래 · 거래량 급증 */}
       <div className="grid grid-cols-1 gap-3 sm:gap-6 lg:grid-cols-2 lg:items-start lg:gap-8">
         {data && hasIssues ? (
           <PriceIssuesSection id="market-price-issues" data={data} />
         ) : null}
-
-        <LabSectionBoundary id="market-headlines" title="부동산 뉴스">
-          <MarketHeadlines id="market-headlines" />
-        </LabSectionBoundary>
-
-        <LabSectionBoundary id="market-policy" title="정책·규제 발표">
-          <MarketPolicyNews id="market-policy" />
-        </LabSectionBoundary>
 
         {data && hasNewDeals && data.regionBreakdown ? (
           <MarketRegionBreakdown id="market-regions" data={data.regionBreakdown} />
@@ -485,6 +477,17 @@ export function MarketHome() {
 
       {/* 오늘 이슈 아래: 장기 흐름 요약 (전국) — 자세히는 /stats */}
       <MarketFlowSummary />
+
+      {/* 외부 기사 모음은 우리 데이터 뒤에 — 뉴스 · 정책 발표 (따로 불러온다) */}
+      <div className="grid grid-cols-1 gap-3 sm:gap-6 lg:grid-cols-2 lg:items-start lg:gap-8">
+        <LabSectionBoundary id="market-headlines" title="부동산 뉴스">
+          <MarketHeadlines id="market-headlines" />
+        </LabSectionBoundary>
+
+        <LabSectionBoundary id="market-policy" title="정책·규제 발표">
+          <MarketPolicyNews id="market-policy" />
+        </LabSectionBoundary>
+      </div>
 
       {/* 시장 콘텐츠 아래 — 실험실은 두 번째 콘텐츠 영역 */}
       <LabExperiments />
