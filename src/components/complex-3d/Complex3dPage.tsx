@@ -322,7 +322,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   {summary}
                 </span>
                 <ChevronUp
-                  className={`h-4 w-4 shrink-0 text-slate-400 transition ${sheetOpen ? "rotate-180" : ""}`}
+                  className={`hidden h-4 w-4 shrink-0 text-slate-400 transition sm:block ${sheetOpen ? "rotate-180" : ""}`}
                   aria-hidden
                 />
               </span>
@@ -366,12 +366,11 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             ) : null}
 
             {sheetOpen ? (
-              <div style={{ touchAction: "pan-y", overscrollBehavior: "contain" }} className="max-h-[42dvh] overflow-y-auto border-t border-[color:var(--lab-border)] px-4 pb-3 pt-3">
+              <div style={{ touchAction: "pan-y", overscrollBehavior: "contain" }} className="max-h-[42dvh] overflow-y-auto px-4 pb-3 pt-1">
                 {mode === "base" ? (
                   <div className="flex flex-col gap-3">
                     {sel ? <DongDetail sel={sel} nearest={nearest} /> : null}
                     <div>
-                      <p className="detail-label mb-1.5">동 바로가기</p>
                       <div className="flex flex-wrap gap-1.5">
                         {dongs.map((b) => (
                           <button
