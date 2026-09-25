@@ -243,7 +243,10 @@ export function RegionSupplyTimelineSection({ regionName }: { regionName: string
     .filter((it) => it.housingCategory === "officetel")
     .reduce((s, it) => s + (it.supplyCount ?? 0), 0);
   const totalUnits = aptUnits + officetelUnits;
-  const failed = query.isError || query.data?.status === "ERROR";
+  // NO_API_KEY·NO_SIGUNGU 는 조회 자체를 못 한 것 — '공급 없음'으로 보이면 안 된다.
+  const status = query.data?.status;
+  const failed =
+    query.isError || status === "ERROR" || status === "NO_API_KEY" || status === "NO_SIGUNGU";
   const fmt = (n: number) => n.toLocaleString("ko-KR");
   const breakdown = [
     officetelUnits > 0 ? `오피스텔 ${fmt(officetelUnits)}세대` : null,
