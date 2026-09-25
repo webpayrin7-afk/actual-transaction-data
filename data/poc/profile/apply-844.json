@@ -1,0 +1,27 @@
+{
+  "at": "2026-09-25T02:26:40.948Z",
+  "apply": true,
+  "totals": {
+    "targets": 844,
+    "plannedComplexes": 457,
+    "inserts": 457,
+    "updates": 0,
+    "byField": {
+      "far_ratio": 445,
+      "bcr_ratio": 446,
+      "household_count": 452,
+      "parking_total": 378,
+      "parking_per_household": 375
+    },
+    "sharedParcelHold": 0,
+    "sharedKaptHold": 0,
+    "conflicts": 0,
+    "appliedChanges": 457,
+    "heldMissingCache": {
+      "household_count": 0,
+      "parking_total": 0,
+      "hubMissing": 0,
+      "kaptBassMissing": 0
+    }
+  }
+}

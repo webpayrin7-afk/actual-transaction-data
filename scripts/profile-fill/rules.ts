@@ -25,6 +25,15 @@ export function numOrNull(value: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/** 건축물대장·K-apt 의 0 은 '미기재'. 용적률 0%, 세대수 0, 주차 0 대는 쓰지 않는다. */
+export function positive(value: number | null): number | null {
+  return value != null && value > 0 ? value : null;
+}
+
+export function positiveOrNull(value: unknown): number | null {
+  return positive(numOrNull(value));
+}
+
 export function hallOrNull(value: unknown): HallValue | null {
   const s = value == null ? "" : String(value).trim();
   return (HALL_VALUES as readonly string[]).includes(s) ? (s as HallValue) : null;
@@ -77,19 +86,19 @@ export function hubFromRows(recap: Row[], title: Row[]): HubNumbers | null {
   if (recapRows.length === 1) {
     const row = recapRows[0]!;
     return {
-      far: numOrNull(row.vlRat),
-      bcr: numOrNull(row.bcRat),
-      household: numOrNull(row.hhldCnt),
-      parking: parkingOf(row),
+      far: positiveOrNull(row.vlRat),
+      bcr: positiveOrNull(row.bcRat),
+      household: positive(numOrNull(row.hhldCnt)),
+      parking: positive(parkingOf(row)),
       rule: "RECAP",
     };
   }
   if (recapRows.length > 1) {
     return {
-      far: sameOrNull(recapRows.map((r) => numOrNull(r.vlRat))),
-      bcr: sameOrNull(recapRows.map((r) => numOrNull(r.bcRat))),
-      household: sumOrNull(recapRows.map((r) => numOrNull(r.hhldCnt))),
-      parking: sumOrNull(recapRows.map((r) => parkingOf(r))),
+      far: sameOrNull(recapRows.map((r) => positiveOrNull(r.vlRat))),
+      bcr: sameOrNull(recapRows.map((r) => positiveOrNull(r.bcRat))),
+      household: positive(sumOrNull(recapRows.map((r) => numOrNull(r.hhldCnt)))),
+      parking: positive(sumOrNull(recapRows.map((r) => parkingOf(r)))),
       rule: "RECAP",
     };
   }
@@ -98,18 +107,18 @@ export function hubFromRows(recap: Row[], title: Row[]): HubNumbers | null {
   if (mains.length === 1) {
     const row = mains[0]!;
     return {
-      far: numOrNull(row.vlRat),
-      bcr: numOrNull(row.bcRat),
-      household: numOrNull(row.hhldCnt),
-      parking: parkingOf(row),
+      far: positiveOrNull(row.vlRat),
+      bcr: positiveOrNull(row.bcRat),
+      household: positive(numOrNull(row.hhldCnt)),
+      parking: positive(parkingOf(row)),
       rule: "TITLE_SINGLE",
     };
   }
   return {
-    far: sameOrNull(mains.map((r) => numOrNull(r.vlRat))),
-    bcr: sameOrNull(mains.map((r) => numOrNull(r.bcRat))),
-    household: sumOrNull(mains.map((r) => numOrNull(r.hhldCnt))),
-    parking: sumOrNull(mains.map((r) => parkingOf(r))),
+    far: sameOrNull(mains.map((r) => positiveOrNull(r.vlRat))),
+    bcr: sameOrNull(mains.map((r) => positiveOrNull(r.bcRat))),
+    household: positive(sumOrNull(mains.map((r) => numOrNull(r.hhldCnt)))),
+    parking: positive(sumOrNull(mains.map((r) => parkingOf(r)))),
     rule: "TITLE_SUM_MAIN_APT",
   };
 }
@@ -120,7 +129,7 @@ export function kaptParking(detail: Row | null): number | null {
   const ground = numOrNull(detail.kaptdPcnt);
   const under = numOrNull(detail.kaptdPcntu);
   if (ground == null || under == null) return null;
-  return ground + under;
+  return positive(ground + under);
 }
 
 export function pickAgreed(a: number | null, b: number | null): { value: number | null; conflict: boolean } {

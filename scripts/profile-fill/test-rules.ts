@@ -31,4 +31,15 @@ assert.equal(jibunToken("서울특별시 송파구 잠실동 19 잠실엘스아�
 assert.equal(jibunToken("서울 강남구 역삼동 1 2"), null);
 assert.deepEqual(masterJibun("1-102"), { san: false, bun: "0001", ji: "0102" });
 assert.equal(normalizeAddress("  경기도  파주시 중앙로 215 "), "경기도 파주시 중앙로 215");
+const zero = hubFromRows([{ vlRat: 0, bcRat: 0, hhldCnt: 0, totPkngCnt: 0 }], []);
+assert.equal(zero?.far, null);
+assert.equal(zero?.bcr, null);
+assert.equal(zero?.household, null);
+assert.equal(zero?.parking, null);
+assert.equal(kaptParking({ kaptdPcnt: "0", kaptdPcntu: "0" }), null);
+assert.equal(kaptParking({ kaptdPcnt: "0", kaptdPcntu: "12" }), 12);
+assert.equal(hubFromRows([], [
+  { mainAtchGbCdNm: "주건축물", mainPurpsCdNm: "아파트", vlRat: 0, bcRat: 20, hhldCnt: 10, totPkngCnt: 0 },
+  { mainAtchGbCdNm: "주건축물", mainPurpsCdNm: "아파트", vlRat: 180, bcRat: 20, hhldCnt: 12, totPkngCnt: 30 },
+]).far, null);
 console.log("test-profile-rules: ok");

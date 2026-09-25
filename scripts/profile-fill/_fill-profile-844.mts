@@ -276,6 +276,11 @@ async function loadTargets(client: Client): Promise<{ targets: Target[]; tradedI
   for (const row of (await client.execute(`SELECT complex_id, pnu FROM complex_parcel_coordinates WHERE pnu IS NOT NULL AND pnu <> ''`)).rows) {
     cpc.set(str(row.complex_id), cadastralToRegistryPnu(str(row.pnu)));
   }
+  // 844 bjdong-remap scope: corrected registry PNU from complex_building_checkpoint (hub format),
+  // used only when no other PNU source exists for the complex.
+  for (const row of (await client.execute(`SELECT complex_id, pnu FROM complex_building_checkpoint WHERE detail LIKE 'bjdong remap 2026-09-25%' AND pnu <> ''`)).rows) {
+    if (!cpc.has(str(row.complex_id)) && /^\d{19}$/.test(str(row.pnu))) cpc.set(str(row.complex_id), str(row.pnu));
+  }
   const weight = new Map<string, number>();
   for (const row of (await client.execute(`SELECT complex_id, SUM(trade_count_3y) AS c3 FROM apt_unit_exclusive_pairs GROUP BY complex_id`)).rows) {
     weight.set(str(row.complex_id), num(row.c3));
