@@ -3,6 +3,7 @@ import { AptDetailPage } from "@/components/apt/AptDetailPage";
 import { AptDetailEnterTransition } from "@/components/apt/AptDetailEnterTransition";
 import { getRegion } from "@/lib/constants/regions";
 import { getComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
+import { matchDistrictLawdCode } from "@/lib/molit/apt";
 
 type PageProps = {
   params: Promise<{ name: string }>;
@@ -39,7 +40,10 @@ export default async function AptPage({ params, searchParams }: PageProps) {
 
   // Enrichment is optional and must not block market rendering.
   const region = getRegion(regionSlug);
-  const lawdCd = region?.lawdCodes?.[0];
+  // 여러 구로 나뉜 시(성남·고양·용인·화성 등)는 ?gu의 구코드로 찾아야 마스터와 맞는다
+  const lawdCd = region
+    ? (matchDistrictLawdCode(region, gu) ?? region.lawdCodes[0])
+    : undefined;
   let complexDetail = null;
   try {
     complexDetail = await getComplexDetailV1({

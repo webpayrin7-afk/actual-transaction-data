@@ -98,14 +98,22 @@ function regionFromGu(gu: string): RegionDef | undefined {
   });
 }
 
+/** 구명(gu)과 맞는 구의 법정동코드. 못 찾으면 undefined */
+export function matchDistrictLawdCode(
+  region: RegionDef,
+  gu?: string,
+): string | undefined {
+  const needle = gu?.trim();
+  if (!needle) return undefined;
+  return region.districts.find(
+    (d) => needle === d.name || needle.includes(d.name) || d.name.includes(needle),
+  )?.code;
+}
+
 /** 구명이 있으면 해당 법정동코드만, 없으면 지역 전체 */
 function resolveDetailLawdCodes(region: RegionDef, gu?: string): string[] {
-  const needle = gu?.trim();
-  if (!needle) return [...region.lawdCodes];
-  const hit = region.districts.find(
-    (d) => needle === d.name || needle.includes(d.name) || d.name.includes(needle),
-  );
-  if (hit) return [hit.code];
+  const hit = matchDistrictLawdCode(region, gu);
+  if (hit) return [hit];
   return [...region.lawdCodes];
 }
 
