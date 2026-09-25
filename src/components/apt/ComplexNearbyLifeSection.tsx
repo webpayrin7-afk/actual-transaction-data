@@ -52,10 +52,7 @@ import {
   getCommerceSnapshot,
   type CommerceSnapshot,
 } from "@/lib/complex-detail/commerce-snapshot";
-import {
-  ComplexCommerceMeta,
-  ComplexCommerceStats,
-} from "@/components/apt/ComplexCommerceSection";
+import { ComplexCommerceStats } from "@/components/apt/ComplexCommerceSection";
 import { ComplexLivingCensus } from "@/components/apt/ComplexLivingCensus";
 
 export type NearbyLifeCategory = "commerce" | "living" | "transport" | "school";
@@ -1460,10 +1457,6 @@ export function ComplexNearbyLifeSection({
       />
 
       <div className="space-y-3">
-        {tab === "commerce" && commerceSnapshot ? (
-          <ComplexCommerceMeta snapshot={commerceSnapshot} />
-        ) : null}
-
         {tab === "living" ? (
           <LabTabs
             variant="secondary"
