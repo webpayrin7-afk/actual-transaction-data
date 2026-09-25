@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Box, ChevronRight } from "lucide-react";
 import { fetchComplex3dShapes } from "@/lib/complex-3d/shapes-client";
+import { has3dModel } from "@/lib/complex-3d/gate";
 
 /**
  * 3D 단지 탐색 들어가기 — 단지 상세 상단 카드 (집랩 핵심 콘텐츠라 청록 면으로 눈에 띄게).
  * 동 모양(GIS)이 하나도 없는 단지는 3D로 보여줄 게 없어 숨긴다 (타입·동 지도와 같은 가벼운 요청·캐시).
+ * 파크리오처럼 어린이집·상가 모양만 있고 주거동 모양이 없는 단지도 숨긴다 — 한 동짜리 빌딩형은 그대로 ({@link has3dModel}).
  * 동 모양이 없는 단지가 많아, 응답 오기 전에는 그리지 않는다 (떴다가 사라지며 화면이 밀리지 않게).
  */
 export function Complex3dEntryCard({ complexId }: { complexId: string }) {
@@ -16,7 +18,7 @@ export function Complex3dEntryCard({ complexId }: { complexId: string }) {
     queryFn: () => fetchComplex3dShapes(complexId),
     staleTime: 60 * 60 * 1000,
   });
-  if (!q.data?.coverage.withShape) return null;
+  if (!q.data || !has3dModel(q.data.buildings)) return null;
   return (
     <Link
       href={`/complex-3d/${complexId}`}

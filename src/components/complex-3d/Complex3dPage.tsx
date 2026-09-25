@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import type { Complex3d } from "@/lib/complex-3d/read";
+import { has3dModel } from "@/lib/complex-3d/gate";
 import { BackLink } from "@/components/layout/BackLink";
 import { InfoTip } from "@/components/ui/InfoTip";
 import type {
@@ -129,7 +130,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     staleTime: 60 * 60_000,
   });
   const d = query.data;
-  const hasShape = (d?.coverage.withShape ?? 0) > 0;
+  // 3D 카드와 같은 기준 — 어린이집·상가 모양만 있고 주거동 모양이 없으면 "모양 데이터 없음"
+  const hasShape = !!d && has3dModel(d.buildings);
 
   // 타입 (단지 상세 타입·동과 같은 이름·합치기) — 고르면 그 타입이 있는 동만 색칠
   const typesQuery = useQuery({

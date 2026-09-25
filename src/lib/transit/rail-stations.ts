@@ -2,7 +2,7 @@
  * 전국 도시철도 역 (rail_stations, 공공데이터포털 전국도시철도역사정보표준데이터). 읽기 전용.
  * 좌표는 원천 역위도·역경도 그대로. 같은 이름 역은 400m 안이면 한 역으로 묶어 노선을 합친다.
  */
-import type { Client } from "@libsql/client";
+import type { Client, InStatement } from "@libsql/client";
 import { haversineMeters, type LatLng } from "@/lib/complex-detail/geo";
 
 export type NearbyRailStation = {
@@ -75,6 +75,73 @@ function lineOrder(a: string, b: string): number {
 
 let tableChecked: boolean | null = null;
 
+/** 반경 안 역을 찾는 사각형 조회 문장 — 다른 조회와 한 번에(batch) 보낼 수 있다. 결과는 {@link rankNearbyRailStations}로. */
+export function railStationsBoxStatement(center: LatLng, maxMeters: number): InStatement {
+  const dLat = maxMeters / 111_320;
+  const dLng = maxMeters / (111_320 * Math.cos((center.lat * Math.PI) / 180));
+  return {
+    sql: `SELECT station_key, name, line_name, lat, lng FROM rail_stations
+            WHERE lat BETWEEN ? AND ? AND lng BETWEEN ? AND ?`,
+    args: [center.lat - dLat, center.lat + dLat, center.lng - dLng, center.lng + dLng],
+  };
+}
+
+/** 사각형 조회 행 → 반경 안 역 (가까운 순, 같은 이름 400m 안은 한 역으로). */
+export function rankNearbyRailStations(
+  rows: ReadonlyArray<Record<string, unknown>>,
+  center: LatLng,
+  maxMeters: number,
+  limit?: number,
+): NearbyRailStation[] {
+  const ranked = rows
+    .map((r) => {
+      const lat = Number(r.lat);
+      const lng = Number(r.lng);
+      return {
+        key: String(r.station_key),
+        name: String(r.name),
+        line: railLineLabel(String(r.line_name)),
+        lat,
+        lng,
+        d: Math.round(haversineMeters(center.lat, center.lng, lat, lng)),
+      };
+    })
+    .filter((s) => s.d <= maxMeters)
+    .sort((a, b) => a.d - b.d);
+
+  const groups: Array<NearbyRailStation & { base: string }> = [];
+  for (const s of ranked) {
+    const base = baseName(s.name);
+    const g = groups.find(
+      (x) => x.base === base && haversineMeters(x.lat, x.lng, s.lat, s.lng) <= MERGE_MAX_METERS,
+    );
+    if (g) {
+      if (!g.lines.includes(s.line)) g.lines.push(s.line);
+      continue;
+    }
+    groups.push({
+      id: `rail-${s.key}`,
+      base,
+      name: `${base}역`,
+      lines: [s.line],
+      lat: s.lat,
+      lng: s.lng,
+      distanceMeters: s.d,
+      distanceLabel: distanceLabel(s.d),
+    });
+  }
+  const out: NearbyRailStation[] = groups.map((g) => ({
+    id: g.id,
+    name: g.name,
+    lines: [...g.lines].sort(lineOrder),
+    lat: g.lat,
+    lng: g.lng,
+    distanceMeters: g.distanceMeters,
+    distanceLabel: g.distanceLabel,
+  }));
+  return limit != null ? out.slice(0, limit) : out;
+}
+
 /** 반경 안 역 (가까운 순). 테이블이 없거나 실패하면 빈 목록 — 실패는 onFailure로 알린다. */
 export async function readNearbyRailStations(
   db: Client,
@@ -88,60 +155,8 @@ export async function readNearbyRailStations(
         (await db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='rail_stations'")).rows.length > 0;
     }
     if (!tableChecked) return [];
-    const dLat = maxMeters / 111_320;
-    const dLng = maxMeters / (111_320 * Math.cos((center.lat * Math.PI) / 180));
-    const res = await db.execute({
-      sql: `SELECT station_key, name, line_name, lat, lng FROM rail_stations
-            WHERE lat BETWEEN ? AND ? AND lng BETWEEN ? AND ?`,
-      args: [center.lat - dLat, center.lat + dLat, center.lng - dLng, center.lng + dLng],
-    });
-    const ranked = res.rows
-      .map((r) => {
-        const lat = Number(r.lat);
-        const lng = Number(r.lng);
-        return {
-          key: String(r.station_key),
-          name: String(r.name),
-          line: railLineLabel(String(r.line_name)),
-          lat,
-          lng,
-          d: Math.round(haversineMeters(center.lat, center.lng, lat, lng)),
-        };
-      })
-      .filter((s) => s.d <= maxMeters)
-      .sort((a, b) => a.d - b.d);
-
-    const groups: Array<NearbyRailStation & { base: string }> = [];
-    for (const s of ranked) {
-      const base = baseName(s.name);
-      const g = groups.find(
-        (x) => x.base === base && haversineMeters(x.lat, x.lng, s.lat, s.lng) <= MERGE_MAX_METERS,
-      );
-      if (g) {
-        if (!g.lines.includes(s.line)) g.lines.push(s.line);
-        continue;
-      }
-      groups.push({
-        id: `rail-${s.key}`,
-        base,
-        name: `${base}역`,
-        lines: [s.line],
-        lat: s.lat,
-        lng: s.lng,
-        distanceMeters: s.d,
-        distanceLabel: distanceLabel(s.d),
-      });
-    }
-    const out: NearbyRailStation[] = groups.map((g) => ({
-      id: g.id,
-      name: g.name,
-      lines: [...g.lines].sort(lineOrder),
-      lat: g.lat,
-      lng: g.lng,
-      distanceMeters: g.distanceMeters,
-      distanceLabel: g.distanceLabel,
-    }));
-    return opts?.limit != null ? out.slice(0, opts.limit) : out;
+    const res = await db.execute(railStationsBoxStatement(center, maxMeters));
+    return rankNearbyRailStations(res.rows, center, maxMeters, opts?.limit);
   } catch {
     opts?.onFailure?.("rail-stations");
     return [];
