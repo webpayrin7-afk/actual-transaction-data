@@ -9,7 +9,6 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
-  LoaderCircle,
 } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
 import { ComplexMgmtFeeCard } from "@/components/apt/ComplexMgmtFeeCard";
@@ -89,8 +88,8 @@ import {
   formatEok,
 } from "@/lib/utils/format";
 
-const QUICK_MONTHS = 36;
-const FULL_MONTHS = 120;
+/** DB 모드는 months와 무관하게 전체 이력을 주므로 한 번에 120개월로 요청 */
+const DETAIL_MONTHS = 120;
 const RECENT_YEARS = 3;
 
 async function fetchAptDetail(
@@ -171,20 +170,14 @@ export function AptDetailPage({
   }>({ scope: "", ym: null });
   const stickyAnchorRef = useRef<HTMLDivElement | null>(null);
 
-  const quickQuery = useQuery({
-    queryKey: ["apt-detail", aptName, regionSlug, gu ?? "", "quick", QUICK_MONTHS],
-    queryFn: () => fetchAptDetail(aptName, regionSlug, QUICK_MONTHS, gu),
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const fullQuery = useQuery({
-    queryKey: ["apt-detail", aptName, regionSlug, gu ?? "", "full", FULL_MONTHS],
-    queryFn: () => fetchAptDetail(aptName, regionSlug, FULL_MONTHS, gu),
-    enabled: quickQuery.isSuccess,
+  // quick(36)→full(120) 두 번 받던 것을 한 번으로: 서버가 어차피 전체 이력을 줌
+  const detailQuery = useQuery({
+    queryKey: ["apt-detail", aptName, regionSlug, gu ?? "", "full", DETAIL_MONTHS],
+    queryFn: () => fetchAptDetail(aptName, regionSlug, DETAIL_MONTHS, gu),
     staleTime: 30 * 60 * 1000,
   });
 
-  const data = fullQuery.data ?? quickQuery.data;
+  const data = detailQuery.data;
 
   /** URL > 84㎡대/거래량 자동 > all */
   const resolvedAreaKey = useMemo(() => {
@@ -198,7 +191,7 @@ export function AptDetailPage({
     return resolveDefaultAreaKey(data.areas, data.items);
   }, [data, initialAreaKey]);
 
-  /** 단지당 최초 확정값 (quick→full 재계산으로 선택값이 바뀌지 않게) */
+  /** 단지당 최초 확정값 (재조회로 데이터가 바뀌어도 선택값이 바뀌지 않게) */
   const [frozenDefault, setFrozenDefault] = useState<{
     forId: string;
     key: string;
@@ -239,16 +232,7 @@ export function AptDetailPage({
     gu,
   ]);
 
-  const isExtendingHistory =
-    quickQuery.isSuccess && !fullQuery.isSuccess && fullQuery.isFetching;
-  // Historical extend: bar-only (empty label) to avoid a sticky shouty banner;
-  // chart section keeps a compact inline hint.
-  const loadProgressLabel =
-    quickQuery.isLoading && !data ? "시세 불러오는 중…" : "";
-  useLoadProgressWhen(
-    (quickQuery.isLoading && !data) || isExtendingHistory,
-    loadProgressLabel,
-  );
+  useLoadProgressWhen(detailQuery.isLoading && !data, "시세 불러오는 중…");
 
   const chartMonths = data?.chart.map((p) => p.yearMonth) ?? [];
   const dataKey = `${aptName}|${regionSlug}|${chartMonths.length}|${data?.loadedMonths ?? 0}`;
@@ -561,7 +545,7 @@ export function AptDetailPage({
   );
 
 
-  if (quickQuery.isLoading && !data) {
+  if (detailQuery.isLoading && !data) {
     return (
       <div className={DETAIL_PAGE_SHELL}>
         <div className="h-24 animate-pulse rounded-xl bg-slate-200/70" />
@@ -575,7 +559,7 @@ export function AptDetailPage({
     );
   }
 
-  if ((quickQuery.isError && !data) || !data) {
+  if ((detailQuery.isError && !data) || !data) {
     return (
       <div className={`${DETAIL_PAGE_SHELL} text-center`}>
         <p className="detail-body font-medium text-[color:var(--lab-navy-950)]">
@@ -783,12 +767,6 @@ export function AptDetailPage({
             <h3 className="detail-subsection-title shrink-0">시세 추이</h3>
             <div className="detail-market-period">{periodButtons}</div>
           </div>
-          {isExtendingHistory ? (
-            <p className="detail-meta mt-1.5 inline-flex items-center gap-1.5 text-[color:var(--lab-brand-primary)]">
-              <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-              과거 시세 추가 중…
-            </p>
-          ) : null}
 
           <LabTabs
             className="detail-market-deal-tabs"
