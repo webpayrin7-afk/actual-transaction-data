@@ -211,8 +211,9 @@ function asNum(v: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/** transactions.apt_name_norm·apt_complex_master.apt_name_norm 과 같은 규칙 (공백 제거 + 소문자). */
 function normalizeAptName(name: string): string {
-  return name.replace(/\s+/g, "").trim();
+  return name.replace(/\s+/g, "").toLowerCase();
 }
 
 function statusFromRow(v: unknown): ComplexEnrichmentStatus {
@@ -310,14 +311,27 @@ export async function getComplexDetailV1(params: {
   }
 
   const tMaster = performance.now();
-  const masterResult = params.lawdCd?.trim()
+  const lawdCd = params.lawdCd?.trim();
+  // lawd가 있으면 이름(시군구+단지명) 우선, 안 맞으면 실거래 이름 → 단지 연결을 한 번에 조회.
+  // 지방 마스터는 K-apt 이름이라 실거래 이름과 다른 경우가 많다 (예: 골드디움3차 ↔ 옥암3차골드디움).
+  // 연결은 source='MOLIT', source_key='lawd|norm' PK 조회 — 지방은 필지(법정동·지번)가 정확히 같은 K-apt 단지로 만든 것.
+  const masterResult = lawdCd
     ? await db.execute({
-        sql: `SELECT complex_id, apt_name, apt_name_norm, sido, sigungu,
-                     legal_dong_name, jibun, road_address, lawd_cd, bjdong_cd
-              FROM apt_complex_master
-              WHERE apt_name_norm = ? AND lawd_cd = ?
+        sql: `SELECT * FROM (
+                SELECT 0 AS pri, complex_id, apt_name, apt_name_norm, sido, sigungu,
+                       legal_dong_name, jibun, road_address, lawd_cd, bjdong_cd
+                FROM apt_complex_master
+                WHERE apt_name_norm = ? AND lawd_cd = ?
+                UNION ALL
+                SELECT 1 AS pri, m.complex_id, m.apt_name, m.apt_name_norm, m.sido, m.sigungu,
+                       m.legal_dong_name, m.jibun, m.road_address, m.lawd_cd, m.bjdong_cd
+                FROM apt_complex_source_links l
+                JOIN apt_complex_master m ON m.complex_id = l.complex_id
+                WHERE l.source = 'MOLIT' AND l.source_key = ?
+              )
+              ORDER BY pri
               LIMIT 1`,
-        args: [aptNorm, params.lawdCd.trim()],
+        args: [aptNorm, lawdCd, `${lawdCd}|${aptNorm}`],
       })
     : await db.execute({
         sql: `SELECT complex_id, apt_name, apt_name_norm, sido, sigungu,
