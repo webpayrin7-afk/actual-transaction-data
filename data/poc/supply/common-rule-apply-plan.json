@@ -1,0 +1,21 @@
+{
+ "at": "2026-09-25T01:25:28.390Z",
+ "apply": false,
+ "minApprovalYear": 2010,
+ "recovery": "supply_fill_common_rule_2026_09",
+ "statements": 0,
+ "candidates": 2539,
+ "excludedOld": 1004,
+ "excludedNoApproval": 1145,
+ "newRuleNotFilled": 1415,
+ "eligible": 390,
+ "write": 0,
+ "types": 0,
+ "ambiguousExclusives": 0,
+ "alreadyDone": 390,
+ "minApproval": "",
+ "maxApproval": "",
+ "held": {},
+ "bySido": {},
+ "lawdCodes": {}
+}

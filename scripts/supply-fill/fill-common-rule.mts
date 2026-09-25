@@ -1,5 +1,6 @@
 /**
- * 공급면적 = 전유 + 주거공용, 공용 행 이름(기타용도 etcPurps)을 명시 목록으로 나눠 계산한다 (계획만, DB 쓰기 없음).
+ * 공급면적 = 전유 + 주거공용, 공용 행 이름(기타용도 etcPurps)을 명시 목록으로 나눠 계산한다.
+ * extract/plan 은 DB 읽기만. apply-plan/apply 는 사용승인 2010년 이후 단지만 쓴다 (아래 fillCommon).
  *
  * 왜: 기존 규칙(official-expos.ts)은 호의 주건축물 공용 행 중 허용 목록(계단·복도·홀…)에 없는 이름이
  * 하나라도 있으면 그 호를 계산하지 않았다. 최근 단지는 지하주차장·관리실·경비실·전기실 같은
@@ -25,6 +26,8 @@
  *   ./node_modules/.bin/tsx scripts/supply-fill/fill-common-rule.mts extract 12
  *   ./node_modules/.bin/tsx scripts/supply-fill/fill-common-rule.mts extract g2
  *   ./node_modules/.bin/tsx scripts/supply-fill/fill-common-rule.mts plan
+ *   ./node_modules/.bin/tsx scripts/supply-fill/fill-common-rule.mts apply-plan   (쓸 것 계산만)
+ *   ./node_modules/.bin/tsx scripts/supply-fill/fill-common-rule.mts apply        (쓰기; 다시 apply-plan 하면 0)
  *
  * 출력: C:/data/fixes/supply-common-rule-2026-09-25 (SUPPLY_COMMON_OUT 로 바꿀 수 있음)
  */
@@ -1000,11 +1003,269 @@ async function applyhomeTargets() {
   console.log(JSON.stringify({ linkedByNameLawdDong: hit.size, withPnu: out.filter((r) => r.registryPnus.length).length }));
 }
 
+// ───────────────────────── fill (apply-plan | apply) ─────────────────────────
+
+/**
+ * 새 규칙 채움을 DB에 쓴다. 사용승인 연도 >= MIN_APPROVAL_YEAR 단지만 (apt_complex_profile, 날짜 없으면 제외).
+ * 옛 단지는 지하대피소 등 관행 차이로 공급이 작게 나와 이번엔 뺀다 (소유자 결정 2026-09-25).
+ *
+ *   nt: fill-notrade-local.mts apply 와 같은 INSERT (단지에 다른 경로 유형 행이 하나라도 있으면 쓰지 않음).
+ *       전용 하나에 공급 둘 이상 → AMBIGUOUS_MULTI + apt_unit_supply_representative (세대 많은 것, 같으면 작은 것).
+ *   g2: fill-g2-local.mts 와 같은 NULL 전용 UPDATE (supply_cents = -1 AND status = 'NO_SOURCE' AND supply_area IS NULL).
+ *       전용 하나에 공급 둘 이상이면 g2 처럼 보류.
+ * 덮어쓰기·삭제 없음. 새로 계산한 값이 plan-rows.jsonl 과 다르거나 PNU 대상 파일이 바뀐 단지는 보류.
+ * 다시 돌리면 쓸 것이 0 이어야 한다.
+ */
+const CR_RECOVERY = "supply_fill_common_rule_2026_09";
+const CR_RULE_VERSION = "named_common_v1_2026-09-25";
+const MIN_APPROVAL_YEAR = 2010;
+const REP_RULE = "max_household_then_smaller_supply";
+
+async function fillCommon(apply: boolean) {
+  const { areaFromCents, canonicalSupplyPyeong, canonicalUnitTypeId, resolutionStatus, NO_SUPPLY_CENTS } = await import("../../src/lib/unit-type/canonical");
+  const { supplyPyeongDisplayLabel } = await import("../../src/lib/unit-type/supply-label");
+  const { pickRepresentativeSupply } = await import("../../src/lib/unit-type/supply-representative");
+
+  const files = readdirSync(WORK).filter((f) => /^units-.*\.jsonl$/.test(f) && f !== "units-ah.jsonl");
+  const all: Extracted[] = files.flatMap((f) =>
+    readFileSync(join(WORK, f), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l) as Extracted),
+  );
+  const planned = new Map<string, { set: string; types: Array<{ exclusive: number; supply: number; households: number }> }>();
+  for (const l of readFileSync(join(OUT, "plan-rows.jsonl"), "utf8").split("\n")) {
+    if (!l) continue;
+    const p = JSON.parse(l) as { complexId: string; set: string; types: Array<{ exclusive: number; supply: number; households: number }> };
+    planned.set(p.complexId, p);
+  }
+  // 대상 파일 현재 상태 (다른 작업이 PNU를 다시 잇는 중일 수 있음)
+  const ntNow = new Map<string, { registryPnus: string[]; identityStatus: string; cadastre: string; pnuOwners: number }>();
+  for (const l of readFileSync(NT_TARGETS, "utf8").split("\n")) if (l) { const t = JSON.parse(l); ntNow.set(t.complexId, t); }
+  const g2Now = new Map<string, { pnu: string; cadastre: string }>();
+  for (const l of readFileSync(G2_TARGETS, "utf8").split("\n")) if (l) { const t = JSON.parse(l); g2Now.set(t.complexId, t); }
+
+  const cands = all.filter((r) => r.groups && r.old && (r.old.status === "NO_DERIVABLE" || r.old.status === "COMMON_SEMANTICS_UNCLEAR"));
+  const db = createClient({ url: process.env.TURSO_DATABASE_URL!.trim(), authToken: process.env.TURSO_AUTH_TOKEN!.trim() });
+  const ids = cands.map((r) => r.complexId);
+  const approval = new Map<string, string>();
+  const dbRows = new Map<string, Array<{ ex: number; su: number; status: string; supplyNull: boolean; ours: boolean }>>();
+  for (const part of chunks(ids, 300)) {
+    const q = part.map(() => "?").join(",");
+    const a = await db.execute({ sql: `SELECT complex_id, approval_date FROM apt_complex_profile WHERE complex_id IN (${q})`, args: part as InArgs });
+    for (const row of a.rows) approval.set(str(row.complex_id), str(row.approval_date));
+    const u = await db.execute({
+      sql: `SELECT complex_id, exclusive_cents, supply_cents, supply_area IS NULL sn, status, provenance_json FROM apt_canonical_unit_types WHERE complex_id IN (${q})`,
+      args: part as InArgs,
+    });
+    for (const row of u.rows) {
+      const list = dbRows.get(str(row.complex_id)) ?? [];
+      list.push({ ex: num(row.exclusive_cents), su: num(row.supply_cents), status: str(row.status), supplyNull: num(row.sn) === 1, ours: str(row.provenance_json).includes(CR_RECOVERY) });
+      dbRows.set(str(row.complex_id), list);
+    }
+  }
+
+  const now = new Date().toISOString();
+  const statements: { sql: string; args: InArgs }[] = [];
+  const held: Record<string, number> = {};
+  const bySido: Record<string, { complexes: number; types: number; households: number }> = {};
+  const lawd: Record<string, number> = {};
+  const rowsOut: unknown[] = [];
+  const t = { candidates: 0, excludedOld: 0, excludedNoApproval: 0, newRuleNotFilled: 0, eligible: 0, write: 0, types: 0, ambiguousExclusives: 0, alreadyDone: 0, minApproval: "", maxApproval: "" };
+  for (const r of cands) {
+    const n = newRule(r.groups!);
+    if (n.status !== "FILLED") {
+      t.newRuleNotFilled += 1;
+      continue;
+    }
+    t.candidates += 1;
+    const ap = approval.get(r.complexId) ?? "";
+    const year = Number(ap.slice(0, 4));
+    if (!year) {
+      t.excludedNoApproval += 1;
+      continue;
+    }
+    if (year < MIN_APPROVAL_YEAR) {
+      t.excludedOld += 1;
+      continue;
+    }
+    t.eligible += 1;
+    const hold = (k: string) => bump(held, k);
+    const p = planned.get(r.complexId);
+    const key = (xs: Array<[number, number, number]>) => JSON.stringify(xs);
+    if (!p || p.set !== r.set || key(p.types.map((x) => [exclusiveCents(x.exclusive), exclusiveCents(x.supply), x.households])) !== key(n.supplies)) {
+      hold("PLAN_MISMATCH");
+      continue;
+    }
+    if (r.set === "nt") {
+      const cur = ntNow.get(r.complexId);
+      if (!cur || !cur.registryPnus.includes(r.pnu) || cur.pnuOwners > 1 || cur.cadastre !== "EXISTS" || (cur.identityStatus !== "AS_IS" && cur.identityStatus !== "REMAPPED")) {
+        hold("PNU_CHANGED");
+        continue;
+      }
+    } else {
+      const cur = g2Now.get(r.complexId);
+      if (!cur || cur.pnu !== r.pnu || cur.cadastre !== "EXISTS") {
+        hold("PNU_CHANGED");
+        continue;
+      }
+    }
+    const existing = dbRows.get(r.complexId) ?? [];
+    const byEx = new Map<number, Supply[]>();
+    for (const v of n.supplies) byEx.set(v[0], [...(byEx.get(v[0]) ?? []), v]);
+    const provenance = (v: Supply) =>
+      JSON.stringify({
+        recovery: CR_RECOVERY,
+        common_rule: CR_RULE_VERSION,
+        formula: "exclusive_plus_residential_common",
+        residential_common_area: roundArea((v[1] - v[0]) / 100),
+        household_count: v[2],
+        registry_pnu: r.pnu,
+        min_approval_year: MIN_APPROVAL_YEAR,
+        approval_date: ap,
+        bulk_source_month: "2026-08",
+      });
+    let wrote = 0;
+    if (r.set === "nt") {
+      if (existing.some((x) => !x.ours)) {
+        hold("ALREADY_HAS_TYPES");
+        continue;
+      }
+      // 이 채움이 이미 넣은 행만 있으면: 모두 있으면 끝난 것, 빠진 게 있으면 (중간 실패) 같은 문장을 다시 낸다.
+      const have = new Set(existing.map((x) => `${x.ex}|${x.su}`));
+      if (existing.length > 0 && n.supplies.every(([e, su]) => have.has(`${e}|${su}`))) {
+        t.alreadyDone += 1;
+        continue;
+      }
+      const guard = `NOT EXISTS (SELECT 1 FROM apt_canonical_unit_types g WHERE g.complex_id = ? AND g.provenance_json NOT LIKE '%${CR_RECOVERY}%')`;
+      for (const [ex, variants] of byEx) {
+        const status = resolutionStatus(variants.length, false);
+        if (variants.length > 1) t.ambiguousExclusives += 1;
+        for (const v of variants) {
+          const supplyArea = areaFromCents(v[1]);
+          statements.push({
+            sql: `INSERT INTO apt_canonical_unit_types (
+                    unit_type_id, complex_id, exclusive_area, exclusive_cents, supply_area, supply_cents,
+                    supply_pyeong, display_pyeong_label, type_name, household_count, source, source_key,
+                    source_as_of, confidence, status, formula, provenance_json, created_at, updated_at
+                  )
+                  SELECT ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, 'BldRgstHubBulk', ?, '2026-08', 'building_registry_expos', ?, 'exclusive_plus_residential_common', ?, ?, ?
+                  WHERE ${guard}
+                  ON CONFLICT DO NOTHING`,
+            args: [
+              canonicalUnitTypeId(r.complexId, ex, v[1]),
+              r.complexId,
+              areaFromCents(ex),
+              ex,
+              supplyArea,
+              v[1],
+              canonicalSupplyPyeong(supplyArea),
+              supplyPyeongDisplayLabel(supplyArea),
+              v[2],
+              `${r.pnu}:${ex}:${v[1]}`,
+              status,
+              provenance(v),
+              now,
+              now,
+              r.complexId,
+            ],
+          });
+          wrote += 1;
+        }
+        statements.push({
+          sql: `INSERT INTO apt_unit_exclusive_pairs (
+                  complex_id, exclusive_cents, exclusive_area, trade_count, trade_count_12m, trade_count_3y,
+                  latest_trade_date, resolution_status, supply_variant_count, observed_from
+                ) SELECT ?, ?, ?, 0, 0, 0, '', ?, ?, 'official_expos_local'
+                WHERE ${guard}
+                ON CONFLICT(complex_id, exclusive_cents) DO NOTHING`,
+          args: [r.complexId, ex, areaFromCents(ex), status, variants.length, r.complexId],
+        });
+        if (variants.length > 1) {
+          const pick = pickRepresentativeSupply(variants.map((v) => ({ supplyCents: v[1], householdCount: v[2] })));
+          if (pick) {
+            statements.push({
+              sql: `INSERT INTO apt_unit_supply_representative (
+                      complex_id, exclusive_cents, representative_supply_cents, representative_household_count,
+                      variant_count, variants_json, rule, updated_at
+                    ) SELECT ?, ?, ?, ?, ?, ?, ?, ?
+                    WHERE ${guard}
+                    ON CONFLICT(complex_id, exclusive_cents) DO NOTHING`,
+              args: [r.complexId, ex, pick.representativeSupplyCents, pick.representativeHouseholdCount, pick.variants.length, JSON.stringify(pick.variants), REP_RULE, now, r.complexId],
+            });
+          }
+        }
+      }
+    } else {
+      const empty = existing.filter((x) => x.su === NO_SUPPLY_CENTS && x.status === "NO_SOURCE" && x.supplyNull);
+      if (empty.length === 0) {
+        if (existing.some((x) => x.ours)) t.alreadyDone += 1;
+        else hold("NO_EMPTY_ROWS");
+        continue;
+      }
+      for (const row of empty) {
+        const variants = byEx.get(row.ex) ?? [];
+        if (variants.length !== 1) {
+          if (variants.length > 1) hold("G2_EXCLUSIVE_MULTI");
+          continue;
+        }
+        const v = variants[0]!;
+        const supplyArea = areaFromCents(v[1]);
+        statements.push({
+          sql: `UPDATE apt_canonical_unit_types
+                SET supply_area = ?, supply_cents = ?, supply_pyeong = ?, display_pyeong_label = ?,
+                    household_count = ?, source = 'BldRgstHubService', source_key = ?, source_as_of = '',
+                    confidence = 'building_registry_expos', status = 'EXACT_SINGLE', formula = 'exclusive_plus_residential_common',
+                    provenance_json = ?, updated_at = ?
+                WHERE complex_id = ? AND exclusive_cents = ? AND supply_cents = ? AND status = 'NO_SOURCE' AND supply_area IS NULL`,
+          args: [supplyArea, v[1], canonicalSupplyPyeong(supplyArea), supplyPyeongDisplayLabel(supplyArea), v[2], `${r.pnu}:${row.ex}:${v[1]}`, provenance(v), now, r.complexId, row.ex, NO_SUPPLY_CENTS],
+        });
+        statements.push({
+          sql: `UPDATE apt_unit_exclusive_pairs
+                SET resolution_status = 'EXACT_SINGLE', supply_variant_count = 1,
+                    observed_from = CASE WHEN observed_from LIKE '%official_expos%' THEN observed_from ELSE observed_from || '+official_expos' END
+                WHERE complex_id = ? AND exclusive_cents = ? AND resolution_status = 'NO_SOURCE'`,
+          args: [r.complexId, row.ex],
+        });
+        wrote += 1;
+      }
+      if (wrote === 0) {
+        hold("EXCLUSIVE_NOT_MATCHED");
+        continue;
+      }
+    }
+    t.write += 1;
+    t.types += wrote;
+    if (!t.minApproval || ap < t.minApproval) t.minApproval = ap;
+    if (!t.maxApproval || ap > t.maxApproval) t.maxApproval = ap;
+    const s = (bySido[r.sido || r.lawdCd.slice(0, 2)] ??= { complexes: 0, types: 0, households: 0 });
+    s.complexes += 1;
+    s.types += wrote;
+    s.households += n.supplies.reduce((x, v) => x + v[2], 0);
+    bump(lawd, r.lawdCd);
+    rowsOut.push({ complexId: r.complexId, name: r.aptName, set: r.set, sido: r.sido, sigungu: r.sigungu, lawdCd: r.lawdCd, approval: ap, pnu: r.pnu, types: n.supplies.map(([e, su, h]) => [e / 100, su / 100, h]) });
+  }
+  const summary = { at: now, apply, minApprovalYear: MIN_APPROVAL_YEAR, recovery: CR_RECOVERY, statements: statements.length, ...t, held, bySido, lawdCodes: Object.fromEntries(Object.entries(lawd).sort()) };
+  if (!apply) {
+    writeFileSync(join(OUT, "apply-plan-rows.jsonl"), rowsOut.map((x) => JSON.stringify(x)).join("\n") + (rowsOut.length ? "\n" : ""));
+    writeFileSync("data/poc/supply/common-rule-apply-plan.json", JSON.stringify(summary, null, 1));
+    console.log(JSON.stringify({ ...summary, lawdCodes: Object.keys(lawd).length }, null, 1));
+    return;
+  }
+  let affected = 0;
+  for (const part of chunks(statements, 100)) {
+    const results = await db.batch(part, "write");
+    affected += results.reduce((x, res) => x + res.rowsAffected, 0);
+  }
+  writeFileSync(join(OUT, "apply-rows.jsonl"), rowsOut.map((x) => JSON.stringify(x)).join("\n") + (rowsOut.length ? "\n" : ""));
+  writeFileSync("data/poc/supply/common-rule-apply.json", JSON.stringify({ affected, ...summary }, null, 1));
+  console.log(JSON.stringify({ affected, ...summary, lawdCodes: Object.keys(lawd).length }, null, 1));
+}
+
 const [mode, arg] = process.argv.slice(2);
 if (mode === "ah-targets") await applyhomeTargets();
 else if (mode === "extract" && arg) await extract(arg);
 else if (mode === "plan") await plan();
+else if (mode === "apply-plan") await fillCommon(false);
+else if (mode === "apply") await fillCommon(true);
 else {
-  console.error("usage: fill-common-rule.mts extract <sido2|g2> | plan   (apply 없음)");
+  console.error("usage: fill-common-rule.mts extract <sido2|g2> | plan | apply-plan | apply   (apply: 사용승인 2010년 이후만)");
   process.exit(1);
 }
