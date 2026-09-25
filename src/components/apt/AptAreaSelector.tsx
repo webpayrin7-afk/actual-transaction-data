@@ -136,17 +136,18 @@ export function AptAreaSelector({
     "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]";
   const chipOff =
     "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] font-medium text-[color:var(--lab-navy-950)]";
-  void compact;
+  // 본문은 폭 전체(글자 왼쪽 · ▾ 오른쪽 끝), 스티키는 글자 길이만큼
+  const width = compact ? "" : "w-full justify-between px-4";
 
   if (sorted.length <= 1) {
     const only = sorted[0];
     if (!only) {
       return (
-        <div className={`${chip} ${chipOff} ${triggerClassName}`}>전체 면적</div>
+        <div className={`${chip} ${width} ${chipOff} ${triggerClassName}`}>전체 면적</div>
       );
     }
     return (
-      <div className={`${chip} ${chipOn} ${triggerClassName}`}>
+      <div className={`${chip} ${width} ${chipOn} ${triggerClassName}`}>
         <span className="min-w-0 truncate">
           <AreaTriggerLabel area={only} />
         </span>
@@ -172,7 +173,7 @@ export function AptAreaSelector({
         aria-expanded={open}
         aria-label={`현재 ${triggerLabel}, ${a11yExtra}`}
         onClick={openSheet}
-        className={`${chip} ${isAll || !selected ? chipOff : chipOn} text-left ${triggerClassName}`}
+        className={`${chip} ${width} ${isAll || !selected ? chipOff : chipOn} text-left ${triggerClassName}`}
       >
         <span className="min-w-0 truncate">
           {isAll || !selected ? (
