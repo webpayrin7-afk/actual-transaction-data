@@ -326,7 +326,7 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
   if (kind === "COMPLEX") {
     // 우리 단지 — 아파트 두 동 모양 핀(평소엔 이름 없이, 누르면 이름 말풍선)
     const fill = KIND_COLOR.COMPLEX;
-    const html = `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);white-space:nowrap;pointer-events:none">
+    const html = `<div data-map-marker-id="${encodeURIComponent(marker.id)}" role="button" style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);white-space:nowrap;pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent">
       ${selected ? selectionBubbleHtml(marker.title || "") : ""}
       <div style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;background:${fill};border:2px solid #fff;box-shadow:0 2px 5px rgba(15,23,42,.3)">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M3 21V8.5a1 1 0 0 1 .6-.9l6-2.7a1 1 0 0 1 1.4.9V21Z"/><path d="M12 21V3.6a1 1 0 0 1 1.3-.95l6.9 2.2a1 1 0 0 1 .7.95V21Z"/><g fill="${fill}"><rect x="5" y="10" width="1.8" height="1.8" rx=".3"/><rect x="7.8" y="10" width="1.8" height="1.8" rx=".3"/><rect x="5" y="13.5" width="1.8" height="1.8" rx=".3"/><rect x="7.8" y="13.5" width="1.8" height="1.8" rx=".3"/><rect x="14.2" y="7" width="1.8" height="1.8" rx=".3"/><rect x="17.2" y="7" width="1.8" height="1.8" rx=".3"/><rect x="14.2" y="10.5" width="1.8" height="1.8" rx=".3"/><rect x="17.2" y="10.5" width="1.8" height="1.8" rx=".3"/><rect x="14.2" y="14" width="1.8" height="1.8" rx=".3"/><rect x="17.2" y="14" width="1.8" height="1.8" rx=".3"/></g></svg>
@@ -362,7 +362,7 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
         return `<div style="min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:${fill};border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.25);display:flex;align-items:center;justify-content:center;font:700 10px/1 system-ui,-apple-system,sans-serif;color:#fff">${text}</div>`;
       })
       .join("");
-    const html = `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none">
+    const html = `<div data-map-marker-id="${encodeURIComponent(marker.id)}" role="button" style="display:flex;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent">
       ${selected ? selectionBubbleHtml(marker.title || marker.label || "") : ""}
       <div style="display:flex;align-items:center;gap:2px">${badgesHtml}</div>
       <span style="font:600 10px/1.1 system-ui,-apple-system,sans-serif;color:#1e293b;background:rgba(255,255,255,.92);padding:1px 4px;border-radius:4px;border:1px solid rgba(15,23,42,.1)">${label}</span>
@@ -378,7 +378,7 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
   if (kind === "OTHER" && marker.variant === "bus-stop") {
     const stroke = selected ? "#0f766e" : "#1e3a5f";
     const border = selected ? "#0f766e" : "#cbd5e1";
-    const html = `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);pointer-events:none">
+    const html = `<div data-map-marker-id="${encodeURIComponent(marker.id)}" role="button" style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent">
       ${selected ? selectionBubbleHtml(marker.title || marker.label || "") : ""}
       <div style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;background:#fff;border:1px solid ${border};box-shadow:0 1px 2px rgba(15,23,42,.18);color:${stroke}">
         ${LUCIDE_BUS_SVG(stroke, 12)}
@@ -410,7 +410,7 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
     const badge = emphasis
       ? `<span style="margin-top:2px;font:700 8px/1 system-ui,-apple-system,sans-serif;color:#1e3a5f;background:rgba(255,255,255,.94);padding:1px 3px;border-radius:3px;border:1px solid rgba(30,58,95,.22)">종합</span>`
       : "";
-    const html = `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);pointer-events:none">
+    const html = `<div data-map-marker-id="${encodeURIComponent(marker.id)}" role="button" style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent">
       ${selected ? selectionBubbleHtml(marker.title || marker.label || "") : ""}
       <div style="display:flex;align-items:center;justify-content:center;width:${box}px;height:${box}px;border-radius:6px;background:#fff;border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.16)">
         ${iconFn(stroke, iconSize)}
