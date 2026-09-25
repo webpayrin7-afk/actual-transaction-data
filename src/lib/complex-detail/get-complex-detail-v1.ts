@@ -211,8 +211,9 @@ function asNum(v: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/** apt_complex_master.apt_name_norm 과 같은 규칙(공백 제거 + 소문자) — SK·IPARK 등 영문 대문자 단지명 매칭 */
 function normalizeAptName(name: string): string {
-  return name.replace(/\s+/g, "").trim();
+  return name.replace(/\s+/g, "").trim().toLowerCase();
 }
 
 function statusFromRow(v: unknown): ComplexEnrichmentStatus {
