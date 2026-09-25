@@ -3,13 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { loadNaverMapsSdk, type NaverMapInstance } from "@/lib/nearby-map/naver-sdk";
-import type { Complex3d, Ring } from "@/lib/complex-3d/read";
-
-async function fetch3d(complexId: string): Promise<Complex3d | null> {
-  const res = await fetch(`/api/complex-3d/${complexId}?v=2`);
-  if (!res.ok) return null;
-  return res.json();
-}
+import type { Ring } from "@/lib/complex-3d/read";
+import { fetchComplex3dShapes } from "@/lib/complex-3d/shapes-client";
 
 type Pt = { lat: number; lng: number };
 
@@ -81,8 +76,8 @@ export function ComplexTypeDongMap({
   onPickDong: (dong: string) => void;
 }) {
   const query = useQuery({
-    queryKey: ["complex-3d", complexId],
-    queryFn: () => fetch3d(complexId),
+    queryKey: ["complex-3d-shapes", complexId],
+    queryFn: () => fetchComplex3dShapes(complexId),
     staleTime: 60 * 60 * 1000,
   });
   const buildings = useMemo(
