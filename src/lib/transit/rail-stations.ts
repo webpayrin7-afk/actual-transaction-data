@@ -46,17 +46,32 @@ const LINE_ALIAS: Record<string, string> = {
   의정부: "의정부경전철",
   에버라인: "용인에버라인",
   자기부상철도: "인천자기부상철도",
+  인천국제공항선: "공항철도",
 };
 
 /**
- * 경원선 중 용산~왕십리 구간(이촌·서빙고·한남·옥수·응봉·왕십리)은 1호선이 아니라 경의중앙선이 다닌다.
+ * 경원선 중 용산~왕십리 구간(용산·이촌·서빙고·한남·옥수·응봉·왕십리)은 1호선이 아니라 경의중앙선이 다닌다.
  * 원천은 이 역들도 노선명을 "경원선"으로 적어 두어, 역 이름으로 가른다.
+ * (용산은 경부선 행이 따로 있어 1호선은 그쪽으로 붙는다. 청량리부터는 1호선이 맞다.)
  */
-const GYEONGUI_JUNGANG_ON_GYEONGWON = new Set(["이촌", "서빙고", "한남", "옥수", "응봉", "왕십리"]);
+const GYEONGUI_JUNGANG_ON_GYEONGWON = new Set(["용산", "이촌", "서빙고", "한남", "옥수", "응봉", "왕십리"]);
+
+/**
+ * 원천 노선명이 실제 운행과 다른 역 — "원천노선명|역 기본이름" → 부르는 노선.
+ * 광운대: 원천이 경의중앙선 행을 두었지만 경의중앙선은 광운대에 서지 않는다(경춘선·1호선만).
+ */
+const STATION_LINE_OVERRIDE: Record<string, string> = {
+  "경의중앙선|광운대": "경춘선",
+};
 
 export function railLineLabel(raw: string, stationName?: string): string {
   const t = raw.trim().replace(/\s+/g, " ");
-  if (t === "경원선" && stationName && GYEONGUI_JUNGANG_ON_GYEONGWON.has(baseName(stationName))) return "경의중앙선";
+  if (stationName) {
+    const base = baseName(stationName);
+    if (t === "경원선" && GYEONGUI_JUNGANG_ON_GYEONGWON.has(base)) return "경의중앙선";
+    const override = STATION_LINE_OVERRIDE[`${t}|${base}`];
+    if (override) return override;
+  }
   if (LINE_ALIAS[t]) return LINE_ALIAS[t];
   const city = t.match(/^(부산|대구|대전) 도시철도 (\d+)호선$/);
   if (city) return `${city[1]}${city[2]}호선`;
@@ -66,6 +81,17 @@ export function railLineLabel(raw: string, stationName?: string): string {
 /** "잠실(송파구청)" → "잠실", "광운대역" → "광운대" */
 function baseName(name: string): string {
   return name.trim().replace(/\(.*?\)/g, "").replace(/\s+/g, "").replace(/역$/u, "");
+}
+
+/** 노선마다 이름이 다른 같은 환승역 — 묶을 때만 쓰는 이름 (표시 이름은 가장 가까운 행 그대로). */
+const MERGE_NAME_ALIAS: Record<string, string> = {
+  총신대입구: "이수",
+  인천국제공항: "인천공항1터미널",
+};
+
+function mergeKey(name: string): string {
+  const b = baseName(name);
+  return MERGE_NAME_ALIAS[b] ?? b;
 }
 
 function distanceLabel(m: number): string {
@@ -116,20 +142,23 @@ export function rankNearbyRailStations(
     .filter((s) => s.d <= maxMeters)
     .sort((a, b) => a.d - b.d);
 
-  const groups: Array<NearbyRailStation & { base: string }> = [];
+  // 같은 이름(별칭 포함) 행이 묶음 안 어느 행이든 400m 안이면 한 역 — 서울역처럼 노선별 승강장이 흩어진 역도 한 줄로.
+  const groups: Array<NearbyRailStation & { key: string; points: LatLng[] }> = [];
   for (const s of ranked) {
-    const base = baseName(s.name);
+    const key = mergeKey(s.name);
     const g = groups.find(
-      (x) => x.base === base && haversineMeters(x.lat, x.lng, s.lat, s.lng) <= MERGE_MAX_METERS,
+      (x) => x.key === key && x.points.some((p) => haversineMeters(p.lat, p.lng, s.lat, s.lng) <= MERGE_MAX_METERS),
     );
     if (g) {
       if (!g.lines.includes(s.line)) g.lines.push(s.line);
+      g.points.push({ lat: s.lat, lng: s.lng });
       continue;
     }
     groups.push({
       id: `rail-${s.key}`,
-      base,
-      name: `${base}역`,
+      key,
+      points: [{ lat: s.lat, lng: s.lng }],
+      name: `${baseName(s.name)}역`,
       lines: [s.line],
       lat: s.lat,
       lng: s.lng,
