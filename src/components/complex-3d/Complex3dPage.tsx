@@ -302,11 +302,21 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   }, [mode, selected, viewFloor, season, ready]);
 
   // 주변 — 표시한 곳이 모두 보이게
+  // 주변에서 다른 탭으로 나오면 — 고른 동이 있으면 그 동으로, 없으면 단지 전체로
+  const prevMode = useRef<SceneMode>(mode);
   useEffect(() => {
-    if (mode !== "around" || !ready) return;
+    if (!ready) return;
+    const from = prevMode.current;
+    prevMode.current = mode;
+    let run: (() => void) | null = null;
+    if (mode === "around") run = () => sceneRef.current?.fitPois();
+    else if (from === "around") run = () => (selected ? sceneRef.current?.focus(selected) : sceneRef.current?.resetView());
+    if (!run) return;
     // 정보 패널 높이가 잡힌 뒤에 맞춘다
-    const t = window.setTimeout(() => sceneRef.current?.fitPois(), 350);
+    const t = window.setTimeout(run, 350);
     return () => window.clearTimeout(t);
+    // 고른 동이 바뀔 때는 다시 맞추지 않는다 (탭을 바꿀 때만)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, ready]);
 
   // 조망 계산 — 고른 동과 층이 바뀔 때
