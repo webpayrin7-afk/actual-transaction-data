@@ -632,6 +632,24 @@ export function AptPriceChart({
         ym = best;
       }
       if (!ym) return;
+      // 거래 없는 달(선만 이어진 달)을 누르면 가장 가까운, 거래 있는 달로 — 빈 목록을 만들지 않는다
+      const hit = monthSeries.find((row) => row.yearMonth === ym);
+      if (!hit || hit.volume <= 0) {
+        const at = hit?.t ?? (typeof state.activeLabel === "number" ? state.activeLabel : null);
+        if (at == null) return;
+        let best: string | null = null;
+        let bestDist = Number.POSITIVE_INFINITY;
+        for (const row of monthSeries) {
+          if (row.volume <= 0) continue;
+          const dist = Math.abs(row.t - at);
+          if (dist < bestDist) {
+            bestDist = dist;
+            best = row.yearMonth;
+          }
+        }
+        if (!best) return;
+        ym = best;
+      }
       onMonthSelect(ym === selectedMonthYm ? null : ym);
     },
     [onMonthSelect, monthSeries, selectedMonthYm],

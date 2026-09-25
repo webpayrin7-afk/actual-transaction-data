@@ -827,15 +827,18 @@ export function AptDetailPage({
             {selectedMonthYm ? (
               <div className="detail-market-month-filter">
                 <p className="detail-meta">
-                  {Number(selectedMonthYm.slice(0, 4))}년{" "}
-                  {Number(selectedMonthYm.slice(4, 6))}월 거래
+                  차트에서 고른{" "}
+                  <b className="font-semibold text-[color:var(--lab-navy-950)]">
+                    {Number(selectedMonthYm.slice(0, 4))}년 {Number(selectedMonthYm.slice(4, 6))}월
+                  </b>{" "}
+                  거래만 보는 중
                 </p>
                 <button
                   type="button"
                   className="lab-button lab-button-tertiary detail-market-month-clear"
                   onClick={() => setSelectedMonthYm(null)}
                 >
-                  선택 해제
+                  전체 보기
                 </button>
               </div>
             ) : null}
