@@ -490,6 +490,20 @@ export function MapSearchPage() {
 
   const selected = visibleComplexes.find((c) => c.complexId === selectedId) ?? null;
 
+  // 고른 단지에 3D 건물 모양이 있는지 — 없으면 '3D로 보기'를 막는다 (동·모양 미연결 단지가 많음)
+  const [has3d, setHas3d] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    if (!selectedId || selectedId in has3d) return;
+    const ctrl = new AbortController();
+    fetch(`/api/complex-3d/${selectedId}/coverage`, { signal: ctrl.signal })
+      .then((res) => (res.ok ? (res.json() as Promise<{ withShape: number }>) : null))
+      // 확인이 안 되면 버튼은 그대로 둔다 (3D 화면이 빈 상태를 안내)
+      .then((cov) => setHas3d((m) => ({ ...m, [selectedId]: cov ? cov.withShape > 0 : true })))
+      .catch(() => {});
+    return () => ctrl.abort();
+  }, [selectedId, has3d]);
+  const selected3d = selected ? has3d[selected.complexId] : undefined;
+
   // 화면 가운데 지역 → 상세 이동 버튼 하나. 동 말풍선 단계는 구(지역 페이지), 단지 단계는 동 상세.
   // 버튼이 가리키는 구·동은 지도에 단지 범위 다각형으로 표시한다.
   const centerLink = useMemo(() => {
@@ -904,9 +918,15 @@ export function MapSearchPage() {
               </dl>
             ) : null}
             <div className="mt-3 grid grid-cols-2 gap-2">
-              <Link href={`/complex-3d/${selected.complexId}`} className="lab-button lab-button-secondary w-full">
-                3D로 보기
-              </Link>
+              {selected3d ? (
+                <Link href={`/complex-3d/${selected.complexId}`} className="lab-button lab-button-secondary w-full">
+                  3D로 보기
+                </Link>
+              ) : (
+                <button type="button" disabled className="lab-button lab-button-secondary w-full">
+                  {selected3d === false ? "3D 준비 중" : "3D로 보기"}
+                </button>
+              )}
               <Link href={selected.href} className="lab-button lab-button-primary w-full">
                 단지 상세 보기
               </Link>
