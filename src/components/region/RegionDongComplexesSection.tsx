@@ -8,14 +8,13 @@ import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { rankingComplexHref } from "@/lib/region-ranking/public";
 import { formatEok } from "@/lib/utils/format";
-import type { NaverMapMarker } from "@/components/map/NaverMap";
 import type {
   RegionDongComplex,
   RegionDongOverview,
 } from "@/lib/region/region-dong-overview";
 
-/** 지도는 "지도" 보기를 고를 때만 SDK와 함께 불러온다. */
-const NaverMap = dynamic(() => import("@/components/map/NaverMap").then((m) => m.NaverMap), {
+/** 지도는 "지도" 보기를 고를 때만 SDK와 함께 불러온다 — 메인 지도와 같은 가격 마커. */
+const DongComplexMap = dynamic(() => import("@/components/region/DongComplexMap").then((m) => m.DongComplexMap), {
   ssr: false,
   loading: () => <div className="h-full w-full animate-pulse bg-slate-100" />,
 });
@@ -108,23 +107,6 @@ export function RegionDongComplexesSection({
     () => complexes.filter((c) => c.lat != null && c.lng != null),
     [complexes],
   );
-  const markers = useMemo<NaverMapMarker[]>(
-    () =>
-      mapped.map((c) => ({
-        id: c.complexId,
-        position: { lat: c.lat!, lng: c.lng! },
-        title: c.aptName,
-        kind: "COMPLEX",
-        selected: c.complexId === selectedId,
-      })),
-    [mapped, selectedId],
-  );
-  const center = useMemo(() => {
-    if (!mapped.length) return null;
-    const lat = mapped.reduce((s, c) => s + c.lat!, 0) / mapped.length;
-    const lng = mapped.reduce((s, c) => s + c.lng!, 0) / mapped.length;
-    return { lat, lng };
-  }, [mapped]);
   const selected = selectedId ? complexes.find((c) => c.complexId === selectedId) ?? null : null;
   const households = complexes.reduce((s, c) => s + (c.householdCount ?? 0), 0);
   const visible = expanded ? sorted : sorted.slice(0, LAB_LIST_PREVIEW);
@@ -167,18 +149,14 @@ export function RegionDongComplexesSection({
               onChange={setView}
             />
           ) : null}
-          {view === "map" && center ? (
+          {view === "map" && mapped.length ? (
             <>
-              <div className="relative h-[260px] w-full overflow-hidden rounded-xl border border-[color:var(--lab-border)] lg:h-[360px]">
-                <NaverMap
-                  center={center}
-                  zoom={15}
-                  markers={markers}
+              <div className="relative h-[320px] w-full overflow-hidden rounded-xl border border-[color:var(--lab-border)] lg:h-[420px]">
+                <DongComplexMap
+                  complexes={mapped}
                   selectedId={selectedId}
-                  onMarkerClick={(id) => setSelectedId((prev) => (prev === id ? null : id))}
-                  fitBoundsToken={`dong-${data?.lawdCd}-${dong}-${mapped.length}`}
+                  onSelect={(id) => setSelectedId((prev) => (prev === id ? null : id))}
                   ariaLabel={`${dong} 아파트 단지 지도`}
-                  className="h-full w-full"
                 />
               </div>
               {selected ? (

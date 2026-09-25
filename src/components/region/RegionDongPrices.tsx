@@ -241,11 +241,11 @@ export function RegionDongPricesSection({
                   ) : (
                     <Link
                       href={regionDongHref(regionSlug, d.name)}
-                      className="relative flex min-h-11 flex-col gap-1.5 py-2.5 pr-6 hover:bg-slate-50"
+                      className="lab-row-press relative -mx-2 flex min-h-11 flex-col gap-1.5 rounded-lg px-2 py-2.5 pr-8"
                     >
                       {body}
                       <ChevronRight
-                        className="absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                        className="lab-press-arrow absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2"
                         aria-hidden
                       />
                     </Link>

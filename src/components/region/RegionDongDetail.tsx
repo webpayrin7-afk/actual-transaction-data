@@ -59,8 +59,8 @@ export function RegionDongDetail({
       <header className="-mt-1 sm:-mt-1.5">
         <PageHeader
           leading={<BackLink fallback={`/region/${regionSlug}`} compact hideLabel />}
-          eyebrow={<p className="detail-meta truncate">{locationLabel}</p>}
           title={dong}
+          titleSuffix={locationLabel || null}
           titleClassName="detail-page-title"
           showDivider={false}
         >

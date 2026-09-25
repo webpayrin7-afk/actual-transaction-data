@@ -80,16 +80,17 @@ function HighlightRow({
       >
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
-            <div className="flex min-w-0 items-center gap-2">
+            <div className="flex min-w-0 items-center gap-1.5">
               <span
                 className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-[12px] font-semibold leading-4 ${t.chip}`}
               >
                 {reason}
               </span>
+              {sub ? <span className={`text-[13px] font-bold tabular-nums ${t.value}`}>{sub}</span> : null}
             </div>
+            {/* 오른쪽은 모든 행이 거래금액 — 세로로 줄이 맞게 */}
             <p className="shrink-0 whitespace-nowrap">
-              <span className={`detail-list-title ${t.value}`}>{value}</span>
-              {sub ? <span className="detail-meta ml-1 tabular-nums">({sub})</span> : null}
+              <span className="detail-list-title tabular-nums text-[color:var(--lab-navy-950)]">{value}</span>
             </p>
           </div>
           <p className="detail-list-title mt-1 break-keep">{deal.aptName}</p>
@@ -132,16 +133,16 @@ export function RegionTradeHighlightsSection({
           tone: "rise" as const,
           deal: h.biggestRise,
           reason: "가장 큰 폭 상승",
-          value: signedEok(h.biggestRise.diff ?? 0),
-          sub: formatEok(h.biggestRise.dealAmount),
+          value: formatEok(h.biggestRise.dealAmount),
+          sub: signedEok(h.biggestRise.diff ?? 0),
         },
         h.biggestDrop && {
           key: "drop",
           tone: "drop" as const,
           deal: h.biggestDrop,
           reason: "가장 큰 폭 하락",
-          value: signedEok(h.biggestDrop.diff ?? 0),
-          sub: formatEok(h.biggestDrop.dealAmount),
+          value: formatEok(h.biggestDrop.dealAmount),
+          sub: signedEok(h.biggestDrop.diff ?? 0),
         },
       ].filter((r): r is NonNullable<typeof r> => Boolean(r))
     : [];
