@@ -19,7 +19,12 @@ export function placeInfoPanel(
   );
   panel.style.width = `${width}px`;
   panel.style.left = `${left}px`;
-  panel.style.top = `${rect.bottom + 6}px`;
+  // 아래에 자리가 없으면 위로 (화면 아래쪽 패널 안의 ⓘ가 잘리지 않게)
+  const h = panel.offsetHeight;
+  const below = rect.bottom + 6;
+  const above = rect.top - 6 - h;
+  const fitsBelow = below + h <= window.innerHeight - INFO_VIEWPORT_PAD;
+  panel.style.top = `${!fitsBelow && above >= INFO_VIEWPORT_PAD ? above : below}px`;
 }
 
 export const INFO_PANEL_CLASS =

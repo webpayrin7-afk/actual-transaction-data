@@ -751,7 +751,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
               maxHeight:
                 mode === "around"
                   ? "24dvh"
-                  : mode === "sun"
+                  : mode === "sun" || mode === "view"
                     ? "60dvh"
                     : "38dvh",
               touchAction: "pan-y",
@@ -911,7 +911,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   </>
                 ) : (
                   <p className="text-[13px] text-[color:var(--lab-muted)]">
-                    동을 선택하면 그 동·층의 하루 일조 시간을 계산해요.
+                    동을 선택하면 해당 동·층의 하루 일조 시간을 계산해요.
                   </p>
                 )}
               </div>
@@ -931,7 +931,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                       </p>
                       <OpenDirections view={view} />
                       <p className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[12px] text-[color:var(--lab-muted)]">
-                        <span className="text-[color:var(--lab-navy-950)]">모형 위 부채꼴 색</span>
+                        
                         <span className="flex items-center gap-1">
                           <span className="h-2 w-2 rounded-sm" style={{ background: "#0e9aa0" }} aria-hidden />
                           200m 넘게 막힘없음
@@ -1230,12 +1230,18 @@ function DongTrades({ complexId, dong }: { complexId: string; dong: string }) {
   const { total, available, trades } = q.data;
   return (
     <div className="mt-1.5 border-t border-[color:var(--lab-border)] pt-1.5">
-      <p className="flex items-baseline justify-between text-[13px] font-semibold text-[color:var(--lab-navy-950)]">
-        {dong} 실거래
-        <span className="text-[12px] font-normal tabular-nums text-[color:var(--lab-muted)]">
-          {available ? `2023년~ ${total}건` : "준비 중"}
+      <div className="flex items-center justify-between text-[13px] font-semibold text-[color:var(--lab-navy-950)]">
+        <span className="flex items-center">
+          {dong} 실거래
+          <InfoTip aria-label="동별 실거래 안내" rootClassName="ml-0.5">
+            동별 실거래는 <b>2023년 거래부터</b> 제공돼요. 국토교통부 실거래 자료에 거래 동이 2023년부터 들어 있고, 등기가 끝난
+            거래에만 동이 표시돼요. 그래서 최근 몇 달 거래는 등기 후에 나타날 수 있어요.
+          </InfoTip>
         </span>
-      </p>
+        <span className="text-[12px] font-normal tabular-nums text-[color:var(--lab-muted)]">
+          {available ? `2023년부터 ${total}건` : "준비 중"}
+        </span>
+      </div>
       {!available ? (
         <p className="text-[12px] text-[color:var(--lab-muted)]">이 단지는 동별 실거래를 모으는 중이에요.</p>
       ) : trades.length ? (
