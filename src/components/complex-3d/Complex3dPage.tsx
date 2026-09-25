@@ -445,8 +445,9 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
             아직 이 단지의 건물 모양 데이터가 없어요
           </p>
           <p className="detail-meta">
-            국토교통부 GIS건물통합정보를 순서대로 적재하고 있어요. 동{" "}
-            {d.coverage.buildings}개의 층수·세대수는 이미 있어요.
+            {d.coverage.buildings > 0
+              ? `동 ${d.coverage.buildings}개의 층수·세대수는 있지만, 국토교통부 GIS건물통합정보의 건물 모양이 아직 연결되지 않았어요.`
+              : "건축물대장 동 정보와 건물 모양이 아직 연결되지 않았어요."}
           </p>
         </div>
       ) : null}

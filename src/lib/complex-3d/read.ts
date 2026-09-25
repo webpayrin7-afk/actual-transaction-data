@@ -94,6 +94,63 @@ function haversine(aLat: number, aLng: number, bLat: number, bLng: number): numb
 const str = (v: unknown) => (v == null || v === "" ? null : String(v));
 const num = (v: unknown) => (v == null || v === "" || Number.isNaN(Number(v)) ? null : Number(v));
 
+/** 동(건축물대장 번호) ↔ GIS 건물 연결. 키 = 번호 뒤쪽(앞 5자리 기관코드 제외). */
+async function readLinkedGis(
+  db: Client,
+  lawd: string,
+  center: { lat: number; lng: number },
+  mgmPks: string[],
+  columns: string,
+): Promise<Map<string, Record<string, unknown>>> {
+  const suffixes = mgmPks.filter((pk) => pk.length > 5).map((pk) => pk.slice(5));
+  const gisByPk = new Map<string, Record<string, unknown>>();
+  if (!suffixes.length) return gisByPk;
+  const g = await db.execute({
+    sql: `SELECT ${columns} FROM gis_buildings WHERE lawd_cd = ? AND bldrgst_pk IN (${suffixes.map(() => "?").join(",")})`,
+    args: [lawd, ...suffixes],
+  });
+  // 건축물대장 번호는 옛 시군구마다 따로 매긴 짧은 일련번호라, 합쳐진 구에서는 같은 번호의 먼 건물이 있다 —
+  // 단지 좌표에서 1km 안인 건물만 동 모양으로 쓴다 (적재 규칙과 같음)
+  for (const r of g.rows) {
+    const lat = Number(r.lat);
+    const lng = Number(r.lng);
+    if (Number.isFinite(lat) && Number.isFinite(lng) && haversine(center.lat, center.lng, lat, lng) > A_LINK_MAX_M) continue;
+    gisByPk.set(String(r.bldrgst_pk), r as Record<string, unknown>);
+  }
+  return gisByPk;
+}
+
+/** 3D 모형을 그릴 수 있는지만 — 지도 카드의 '3D로 보기' 버튼용 (동 수 · 모양 연결된 동 수). */
+export async function readComplex3dCoverage(
+  db: Client,
+  complexId: string,
+): Promise<Complex3d["coverage"] | null> {
+  const mres = await db.execute({
+    sql: `SELECT m.lawd_cd, COALESCE(a.lat, m.latitude) AS lat, COALESCE(a.lng, m.longitude) AS lng
+          FROM apt_complex_master m LEFT JOIN complex_map_anchor a ON a.complex_id = m.complex_id
+          WHERE m.complex_id = ?`,
+    args: [complexId],
+  });
+  const m = mres.rows[0];
+  if (!m || m.lat == null) return null;
+  const cb = await db.execute({
+    sql: `SELECT mgm_bldrgst_pk FROM complex_buildings WHERE complex_id = ?`,
+    args: [complexId],
+  });
+  const pks = cb.rows.map((r) => String(r.mgm_bldrgst_pk ?? ""));
+  const gisByPk = await readLinkedGis(
+    db,
+    String(m.lawd_cd),
+    { lat: Number(m.lat), lng: Number(m.lng) },
+    pks,
+    "bldrgst_pk, lat, lng, (rings IS NOT NULL AND rings <> 'null') AS has_rings",
+  );
+  return {
+    buildings: pks.length,
+    withShape: pks.filter((pk) => pk.length > 5 && Number(gisByPk.get(pk.slice(5))?.has_rings) === 1).length,
+  };
+}
+
 export async function readComplex3d(db: Client, complexId: string): Promise<Complex3d | null> {
   const mres = await db.execute({
     sql: `SELECT m.complex_id, m.apt_name, m.apt_name_norm, m.lawd_cd, m.legal_dong_name, m.sigungu,
@@ -146,26 +203,13 @@ export async function readComplex3d(db: Client, complexId: string): Promise<Comp
     linesByBuilding.set(k, list);
   }
 
-  const suffixes = cbRes.rows
-    .map((r) => String(r.mgm_bldrgst_pk ?? ""))
-    .filter((pk) => pk.length > 5)
-    .map((pk) => pk.slice(5));
-  const gisByPk = new Map<string, Record<string, unknown>>();
-  if (suffixes.length) {
-    const g = await db.execute({
-      sql: `SELECT bld_key, bldrgst_pk, height_m, floors_above, floors_below, approval_date, rings, lat, lng
-            FROM gis_buildings WHERE lawd_cd = ? AND bldrgst_pk IN (${suffixes.map(() => "?").join(",")})`,
-      args: [lawd, ...suffixes],
-    });
-    // 건축물대장 번호는 옛 시군구마다 따로 매긴 짧은 일련번호라, 합쳐진 구에서는 같은 번호의 먼 건물이 있다 —
-    // 단지 좌표에서 1km 안인 건물만 동 모양으로 쓴다 (적재 규칙과 같음)
-    for (const r of g.rows) {
-      const lat = Number(r.lat);
-      const lng = Number(r.lng);
-      if (Number.isFinite(lat) && Number.isFinite(lng) && haversine(center.lat, center.lng, lat, lng) > A_LINK_MAX_M) continue;
-      gisByPk.set(String(r.bldrgst_pk), r as Record<string, unknown>);
-    }
-  }
+  const gisByPk = await readLinkedGis(
+    db,
+    lawd,
+    center,
+    cbRes.rows.map((r) => String(r.mgm_bldrgst_pk ?? "")),
+    "bld_key, bldrgst_pk, height_m, floors_above, floors_below, approval_date, rings, lat, lng",
+  );
 
   const unitsByBuilding = new Map<string, Array<{ label: string; households: number }>>();
   for (const r of unitRes.rows) {
