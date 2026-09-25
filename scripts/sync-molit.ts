@@ -456,14 +456,18 @@ async function main() {
       console.warn("[sync] market_home snapshot rebuild failed:", err);
     }
 
-    try {
-      const { rebuildMarketStats } = await import("../src/lib/market/stats");
-      const stats = await rebuildMarketStats();
-      console.log(
-        `[sync] market_stats rebuilt asOf=${stats.asOfDate} days=${stats.days} regions=${stats.regions} ms=${stats.ms}`,
-      );
-    } catch (err) {
-      console.warn("[sync] market_stats rebuild failed:", err);
+    // 시장 통계(market_stats_*)는 지금 쓰는 화면이 없어 매일 동기화에서는 돌리지 않는다 (40~50분·대량 읽기/쓰기).
+    // 필요할 때만: REBUILD_MARKET_STATS=1 또는 --rebuild-market-stats=1
+    if (process.env.REBUILD_MARKET_STATS === "1" || process.argv.includes("--rebuild-market-stats=1")) {
+      try {
+        const { rebuildMarketStats } = await import("../src/lib/market/stats");
+        const stats = await rebuildMarketStats();
+        console.log(
+          `[sync] market_stats rebuilt asOf=${stats.asOfDate} days=${stats.days} regions=${stats.regions} ms=${stats.ms}`,
+        );
+      } catch (err) {
+        console.warn("[sync] market_stats rebuild failed:", err);
+      }
     }
   }
 
