@@ -1127,6 +1127,8 @@ export async function queryRegionMonthPool(params: {
 export async function searchAptAggregatesFromDb(params: {
   queryNorm: string;
   limit?: number;
+  /** 동·구 이름 앞부분 (공백 없이) — 주어지면 그 동·구 단지만 */
+  locations?: string[];
 }): Promise<
   | Array<{
       aptName: string;
@@ -1154,7 +1156,9 @@ export async function searchAptAggregatesFromDb(params: {
     score: number;
   }> = [];
 
+  const locs = (params.locations ?? []).filter(Boolean);
   for (const row of catalog) {
+    if (locs.length && !locs.every((l) => row.dong.replace(/\s+/g, "").startsWith(l) || row.gu.replace(/\s+/g, "").startsWith(l))) continue;
     const score = scoreAptNorm(q, row.aptNameNorm);
     if (score <= 0) continue;
     scored.push({ row, score });

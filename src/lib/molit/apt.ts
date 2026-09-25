@@ -307,6 +307,33 @@ export async function searchAptSuggestions(
   const q = normalizeName(query.trim());
   if (q.length < 1) return [];
 
+  // 0) "잠실동 엘스"·"잠실 엘스"처럼 동·구 + 단지명 — 첫 단어를 동·구 이름 앞부분으로 보고 그 안에서 단지명 검색
+  const words = query.trim().split(/\s+/).filter(Boolean);
+  if (hasDb() && words.length >= 2) {
+    const loc = words[0]!;
+    const rest = normalizeName(words.slice(1).join(""));
+    if (loc.length >= 2 && rest.length >= 1) {
+      const hits = await searchAptAggregatesFromDb({ queryNorm: rest, limit: limit * 2, locations: [loc] });
+      const mapped: AptSuggestion[] = [];
+      for (const hit of hits ?? []) {
+        const region = regionFromGu(hit.gu);
+        if (!region) continue;
+        mapped.push({
+          aptName: hit.aptName,
+          regionSlug: region.slug,
+          regionName: region.name,
+          gu: hit.gu,
+          dong: hit.dong,
+          dealCount: hit.dealCount,
+          maxDealAmount: hit.maxDealAmount,
+          latestDealDate: hit.latestDealDate,
+        });
+        if (mapped.length >= limit) break;
+      }
+      if (mapped.length > 0) return mapped;
+    }
+  }
+
   // 1) DB LIKE 집계 — 적재된 전체 기간에서 즉시 검색
   if (hasDb() && q.length >= 2) {
     const hits = await searchAptAggregatesFromDb({ queryNorm: q, limit: limit * 2 });
