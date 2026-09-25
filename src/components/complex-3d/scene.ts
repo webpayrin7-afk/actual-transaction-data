@@ -93,6 +93,9 @@ export class Complex3dScene {
   onHeading: (deg: number) => void = () => {};
   private lastHeading = NaN;
   private labelsFar = false;
+  /** 아래 시트가 가리는 높이(px) — 화면 중심을 그만큼 위로 올려 보이는 영역 가운데에 모형이 오게 */
+  private insetTarget = 0;
+  private inset = 0;
   private bounds = { radius: 150, maxH: 20, cx: 0, cz: 0, halfW: 100, halfD: 100 };
   private anim: { p0: THREE.Vector3; p1: THREE.Vector3; t0: THREE.Vector3; t1: THREE.Vector3; start: number; ms: number } | null = null;
 
@@ -344,7 +347,9 @@ export class Complex3dScene {
     const { h } = buildingHeight(b);
     const target = new THREE.Vector3(c.x, h * 0.45, c.z);
     const dir = this.camera.position.clone().sub(this.controls.target).normalize();
-    const dist = Math.max(170, h * 4.2);
+    // 시트가 화면 아래를 가리면 보이는 높이가 줄어드니 그만큼 멀리서
+    const visible = Math.max(0.35, 1 - this.insetTarget / Math.max(1, this.host.clientHeight));
+    const dist = Math.max(170, h * 4.2) / visible;
     this.flyTo(target.clone().add(dir.multiplyScalar(dist)), target);
   }
 
@@ -578,10 +583,22 @@ export class Complex3dScene {
   };
   private lastTap: { id: string; at: number } | null = null;
 
+  setBottomInset(px: number) {
+    this.insetTarget = Math.max(0, Math.round(px));
+  }
+
+  private applyInset() {
+    const w = this.host.clientWidth;
+    const h = this.host.clientHeight;
+    if (this.inset < 0.5) this.camera.clearViewOffset();
+    else this.camera.setViewOffset(w, h + this.inset, 0, this.inset, w, h);
+  }
+
   resize() {
     const w = this.host.clientWidth;
     const h = this.host.clientHeight;
     this.camera.aspect = w / h;
+    this.applyInset();
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
     this.labels.setSize(w, h);
@@ -597,6 +614,11 @@ export class Complex3dScene {
       this.camera.position.lerpVectors(a.p0, a.p1, e);
       this.controls.target.lerpVectors(a.t0, a.t1, e);
       if (k >= 1) this.anim = null;
+    }
+    if (Math.abs(this.insetTarget - this.inset) > 0.5) {
+      this.inset += (this.insetTarget - this.inset) * 0.25;
+      if (Math.abs(this.insetTarget - this.inset) <= 0.5) this.inset = this.insetTarget;
+      this.applyInset();
     }
     this.controls.update();
     // 멀리서 보면 동 이름표를 작게 (겹침 줄이기)

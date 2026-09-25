@@ -54,6 +54,17 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   const [heading, setHeading] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
   const drag = useRef<{ y: number; moved: boolean } | null>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  // 모바일에서 시트가 가리는 만큼 모형 중심을 위로 (넓은 화면은 시트가 옆에 떠 있어 그대로)
+  useEffect(() => {
+    const el = sheetRef.current;
+    if (!el || !ready) return;
+    const sync = () => sceneRef.current?.setBottomInset(window.innerWidth < 640 ? el.offsetHeight : 0);
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ready]);
   const [dragDy, setDragDy] = useState<number | null>(null);
   const [sheetMax, setSheetMax] = useState(340);
   useEffect(() => {
@@ -207,8 +218,6 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     s.focus(id);
     setSelected(id);
     setNearest(s.nearestDistance(id));
-    // 모형이 보이게 시트는 접는다 (요약 줄에 동 정보)
-    setSheetOpen(false);
   };
 
   const selLine = sel
@@ -224,7 +233,9 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   // 시트를 접었을 때 한 줄 요약
   const summary =
     mode === "base"
-      ? (selLine ?? `동 ${dongs.length}개 · 동을 눌러 보세요`)
+      ? sheetOpen
+        ? `동 ${dongs.length}개`
+        : (selLine ?? `동 ${dongs.length}개 · 동을 눌러 보세요`)
       : mode === "floors"
         ? `층 구간별 3.3㎡당 가격 · ${d?.floorBandsBasis ?? ""}`
         : mode === "types"
@@ -332,7 +343,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
 
       {/* 아래: 접히는 시트 — 접으면 한 줄 요약, 펼치면 모드별 내용 */}
       {d && hasShape ? (
-        <div className="absolute inset-x-0 bottom-0 z-10 sm:bottom-3 sm:left-3 sm:right-auto sm:w-[400px]">
+        <div ref={sheetRef} className="absolute inset-x-0 bottom-0 z-10 sm:bottom-3 sm:left-3 sm:right-auto sm:w-[400px]">
           <div className="rounded-t-2xl bg-white shadow-[0_-4px_20px_rgba(15,23,42,0.12)] sm:rounded-2xl">
             <button
               type="button"
@@ -533,26 +544,26 @@ function DongDetail({
   sel: Complex3d["buildings"][number];
   nearest: { dong: string | null; meters: number } | null;
 }) {
+  const main = [
+    sel.floors ? `${sel.floors}층` : null,
+    sel.households ? `${sel.households.toLocaleString("ko-KR")}세대` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
   return (
-    <div className="flex flex-col gap-1 rounded-xl bg-[color:var(--lab-surface-subtle)] px-3 py-2.5">
-      <p className="detail-subsection-title">{sel.dong ?? sel.name ?? "동"}</p>
-      <p className="detail-body tabular-nums">
-        {[
-          sel.floors ? `지상 ${sel.floors}층` : null,
-          sel.floorsBelow ? `지하 ${sel.floorsBelow}층` : null,
-          sel.heightM ? `높이 ${sel.heightM}m` : null,
-          sel.households ? `${sel.households.toLocaleString("ko-KR")}세대` : null,
-          sel.approvalDate ? `${sel.approvalDate.slice(0, 4)}년 사용승인` : null,
-        ]
-          .filter(Boolean)
-          .join(" · ")}
+    <div className="rounded-xl border border-[color:var(--lab-brand-border)] bg-white px-3 py-2">
+      <p className="flex items-baseline gap-2">
+        <span className="text-[15px] font-bold text-[color:var(--lab-teal-700)]">{sel.dong ?? sel.name ?? "동"}</span>
+        {main ? <span className="text-[13px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">{main}</span> : null}
       </p>
-      {sel.units.length ? (
-        <p className="detail-meta tabular-nums">평형 {sel.units.map((u) => `${u.label} ${u.households}세대`).join(" · ")}</p>
-      ) : null}
-      {nearest ? (
-        <p className="detail-meta tabular-nums">
-          가장 가까운 동 {nearest.dong ?? ""}까지 {nearest.meters}m
+      {sel.units.length || nearest ? (
+        <p className="mt-0.5 text-[12px] leading-[18px] tabular-nums text-[color:var(--lab-muted)]">
+          {[
+            sel.units.length ? sel.units.map((u) => `${u.label} ${u.households}세대`).join(" · ") : null,
+            nearest ? `옆 동 ${nearest.dong ?? ""} ${nearest.meters}m` : null,
+          ]
+            .filter(Boolean)
+            .join("  ·  ")}
         </p>
       ) : null}
     </div>
