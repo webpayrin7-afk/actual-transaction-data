@@ -227,6 +227,16 @@ export async function readMapComplexes(
   const anchored = await hasAnchorTable(db);
   const lat = anchored ? "COALESCE(a.lat, m.latitude)" : "m.latitude";
   const lng = anchored ? "COALESCE(a.lng, m.longitude)" : "m.longitude";
+  const box = [bbox.swLat, bbox.neLat, bbox.swLng, bbox.neLng];
+  // COALESCE 좌표는 인덱스를 못 타 전체 단지(2.7만)를 훑었다. 두 좌표 표를 각각 (lat, lng) 인덱스로
+  // 영역 안 후보만 먼저 추린다 — anchor 는 lat·lng NOT NULL 이라 COALESCE 값은 anchor 가 있으면
+  // anchor 좌표, 없으면 필지 좌표. 그래서 두 후보의 합집합이 정확히 같은 단지를 담는다(아래 COALESCE 조건은 그대로).
+  const candidates = anchored
+    ? `AND m.complex_id IN (
+             SELECT complex_id FROM complex_map_anchor WHERE lat BETWEEN ? AND ? AND lng BETWEEN ? AND ?
+             UNION
+             SELECT complex_id FROM apt_complex_master WHERE latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ?)`
+    : "";
   const master = await db.execute({
     // 영역에 단지가 많으면 세대수 큰 단지부터 (주요 단지가 먼저 보이게).
     sql: `SELECT m.complex_id, m.apt_name, m.apt_name_norm, m.lawd_cd, m.legal_dong_name, m.sigungu,
@@ -236,16 +246,20 @@ export async function readMapComplexes(
           ${anchored ? "LEFT JOIN complex_map_anchor a ON a.complex_id = m.complex_id" : ""}
           LEFT JOIN apt_complex_profile p ON p.complex_id = m.complex_id
           WHERE ${lat} BETWEEN ? AND ? AND ${lng} BETWEEN ? AND ?
-          ORDER BY COALESCE(p.household_count, 0) DESC
+          ${candidates}
+          ORDER BY COALESCE(p.household_count, 0) DESC, m.rowid
           LIMIT ?`,
-    args: [bbox.swLat, bbox.neLat, bbox.swLng, bbox.neLng, MAP_MAX_COMPLEXES + 1],
+    args: [...box, ...(anchored ? [...box, ...box] : []), MAP_MAX_COMPLEXES + 1],
   });
   const truncated = master.rows.length > MAP_MAX_COMPLEXES;
   const rows = master.rows.slice(0, MAP_MAX_COMPLEXES);
   if (rows.length === 0) return { complexes: [], truncated: false };
 
   // 1년 변동을 보려고 18개월을 읽는다 — 나머지 값은 최근 12개월만 쓴다.
+  // 12~18개월 전 거래는 선택한 유형(1년 변동 series)만 쓰이므로 다른 유형은 최근 12개월(cut12)만 읽는다.
   const since = yearMonthMonthsAgo(WINDOW_MONTHS + 6);
+  const cut12 = daysAgo(365);
+  const selectedType = deal === "trade" ? "trade" : "rent";
   const deals = new Map<string, Deal[]>();
   const keyOf = (lawd: unknown, norm: unknown) => `${String(lawd)}|${String(norm)}`;
 
@@ -269,9 +283,9 @@ export async function readMapComplexes(
                          exclusive_area, build_year, dealing_gbn, floor
                   FROM transactions
                   WHERE lawd_cd = ? AND apt_name_norm IN (${slice.map(() => "?").join(",")})
-                    AND year_month >= ?
+                    AND year_month >= ? AND (deal_type = ? OR deal_date >= ?)
                     AND exclusive_area >= ? AND exclusive_area <= ?`,
-            args: [lawd, ...slice, since, area.min, area.max],
+            args: [lawd, ...slice, since, selectedType, cut12, area.min, area.max],
           })
           .then((res) => {
             for (const r of res.rows) {
@@ -361,7 +375,6 @@ export async function readMapComplexes(
   }
   await Promise.all(jobs);
 
-  const cut12 = daysAgo(365);
   const cut6 = daysAgo(183);
   const pastFrom = daysAgo(548);
 
