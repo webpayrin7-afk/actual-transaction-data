@@ -1,6 +1,7 @@
 /**
  * Nearby APT + officetel supply by 시군구 코드(lawd 5자리).
  * 아파트: 청약홈 사본(applyhome_notices/models/competition)에서 lawd_cd 정확 일치.
+ *   lawd_cd 가 빈 공고는 주소를 다시 읽고, 구 없이 시 이름만 있으면 그 시 전체로 본다.
  * 오피스텔: 청약홈 OpenAPI 라이브(daily fetch cache) → 주소를 코드로 다시 읽어 같은 시군구만.
  * Server-only. No DB writes.
  */
@@ -11,6 +12,7 @@ import {
   dongScopeCodes,
   legacyLawdCodesOf,
   legacyLawdNamesOf,
+  matchCityLawds,
   matchLawd,
   type DongIndex,
 } from "@/lib/applyhome/lawd-match";
@@ -505,6 +507,21 @@ async function noticeLawd(
   );
 }
 
+/**
+ * 이 공고가 단지 지역 공고인가. 코드로 못 읽은 공고(동탄2·부천대장·성남낙생처럼 주소에 구·동 없이
+ * 택지지구 이름만 있는 경우 — 사본 lawd_cd NULL)는 주소의 시 이름이 단지의 시와 정확히 같으면
+ * 그 시의 구 모두에 보여 준다 (예전 주소 시군구 검색과 같은 범위, 부분 일치 없음).
+ */
+async function noticeInScope(
+  stored: string | null,
+  address: string,
+  scope: RegionScope,
+): Promise<boolean> {
+  const code = await noticeLawd(stored, address, scope);
+  if (code) return inScope(code, scope);
+  return matchCityLawds(address).some((c) => scope.codes.has(c));
+}
+
 const dongIndexCache = new Map<string, { at: number; value: DongIndex }>();
 
 function makeScope(db: Client, codes: string[]): RegionScope {
@@ -568,12 +585,12 @@ async function readAptCards(
 
   const rows: Array<{ row: DetailRow; status: NearbySaleStatus }> = [];
   for (const r of res.rows) {
-    const code = await noticeLawd(
+    const inRegion = await noticeInScope(
       r.lawd_cd == null ? null : String(r.lawd_cd),
       str(r.address),
       scope,
     );
-    if (!inScope(code, scope)) continue;
+    if (!inRegion) continue;
     const row: DetailRow = {
       HOUSE_MANAGE_NO: str(r.house_manage_no),
       PBLANC_NO: str(r.pblanc_no) || str(r.house_manage_no),
@@ -675,7 +692,7 @@ async function fetchOfficetelCards(
     seen.add(key);
     const status = cardStatus(row, today);
     if (!status) continue;
-    if (!inScope(await noticeLawd(null, str(row.HSSPLY_ADRES), scope), scope)) continue;
+    if (!(await noticeInScope(null, str(row.HSSPLY_ADRES), scope))) continue;
     rows.push({ row, status });
   }
   const cards = await Promise.all(

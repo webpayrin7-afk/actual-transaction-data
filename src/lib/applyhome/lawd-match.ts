@@ -104,9 +104,20 @@ export function matchLawd(
   dongIndex?: DongIndex,
   opts: { keepLegacy?: boolean } = {},
 ): string | null {
-  if (!address) return null;
-  const candidates = [...address.matchAll(/\(([^)]*)\)/g)].map((m) => m[1]!).concat(address);
   let legacy: string | null = null;
+  for (const tokens of addressTokenRuns(address)) {
+    const hit = matchTokens(tokens, dongIndex);
+    if (hit?.legacy) legacy ??= hit.code;
+    else if (hit) return hit.code;
+  }
+  return opts.keepLegacy ? legacy : null;
+}
+
+/** 주소 후보별 토큰 — 첫 시·도 토큰부터 (시·도가 없는 후보는 뺀다) */
+function addressTokenRuns(address: string | null | undefined): string[][] {
+  if (!address) return [];
+  const candidates = [...address.matchAll(/\(([^)]*)\)/g)].map((m) => m[1]!).concat(address);
+  const runs: string[][] = [];
   for (const c of candidates) {
     const tokens = c
       .replace(/[(),]/g, " ")
@@ -114,12 +125,22 @@ export function matchLawd(
       .split(/\s+/)
       .map((x) => x.replace(/특례시$/, "시"));
     const start = tokens.findIndex((x) => SIDO_OF[x]);
-    if (start < 0) continue;
-    const hit = matchTokens(tokens.slice(start), dongIndex);
-    if (hit?.legacy) legacy ??= hit.code;
-    else if (hit) return hit.code;
+    if (start >= 0) runs.push(tokens.slice(start));
   }
-  return opts.keepLegacy ? legacy : null;
+  return runs;
+}
+
+/**
+ * matchLawd 가 못 좁힌 주소용 — 구가 있는 시 이름까지만 정확히 적힌 공고
+ * ("경기도 화성시 동탄2택지개발지구 B11BL", "경기도 부천시 부천대장 택지개발사업지구 내 A-5블록")
+ * 의 그 시 구 코드 전부. 시·도 + 시 이름 정확 일치만 — 어느 구인지는 정하지 않는다.
+ */
+export function matchCityLawds(address: string | null | undefined): string[] {
+  for (const t of addressTokenRuns(address)) {
+    const children = CITY_CHILDREN.get(`${SIDO_OF[t[0]!]}|${t[1]}`);
+    if (children) return [...children];
+  }
+  return [];
 }
 
 type TokenHit = { code: string; legacy?: boolean };
@@ -140,7 +161,11 @@ function matchTokens(t: string[], dongIndex?: DongIndex): TokenHit | null {
   const children = CITY_CHILDREN.get(`${sido}|${t[1]}`);
   if (children) {
     // 구가 있는 시인데 주소에 구가 없다 — 다음 토큰(동·읍·면)이 그 시의 한 구에만 있으면 그 구
-    return exact(narrowByDong(children, t[2], dongIndex));
+    // 읍·면 아래 리는 "남양읍 남양리"처럼 두 토큰이 한 법정동 이름
+    return exact(
+      narrowByDong(children, t[3] ? `${t[2]} ${t[3]}` : undefined, dongIndex) ??
+        narrowByDong(children, t[2], dongIndex),
+    );
   }
   const direct = BY_NAME.get(`${sido}|${t[1]}`);
   if (direct) return { code: direct };
