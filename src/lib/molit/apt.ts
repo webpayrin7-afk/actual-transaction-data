@@ -2,6 +2,8 @@ import {
   FEATURED_LAWD_CODES,
   ALL_REGIONS,
   getRegion,
+  LAWD_TO_REGION,
+  LEGACY_REGION_SLUGS,
   type RegionDef,
 } from "@/lib/constants/regions";
 import { fetchTransactionsByType, hasApiKey } from "@/lib/molit/client";
@@ -13,6 +15,7 @@ import {
   queryAptTransactions,
   queryTradePool,
   searchAptAggregatesFromDb,
+  splitAptByLawd,
 } from "@/lib/db/repository";
 import {
   recentYearMonths,
@@ -88,14 +91,138 @@ function expandFeaturedLawdCodes(): string[] {
   return [...codes];
 }
 
+/**
+ * 거래 구명(gu: "중구", "수성구", "천안시 서북구") 과 이름이 정확히 같은 구의 법정동코드들.
+ * 중구·동구·서구·남구·북구·강서구·고성군처럼 여러 시·도에 같은 이름이 있으면 여러 개다.
+ * (부분 포함으로 찾으면 "천안시 서북구"→부산 북구, "남동구"→부산 동구로 잘못 붙는다)
+ */
+function lawdCodesForGu(gu: string): string[] {
+  const g = gu.replace(/\s+/g, " ").trim();
+  if (!g) return [];
+  const codes = new Set<string>();
+  for (const r of ALL_REGIONS) {
+    for (const d of r.districts) {
+      if (d.name === g || r.name === g || `${r.name} ${d.name}` === g) codes.add(d.code);
+    }
+  }
+  return [...codes];
+}
+
+/** 구명만으로 지역이 하나로 정해질 때만 돌려준다 — 같은 이름 구가 여러 시·도에 있으면 undefined */
 function regionFromGu(gu: string): RegionDef | undefined {
-  return ALL_REGIONS.find((r) => {
-    if (r.metro === "seoul") return gu.includes(r.name) || r.name === gu;
-    return (
-      gu.includes(r.name) ||
-      r.districts.some((d) => gu.includes(d.name) || d.name === gu)
-    );
+  const regions = new Set(
+    lawdCodesForGu(gu)
+      .map((code) => LAWD_TO_REGION[code])
+      .filter((r): r is RegionDef => Boolean(r)),
+  );
+  return regions.size === 1 ? [...regions][0] : undefined;
+}
+
+/** 거래 한 건의 지역 — 법정동코드가 있으면 그것으로, 없으면 구명이 하나로 정해질 때만 */
+function regionForTx(tx: Pick<Transaction, "lawdCd" | "gu">): RegionDef | undefined {
+  return (tx.lawdCd ? LAWD_TO_REGION[tx.lawdCd] : undefined) ?? regionFromGu(tx.gu);
+}
+
+/**
+ * 구명(gu)이 빈 채로 적재된 거래의 법정동코드 — 레지스트리에 코드가 들어오기 전에 적재돼 구명을 못 붙인 곳.
+ * 코드가 바뀐 지역(광주·전남 12, 강원 51, 전북 52 — slug 는 옛 코드)과 인천 분할 신설 구.
+ * (2026-09 확인: 전국 코드별 표본에서 빈 구명은 이 64개 코드 중 63개에서만 나왔다 — 나머지 1개는 표본 거래 없음)
+ */
+const EMPTY_GU_LAWD_CODES: string[] = (() => {
+  const codes = new Set<string>();
+  for (const r of ALL_REGIONS) {
+    const suffix = r.slug.slice(r.slug.lastIndexOf("-") + 1);
+    if (!/^\d{5}$/.test(suffix)) continue;
+    for (const code of r.lawdCodes) if (code !== suffix) codes.add(code);
+  }
+  for (const targets of Object.values(LEGACY_REGION_SLUGS)) {
+    for (const slug of targets) for (const code of getRegion(slug)?.lawdCodes ?? []) codes.add(code);
+  }
+  return [...codes];
+})();
+
+type CatalogHit = NonNullable<Awaited<ReturnType<typeof searchAptAggregatesFromDb>>>[number];
+
+/**
+ * 단지명 카탈로그 결과 → 지역이 붙은 추천.
+ * 카탈로그는 (단지명, 구명) 으로만 묶여 있어 "대구 동구 태왕메트로시티" 가 부산 동구로 가는 식의
+ * 오류가 났다. 구명이 한 지역으로 안 정해지면(같은 이름 구·구명 없음) 거래에서 법정동코드별로
+ * 다시 나눠 각 코드의 지역으로 보낸다. 지역을 못 정한 단지는 빼고 틀린 지역으로 보내지 않는다.
+ */
+async function suggestionsFromCatalogHits(
+  hits: CatalogHit[],
+  limit: number,
+): Promise<AptSuggestion[]> {
+  const resolveHit = async (hit: CatalogHit): Promise<AptSuggestion[]> => {
+    const region = regionFromGu(hit.gu);
+    if (region) {
+      return [
+        {
+          aptName: hit.aptName,
+          regionSlug: region.slug,
+          regionName: region.name,
+          gu: hit.gu,
+          dong: hit.dong,
+          dealCount: hit.dealCount,
+          maxDealAmount: hit.maxDealAmount,
+          latestDealDate: hit.latestDealDate,
+        },
+      ];
+    }
+    const candidates = lawdCodesForGu(hit.gu);
+    const split = await splitAptByLawd({
+      aptNameNorm: hit.aptNameNorm,
+      gu: hit.gu,
+      lawdCodes: hit.gu.trim() ? candidates : EMPTY_GU_LAWD_CODES,
+    }).catch((err) => {
+      console.warn("[apt-suggest] lawd split failed:", err);
+      return null;
+    });
+    const out: AptSuggestion[] = [];
+    for (const row of split ?? []) {
+      const r = LAWD_TO_REGION[row.lawdCd];
+      if (!r) continue;
+      const district = r.districts.find((d) => d.code === row.lawdCd);
+      out.push({
+        aptName: row.aptName || hit.aptName,
+        regionSlug: r.slug,
+        regionName: r.name,
+        // 구명이 비어 있으면 여러 구 시(전주시 등)에서 상세가 그 구만 보도록 구 이름을 채운다
+        gu: hit.gu || (r.districts.length > 1 && district ? `${r.name} ${district.name}` : ""),
+        dong: row.dong,
+        dealCount: row.dealCount,
+        maxDealAmount: row.maxDealAmount,
+        latestDealDate: row.latestDealDate,
+      });
+    }
+    return out;
+  };
+
+  // 필요한 만큼만 나눠 조회 — 앞쪽 limit개로 다 차면 뒤 후보는 거래를 읽지 않는다
+  const out: Array<AptSuggestion & { score: number }> = [];
+  for (let i = 0; i < hits.length && out.length < limit; i += limit) {
+    const batch = hits.slice(i, i + limit);
+    const resolved = await Promise.all(batch.map(resolveHit));
+    resolved.forEach((rows, j) => {
+      for (const row of rows) out.push({ ...row, score: batch[j]!.score });
+    });
+  }
+  // 코드별로 나뉜 줄도 카탈로그와 같은 순서(일치 점수 → 거래 수 → 최고가)로 — 한 이름이 목록을 다 차지하지 않게
+  out.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    if (b.dealCount !== a.dealCount) return b.dealCount - a.dealCount;
+    return b.maxDealAmount - a.maxDealAmount;
   });
+  return out.slice(0, limit).map((row) => ({
+    aptName: row.aptName,
+    regionSlug: row.regionSlug,
+    regionName: row.regionName,
+    gu: row.gu,
+    dong: row.dong,
+    dealCount: row.dealCount,
+    maxDealAmount: row.maxDealAmount,
+    latestDealDate: row.latestDealDate,
+  }));
 }
 
 /** 구명(gu)과 맞는 구의 법정동코드. 못 찾으면 undefined */
@@ -253,10 +380,8 @@ function aggregateSuggestions(
     const score = matchScore(queryNorm, aptKey);
     if (score <= 0) continue;
 
-    const region =
-      regionFromGu(tx.gu) ??
-      // gu 매핑 실패 시 단지명에 시·구명이 들어있는 경우 대비
-      ALL_REGIONS.find((r) => aptKey.includes(regionNameKey(r.name)));
+    // 단지명에 든 글자("동아"의 "동")로 지역을 짐작하지 않는다 — 틀린 지역으로 보내느니 뺀다
+    const region = regionForTx(tx);
     if (!region) continue;
 
     const key = `${aptKey}|${region.slug}`;
@@ -322,22 +447,7 @@ export async function searchAptSuggestions(
     const rest = normalizeName(words.slice(1).join(""));
     if (loc.length >= 2 && rest.length >= 1) {
       const hits = await searchAptAggregatesFromDb({ queryNorm: rest, limit: limit * 2, locations: [loc] });
-      const mapped: AptSuggestion[] = [];
-      for (const hit of hits ?? []) {
-        const region = regionFromGu(hit.gu);
-        if (!region) continue;
-        mapped.push({
-          aptName: hit.aptName,
-          regionSlug: region.slug,
-          regionName: region.name,
-          gu: hit.gu,
-          dong: hit.dong,
-          dealCount: hit.dealCount,
-          maxDealAmount: hit.maxDealAmount,
-          latestDealDate: hit.latestDealDate,
-        });
-        if (mapped.length >= limit) break;
-      }
+      const mapped = await suggestionsFromCatalogHits(hits ?? [], limit);
       if (mapped.length > 0) return mapped;
     }
   }
@@ -346,26 +456,7 @@ export async function searchAptSuggestions(
   if (hasDb() && q.length >= 2) {
     const hits = await searchAptAggregatesFromDb({ queryNorm: q, limit: limit * 2 });
     if (hits && hits.length > 0) {
-      const mapped: AptSuggestion[] = [];
-      for (const hit of hits) {
-        const region =
-          regionFromGu(hit.gu) ??
-          ALL_REGIONS.find((r) =>
-            normalizeName(hit.aptName).includes(regionNameKey(r.name)),
-          );
-        if (!region) continue;
-        mapped.push({
-          aptName: hit.aptName,
-          regionSlug: region.slug,
-          regionName: region.name,
-          gu: hit.gu,
-          dong: hit.dong,
-          dealCount: hit.dealCount,
-          maxDealAmount: hit.maxDealAmount,
-          latestDealDate: hit.latestDealDate,
-        });
-        if (mapped.length >= limit) break;
-      }
+      const mapped = await suggestionsFromCatalogHits(hits, limit);
       if (mapped.length > 0) return mapped;
     }
   }
