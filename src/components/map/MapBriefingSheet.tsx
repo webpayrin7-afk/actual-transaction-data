@@ -37,7 +37,8 @@ export const BRIEFING_PEEK_PX = 88;
 /** 목록마다 최대 개수 — 전체는 /market */
 /** 지도 브리핑은 탭마다 3개까지 — 스크롤 없이 한눈에, 나머지는 시장 화면에서 */
 const LIST_MAX = 3;
-const EXPANDED_RATIO = 0.55;
+/** 펼친 시트 최대 높이(화면 비율) — 목록 3개 + 시장 버튼이 스크롤 없이 들어가게. 내용이 적으면 내용만큼 */
+const EXPANDED_RATIO = 0.8;
 /** 지도가 멈춘 뒤 이만큼 기다렸다 가운데 지역을 찾는다 */
 const SCOPE_DEBOUNCE_MS = 400;
 /** 구 수준 확대 — 네이버 2D 줌 / MapLibre 3D 줌 (512px 타일이라 1 작다) */
@@ -397,7 +398,7 @@ export function MapBriefingSheet({
         <div
           id={panelId}
           hidden={!expanded && dragH == null}
-          className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden px-4 pb-3 sm:flex-none"
+          className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain px-4 pb-3 sm:flex-none"
         >
           {query.isError ? (
             <div className="flex flex-col gap-2 py-2">

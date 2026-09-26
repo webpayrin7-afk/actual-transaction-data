@@ -67,9 +67,18 @@ type MapWithBounds = NaverMapInstance & {
   getBounds(): Bounds;
   getCenter(): { y: number; x: number };
   getZoom(): number;
+  getProjection(): {
+    fromCoordToOffset(c: unknown): { x: number; y: number };
+    fromOffsetToCoord(p: unknown): unknown;
+  };
+  panTo(c: unknown): void;
 };
 
 const DEAL_LABEL: Record<MapDealKind, string> = { trade: "매매", jeonse: "전세" };
+
+/** 2D에서 고른 단지를 가운데로 옮길 때 위·아래 가림 (px, 모바일 기준) */
+const CONTROLS_SPACE_PX = 110;
+const CARD_SPACE_PX = 175;
 
 /** 지도 높이 — 모바일은 상단바가 없어 화면 전체, PC는 상단바 아래 */
 const MAP_HEIGHT_CLASS = "h-dvh sm:h-[calc(100dvh-var(--site-header-height,56px))]";
@@ -291,6 +300,23 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
     setCam3d(null);
     // 네이버 줌(256px 타일)과 MapLibre 줌(512px)은 1 차이 — 같은 축척으로 연다
     setView3d({ lat: v.lat, lng: v.lng, zoom: Math.max(v.zoom, COMPLEX_ZOOM) - 1 });
+  };
+  /**
+   * 2D에서 단지를 고르면 그 단지를 보이는 곳 가운데로 — 위 조작 줄(약 110px)과 아래 카드(약 175px) 사이.
+   * 지도 가운데보다 (아래 가림 − 위 가림)/2 만큼 위에 오게 옮긴다.
+   */
+  const centerOnSelection = (lat: number, lng: number) => {
+    const maps = window.naver?.maps;
+    const map = mapRef.current;
+    if (!maps || !map) return;
+    try {
+      const proj = map.getProjection();
+      const pt = proj.fromCoordToOffset(new maps.LatLng(lat, lng));
+      const up = (CARD_SPACE_PX - CONTROLS_SPACE_PX) / 2;
+      map.panTo(proj.fromOffsetToCoord(new maps.Point(pt.x, pt.y + up)));
+    } catch {
+      /* 지도가 준비되지 않았으면 그대로 */
+    }
   };
   const close3d = (v: Map3dView) => {
     setView3d(null);
@@ -524,7 +550,10 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
             c.priceMan != null
               ? { x0: p.x - 28, x1: p.x + 28, y0: p.y - (c.mainAreaSqm ? 44 : 28) - (c.guRank ? 14 : 0), y1: p.y }
               : { x0: p.x - 9, x1: p.x + 9, y0: p.y - 20, y1: p.y },
-          onClick: () => setSelectedId(c.complexId),
+          onClick: () => {
+            setSelectedId(c.complexId);
+            centerOnSelection(c.lat, c.lng);
+          },
         };
       }),
       ...areas.map((a) => ({
