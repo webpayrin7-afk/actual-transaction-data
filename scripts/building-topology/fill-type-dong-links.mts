@@ -18,7 +18,7 @@
  *
  * 원천 응답은 --cache-dir(기본 data/poc/type-dong-links/cache, git 제외)에 지번별로 저장해 재호출하지 않는다.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { createClient, type Client, type InStatement } from "@libsql/client";
 
@@ -357,10 +357,14 @@ function resolveComplex(complexId: string, name: string, units: Unit[], types: T
   };
 }
 
+function cachedCount(): number {
+  return existsSync(CACHE_DIR) ? readdirSync(CACHE_DIR).length : 0;
+}
+
 async function pickTargets(db: Client): Promise<string[]> {
   if (COMPLEXES.length) return COMPLEXES;
   const res = await db.execute({
-    sql: `SELECT t.complex_id FROM (SELECT DISTINCT complex_id FROM apt_canonical_unit_types) t
+    sql: `SELECT t.complex_id, c.parcel_key FROM (SELECT DISTINCT complex_id FROM apt_canonical_unit_types) t
           JOIN apt_complex_master m ON m.complex_id = t.complex_id
           JOIN complex_building_checkpoint c ON c.complex_id = t.complex_id AND c.parcel_key <> ''
           WHERE NOT EXISTS (SELECT 1 FROM unit_type_building_links l WHERE l.complex_id = t.complex_id)
@@ -368,9 +372,12 @@ async function pickTargets(db: Client): Promise<string[]> {
                         AND COALESCE(TRIM(b.dong_label), '') <> '')
             AND (? = '' OR m.sido_code = ?)
           ORDER BY t.complex_id LIMIT ?`,
-    args: [SIDO, SIDO, AUTO * 4],
+    args: [SIDO, SIDO, AUTO * 4 + cachedCount()],
   });
-  return res.rows.map((r) => String(r.complex_id));
+  // --auto: 이미 원천을 받아 판정한 지번(캐시 있음)은 건너뛴다 — 보류 단지를 매 배치 다시 읽지 않게.
+  return res.rows
+    .filter((r) => !existsSync(join(CACHE_DIR, `${String(r.parcel_key).replaceAll("|", "_")}.json`)))
+    .map((r) => String(r.complex_id));
 }
 
 async function main() {
