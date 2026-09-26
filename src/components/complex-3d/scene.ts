@@ -119,9 +119,84 @@ type Local = { x: number; z: number };
 /** 빨리 감기 재생 길이 — 실제 걷는 시간의 약 1/80, 6~14초 */
 const walkPlayMs = (sec: number) => Math.max(6000, Math.min(14000, sec * 12));
 
-const WALKER_SVG =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-  '<circle cx="13" cy="4" r="2" fill="currentColor"/><path d="M11 21l2-6 3 3v3"/><path d="M9 10l3-2 3 3 3 1"/><path d="M12 8l-1 6-3 2"/></svg>';
+/** 걷는 사람 — 실제 크기(키 약 1.7m) 저폴리 모형. 머리·몸통·팔·다리, 팔다리는 어깨·엉덩이를 축으로 흔든다 */
+type WalkerRig = {
+  root: THREE.Group;
+  body: THREE.Group;
+  legL: THREE.Group;
+  legR: THREE.Group;
+  armL: THREE.Group;
+  armR: THREE.Group;
+  ring: THREE.Mesh;
+};
+
+let walkerParts: {
+  leg: THREE.BufferGeometry;
+  arm: THREE.BufferGeometry;
+  torso: THREE.BufferGeometry;
+  head: THREE.BufferGeometry;
+  ring: THREE.BufferGeometry;
+  shirt: THREE.Material;
+  pants: THREE.Material;
+  skin: THREE.Material;
+  ringMat: THREE.Material;
+} | null = null;
+
+function walkerKit() {
+  if (walkerParts) return walkerParts;
+  // 팔다리는 위 끝이 원점(관절)에 오게 내려 둔다
+  const leg = new THREE.BoxGeometry(0.17, 0.86, 0.2).translate(0, -0.43, 0);
+  const arm = new THREE.BoxGeometry(0.12, 0.62, 0.13).translate(0, -0.31, 0);
+  walkerParts = {
+    leg,
+    arm,
+    torso: new THREE.BoxGeometry(0.46, 0.62, 0.26),
+    head: new THREE.IcosahedronGeometry(0.14, 1),
+    ring: new THREE.RingGeometry(0.55, 0.85, 24).rotateX(-Math.PI / 2),
+    // transparent: 경로 선(투명 목록·깊이 검사 끔)보다 뒤에 그려 사람이 선 위에 보이게 (불투명도는 1 그대로)
+    shirt: new THREE.MeshLambertMaterial({ color: 0x2563eb, transparent: true }),
+    pants: new THREE.MeshLambertMaterial({ color: 0x1e293b, transparent: true }),
+    skin: new THREE.MeshLambertMaterial({ color: 0xf2c9a5, transparent: true }),
+    // 건물에 가려도 발밑 고리는 보이게 (위치 찾기용)
+    ringMat: new THREE.MeshBasicMaterial({ color: 0x1d4ed8, depthTest: false, transparent: true, opacity: 0.85 }),
+  };
+  return walkerParts;
+}
+
+function makeWalker(): WalkerRig {
+  const k = walkerKit();
+  const root = new THREE.Group();
+  const body = new THREE.Group();
+  root.add(body);
+  const limb = (geo: THREE.BufferGeometry, mat: THREE.Material, x: number, y: number) => {
+    const pivot = new THREE.Group();
+    pivot.position.set(x, y, 0);
+    const m = new THREE.Mesh(geo, mat);
+    m.castShadow = true;
+    m.renderOrder = 6; // 경로 선 위에 그린다
+    pivot.add(m);
+    body.add(pivot);
+    return pivot;
+  };
+  const legL = limb(k.leg, k.pants, -0.11, 0.88);
+  const legR = limb(k.leg, k.pants, 0.11, 0.88);
+  const armL = limb(k.arm, k.shirt, -0.3, 1.46);
+  const armR = limb(k.arm, k.shirt, 0.3, 1.46);
+  const torso = new THREE.Mesh(k.torso, k.shirt);
+  torso.position.y = 1.19;
+  torso.castShadow = true;
+  torso.renderOrder = 6;
+  const head = new THREE.Mesh(k.head, k.skin);
+  head.position.y = 1.64;
+  head.castShadow = true;
+  head.renderOrder = 6;
+  body.add(torso, head);
+  const ring = new THREE.Mesh(k.ring, k.ringMat);
+  ring.position.y = 0.08;
+  ring.renderOrder = 5;
+  root.add(ring);
+  return { root, body, legL, legR, armL, armR, ring };
+}
 
 export class Complex3dScene {
   private renderer: THREE.WebGLRenderer;
@@ -215,7 +290,14 @@ export class Complex3dScene {
     this.renderer.domElement.addEventListener("pointerup", this.onPointerUp);
     this.renderer.domElement.addEventListener("pointermove", this.onPointerMove);
     // 사용자가 직접 돌리면 진행 중인 이동은 멈춘다
-    this.controls.addEventListener("start", () => (this.anim = null));
+    this.controls.addEventListener("start", () => {
+      this.anim = null;
+      // 따라가기 중에 직접 돌리면 따라가기를 끈다
+      if (this.walkFollow) {
+        this.walkFollow = false;
+        this.onWalkFollow(false);
+      }
+    });
     this.setSun(new Date(), 14);
     this.loop();
   }
@@ -1218,11 +1300,17 @@ export class Complex3dScene {
   private walkReduced = false;
   private walkPath: { pts: THREE.Vector3[]; cum: number[]; total: number } | null = null;
   private walkAnim: { start: number; ms: number } | null = null;
-  private walker: THREE.Object3D | null = null;
+  private walker: WalkerRig | null = null;
+  private walkerYaw = 0;
+  private walkPhase = 0;
+  private walkFollow = false;
+  private walkFollowReduced = false;
+  /** 사용자가 직접 돌려 따라가기가 꺼졌을 때 */
+  onWalkFollow: (on: boolean) => void = () => {};
   private walkLastEmit = 0;
   // 경로는 건물·지형에 가려도 이어져 보이게 (깊이 검사 끔, 맨 나중에 그림)
-  private walkLineMat = new LineMaterial({ color: 0x2563eb, linewidth: 6, depthTest: false, transparent: true });
-  private walkCaseMat = new LineMaterial({ color: 0xffffff, linewidth: 10, depthTest: false, transparent: true });
+  private walkLineMat = new LineMaterial({ color: 0x2563eb, linewidth: 6, depthTest: false, depthWrite: false, transparent: true });
+  private walkCaseMat = new LineMaterial({ color: 0xffffff, linewidth: 10, depthTest: false, depthWrite: false, transparent: true });
 
   /** 경로를 땅 위에 굵은 선으로 깔고, 사람 표시를 빨리 감기로 걷게 한다 (reduced면 움직이지 않고 도착점에) */
   showWalk(d: WalkRouteDraw, reduced: boolean, frame = true) {
@@ -1234,8 +1322,8 @@ export class Complex3dScene {
     // 4m 간격으로 다시 찍어 땅을 따라가게
     const raw = d.points.map(([lng, lat]) => this.toLocal(lng, lat));
     if (raw.length < 2) return;
-    // 지형 삼각형과 쌍선형 표본이 조금 달라 선이 땅에 묻히지 않게 넉넉히 띄운다
-    const lift = 2.6;
+    // 선·표시는 깊이 검사를 끄고 그려 땅에 묻히지 않는다 — 조금만 띄워 걷는 사람 발밑과 어긋나 보이지 않게
+    const lift = 0.6;
     const pts: THREE.Vector3[] = [];
     const cum: number[] = [];
     let acc = 0;
@@ -1303,24 +1391,24 @@ export class Complex3dScene {
     pin.position.set(tl.x, gy + 28, tl.z);
     this.groups.walk.add(pin);
 
-    // 걷는 사람
-    const wel = document.createElement("div");
-    wel.className = "complex3d-walker";
-    wel.innerHTML = WALKER_SVG;
-    const walker = new THREE.Group();
-    const ball = new THREE.Mesh(new THREE.SphereGeometry(2.2, 16, 12), new THREE.MeshBasicMaterial({ color: 0x1d4ed8 }));
-    walker.add(ball, new CSS2DObject(wel));
-    this.groups.walk.add(walker);
-    this.walker = walker;
+    // 걷는 사람 — 경로 방향을 보고 선다 (경로 선은 땅에서 lift만큼 띄웠지만 사람은 땅에 발을 딛는다)
+    const rig = makeWalker();
+    this.groups.walk.add(rig.root);
+    this.walker = rig;
+    this.walkPhase = 0;
+    const at = reduced ? pts.length - 1 : 0;
+    const from = pts[Math.max(0, at - 1)]!;
+    const to = pts[Math.max(1, at)]!;
+    this.walkerYaw = Math.atan2(to.x - from.x, to.z - from.z);
+    this.placeWalker(pts[at]!, this.walkerYaw, 0);
     if (reduced) {
-      walker.position.copy(pts[pts.length - 1]!);
       this.onWalkProgress(d.totalSec, true);
     } else {
-      walker.position.copy(pts[0]!);
       this.walkAnim = { start: performance.now(), ms: walkPlayMs(d.totalSec) };
       this.onWalkProgress(0, false);
     }
-    if (frame) this.fitWalk();
+    if (this.walkFollow) this.followWalker(true);
+    else if (frame) this.fitWalk();
   }
 
   replayWalk() {
@@ -1365,10 +1453,34 @@ export class Complex3dScene {
     this.flyTo(new THREE.Vector3(target.x, target.y + dist * Math.cos(polar), target.z + dist * Math.sin(polar)), target, 600);
   }
 
-  private stepWalk() {
-    const a = this.walkAnim;
+  /** 사람을 땅 위 p(경로 점)에 세운다 — 팔다리 흔들기는 phase(라디안), 0이면 서 있는 자세 */
+  private placeWalker(p: THREE.Vector3, yaw: number, swing: number) {
+    const w = this.walker;
+    if (!w) return;
+    w.root.position.set(p.x, this.groundAt(p.x, p.z) + 0.15, p.z);
+    w.root.rotation.y = yaw;
+    const a = Math.sin(this.walkPhase) * swing;
+    w.legL.rotation.x = a * 0.6;
+    w.legR.rotation.x = -a * 0.6;
+    w.armL.rotation.x = -a * 0.5;
+    w.armR.rotation.x = a * 0.5;
+    w.body.position.y = Math.abs(Math.cos(this.walkPhase)) * 0.05 * swing;
+  }
+
+  private lastFrameAt = 0;
+
+  private stepWalk(dt: number) {
+    const w = this.walker;
     const path = this.walkPath;
-    if (!a || !path || !this.walker || !this.walkDraw) return;
+    if (!w || !path || !this.walkDraw) return;
+    // 멀리서 보면 사람을 키운다 (가까이 따라가면 실제 크기)
+    const camDist = this.camera.position.distanceTo(w.root.position);
+    w.root.scale.setScalar(Math.max(1, Math.min(9, camDist / 55)));
+    const a = this.walkAnim;
+    if (!a) {
+      if (this.walkFollow) this.followWalker(false, dt);
+      return;
+    }
     const k = Math.min(1, (performance.now() - a.start) / a.ms);
     const d = k * path.total;
     let i = 1;
@@ -1376,15 +1488,67 @@ export class Complex3dScene {
     const c0 = path.cum[i - 1]!;
     const c1 = path.cum[i]!;
     const t = c1 > c0 ? (d - c0) / (c1 - c0) : 1;
-    this.walker.position.lerpVectors(path.pts[i - 1]!, path.pts[i]!, Math.max(0, Math.min(1, t)));
+    const p0 = path.pts[i - 1]!;
+    const p1 = path.pts[i]!;
+    const p = new THREE.Vector3().lerpVectors(p0, p1, Math.max(0, Math.min(1, t)));
+    // 가는 방향으로 부드럽게 돌아선다 (4m 점 사이 꺾임이 튀지 않게)
+    const target = Math.atan2(p1.x - p0.x, p1.z - p0.z);
+    let dy = target - this.walkerYaw;
+    dy = Math.atan2(Math.sin(dy), Math.cos(dy));
+    this.walkerYaw += dy * Math.min(1, dt * 8);
+    this.walkPhase += dt * 11;
+    this.placeWalker(p, this.walkerYaw, k >= 1 ? 0 : 1);
+    if (this.walkFollow) this.followWalker(false, dt);
     const now = performance.now();
     if (k >= 1) {
       this.walkAnim = null;
+      this.walkPhase = 0;
+      this.placeWalker(p, this.walkerYaw, 0);
       this.onWalkProgress(this.walkDraw.totalSec, true);
     } else if (now - this.walkLastEmit > 120) {
       this.walkLastEmit = now;
       this.onWalkProgress(k * this.walkDraw.totalSec, false);
     }
+  }
+
+  /** 따라가기 — 사람 뒤 22m, 11m 위에서 사람 앞쪽을 본다 */
+  setWalkFollow(on: boolean, reduced: boolean) {
+    if (on === this.walkFollow) return;
+    this.walkFollow = on;
+    this.walkFollowReduced = reduced;
+    if (on) this.followWalker(true);
+    else if (this.walkPath && !this.win) this.fitWalk();
+  }
+
+  /** 카메라가 보는 방향 — 사람이 도는 것보다 천천히 따라 돌아 어지럽지 않게 */
+  private followYaw = 0;
+
+  private followWalker(snap: boolean, dt = 0) {
+    const w = this.walker;
+    if (!w) return;
+    if (snap) this.followYaw = this.walkerYaw;
+    else {
+      const dy = Math.atan2(Math.sin(this.walkerYaw - this.followYaw), Math.cos(this.walkerYaw - this.followYaw));
+      this.followYaw += this.walkFollowReduced ? dy : dy * Math.min(1, dt * 2.5);
+    }
+    const fwd = new THREE.Vector3(Math.sin(this.followYaw), 0, Math.cos(this.followYaw));
+    const p = w.root.position;
+    const pos = p.clone().addScaledVector(fwd, -22).add(new THREE.Vector3(0, 11, 0));
+    // 비탈에서 카메라가 땅에 묻히지 않게
+    pos.y = Math.max(pos.y, this.groundAt(pos.x, pos.z) + 4);
+    const target = p.clone().addScaledVector(fwd, 8).add(new THREE.Vector3(0, 1.5, 0));
+    if (snap && !this.walkFollowReduced && dt === 0) {
+      this.flyTo(pos, target, 600);
+      return;
+    }
+    // 처음 다가가는 중이면 끝 지점을 계속 사람 뒤로 옮긴다 — 빨리 감기라 사람이 빨라 위치는 늦추지 않는다
+    if (this.anim) {
+      this.anim.p1 = pos;
+      this.anim.t1 = target;
+      return;
+    }
+    this.camera.position.copy(pos);
+    this.controls.target.copy(target);
   }
 
   private down: { x: number; y: number } | null = null;
@@ -1474,7 +1638,10 @@ export class Complex3dScene {
       if (Math.abs(this.insetTarget - this.inset) <= 0.5) this.inset = this.insetTarget;
       this.applyInset();
     }
-    this.stepWalk();
+    const now = performance.now();
+    const dt = this.lastFrameAt ? Math.min(0.1, (now - this.lastFrameAt) / 1000) : 0;
+    this.lastFrameAt = now;
+    this.stepWalk(dt);
     if (this.win) this.stepWindow();
     else this.controls.update();
     // 멀리서 보면 동 이름표를 작게 (겹침 줄이기)

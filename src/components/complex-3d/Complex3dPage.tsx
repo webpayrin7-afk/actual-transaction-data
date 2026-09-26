@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   AppWindow,
+  Footprints,
   Maximize2,
   RotateCcw,
   SquareDashed,
@@ -132,6 +133,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   const [walkPick, setWalkPick] = useState<string | null>(null);
   const [wheel, setWheel] = useState(false);
   const [walkProgress, setWalkProgress] = useState<{ sec: number; done: boolean } | null>(null);
+  // 걷기 — 사람 뒤에서 따라가는 카메라
+  const [walkFollow, setWalkFollow] = useState(false);
   const [terrainOn, setTerrainOn] = useState(false);
   // 우리 집 창문 시점 — 켜져 있으면 정보(방향·앞 건물·가림)
   const [windowInfo, setWindowInfo] = useState<WindowViewInfo | null>(null);
@@ -297,6 +300,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         };
         s.onHeading = setHeading;
         s.onWalkProgress = (sec, done) => setWalkProgress({ sec, done });
+        s.onWalkFollow = setWalkFollow;
         s.onTerrain = () => setTerrainOn(true);
         s.onWindowInfo = (info) => setWindowInfo(info);
         sceneRef.current = scene;
@@ -367,6 +371,12 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     );
     return () => window.clearTimeout(t);
   }, [mode, walkDest, ready, terrainOn]);
+
+  // 따라가기 — 걷기 모드에서만 (나가면 끈다)
+  useEffect(() => {
+    if (!ready) return;
+    sceneRef.current?.setWalkFollow(mode === "walk" && walkFollow, reducedMotion());
+  }, [mode, walkFollow, ready]);
 
   useEffect(() => {
     sceneRef.current?.setMode(mode);
@@ -1145,6 +1155,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                 onWheel={setWheel}
                 progress={walkProgress}
                 onReplay={() => sceneRef.current?.replayWalk()}
+                follow={walkFollow}
+                onFollow={setWalkFollow}
                 fromDong={sel?.dong ?? walk?.from.dong ?? null}
                 terrainLabel={terrainQuery.data?.sourceLabel ?? null}
               />
@@ -1547,6 +1559,8 @@ function WalkPanel({
   onWheel,
   progress,
   onReplay,
+  follow,
+  onFollow,
   fromDong,
   terrainLabel,
 }: {
@@ -1559,6 +1573,8 @@ function WalkPanel({
   onWheel: (v: boolean) => void;
   progress: { sec: number; done: boolean } | null;
   onReplay: () => void;
+  follow: boolean;
+  onFollow: (v: boolean) => void;
   fromDong: string | null;
   terrainLabel: string | null;
 }) {
@@ -1660,6 +1676,30 @@ function WalkPanel({
                       </span>
                       {progress ? (
                         <span className="flex items-center gap-1.5 font-semibold text-[color:var(--lab-navy-950)]">
+                          <span
+                            role="switch"
+                            tabIndex={0}
+                            aria-checked={follow}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onFollow(!follow);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onFollow(!follow);
+                              }
+                            }}
+                            className={`flex h-6 shrink-0 items-center gap-1 rounded-full px-2 text-[12px] font-semibold ${
+                              follow
+                                ? "bg-[color:var(--lab-navy-950)] text-white"
+                                : "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-950)]"
+                            }`}
+                          >
+                            <Footprints className="h-3.5 w-3.5" aria-hidden />
+                            따라가기
+                          </span>
                           {progress.done ? "도착" : "걷는 중"} {mmss(progress.sec)}
                           {progress.done ? (
                             <span
