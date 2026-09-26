@@ -977,6 +977,8 @@ export default function Seoul3DMap({
         pitch,
         bearing: map.getBearing(),
         fill: 0.9,
+        // 가운데보다 조금 위에 (단지가 카드 쪽으로 쳐져 보이지 않게)
+        biasY: -0.07,
         minZoom: 14.5,
         maxZoom: FOCUS_MAX_ZOOM,
       });

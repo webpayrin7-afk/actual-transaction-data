@@ -30,7 +30,7 @@ export function fitComplexCamera(
   bbox: [number, number, number, number],
   heightM: number,
   safe: SafeInsets,
-  opts: { pitch: number; bearing: number; fill?: number; minZoom: number; maxZoom: number },
+  opts: { pitch: number; bearing: number; fill?: number; minZoom: number; maxZoom: number; biasY?: number },
 ): { center: LngLat; zoom: number } | null {
   const src = map.transform as unknown as { clone?: () => Tr };
   if (typeof src.clone !== "function") return null;
@@ -58,7 +58,8 @@ export function fitComplexCamera(
   const box = { l: safe.left, r: W - safe.right, t: safe.top, b: H - safe.bottom };
   if (box.r - box.l < 40 || box.b - box.t < 40) return null;
   const boxCx = (box.l + box.r) / 2;
-  const boxCy = (box.t + box.b) / 2;
+  // biasY: 보이는 곳 높이에 대한 비율만큼 가운데를 올린다(음수) — 아래 카드 쪽으로 무겁게 보이지 않게
+  const boxCy = (box.t + box.b) / 2 + (opts.biasY ?? 0) * (box.b - box.t);
 
   tr.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
   tr.setPitch(opts.pitch);
