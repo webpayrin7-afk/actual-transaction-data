@@ -1156,7 +1156,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
               </span>
             </p>
             {cardMore ? <ComplexCardMore c={selected} id="map2d-card-more" /> : null}
-            <div className="mt-1.5 flex gap-2">
+            <div className="mt-2.5 flex gap-2">
               <Link
                 href={selected.href}
                 className="lab-button lab-button-primary h-9 !min-h-9 flex-1 text-[14px]"
