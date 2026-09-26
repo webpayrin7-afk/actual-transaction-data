@@ -117,7 +117,7 @@ const SCHOOL_ZONE_COLOR = "#d97706";
 type SchoolZoneGeo = { geometry: GeoJSON.FeatureCollection };
 
 /** 단지를 담을 때 범위의 최소 한 변 (m) — 작은 단지도 둘레가 조금 보이게 */
-const FRAME_MIN_SPAN_M = 220;
+const FRAME_MIN_SPAN_M = 140;
 
 /**
  * 단지 동들의 긴 축 방위(도, 북 0°·동 90°) — 외곽선 꼭짓점의 주성분. 동이 없거나 거의 정사각이면 null.
