@@ -97,7 +97,7 @@ export async function storeOsm(db: Client, complexId: string, bbox: Bbox, elemen
   return gz.byteLength;
 }
 
-async function readRoutes(db: Client, complexId: string, mode: string): Promise<WalkPayload | null> {
+export async function readRoutes(db: Client, complexId: string, mode: string): Promise<WalkPayload | null> {
   try {
     const r = await db.execute({
       sql: `SELECT payload_json FROM complex_walk_routes WHERE complex_id = ? AND from_key = '' AND mode = ? AND algo_version = ?`,
@@ -162,7 +162,14 @@ export async function loadWalkInput(db: Client, complexId: string): Promise<Walk
 export async function getWalkPayload(
   db: Client,
   complexId: string,
-  opts: { from?: string | null; mode?: "walk" | "wheel"; write?: boolean; refreshOsm?: boolean },
+  opts: {
+    from?: string | null;
+    mode?: "walk" | "wheel";
+    write?: boolean;
+    refreshOsm?: boolean;
+    /** 저장본이 없을 때 OSM을 받는 방법 — 기본은 거울 서버를 짧게 차례로 (미리 만들기 스크립트는 천천히 돌려 가며) */
+    fetchOsm?: (bbox: Bbox) => Promise<{ elements: OsmEl[]; source: string }>;
+  },
 ): Promise<{ payload: WalkPayload; source: "stored-routes" | "stored-osm" | "overpass" } | null> {
   const mode = opts.mode === "wheel" ? "wheel" : "walk";
   const write = opts.write !== false;
@@ -180,7 +187,7 @@ export async function getWalkPayload(
       const stored = opts.refreshOsm ? null : await readOsm(db, complexId);
       if (stored) return stored;
       source = "overpass";
-      const live = await fetchOverpass(bbox);
+      const live = await (opts.fetchOsm ?? fetchOverpass)(bbox);
       if (write) {
         await storeOsm(db, complexId, bbox, live.elements, live.source).catch((e) =>
           console.warn("[walk] store osm failed", e instanceof Error ? e.message : e),
