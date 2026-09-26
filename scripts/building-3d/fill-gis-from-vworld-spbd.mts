@@ -298,7 +298,9 @@ async function main() {
       "lat", "lng", "rings", "source_date", "change_type",
     ];
     let inserted = 0;
-    for (const part of chunks(plan.links, 100)) {
+    let done = 0;
+    for (const part of chunks(plan.links, 200)) {
+      const t0 = Date.now();
       const res = await db.batch(
         part.map((l) => {
           const f = l.feature;
@@ -324,6 +326,15 @@ async function main() {
         "write",
       );
       inserted += res.reduce((s, r) => s + r.rowsAffected, 0);
+      done += part.length;
+      const ms = Date.now() - t0;
+      if (ms > 5000) {
+        // Turso가 느려지면 멈춘다 (INSERT OR IGNORE라 다시 돌리면 남은 것만 들어간다)
+        console.log(JSON.stringify({ mode: "apply", stopped: `batch ${ms}ms > 5000ms`, planned: plan.links.length, done, inserted }));
+        return;
+      }
+      if (done % 2000 === 0) console.log(`  ${done}/${plan.links.length} (${ms}ms)`);
+      await sleep(1000);
     }
     console.log(JSON.stringify({ mode: "apply", planned: plan.links.length, inserted }));
     return;
