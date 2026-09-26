@@ -35,6 +35,16 @@ npx tsx scripts/map3d/verify-complexes.mts C:/data/map3d/seoul-buildings-v2.pmti
 - SPBD 높이: 단지 동 대장 `height_m` → 층수(SPBD·대장 중 큰 값)×3m → 3.5m. `a`=1(모두 단지 동).
 - 2026-09-26: AL_D010 695,763 중 5,129 뺌, SPBD 4,270건(폴리곤 4,271) 더함.
 
+### v3 — 브이월드 SPBD 캐시 중 v2 타일에 없는 건물 더하기 (2026-09-27)
+
+`data/building-coverage/PLAN.md` A절 명령 그대로(`export-spbd-missing.mts` → `--spbd seoul-spbd-plus.geojson`).
+
+- SPBD `a`: GeoJSON `properties.a`를 읽는다(없으면 1). 추가분은 이름(아파트/맨션)·숫자 동 표기(5층+)·500m 안 단지 이름이면 1,
+  30% 겹친 옛 AL_D010이 공동주택이면 1, 나머지 0(회색).
+- 33m 이상 AL_D010은 겹치는 SPBD 중 80% 이상 높이가 있을 때만 뺀다. 아니면 고층을 두고 그 낮은 SPBD를 뺀다.
+- 결과: AL_D010 31,629 뺌 · SPBD 39,995 더함(공동주택 10,561) · 고층 지킴 158 · 건물 704,129 · **27.3MB**.
+- 올리기 전 구역 비교: `npx tsx scripts/building-coverage/compare-tiles.mts <v2> <v3>` (없어진 10층+ 0 확인).
+
 ## 2. 올리기 (Vercel Blob)
 
 파일이 커서 git에는 넣지 않는다(`/public/map3d/*.pmtiles`는 .gitignore). 개발 서버는 `public/map3d/`에서 읽는다.
