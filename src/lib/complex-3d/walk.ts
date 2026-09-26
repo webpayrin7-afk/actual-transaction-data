@@ -107,21 +107,38 @@ way[highway]->.w;
 .p out body qt;`;
 }
 
+/** 거울 서버 주소 (미리 만들기 스크립트가 돌려 가며 쓴다) */
+export const OVERPASS_MIRROR_URLS = OVERPASS_MIRRORS.map((m) => m.url);
+
+/** Overpass 실패 — HTTP 상태(429·504 등)를 붙여 부르는 쪽이 쉬었다 갈지 정하게 */
+export class OverpassError extends Error {
+  constructor(
+    message: string,
+    readonly status: number | null,
+  ) {
+    super(message);
+  }
+}
+
+/** 거울 한 곳에 한 번만 묻는다 */
+export async function fetchOverpassOnce(b: Bbox, url: string, ms: number): Promise<{ elements: OsmEl[]; source: string }> {
+  const res = await fetch(url, {
+    method: "POST",
+    body: new URLSearchParams({ data: overpassQuery(b) }),
+    headers: { "User-Agent": UA, "Content-Type": "application/x-www-form-urlencoded" },
+    signal: AbortSignal.timeout(ms),
+  });
+  if (!res.ok) throw new OverpassError(`overpass ${res.status}`, res.status);
+  const json = (await res.json()) as { elements?: OsmEl[]; remark?: string };
+  if (!json.elements?.length) throw new OverpassError(`overpass empty ${json.remark ?? ""}`.trim(), null);
+  return { elements: json.elements, source: new URL(url).host };
+}
+
 export async function fetchOverpass(b: Bbox): Promise<{ elements: OsmEl[]; source: string }> {
-  const body = new URLSearchParams({ data: overpassQuery(b) });
   let last: unknown = null;
   for (const { url, ms } of OVERPASS_MIRRORS) {
     try {
-      const res = await fetch(url, {
-        method: "POST",
-        body,
-        headers: { "User-Agent": UA, "Content-Type": "application/x-www-form-urlencoded" },
-        signal: AbortSignal.timeout(ms),
-      });
-      if (!res.ok) throw new Error(`overpass ${res.status}`);
-      const json = (await res.json()) as { elements?: OsmEl[]; remark?: string };
-      if (!json.elements?.length) throw new Error(`overpass empty ${json.remark ?? ""}`);
-      return { elements: json.elements, source: new URL(url).host };
+      return await fetchOverpassOnce(b, url, ms);
     } catch (e) {
       last = e;
     }
