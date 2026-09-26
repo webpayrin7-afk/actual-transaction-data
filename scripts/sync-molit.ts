@@ -471,6 +471,33 @@ async function main() {
     }
   }
 
+  // 단지 비교 후보 면적 집계 스냅샷 — 거래 변경 번호가 바뀐 법정동코드만 다시 집계·게시.
+  // 이번 쓰기가 없어도 돈다(스크립트 직접 UPDATE 등 밖에서 바뀐 것도 잡음). 바뀐 코드가 없으면 읽기 2번뿐.
+  // 실패해도 동기화는 성공으로 둔다 — 게시되지 않은 코드는 읽는 쪽이 라이브로 간다.
+  if (!dryRun && process.env.SKIP_PEER_AREA_STATS !== "1") {
+    try {
+      const { allPeerAreaLawdCodes, refreshPeerAreaStats } = await import(
+        "../src/lib/complex-detail/peer-area-stats-refresh"
+      );
+      // --codes 로 일부만 적재했으면 그 코드만 (백필 반복 실행 때 전체를 매번 보지 않게)
+      const peerCodes = codesArg
+        ? lawdCodes.filter((c) => allPeerAreaLawdCodes().includes(c))
+        : undefined;
+      const r =
+        peerCodes && peerCodes.length === 0
+          ? null
+          : await refreshPeerAreaStats(db, {
+              lawdCodes: peerCodes,
+              log: (m) => console.log(m),
+            });
+      if (r) console.log(
+        `[sync] peer_area stats checked=${r.lawdChecked} rebuilt=${r.lawdRebuilt} published=${r.lawdPublished} upsert=${r.upserted} del=${r.deleted} changedDuringBuild=${r.changedDuringBuild.length} failures=${r.failures.length} ms=${r.ms}`,
+      );
+    } catch (err) {
+      console.warn("[sync] peer_area stats refresh failed:", err);
+    }
+  }
+
   if (stop) {
     process.exit(2);
   }

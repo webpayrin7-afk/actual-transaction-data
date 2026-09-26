@@ -68,16 +68,32 @@ function areaBandLabel(center: number | null): string {
   return `전용 ${Math.round(center)}㎡대 · 최근 거래 기준`;
 }
 
+/**
+ * 단지 페이지(AptDetailPage)와 같은 요청·같은 React Query 키로 받는다 — 서버는 months 와 무관하게
+ * 전체 이력을 120개월로 묶어 주므로 데이터는 같고, 비교 단지를 눌러 들어가거나 그 단지 페이지를
+ * 먼저 봤을 때 CDN·브라우저·RQ 캐시를 함께 쓴다. URL 파라미터 순서도 단지 페이지와 같게 둔다.
+ * 단지 페이지 queryFn 과 캐시를 나누므로 실패는 null 이 아니라 throw 로 둔다.
+ */
+const PEER_DETAIL_MONTHS = 120;
+
+function peerDetailQueryKey(aptName?: string, region?: string, gu?: string) {
+  return ["apt-detail", aptName, region, gu?.trim() ?? "", "full", PEER_DETAIL_MONTHS];
+}
+
 async function fetchDetail(
   aptName: string,
   region: string,
   gu?: string,
-): Promise<AptDetailResponse | null> {
-  const qs = new URLSearchParams({ aptName, region, months: "36" });
+): Promise<AptDetailResponse> {
+  const qs = new URLSearchParams({
+    aptName,
+    region,
+    months: String(PEER_DETAIL_MONTHS),
+  });
   if (gu?.trim()) qs.set("gu", gu.trim());
   qs.set("v", APT_API_VERSION);
-  const res = await fetch(`/api/apt-detail?${qs}`);
-  if (!res.ok) return null;
+  const res = await fetch(`/api/apt-detail?${qs.toString()}`);
+  if (!res.ok) throw new Error("failed");
   return unpackAptDetail(await res.json());
 }
 
@@ -269,19 +285,27 @@ export function ComplexCompareSection({
   const peers = peersQuery.data ?? [];
 
   const peer0 = useQuery({
-    queryKey: ["compare-peer-detail", peers[0]?.aptName, peers[0]?.regionSlug],
+    queryKey: peerDetailQueryKey(
+      peers[0]?.aptName,
+      peers[0]?.regionSlug,
+      peers[0]?.gu,
+    ),
     queryFn: () =>
       fetchDetail(peers[0]!.aptName, peers[0]!.regionSlug, peers[0]!.gu),
     enabled: !!peers[0],
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 60 * 1000, // 단지 페이지와 같게
     retry: 0,
   });
   const peer1 = useQuery({
-    queryKey: ["compare-peer-detail", peers[1]?.aptName, peers[1]?.regionSlug],
+    queryKey: peerDetailQueryKey(
+      peers[1]?.aptName,
+      peers[1]?.regionSlug,
+      peers[1]?.gu,
+    ),
     queryFn: () =>
       fetchDetail(peers[1]!.aptName, peers[1]!.regionSlug, peers[1]!.gu),
     enabled: !!peers[1],
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 60 * 1000, // 단지 페이지와 같게
     retry: 0,
   });
 
