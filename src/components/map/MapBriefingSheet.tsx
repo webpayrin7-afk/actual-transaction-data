@@ -165,20 +165,20 @@ function PeekCounts({ counts }: { counts: ScopeCounts }) {
     </b>
   );
   return (
-    <span className="ml-auto shrink-0 text-[11px] font-medium text-[color:var(--lab-muted)]">
+    <span className="ml-auto min-w-0 truncate text-[11px] font-medium text-[color:var(--lab-muted)]">
       신고가 {n(counts.singoga, TONE_COLOR.up)} · 하락 {n(counts.drop, TONE_COLOR.down)} · 급증{" "}
       {n(counts.surge, "var(--lab-teal-700)")}
     </span>
   );
 }
 
-/** 브리핑 날짜 — "9월 26일 (토)" */
+/** 브리핑 날짜 — "9.26 토" (좁은 폰에서도 한 줄) */
 function briefDate(iso: string | null | undefined): string | null {
   if (!iso) return null;
   const d = new Date(`${iso}T12:00:00Z`);
   if (Number.isNaN(d.getTime())) return null;
   const wd = ["일", "월", "화", "수", "목", "금", "토"][d.getUTCDay()];
-  return `${Number(iso.slice(5, 7))}월 ${Number(iso.slice(8, 10))}일 (${wd})`;
+  return `${Number(iso.slice(5, 7))}.${Number(iso.slice(8, 10))} ${wd}`;
 }
 
 export function MapBriefingSheet({
@@ -404,16 +404,16 @@ export function MapBriefingSheet({
         >
           <span className="mx-auto mb-1.5 h-1 w-9 shrink-0 rounded-full bg-[color:var(--lab-navy-950)]/20 sm:hidden" aria-hidden />
           {/* 제목 + 날짜 강조 (시각은 작게) */}
-          <span className="flex items-center gap-2 leading-5">
-            <span className="text-[14px] font-bold text-[color:var(--lab-teal-700)]">오늘의 시장 브리핑</span>
+          <span className="flex min-w-0 items-center gap-1.5 whitespace-nowrap leading-5">
+            <span className="shrink-0 text-[14px] font-bold text-[color:var(--lab-teal-700)]">오늘의 시장</span>
             {briefDate(data?.discoveryDate) ? (
-              <span className="rounded-md bg-[color:var(--lab-navy-950)] px-1.5 text-[12px] font-semibold leading-5 text-white">
+              <span className="shrink-0 rounded-md bg-[color:var(--lab-navy-950)] px-1.5 text-[12px] font-semibold leading-5 text-white">
                 {briefDate(data?.discoveryDate)}
               </span>
             ) : null}
             {data && counts && !regionPending ? (
               <>
-                <span className="text-[12px] font-semibold text-[color:var(--lab-navy-950)]">{scope.label}</span>
+                <span className="shrink-0 text-[12px] font-semibold text-[color:var(--lab-navy-950)]">{scope.label}</span>
                 <PeekCounts counts={counts} />
               </>
             ) : null}

@@ -908,6 +908,10 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
     setMapCardOpen(cardOpen);
   }, [cardOpen]);
   useEffect(() => () => setMapCardOpen(false), []);
+  // 다른 화면에서 스크롤한 채로 오면 지도가 위로 밀려 조작 줄이 가려진다 — 맨 위로
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const showInvite = inviteDone === false && !view3d && center != null && inSeoul(center);
 
   return (

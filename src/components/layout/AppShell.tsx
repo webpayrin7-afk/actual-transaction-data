@@ -136,9 +136,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* 지도 첫 화면: 모바일은 상단바 없이 지도가 화면 전체 — 검색·메뉴는 지도 조작 줄에 (MapSearchPage) */}
         <SiteHeader className={isMapHomePath(pathname) ? "max-sm:hidden" : ""} />
         <main className="flex-1">{children}</main>
-        <SiteFooter />
+        {/* 지도 첫 화면(모바일)은 지도가 화면 전체 — 푸터·독 자리 없이 (스크롤이 생기면 돌아왔을 때 지도가 밀린다) */}
+        <SiteFooter className={isMapHomePath(pathname) ? "max-sm:hidden" : undefined} />
         {/* Mobile: leave room so the last content/footer isn't under the floating dock. */}
-        <div aria-hidden className={MOBILE_DOCK_SPACER} />
+        <div aria-hidden className={`${MOBILE_DOCK_SPACER} ${isMapHomePath(pathname) ? "max-sm:hidden" : ""}`} />
         <MobileDock />
       </div>
     </div>
