@@ -224,11 +224,9 @@ export function MapBriefingSheet({
         surge: scopedCount(data, "volumeSurges", scope),
       }
     : null;
-  /** 지역과 전국이 같은 날(오늘 소식이 모두 이 지역) — 범위 칸이 의미 없어 숨긴다 */
-  const sameAsAll =
-    !!data &&
-    !!local &&
-    (["singoga", "drops", "volumeSurges"] as const).every((k) => scopedCount(data, k, local) === scopedCount(data, k, ALL_SCOPE));
+  /** 지금 탭에서 지역과 전국이 같으면(예: 오늘 신고가가 모두 이 지역) — 범위 칸이 의미 없어 숨긴다 (탭마다 따로) */
+  const tabKey = ({ singoga: "singoga", drop: "drops", surge: "volumeSurges" } as const)[tab];
+  const sameAsAll = !!data && !!local && scopedCount(data, tabKey, local) === scopedCount(data, tabKey, ALL_SCOPE);
   const tabs: { id: BriefTab; label: string; count?: string }[] = [
     { id: "singoga", label: "신고가", count: counts ? String(counts.singoga) : undefined },
     { id: "drop", label: "하락", count: counts ? String(counts.drop) : undefined },
