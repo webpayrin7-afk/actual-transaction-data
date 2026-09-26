@@ -20,6 +20,13 @@ import { facadeSunColor, firstPrismHit, makePrism, prismsInFront, sunBlocked, ty
 export const FLOOR_M = 3;
 /** 평소 둘러보기에서 가장 가까이 다가갈 수 있는 거리 (m) — 걷기 따라가기 중에는 풀어 둔다 */
 const MIN_DIST = 40;
+/** 카메라가 보는 곳은 단지에서 이만큼까지 */
+const PAN_LIMIT_M = 1600;
+/** 가장 멀리 (m) */
+const MAX_DIST = 2200;
+/** 안개 — 이 거리부터 흐려져 이 거리에서 하늘색 */
+const FOG_NEAR = 1800;
+const FOG_FAR = 3600;
 const FOLLOW_MIN_DIST = 20;
 const TEAL = 0x0e9aa0;
 const TEAL_DARK = 0x087f83;
@@ -498,6 +505,8 @@ export class Complex3dScene {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.setClearColor(0xf4f7f9);
+    // 먼 곳은 하늘색으로 흐리게 — 넓은 바닥의 가장자리가 끊겨 보이지 않게
+    this.scene.fog = new THREE.Fog(0xf4f7f9, FOG_NEAR, FOG_FAR);
     host.appendChild(this.renderer.domElement);
 
     this.labels = new CSS2DRenderer();
@@ -511,7 +520,8 @@ export class Complex3dScene {
     this.controls.enableDamping = true;
     this.controls.maxPolarAngle = Math.PI / 2 - 0.05;
     this.controls.minDistance = MIN_DIST;
-    this.controls.maxDistance = 6000;
+    // 넓은 바닥(OUTER_GROUND_M) 가장자리가 보이지 않을 만큼만 멀어지게
+    this.controls.maxDistance = MAX_DIST;
 
     this.sun.castShadow = true;
     const cam = this.sun.shadow.camera;
@@ -571,6 +581,24 @@ export class Complex3dScene {
    */
   /** 바닥 이미지 요청 차례 — 늦게 끝난 옛 요청(NAVER 지도)이 새 바닥(위성영상)을 덮지 않게 */
   private groundSeq = 0;
+
+  /** 넓은 바닥 — 단지 둘레 몇 km 위성영상 (낮은 해상도). 자세한 바닥(setGroundMap) 밖을 채운다 */
+  setOuterGround(url: string, sizeM: number) {
+    new THREE.TextureLoader().load(url, (tex) => {
+      if (this.disposed) {
+        tex.dispose();
+        return;
+      }
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = Math.min(8, this.renderer.capabilities.getMaxAnisotropy());
+      this.ground.geometry.dispose();
+      this.ground.geometry = new THREE.PlaneGeometry(sizeM, sizeM);
+      const old = this.ground.material as THREE.Material;
+      this.ground.material = new THREE.MeshLambertMaterial({ map: tex });
+      old.dispose();
+      if (this.grid) this.grid.visible = false;
+    });
+  }
 
   setGroundMap(url: string, sizeM: number) {
     this.mapSize = sizeM;
@@ -2361,6 +2389,18 @@ export class Complex3dScene {
     } else {
       if (this.controls.minDistance < MIN_DIST && this.camera.position.distanceTo(this.controls.target) >= MIN_DIST) {
         this.controls.minDistance = MIN_DIST;
+      }
+      // 너무 멀리 끌고 가지 못하게 — 보는 곳을 단지에서 PAN_LIMIT_M 안으로 (카메라도 같이 옮긴다)
+      const tg = this.controls.target;
+      const r = Math.hypot(tg.x, tg.z);
+      if (r > PAN_LIMIT_M) {
+        const k = PAN_LIMIT_M / r;
+        const dx = tg.x * k - tg.x;
+        const dz = tg.z * k - tg.z;
+        tg.x += dx;
+        tg.z += dz;
+        this.camera.position.x += dx;
+        this.camera.position.z += dz;
       }
       this.controls.update();
     }

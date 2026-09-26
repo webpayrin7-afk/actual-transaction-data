@@ -15,7 +15,7 @@ import {
   X,
 } from "lucide-react";
 import type { Complex3d } from "@/lib/complex-3d/read";
-import { groundSizeM, WALK_VERSION, type TerrainGridPayload } from "@/lib/complex-3d/ground";
+import { groundSizeM, OUTER_GROUND_M, WALK_VERSION, type TerrainGridPayload } from "@/lib/complex-3d/ground";
 import type { WalkDestination, WalkPayload } from "@/lib/complex-3d/walk";
 import {
   DEFAULT_WALKER,
@@ -335,6 +335,7 @@ export function Complex3dPage({ complexId, satelliteKey = null }: { complexId: s
     let cancelled = false;
     const satAbort = new AbortController();
     let satUrl: string | null = null;
+    let outerUrl: string | null = null;
     const host = hostRef.current;
     import("@/components/complex-3d/scene")
       .then(({ Complex3dScene }) => {
@@ -358,6 +359,12 @@ export function Complex3dPage({ complexId, satelliteKey = null }: { complexId: s
             satUrl = url;
             scene.setGroundMap(url, groundSizeM(d.center.lat));
             setSatOn(true);
+            // 둘레 넓은 바닥 (약 6km, 낮은 해상도) — 멀리 봐도 회색이 보이지 않게
+            void satelliteGround(d.center, OUTER_GROUND_M, satelliteKey, satAbort.signal, 15).then((outer) => {
+              if (!outer || cancelled || !scene) return;
+              outerUrl = outer;
+              scene.setOuterGround(outer, OUTER_GROUND_M);
+            });
           });
         }
         scene.setFloorBands(d.floorBands);
@@ -387,6 +394,7 @@ export function Complex3dPage({ complexId, satelliteKey = null }: { complexId: s
       cancelled = true;
       satAbort.abort();
       if (satUrl) URL.revokeObjectURL(satUrl);
+      if (outerUrl) URL.revokeObjectURL(outerUrl);
       setSatOn(false);
       window.removeEventListener("resize", onResize);
       scene?.dispose();

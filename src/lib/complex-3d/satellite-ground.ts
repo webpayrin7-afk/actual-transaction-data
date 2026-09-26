@@ -5,7 +5,7 @@
  * 타일이 많이 빠지면(키·도메인 불일치 등) null — 부르는 쪽이 NAVER 바닥을 그대로 둔다.
  */
 
-const ZOOM = 17; // 서울에서 약 0.95 m/px
+const ZOOM = 17; // 서울에서 약 0.95 m/px (넓은 바닥은 zoom 인자로 낮춰 받는다)
 const TILE = 256;
 const MAX_FAIL_SHARE = 0.2;
 
@@ -42,10 +42,11 @@ export async function satelliteGround(
   sizeM: number,
   key: string,
   signal?: AbortSignal,
+  zoom: number = ZOOM,
 ): Promise<string | null> {
-  const mpp = (40075016.686 * Math.cos((center.lat * Math.PI) / 180)) / (TILE * 2 ** ZOOM);
+  const mpp = (40075016.686 * Math.cos((center.lat * Math.PI) / 180)) / (TILE * 2 ** zoom);
   const half = sizeM / 2 / mpp;
-  const [cx, cy] = worldPx(center.lat, center.lng, ZOOM);
+  const [cx, cy] = worldPx(center.lat, center.lng, zoom);
   const x0 = cx - half;
   const y0 = cy - half;
   const side = Math.round(half * 2);
@@ -63,7 +64,7 @@ export async function satelliteGround(
   const jobs: Array<Promise<boolean>> = [];
   for (let ty = ty0; ty <= ty1; ty++) {
     for (let tx = tx0; tx <= tx1; tx++) {
-      const url = `https://api.vworld.kr/req/wmts/1.0.0/${encodeURIComponent(key)}/Satellite/${ZOOM}/${ty}/${tx}.jpeg`;
+      const url = `https://api.vworld.kr/req/wmts/1.0.0/${encodeURIComponent(key)}/Satellite/${zoom}/${ty}/${tx}.jpeg`;
       jobs.push(
         loadTile(url, signal).then((img) => {
           if (!img) return false;
