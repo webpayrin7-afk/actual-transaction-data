@@ -2,16 +2,16 @@
   "version": 1,
   "wave": "gwangju-jeonnam",
   "started_at": "2026-09-25T09:55:36.587Z",
-  "updated_at": "2026-09-25T23:54:24.323Z",
+  "updated_at": "2026-09-26T11:13:50.688Z",
   "segment_size": 40,
-  "segments_completed": 41,
-  "api_calls": 47141,
+  "segments_completed": 42,
+  "api_calls": 47146,
   "retries": 7,
   "http_429": 0,
   "http_5xx": 0,
   "timeouts": 0,
-  "reused_ops": 1589,
-  "runtime_ms": 49790158,
+  "reused_ops": 1615,
+  "runtime_ms": 49796656,
   "classifications": {
     "cx_985006fb5a164638": "COMPLETE",
     "cx_0168ba207fcaf907": "COMPLETE",
@@ -1657,9 +1657,8 @@
     "cx_ff27b21333afe72b": "COMPLETE",
     "cx_ff676d31068e159a": "COMPLETE",
     "cx_ff98c4f8d7dcf8b5": "COMPLETE",
-    "cx_ffa1d1fa7ae73fa4": "COMPLETE"
+    "cx_ffa1d1fa7ae73fa4": "COMPLETE",
+    "cx_ffc5475d48b2900b": "COMPLETE"
   },
-  "unfinished_complex_ids": [
-    "cx_ffc5475d48b2900b"
-  ]
+  "unfinished_complex_ids": []
 }
