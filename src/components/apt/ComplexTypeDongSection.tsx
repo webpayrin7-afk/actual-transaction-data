@@ -230,9 +230,9 @@ export function ComplexTypeDongSection({
         </div>
       </dl>
       {sharedExclusive.length ? (
-        <p className="detail-meta -mt-1">
-          실거래는 전용면적으로만 신고돼요. 전용 {type.exclusiveSqm.toFixed(2)}㎡가 같은{" "}
-          {sharedExclusive.map((t) => labels.get(t.id)).join(", ")} 타입 거래도 위 최근 매매·거래 수에 함께 들어가 있어요.
+        <p className="detail-meta -mt-1 break-keep">
+          실거래는 전용면적으로만 신고돼서, 전용면적이 같은 {sharedExclusive.map((t) => labels.get(t.id)).join(", ")}{" "}
+          거래도 함께 집계했어요.
         </p>
       ) : null}
 
