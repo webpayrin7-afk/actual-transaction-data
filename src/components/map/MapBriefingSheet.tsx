@@ -32,7 +32,7 @@ import { formatArea, formatEok } from "@/lib/utils/format";
  * 데스크톱(≥ sm): 오른쪽 위 패널 (누르면 아래로 펼침).
  */
 
-export const BRIEFING_PEEK_PX = 88;
+export const BRIEFING_PEEK_PX = 96;
 /** 목록마다 최대 개수 — 전체는 /market */
 /** 지도 브리핑은 탭마다 3개까지 — 스크롤 없이 한눈에, 나머지는 시장 화면에서 */
 const LIST_MAX = 3;
@@ -104,35 +104,50 @@ const TONE_COLOR = { up: "var(--lab-change-up)", down: "var(--lab-change-down)" 
 
 type ScopeCounts = { singoga: number; drop: number; surge: number };
 
+/** 요약 줄 — 지역 이름 + 색 칩 세 개 (신고가 빨강 · 하락 파랑 · 거래 급증 청록). 0이면 칩을 옅게 */
 function PeekLine({ scope, counts }: { scope: BriefScope; counts: ScopeCounts }) {
-  // 날짜는 바로 위 줄(브리핑 시각)에 있으니 여기서는 빼고, 항목 사이를 조금 띄운다
   const where = scope.label;
   if (!counts.singoga && !counts.drop && !counts.surge) {
     return (
-      <>
-        {`${where}${topicJosa(where)} 새 신고가·하락 거래가 없어요`}
-      </>
+      <span className="text-[15px] font-semibold text-[color:var(--lab-navy-950)]">
+        {`${where}${topicJosa(where)} 오늘 조용해요`}
+        <span className="ml-1.5 text-[13px] font-medium text-[color:var(--lab-muted)]">새 신고가·하락 없음</span>
+      </span>
     );
   }
-  return (
-    <>
-      <span className="text-[color:var(--lab-teal-700)]">{where}</span> 신고가{" "}
-      <span className="tabular-nums" style={counts.singoga ? { color: TONE_COLOR.up } : undefined}>
-        {counts.singoga.toLocaleString("ko-KR")}
+  const chip = (label: string, n: number, tone: string, unit = "") => (
+    <span
+      className="inline-flex shrink-0 items-baseline gap-1 rounded-full px-2 py-0.5 text-[12px] font-semibold leading-5"
+      style={
+        n
+          ? { color: tone, background: `color-mix(in srgb, ${tone} 12%, white)` }
+          : { color: "var(--lab-muted)", background: "var(--lab-surface-subtle)" }
+      }
+    >
+      {label}
+      <span className="text-[14px] font-bold tabular-nums">
+        {n.toLocaleString("ko-KR")}
+        {unit}
       </span>
-      <span className="px-1.5 text-[color:var(--lab-muted)]" aria-hidden>
-        ·
-      </span>
-      하락{" "}
-      <span className="tabular-nums" style={counts.drop ? { color: TONE_COLOR.down } : undefined}>
-        {counts.drop.toLocaleString("ko-KR")}
-      </span>
-      <span className="px-1.5 text-[color:var(--lab-muted)]" aria-hidden>
-        ·
-      </span>
-      거래 급증 <span className="tabular-nums text-[color:var(--lab-teal-700)]">{counts.surge.toLocaleString("ko-KR")}곳</span>
-    </>
+    </span>
   );
+  return (
+    <span className="flex min-w-0 items-center gap-1.5">
+      <span className="shrink-0 text-[15px] font-bold text-[color:var(--lab-navy-950)]">{where}</span>
+      {chip("신고가", counts.singoga, TONE_COLOR.up)}
+      {chip("하락", counts.drop, TONE_COLOR.down)}
+      {chip("거래 급증", counts.surge, "var(--lab-teal-700)", "곳")}
+    </span>
+  );
+}
+
+/** 브리핑 날짜 — "9월 26일 (토)" */
+function briefDate(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const d = new Date(`${iso}T12:00:00Z`);
+  if (Number.isNaN(d.getTime())) return null;
+  const wd = ["일", "월", "화", "수", "목", "금", "토"][d.getUTCDay()];
+  return `${Number(iso.slice(5, 7))}월 ${Number(iso.slice(8, 10))}일 (${wd})`;
 }
 
 export function MapBriefingSheet({
@@ -354,20 +369,23 @@ export function MapBriefingSheet({
             }
             setExpanded((v) => !v);
           }}
-          className="flex h-[88px] w-full shrink-0 touch-none select-none flex-col items-stretch px-4 pb-2.5 pt-2 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] sm:h-auto sm:touch-auto sm:pt-3"
+          className="flex h-[96px] w-full shrink-0 touch-none select-none flex-col items-stretch px-4 pb-2.5 pt-2 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] sm:h-auto sm:touch-auto sm:pt-3"
         >
           <span className="mx-auto mb-1.5 h-1 w-9 shrink-0 rounded-full bg-[color:var(--lab-navy-950)]/20 sm:hidden" aria-hidden />
-          <span className="flex items-center gap-1.5 text-[12px] font-semibold leading-4 text-[color:var(--lab-teal-700)]">
-            <span className="relative inline-flex h-2 w-2" aria-hidden>
-              <span className="absolute inset-0 rounded-full bg-[color:var(--lab-brand-primary)]" />
-            </span>
-            오늘의 시장 브리핑
+          {/* 제목 + 날짜 강조 (시각은 작게) */}
+          <span className="flex items-center gap-2 leading-5">
+            <span className="text-[14px] font-bold text-[color:var(--lab-teal-700)]">오늘의 시장 브리핑</span>
+            {briefDate(data?.discoveryDate) ? (
+              <span className="rounded-md bg-[color:var(--lab-navy-950)] px-1.5 text-[12px] font-semibold leading-5 text-white">
+                {briefDate(data?.discoveryDate)}
+              </span>
+            ) : null}
             {data?.lastUpdatedLabel ? (
-              <span className="font-medium text-[color:var(--lab-muted)]">· {data.lastUpdatedLabel}</span>
+              <span className="text-[11px] font-medium text-[color:var(--lab-muted)]">{data.lastUpdatedLabel.split(" ").pop()} 기준</span>
             ) : null}
           </span>
-          <span className="mt-1 flex min-h-7 items-center gap-1 sm:gap-2">
-            <span className="min-w-0 flex-1 truncate text-[15px] font-bold leading-6 tracking-[-0.04em] sm:text-[16px] sm:tracking-tight text-[color:var(--lab-navy-950)]">
+          <span className="mt-1.5 flex min-h-7 items-center gap-1 sm:gap-2">
+            <span className="min-w-0 flex-1 overflow-hidden">
               {data && counts && !regionPending ? (
                 <PeekLine scope={scope} counts={counts} />
               ) : query.isError ? (

@@ -912,7 +912,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
 
   return (
     <div
-      className={`relative w-full ${MAP_HEIGHT_CLASS} ${briefingHidden ? "" : "[--map-sheet-peek:96px] sm:[--map-sheet-peek:0px]"}`}
+      className={`relative w-full ${MAP_HEIGHT_CLASS} ${briefingHidden ? "" : "[--map-sheet-peek:104px] sm:[--map-sheet-peek:0px]"}`}
     >
       {/* h-full, not absolute inset-0: the NAVER SDK forces position:relative on its host. */}
       <div ref={hostRef} className="isolate h-full w-full" role="application" aria-label="단지 가격 지도" />
