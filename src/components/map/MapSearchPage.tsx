@@ -916,12 +916,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
           </span>
           <div
             className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto overflow-y-hidden overscroll-x-contain py-1 pl-0.5 pr-1 sm:pr-4 [&::-webkit-scrollbar]:hidden"
-            // 오른쪽 끝을 흐리게 — 잘린 칩이 '옆으로 밀면 더 있음'으로 보이게
-            style={{
-              scrollbarWidth: "none",
-              maskImage: "linear-gradient(to right, #000 calc(100% - 28px), transparent)",
-              WebkitMaskImage: "linear-gradient(to right, #000 calc(100% - 28px), transparent)",
-            }}
+            style={{ scrollbarWidth: "none" }}
             role="toolbar"
             aria-label="지도 조건"
           >
