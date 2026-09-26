@@ -43,6 +43,7 @@ import { formatDealDate, formatEok } from "@/lib/utils/format";
 import { LabIndeterminateBar } from "@/components/ui/LabLoading";
 import type { Map3dView } from "@/components/map3d/Seoul3DMap";
 import { MapViewSwitch } from "@/components/map/MapViewSwitch";
+import { ComplexCardMore } from "@/components/map/ComplexCardMore";
 import { MapBriefingSheet, type BriefingTarget, type BriefingView } from "@/components/map/MapBriefingSheet";
 import { Map3dInvite, mark3dInviteDone, read3dInviteDone } from "@/components/map/Map3dInvite";
 import { SEOUL_BOUNDS } from "@/components/map3d/seoul-3d-style";
@@ -1124,44 +1125,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
                 {selected.tradeCount12m}건
               </span>
             </p>
-            {cardMore ? (
-              <dl className="mt-2 grid grid-cols-4 gap-1 border-t border-[color:var(--lab-border)] pt-2 text-center" id="map2d-card-more">
-                {(
-                  [
-                    ["전세가율", selected.jeonseRatioPct != null ? `${selected.jeonseRatioPct}%` : null, null],
-                    [
-                      "갭",
-                      selected.gapMan != null
-                        ? `${selected.gapMan < 0 ? "−" : ""}${shortEok(Math.abs(selected.gapMan))}`
-                        : null,
-                      null,
-                    ],
-                    ["월세수익률", selected.rentYieldPct != null ? `${selected.rentYieldPct}%` : null, null],
-                    [
-                      "1년 변동",
-                      selected.change1yPct != null
-                        ? `${selected.change1yPct > 0 ? "+" : selected.change1yPct < 0 ? "−" : ""}${Math.abs(selected.change1yPct).toFixed(1)}%`
-                        : null,
-                      selected.change1yPct == null || selected.change1yPct === 0
-                        ? null
-                        : selected.change1yPct > 0
-                          ? "#D93A3F"
-                          : "#2F62D6",
-                    ],
-                  ] as Array<[string, string | null, string | null]>
-                ).map(([label, value, color]) => (
-                  <div key={label} className="min-w-0">
-                    <dt className="whitespace-nowrap text-[12px] leading-4 text-[color:var(--lab-muted)]">{label}</dt>
-                    <dd
-                      className="whitespace-nowrap text-[14px] font-semibold leading-5 tabular-nums text-[color:var(--lab-navy-950)]"
-                      style={color ? { color } : undefined}
-                    >
-                      {value ?? "–"}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            ) : null}
+            {cardMore ? <ComplexCardMore c={selected} id="map2d-card-more" /> : null}
             <div className="mt-1.5 flex gap-2">
               <Link
                 href={selected.href}

@@ -224,6 +224,11 @@ export function MapBriefingSheet({
         surge: scopedCount(data, "volumeSurges", scope),
       }
     : null;
+  /** 지역과 전국이 같은 날(오늘 소식이 모두 이 지역) — 범위 칸이 의미 없어 숨긴다 */
+  const sameAsAll =
+    !!data &&
+    !!local &&
+    (["singoga", "drops", "volumeSurges"] as const).every((k) => scopedCount(data, k, local) === scopedCount(data, k, ALL_SCOPE));
   const tabs: { id: BriefTab; label: string; count?: string }[] = [
     { id: "singoga", label: "신고가", count: counts ? String(counts.singoga) : undefined },
     { id: "drop", label: "하락", count: counts ? String(counts.drop) : undefined },
@@ -407,7 +412,8 @@ export function MapBriefingSheet({
             <LabDataLoading label="오늘의 시장 불러오는 중" minHeight={160} />
           ) : (
             <>
-              {/* 범위 — 두 칸 같은 너비라 지역 이름이 바뀌어도 자리가 흔들리지 않는다 (긴 이름은 말줄임) */}
+              {/* 범위 — 두 칸 같은 너비라 지역 이름이 바뀌어도 자리가 흔들리지 않는다 (긴 이름은 말줄임). 지역 = 전국이면 숨김 */}
+              {sameAsAll ? null : (
               <div
                 className="grid h-9 shrink-0 grid-cols-2 rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] p-0.5"
                 role="group"
@@ -439,6 +445,7 @@ export function MapBriefingSheet({
                   );
                 })}
               </div>
+              )}
               <LabTabs
                 variant="secondary"
                 ariaLabel="브리핑 구분"

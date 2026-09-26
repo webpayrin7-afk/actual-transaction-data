@@ -21,6 +21,7 @@ import maplibregl, {
 import { Protocol } from "pmtiles";
 import { ChevronDown, Compass, Satellite, X } from "lucide-react";
 import { LabIndeterminateBar } from "@/components/ui/LabLoading";
+import { ComplexCardMore } from "@/components/map/ComplexCardMore";
 import { MAP3D_ATTRIBUTION, Map3dAttribution, SATELLITE_ATTRIBUTION } from "@/components/map3d/Map3dAttribution";
 import { MARKER_METRICS, markerValue, shortEok, shortPerPyeong, type MarkerMetric } from "@/components/map/complex-marker";
 import type { MapComplex, MapDealKind } from "@/lib/map/map-complexes";
@@ -1061,6 +1062,9 @@ export default function Seoul3DMap({
     : null;
   const selected3d = selected ? has3d[selected.complexId] : undefined;
   const cardShown = selected != null;
+  /** 카드 '더보기' — 연 단지에만 (다른 단지를 고르면 접힘) */
+  const [cardMoreId, setCardMoreId] = useState<string | null>(null);
+  const cardMore = selected != null && cardMoreId === selected.complexId;
   useEffect(() => {
     onCardChange?.(cardShown);
   }, [cardShown, onCardChange]);
@@ -1314,17 +1318,18 @@ export default function Seoul3DMap({
                 </span>
               </span>
             </p>
-            <div className="mt-1.5 grid grid-cols-2 gap-2">
+            {cardMore ? <ComplexCardMore c={selected} id="map3d-card-more" /> : null}
+            <div className="mt-1.5 flex gap-2">
               <Link
                 href={selected.href}
-                className="lab-button lab-button-primary h-9 !min-h-9 text-[14px]"
+                className="lab-button lab-button-primary h-9 !min-h-9 flex-1 text-[14px]"
               >
                 단지 상세
               </Link>
               {selected3d ? (
                 <Link
                   href={`/complex-3d/${selected.complexId}`}
-                  className="lab-button lab-button-secondary h-9 !min-h-9 text-[14px]"
+                  className="lab-button lab-button-secondary h-9 !min-h-9 flex-1 text-[14px]"
                 >
                   3D 탐색
                 </Link>
@@ -1332,11 +1337,24 @@ export default function Seoul3DMap({
                 <button
                   type="button"
                   disabled
-                  className="lab-button lab-button-secondary h-9 !min-h-9 text-[14px]"
+                  className="lab-button lab-button-secondary h-9 !min-h-9 flex-1 text-[14px]"
                 >
                   {selected3d === false ? "3D 준비 중" : "3D 탐색"}
                 </button>
               )}
+              <button
+                type="button"
+                aria-expanded={cardMore}
+                aria-controls="map3d-card-more"
+                onClick={() => setCardMoreId(cardMore ? null : selected.complexId)}
+                className="inline-flex h-9 shrink-0 items-center gap-0.5 rounded-lg px-2 text-[13px] font-semibold text-[color:var(--lab-teal-700)]"
+              >
+                {cardMore ? "접기" : "더보기"}
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform motion-reduce:transition-none ${cardMore ? "rotate-180" : ""}`}
+                  aria-hidden
+                />
+              </button>
             </div>
           </div>
         </div>

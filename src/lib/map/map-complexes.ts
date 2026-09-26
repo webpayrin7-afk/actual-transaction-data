@@ -109,6 +109,9 @@ export const MAP_COMPLEX_LITE_KEYS = [
   // 3D 이름표 값을 2D 마커 표시(전세가율)와 같게
   "jeonseRatioPct",
   "anchor3d",
+  // 단지 카드 '더보기' (2D와 같은 값)
+  "gapMan",
+  "rentYieldPct",
 ] as const satisfies ReadonlyArray<keyof MapComplex>;
 export type MapComplexLite = Pick<MapComplex, (typeof MAP_COMPLEX_LITE_KEYS)[number]>;
 
