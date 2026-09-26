@@ -13,6 +13,7 @@ import { readRankingV4Board } from "@/lib/region-ranking/ranking-v4";
 import { regionDongHref } from "@/lib/molit/region-paths";
 import { pickLatestDeal } from "@/lib/deals/latest";
 import { readMapRecentDeals, type RecentDeal } from "@/lib/map/map-complex-recent";
+import { loadComplexGroupIndex, type ComplexGroupIndex } from "@/lib/complex-group/groups";
 
 /** @deprecated 면적 범위(areaMin/areaMax)로 대체 — 옛 URL 호환용 */
 export type MapAreaBand = "all" | "small" | "mid" | "large";
@@ -281,6 +282,70 @@ const PICK = {
   gbn: (d: Deal) => d.gbn,
 };
 
+function masterSelect(anchored: boolean): string {
+  const lat = anchored ? "COALESCE(a.lat, m.latitude)" : "m.latitude";
+  const lng = anchored ? "COALESCE(a.lng, m.longitude)" : "m.longitude";
+  return `SELECT m.complex_id, m.apt_name, m.apt_name_norm, m.lawd_cd, m.legal_dong_name, m.sigungu,
+                 ${lat} AS latitude, ${lng} AS longitude, p.household_count, p.approval_date,
+                 p.far_ratio, p.bcr_ratio, p.parking_per_household, p.heating_type
+          FROM apt_complex_master m
+          ${anchored ? "LEFT JOIN complex_map_anchor a ON a.complex_id = m.complex_id" : ""}
+          LEFT JOIN apt_complex_profile p ON p.complex_id = m.complex_id`;
+}
+
+type MasterRow = Record<string, unknown>;
+
+/** 묶음 대표 단지의 지도 값 — 묶음 가운데 점·세대수·멤버 실거래 단지명·멤버 단지 번호 */
+type GroupOverride = { lat: number; lng: number; households: number | null; norms: string[]; ids: string[] };
+
+/**
+ * 단지 묶음(complex_group) — 멤버 단지는 숨기고 대표 하나만 묶음 가운데 점에 둔다.
+ * 묶음 가운데 점이 영역 안이면 (멤버 좌표가 영역 밖이어도) 대표를 넣는다. 영역 밖이면 멤버·대표 모두 뺀다.
+ */
+async function applyComplexGroups(
+  db: Client,
+  rows: MasterRow[],
+  index: ComplexGroupIndex,
+  bbox: MapBBox,
+  anchored: boolean,
+): Promise<{ rows: MasterRow[]; overrides: Map<string, GroupOverride> }> {
+  const overrides = new Map<string, GroupOverride>();
+  if (!index.groups.length) return { rows, overrides };
+  const inBox = (lat: number, lng: number) =>
+    lat >= bbox.swLat && lat <= bbox.neLat && lng >= bbox.swLng && lng <= bbox.neLng;
+  const rowIds = new Set(rows.map((r) => String(r.complex_id)));
+  const hit = index.groups.filter((g) =>
+    g.anchor ? inBox(g.anchor.lat, g.anchor.lng) : g.members.some((m) => rowIds.has(m.complexId)),
+  );
+  const kept = rows.filter((r) => !index.byComplexId.has(String(r.complex_id)));
+  if (!hit.length) return { rows: kept, overrides };
+  const byId = new Map(rows.map((r) => [String(r.complex_id), r]));
+  const missing = hit.map((g) => g.primaryComplexId).filter((id) => !byId.has(id));
+  if (missing.length) {
+    const res = await db.execute({
+      sql: `${masterSelect(anchored)} WHERE m.complex_id IN (${missing.map(() => "?").join(",")})`,
+      args: missing,
+    });
+    for (const r of res.rows) byId.set(String(r.complex_id), r as MasterRow);
+  }
+  for (const g of hit) {
+    const primary = byId.get(g.primaryComplexId);
+    if (!primary) continue;
+    const lat = g.anchor?.lat ?? Number(primary.latitude);
+    const lng = g.anchor?.lng ?? Number(primary.longitude);
+    if (!g.anchor && !inBox(lat, lng)) continue;
+    overrides.set(g.primaryComplexId, {
+      lat,
+      lng,
+      households: g.householdCount ?? num(primary.household_count),
+      norms: [...new Set(g.members.map((m) => m.aptNameNorm))],
+      ids: g.members.map((m) => m.complexId),
+    });
+    kept.push(primary);
+  }
+  return { rows: kept, overrides };
+}
+
 /** 영역 안 단지 (좌표·속성) — 세대수 큰 순 최대 MAP_MAX_COMPLEXES+1 */
 function readMasterRows(db: Client, bbox: MapBBox, anchored: boolean) {
   const lat = anchored ? "COALESCE(a.lat, m.latitude)" : "m.latitude";
@@ -297,12 +362,7 @@ function readMasterRows(db: Client, bbox: MapBBox, anchored: boolean) {
     : "";
   return db.execute({
     // 영역에 단지가 많으면 세대수 큰 단지부터 (주요 단지가 먼저 보이게).
-    sql: `SELECT m.complex_id, m.apt_name, m.apt_name_norm, m.lawd_cd, m.legal_dong_name, m.sigungu,
-                 ${lat} AS latitude, ${lng} AS longitude, p.household_count, p.approval_date,
-                 p.far_ratio, p.bcr_ratio, p.parking_per_household, p.heating_type
-          FROM apt_complex_master m
-          ${anchored ? "LEFT JOIN complex_map_anchor a ON a.complex_id = m.complex_id" : ""}
-          LEFT JOIN apt_complex_profile p ON p.complex_id = m.complex_id
+    sql: `${masterSelect(anchored)}
           WHERE ${lat} BETWEEN ? AND ? AND ${lng} BETWEEN ? AND ?
           ${candidates}
           ORDER BY COALESCE(p.household_count, 0) DESC, m.rowid
@@ -324,6 +384,8 @@ export async function readMapComplexes(
     snapshot?: "fresh" | "off" | "ignore-marks";
   } = {},
 ): Promise<{ complexes: MapComplex[]; truncated: boolean }> {
+  // 단지 묶음 (인스턴스 캐시) — 마스터 읽기와 함께 띄운다
+  const groupIndexPromise = loadComplexGroupIndex(db);
   // 콜드 인스턴스에서 sqlite_master 확인 왕복(약 0.3초)을 앞에 두지 않는다 — anchor 조인을 바로 시도.
   let master;
   if (anchorTable === false) {
@@ -339,8 +401,18 @@ export async function readMapComplexes(
     }
   }
   const truncated = master.rows.length > MAP_MAX_COMPLEXES;
-  const rows = master.rows.slice(0, MAP_MAX_COMPLEXES);
+  const grouped = await applyComplexGroups(
+    db,
+    master.rows.slice(0, MAP_MAX_COMPLEXES) as MasterRow[],
+    await groupIndexPromise,
+    bbox,
+    anchorTable !== false,
+  );
+  const rows = grouped.rows;
+  const groupOverrides = grouped.overrides;
   if (rows.length === 0) return { complexes: [], truncated: false };
+  /** 실거래 단지명 — 묶음 대표는 멤버 전체 이름 (거래는 lawd_cd + apt_name_norm) */
+  const normsOf = (r: MasterRow): string[] => groupOverrides.get(String(r.complex_id))?.norms ?? [String(r.apt_name_norm)];
 
   // 1년 변동을 보려고 18개월을 읽는다 — 나머지 값은 최근 12개월만 쓴다.
   // 12~18개월 전 거래는 선택한 유형(1년 변동 series)만 쓰이므로 다른 유형은 최근 12개월(cut12)만 읽는다.
@@ -352,11 +424,11 @@ export async function readMapComplexes(
 
   // lawd_cd별 `lawd_cd = ? AND apt_name_norm IN (...)` — idx_tx_lawd_apt_ym 를 그대로 탄다.
   // (행 값 IN (VALUES …) 형태는 인덱스를 못 타 30초 넘게 걸렸다.)
-  const wanted = new Set(rows.map((r) => keyOf(r.lawd_cd, r.apt_name_norm)));
+  const wanted = new Set(rows.flatMap((r) => normsOf(r).map((n) => keyOf(r.lawd_cd, n))));
   const byLawd = new Map<string, string[]>();
   for (const r of rows) {
     const list = byLawd.get(String(r.lawd_cd)) ?? [];
-    list.push(String(r.apt_name_norm));
+    list.push(...normsOf(r));
     byLawd.set(String(r.lawd_cd), list);
   }
   const jobs: Array<Promise<void>> = [];
@@ -472,7 +544,7 @@ export async function readMapComplexes(
   }
   // 평형 이름 — 단지 평형 목록(공급 평)에서. 실패해도 지도는 그대로.
   const unitTypes = new Map<string, Array<{ area: number; supplySqm: number | null }>>();
-  const ids = rows.map((r) => String(r.complex_id));
+  const ids = rows.flatMap((r) => groupOverrides.get(String(r.complex_id))?.ids ?? [String(r.complex_id)]);
   for (let i = 0; i < ids.length; i += 100) {
     const chunk = ids.slice(i, i + 100);
     jobs.push(
@@ -523,7 +595,9 @@ export async function readMapComplexes(
 
   const complexes: MapComplex[] = rows.map((r) => {
     const lawd = String(r.lawd_cd);
-    const all18 = deals.get(keyOf(r.lawd_cd, r.apt_name_norm)) ?? [];
+    const group = groupOverrides.get(String(r.complex_id));
+    const norms = normsOf(r);
+    const all18 = norms.flatMap((n) => deals.get(keyOf(r.lawd_cd, n)) ?? []);
     const all = all18.filter((d) => d.date >= cut12);
     const trades = all.filter((d) => d.kind === "trade");
     const jeonses = all.filter((d) => d.kind === "jeonse");
@@ -542,7 +616,8 @@ export async function readMapComplexes(
     // 대표 평형 · 평 · 평당가 · 1년 변동 · 신고가/하락 · 오래된 가격
     const rp = representativePrice(selected, deal);
     const main = modeArea(selected.map((d) => d.area));
-    const supplies = (unitTypes.get(String(r.complex_id)) ?? [])
+    const supplies = (group?.ids ?? [String(r.complex_id)])
+      .flatMap((id) => unitTypes.get(id) ?? [])
       .filter((u) => main != null && Math.abs(u.area - main) < 1 && u.supplySqm != null)
       .map((u) => u.supplySqm!);
     const pyeong = supplies.length ? Math.round((Math.min(...supplies) + Math.max(...supplies)) / 2 / PYEONG) : null;
@@ -560,15 +635,18 @@ export async function readMapComplexes(
     return {
       complexId: String(r.complex_id),
       aptName: String(r.apt_name),
-      lat: Number(r.latitude),
-      lng: Number(r.longitude),
+      lat: group?.lat ?? Number(r.latitude),
+      lng: group?.lng ?? Number(r.longitude),
       dong: r.legal_dong_name ? String(r.legal_dong_name) : null,
-      householdCount: num(r.household_count),
+      householdCount: group ? group.households : num(r.household_count),
       href: aptDetailHref(String(r.apt_name), regionSlugFor(lawd), gu || undefined),
       ...rp,
       pyeongLabel: pyeong ? `${pyeong}평` : null,
       perPyeongMan,
-      move: rp.priceMan != null ? (moves.get(`${lawd}|${r.apt_name_norm}|${rp.priceDate}|${rp.priceMan}`) ?? null) : null,
+      move:
+        rp.priceMan != null
+          ? (norms.map((n) => moves.get(`${lawd}|${n}|${rp.priceDate}|${rp.priceMan}`)).find(Boolean) ?? null)
+          : null,
       change1yPct,
       mainAreaSqm: main,
       buildYear: all.find((d) => d.buildYear != null)?.buildYear ?? approvalYear,

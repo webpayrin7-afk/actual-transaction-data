@@ -1,10 +1,15 @@
 import type { Client, InStatement } from "@libsql/client";
+import { groupTxNameLinksSql } from "@/lib/complex-group/groups";
 
-/** 단지의 MOLIT 연결 행 읽기 문장 — 단지 번호만 있으면 되니 다른 조회와 한 번에(batch) 보낼 수 있다. */
+/**
+ * 단지의 MOLIT 연결 행 읽기 문장 — 단지 번호만 있으면 되니 다른 조회와 한 번에(batch) 보낼 수 있다.
+ * 단지 묶음(complex_group_member)이면 다른 멤버의 실거래 단지명(마스터 이름 + MOLIT 연결)도 같은 모양으로 더한다.
+ */
 export function txNameLinksStatement(complexId: string): InStatement {
   return {
-    sql: `SELECT source_key FROM apt_complex_source_links WHERE complex_id = ? AND source = 'MOLIT' LIMIT 20`,
-    args: [complexId],
+    sql: `SELECT source_key FROM (SELECT source_key FROM apt_complex_source_links WHERE complex_id = ? AND source = 'MOLIT' LIMIT 20)
+          UNION ${groupTxNameLinksSql()}`,
+    args: [complexId, complexId, complexId],
   };
 }
 
@@ -23,7 +28,8 @@ export function txNameNormsFromLinks(
 }
 
 /**
- * 단지(complex_id)의 실거래 단지명(transactions.apt_name_norm) 목록 — 마스터 이름 + 같은 시군구 MOLIT 연결 이름.
+ * 단지(complex_id)의 실거래 단지명(transactions.apt_name_norm) 목록 — 마스터 이름 + 같은 시군구 MOLIT 연결 이름
+ * (+ 단지 묶음 멤버 이름).
  * 지방 마스터는 K-apt 이름이라 실거래 이름과 다른 경우가 많다 (예: 옥암3차골드디움 ↔ 골드디움3차).
  */
 export async function complexTxNameNorms(

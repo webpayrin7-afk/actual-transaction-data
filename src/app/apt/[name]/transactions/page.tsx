@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { AptTransactionsPage } from "@/components/apt/AptTransactionsPage";
 import { getRegion } from "@/lib/constants/regions";
+import { permanentRedirect } from "next/navigation";
+import { getDb } from "@/lib/db/client";
+import { groupPrimaryNameFor, groupRedirectHref } from "@/lib/complex-group/groups";
+import { resolveComplexLawdCodes } from "@/lib/complex-detail/get-complex-detail-v1";
 
 type PageProps = {
   params: Promise<{ name: string }>;
@@ -50,6 +54,12 @@ export default async function AptTransactionsRoute({
   // Canonical filter is `year`. Legacy `period=1y|3y|5y|all` is ignored
   // (not remapped to a rolling window) so 전체년도 remains unbounded history.
   const initialYear = sp.year?.trim() || undefined;
+  // 단지 묶음 멤버 URL → 대표 단지 거래내역 URL (308, 쿼리 그대로)
+  const db = getDb();
+  const primaryName = db
+    ? await groupPrimaryNameFor(db, resolveComplexLawdCodes(getRegion(regionSlug), gu), aptName).catch(() => null)
+    : null;
+  if (primaryName) permanentRedirect(groupRedirectHref(primaryName, "/transactions", sp));
 
   return (
     <main className="flex-1">

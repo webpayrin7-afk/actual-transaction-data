@@ -19,6 +19,7 @@ import {
   mapAptTxRow,
   readAptTxSnapshot,
 } from "@/lib/db/apt-tx-snapshot";
+import { groupTxNorms, loadComplexGroupIndex } from "@/lib/complex-group/groups";
 
 export function normalizeAptName(name: string): string {
   return name.replace(/\s+/g, "").toLowerCase();
@@ -428,13 +429,36 @@ export async function queryAptTransactions(params: {
   if (!aptKey || !params.lawdCodes.length) return [];
 
   const dealKinds = params.dealKinds ?? ["trade", "rent"];
-  const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
-  const kindPlaceholders = dealKinds.map(() => "?").join(",");
   const yearMonths = params.yearMonths ?? [];
+  // 단지 묶음(지번별로 쪼개진 같은 단지) — 멤버 이름마다 읽어 합친다. 멤버 거래도 이 단지 이름으로 보인다
+  // (상세 화면이 요청 이름으로 거래를 거르므로).
+  const norms = groupTxNorms(await loadComplexGroupIndex(db), params.lawdCodes, aptKey);
+  if (norms.length > 1) {
+    const parts = await Promise.all(
+      norms.map((norm) => queryAptTransactionsOne(db, params.lawdCodes, norm, yearMonths, dealKinds)),
+    );
+    const name = params.aptName.trim();
+    return parts
+      .flatMap((list, i) => (norms[i] === aptKey ? list : list.map((tx) => ({ ...tx, aptName: name }))))
+      .sort((a, b) => (a.dealDate === b.dealDate ? (a.id < b.id ? -1 : a.id > b.id ? 1 : 0) : a.dealDate < b.dealDate ? 1 : -1));
+  }
+  return queryAptTransactionsOne(db, params.lawdCodes, aptKey, yearMonths, dealKinds);
+}
+
+/** 단지명 하나(lawd_cd + apt_name_norm)의 거래 — 스냅샷 먼저, 없으면 라이브. APT_TX_ORDER_BY 순서. */
+async function queryAptTransactionsOne(
+  db: Client,
+  lawdCodes: string[],
+  aptKey: string,
+  yearMonths: string[],
+  dealKinds: DealType[],
+): Promise<Transaction[]> {
+  const lawdPlaceholders = lawdCodes.map(() => "?").join(",");
+  const kindPlaceholders = dealKinds.map(() => "?").join(",");
   // 전체 이력 + 단일 lawd → 단지 스냅샷(1왕복) 먼저. 최신이 아니거나 없으면(트리거·표 없음 포함) null → 아래 라이브 쿼리.
   // 스냅샷은 trade·rent 전부를 라이브와 같은 순서로 담고 있어 dealKinds 는 디코드 뒤 거른다.
-  if (yearMonths.length === 0 && params.lawdCodes.length === 1) {
-    const snap = await readAptTxSnapshot(db, params.lawdCodes[0], aptKey);
+  if (yearMonths.length === 0 && lawdCodes.length === 1) {
+    const snap = await readAptTxSnapshot(db, lawdCodes[0], aptKey);
     if (snap) {
       const kinds = new Set<string>(dealKinds);
       return kinds.has("trade") && kinds.has("rent")
@@ -460,7 +484,7 @@ export async function queryAptTransactions(params: {
             AND apt_name_norm = ?
           ORDER BY ${APT_TX_ORDER_BY}`,
     args: [
-      ...params.lawdCodes,
+      ...lawdCodes,
       ...yearMonths,
       ...dealKinds,
       aptKey,
@@ -481,16 +505,21 @@ export type AptArchiveListType = "trade" | "jeonse" | "monthly";
 
 export type AptArchiveYearBound = { from: string; to: string } | null;
 
+/** 단지 묶음이면 멤버 전체 실거래 단지명, 아니면 [aptKey] */
+async function archiveNorms(db: Client, lawdCodes: string[], aptKey: string): Promise<string[]> {
+  return groupTxNorms(await loadComplexGroupIndex(db), lawdCodes, aptKey);
+}
+
 function archiveWhere(params: {
   lawdCodes: string[];
-  aptNameNorm: string;
+  aptNameNorms: string[];
   yearBound: AptArchiveYearBound;
   area: AptArchiveAreaFilter;
   listType?: AptArchiveListType;
 }): { sql: string; args: Array<string | number> } {
   const lawdPh = params.lawdCodes.map(() => "?").join(",");
-  const args: Array<string | number> = [...params.lawdCodes, params.aptNameNorm];
-  let sql = `lawd_cd IN (${lawdPh}) AND apt_name_norm = ?`;
+  const args: Array<string | number> = [...params.lawdCodes, ...params.aptNameNorms];
+  let sql = `lawd_cd IN (${lawdPh}) AND apt_name_norm IN (${params.aptNameNorms.map(() => "?").join(",")})`;
   if (params.yearBound) {
     sql += " AND year_month >= ? AND year_month <= ?";
     args.push(params.yearBound.from, params.yearBound.to);
@@ -542,12 +571,13 @@ export async function queryAptArchiveYears(params: {
   const aptKey = normalizeAptName(params.aptName);
   if (!aptKey || !params.lawdCodes.length) return [];
   const lawdPh = params.lawdCodes.map(() => "?").join(",");
+  const norms = await archiveNorms(db, params.lawdCodes, aptKey);
   const result = await db.execute({
     sql: `SELECT DISTINCT substr(year_month, 1, 4) AS y
           FROM transactions INDEXED BY idx_tx_lawd_apt_ym
-          WHERE lawd_cd IN (${lawdPh}) AND apt_name_norm = ?
+          WHERE lawd_cd IN (${lawdPh}) AND apt_name_norm IN (${norms.map(() => "?").join(",")})
           ORDER BY y DESC`,
-    args: [...params.lawdCodes, aptKey],
+    args: [...params.lawdCodes, ...norms],
   });
   return result.rows
     .map((row) => Number(row.y))
@@ -566,7 +596,7 @@ export async function queryAptArchiveAreaBuckets(params: {
   if (!aptKey || !params.lawdCodes.length) return [];
   const { sql, args } = archiveWhere({
     lawdCodes: params.lawdCodes,
-    aptNameNorm: aptKey,
+    aptNameNorms: await archiveNorms(db, params.lawdCodes, aptKey),
     yearBound: params.yearBound,
     area: { kind: "all" },
   });
@@ -616,7 +646,7 @@ export async function queryAptArchiveKpi(params: {
 
   const base = {
     lawdCodes: params.lawdCodes,
-    aptNameNorm: aptKey,
+    aptNameNorms: await archiveNorms(db, params.lawdCodes, aptKey),
     yearBound: params.yearBound,
     area: params.area,
   };
@@ -688,7 +718,7 @@ export async function queryAptArchivePage(params: {
   if (!aptKey || !params.lawdCodes.length) return [];
   const w = archiveWhere({
     lawdCodes: params.lawdCodes,
-    aptNameNorm: aptKey,
+    aptNameNorms: await archiveNorms(db, params.lawdCodes, aptKey),
     yearBound: params.yearBound,
     area: params.area,
     listType: params.listType,
