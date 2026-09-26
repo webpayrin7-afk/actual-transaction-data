@@ -24,19 +24,19 @@ export function mark3dInviteDone() {
 
 /**
  * 처음 온 사람에게 한 번 — 2D 서울 화면에서 맨 위 2D | 3D 전환을 가리키는 작은 말풍선.
- * 전환은 맨 위 줄 왼쪽 끝(pl-3 · 폭 82px)에 고정이라, 꼬리는 그 3D 쪽을 가리킨다.
+ * 전환은 조작 줄 맨 앞(모바일은 로고·검색 36px 두 개 뒤, PC는 왼쪽 끝 · 폭 82px)이라, 꼬리는 그 3D 쪽을 가리킨다.
  */
 export function Map3dInvite({ onTry, onDismiss }: { onTry: () => void; onDismiss: () => void }) {
   return (
     <div
-      className="pointer-events-auto absolute left-3 top-[52px] z-30 max-w-[calc(100%-24px)] sm:left-4 sm:top-[56px]"
+      className="pointer-events-auto absolute left-3 top-[calc(env(safe-area-inset-top)+52px)] z-30 max-w-[calc(100%-24px)] sm:left-4 sm:top-[56px]"
       role="dialog"
       aria-label="3D 지도 안내"
       data-map-3d-invite
     >
       {/* 꼬리 — 3D 버튼(전환 오른쪽 절반) 아래 */}
       <span
-        className="absolute -top-1.5 left-[52px] h-3 w-3 rotate-45 rounded-[2px] bg-[color:var(--lab-navy-950)]"
+        className="absolute -top-1.5 left-[139px] h-3 sm:left-[52px] w-3 rotate-45 rounded-[2px] bg-[color:var(--lab-navy-950)]"
         aria-hidden
       />
       <div className="relative flex items-center gap-1 rounded-xl bg-[color:var(--lab-navy-950)] py-1.5 pl-3 pr-1 text-white shadow-lg">

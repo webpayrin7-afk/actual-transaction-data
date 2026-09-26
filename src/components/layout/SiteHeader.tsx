@@ -1,25 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type TouchEvent as ReactTouchEvent,
-} from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
 import { SiteHeaderLoadProgress } from "@/components/layout/LoadProgress";
 import { JipLabLogo } from "@/components/brand/JipLabLogo";
 import { HeaderAptSearch } from "@/components/layout/HeaderAptSearch";
-import {
-  MORE_SERVICE_LINKS,
-  PRIMARY_NAV,
-  TOOL_NAV,
-} from "@/lib/nav/site-menu";
-
-const DRAWER_CLOSE_MS = 160;
+import { SiteMenuButton } from "@/components/layout/SiteMenu";
+import { PRIMARY_NAV } from "@/lib/nav/site-menu";
 
 /** 하단 메뉴 첫 페이지 — 모바일 상단바 가운데 제목 (본문 제목 줄 대신) */
 const HEADER_TITLES: Record<string, string> = {
@@ -39,72 +27,22 @@ function navLinkClass(active: boolean) {
   }`;
 }
 
-function sectionHeadingClass() {
-  return "pb-0.5 text-[13px] font-semibold text-slate-500";
-}
-
-function drawerItemClass(active: boolean) {
-  return `flex h-11 items-center text-[17px] font-medium transition-colors ${
-    active
-      ? "bg-teal-50 text-teal-800"
-      : "text-slate-800 hover:bg-teal-50/70 active:bg-teal-50/80"
-  }`;
-}
-
-export function SiteHeader() {
+/**
+ * 전역 상단바. `className` 으로 화면별로 숨길 수 있다 — 지도 첫 화면은 모바일에서 숨기고
+ * 같은 검색·메뉴를 지도 조작 줄에 둔다 (MapSearchPage). 높이는 --site-header-height 로 알린다 (숨으면 0).
+ */
+export function SiteHeader({ className = "" }: { className?: string } = {}) {
   const pathname = usePathname();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [menuMounted, setMenuMounted] = useState(false);
-  const [menuShown, setMenuShown] = useState(false);
-  const [navPath, setNavPath] = useState(pathname);
   const headerRef = useRef<HTMLElement>(null);
-  const closeTimerRef = useRef<number | null>(null);
-  const touchStartXRef = useRef<number | null>(null);
-  const menuId = useId();
-  const titleId = useId();
   const headerTitle = HEADER_TITLES[pathname] ?? null;
-
-  function clearCloseTimer() {
-    if (closeTimerRef.current != null) {
-      window.clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
-    }
-  }
-
-  function openMenu() {
-    clearCloseTimer();
-    setMenuOpen(true);
-    setMenuMounted(true);
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => setMenuShown(true));
-    });
-  }
-
-  function closeMenu() {
-    setMenuOpen(false);
-    setMenuShown(false);
-    clearCloseTimer();
-    closeTimerRef.current = window.setTimeout(() => {
-      setMenuMounted(false);
-      closeTimerRef.current = null;
-    }, DRAWER_CLOSE_MS);
-  }
-
-  if (navPath !== pathname) {
-    setNavPath(pathname);
-    if (menuOpen || menuMounted) {
-      setMenuOpen(false);
-      setMenuShown(false);
-      setMenuMounted(false);
-    }
-  }
 
   useEffect(() => {
     const el = headerRef.current;
     if (!el) return;
 
     const sync = () => {
-      const h = Math.max(1, Math.round(el.getBoundingClientRect().height));
+      // 숨긴 상단바(display:none)는 0 — 지도가 화면 전체를 쓴다
+      const h = Math.max(0, Math.round(el.getBoundingClientRect().height));
       document.documentElement.style.setProperty("--site-header-height", `${h}px`);
     };
     sync();
@@ -118,43 +56,11 @@ export function SiteHeader() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!menuMounted) return;
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") closeMenu();
-    }
-
-    document.addEventListener("keydown", onKeyDown);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = prev;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [menuMounted]);
-
-  useEffect(() => () => clearCloseTimer(), []);
-
-  function onDrawerTouchStart(event: ReactTouchEvent) {
-    touchStartXRef.current = event.touches[0]?.clientX ?? null;
-  }
-
-  function onDrawerTouchEnd(event: ReactTouchEvent) {
-    const startX = touchStartXRef.current;
-    touchStartXRef.current = null;
-    if (startX == null) return;
-    const endX = event.changedTouches[0]?.clientX;
-    if (endX == null) return;
-    if (endX - startX > 72) closeMenu();
-  }
-
   return (
     <header
       ref={headerRef}
       data-site-header
-      className="sticky top-0 z-50 bg-white shadow-none"
+      className={`sticky top-0 z-50 bg-white shadow-none ${className}`.trim()}
     >
       <div className="mx-auto w-full max-w-7xl px-3 sm:pr-4 sm:pl-1 lg:pr-6 lg:pl-2">
         <div className="relative flex py-1.5 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:py-0">
@@ -196,105 +102,12 @@ export function SiteHeader() {
             <div className="ml-auto flex shrink-0 items-center gap-0.5 lg:ml-0">
               <HeaderAptSearch />
 
-              <button
-                type="button"
-                aria-expanded={menuOpen}
-                aria-controls={menuId}
-                aria-haspopup="dialog"
-                aria-label="더보기"
-                onClick={openMenu}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-md text-[color:var(--lab-navy-900)] transition-colors duration-150 hover:bg-slate-100 sm:h-9 sm:w-9"
-              >
-                <Menu className="h-[18px] w-[18px]" aria-hidden />
-              </button>
+              <SiteMenuButton />
             </div>
           </div>
         </div>
       </div>
       <SiteHeaderLoadProgress />
-
-      {menuMounted ? (
-        <>
-          <div
-            className={`fixed inset-0 z-[45] bg-black/12 transition-opacity ease-out ${
-              menuShown
-                ? "opacity-100 duration-[200ms]"
-                : "opacity-0 duration-[160ms]"
-            }`}
-            aria-hidden
-            onClick={closeMenu}
-          />
-
-          <div
-            id={menuId}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={titleId}
-            className={`fixed inset-y-0 right-0 z-[48] flex w-[min(280px,78vw)] flex-col border-l border-slate-200 bg-white shadow-[-2px_0_8px_rgba(15,23,42,0.04)] transition-transform ease-out ${
-              menuShown
-                ? "translate-x-0 duration-[200ms]"
-                : "translate-x-full duration-[160ms]"
-            }`}
-            onTouchStart={onDrawerTouchStart}
-            onTouchEnd={onDrawerTouchEnd}
-          >
-            <div className="flex h-11 shrink-0 items-center justify-between border-b border-slate-100 pr-2.5 pl-5">
-              <h2
-                id={titleId}
-                className="text-[18px] font-semibold leading-none text-slate-900"
-              >
-                메뉴
-              </h2>
-              <button
-                type="button"
-                aria-label="닫기"
-                onClick={closeMenu}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
-              >
-                <X className="h-[18px] w-[18px]" aria-hidden />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-5 pt-3 pb-4">
-              <p className={sectionHeadingClass()}>도구</p>
-              <nav aria-label="도구" className="flex flex-col gap-0.5">
-                {TOOL_NAV.map((item) => {
-                  const active = item.match(pathname);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={drawerItemClass(active)}
-                      onClick={closeMenu}
-                    >
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </nav>
-
-              <div className="mt-3.5 border-t border-slate-100/80 pt-3.5">
-                <p className={sectionHeadingClass()}>서비스</p>
-                <nav aria-label="서비스" className="flex flex-col gap-0.5">
-                  {MORE_SERVICE_LINKS.map((item) => {
-                    const active = pathname === item.href;
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={closeMenu}
-                        className={drawerItemClass(active)}
-                      >
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                </nav>
-              </div>
-            </div>
-          </div>
-        </>
-      ) : null}
     </header>
   );
 }

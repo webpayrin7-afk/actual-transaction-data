@@ -3,6 +3,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import { Check, ChevronDown, ChevronRight, Construction, MapPin, LocateFixed, SlidersHorizontal, X } from "lucide-react";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
@@ -48,6 +49,9 @@ import { MapBriefingSheet, type BriefingTarget, type BriefingView } from "@/comp
 import { Map3dInvite, mark3dInviteDone, read3dInviteDone } from "@/components/map/Map3dInvite";
 import { SEOUL_BOUNDS } from "@/components/map3d/seoul-3d-style";
 import { clear3dSession, read3dSession, replaceViewParam, shouldJump } from "@/lib/map/view-state";
+import { mapInteractionEnd, mapInteractionStart, resetMapDock, setMapCardOpen } from "@/lib/map/map-dock";
+import { HeaderAptSearch } from "@/components/layout/HeaderAptSearch";
+import { SiteMenuButton } from "@/components/layout/SiteMenu";
 
 /** 서울 3D 지도 — MapLibre(약 1MB)는 3D를 열 때만 받는다 (2D 번들에 넣지 않음). */
 const Seoul3DMap = dynamic(() => import("@/components/map3d/Seoul3DMap"), {
@@ -68,6 +72,13 @@ type MapWithBounds = NaverMapInstance & {
 };
 
 const DEAL_LABEL: Record<MapDealKind, string> = { trade: "매매", jeonse: "전세" };
+
+/** 조작 줄의 둥근 아이콘 버튼 (검색 · ≡) — h-9, 누르는 곳은 위아래로 넓게 */
+const MAP_ICON_BUTTON =
+  "relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:-inset-1 before:content-['']";
+
+/** 지도 높이 — 모바일은 상단바가 없어 화면 전체, PC는 상단바 아래 */
+const MAP_HEIGHT_CLASS = "h-dvh sm:h-[calc(100dvh-var(--site-header-height,56px))]";
 
 /** 지도 위 조건 칩 순서 — 자주 쓰는 것부터 */
 const CHIP_ORDER: Array<RangeFilterId | "heating"> = [
@@ -188,11 +199,7 @@ export function MapSearchPage({ satelliteKey = null }: { satelliteKey?: string |
   return (
     <Suspense
       fallback={
-        <div
-          className="relative w-full bg-[#f4f5f2]"
-          style={{ height: "calc(100dvh - var(--site-header-height, 56px))" }}
-          aria-busy="true"
-        />
+        <div className={`relative w-full bg-[#f4f5f2] ${MAP_HEIGHT_CLASS}`} aria-busy="true" />
       }
     >
       <MapSearchPageInner satelliteKey={satelliteKey} />
@@ -249,6 +256,8 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
   const view3dRef = useRef<(() => Map3dView) | null>(null);
   /** 브리핑에서 고른 곳 — 3D 지도가 그리로 날아가 단지를 고른다 (seq 가 바뀔 때마다) */
   const [focus3d, setFocus3d] = useState<{ lat: number; lng: number; complexId: string | null; seq: number } | null>(null);
+  /** 조작 줄 안 3D 전용 알약 자리 (Seoul3DMap 이 portal 로 그린다) */
+  const [slot3d, setSlot3d] = useState<HTMLSpanElement | null>(null);
   /** 3D 지도에 단지 카드가 떠 있나 — 그동안 브리핑 시트를 숨긴다 */
   const [card3d, setCard3d] = useState(false);
   /** 브리핑 '지역' 범위용 — 2D 지도가 멈춘 곳(네이버 줌), 3D 카메라가 멈춘 곳(MapLibre 줌) */
@@ -436,6 +445,9 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
           }, 250);
         });
         maps.Event.addListener(map, "click", () => setSelectedId(null));
+        // 끌기·핀치·줌 동안 하단 독을 비킨다 (멈추면 1초 뒤 돌아옴)
+        for (const ev of ["dragstart", "pinchstart", "zoom_changed"]) maps.Event.addListener(map, ev, mapInteractionStart);
+        for (const ev of ["dragend", "pinchend", "idle"]) maps.Event.addListener(map, ev, mapInteractionEnd);
         void fetchViewport();
       } catch {
         setState("error");
@@ -842,149 +854,174 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
   }, [view3d, cam3d, view2d]);
   // 고른 단지가 있으면(카드가 불러오는 중이어도) 숨김 — 2D·3D 전환 때 잠깐 떴다 사라지지 않게
   const briefingHidden = view3d ? card3d || sel3d != null : Boolean(selectedId) || Boolean(zone);
+  // 카드가 떠 있는 동안 하단 독을 숨기고 카드를 아래 안전 영역까지 내린다 (모바일)
+  const cardOpen = view3d ? card3d : Boolean(selected) || Boolean(zone);
+  useEffect(() => {
+    setMapCardOpen(cardOpen);
+  }, [cardOpen]);
+  useEffect(() => () => resetMapDock(), []);
   const showInvite = inviteDone === false && !view3d && center != null && inSeoul(center);
 
   return (
     <div
-      className={`relative w-full ${briefingHidden ? "" : "[--map-sheet-peek:96px] sm:[--map-sheet-peek:0px]"}`}
-      style={{ height: "calc(100dvh - var(--site-header-height, 56px))" }}
+      className={`relative w-full ${MAP_HEIGHT_CLASS} ${briefingHidden ? "" : "[--map-sheet-peek:96px] sm:[--map-sheet-peek:0px]"}`}
     >
       {/* h-full, not absolute inset-0: the NAVER SDK forces position:relative on its host. */}
       <div ref={hostRef} className="isolate h-full w-full" role="application" aria-label="단지 가격 지도" />
 
-      {/* 상단: 거래유형 · 조건 · 레시피 + 상태 */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-2 pt-2 sm:pt-3">
-        {/*
-          맨 위 줄은 3D 화면(z-20) 위에도 그대로 보인다(z-30) — 2D | 3D 전환이 두 화면에서 같은 자리에 있고,
-          거래유형·조건 칩도 3D 단지에 똑같이 걸린다. 전환은 왼쪽에 고정, 뒤의 칩만 옆으로 밀린다.
-        */}
-        <div className="pointer-events-auto relative z-30 flex items-center gap-1.5 pl-3 sm:pl-4">
-          <MapViewSwitch
-            mode={view3d ? "3d" : "2d"}
-            onChange={(m) => {
-              if (m === "3d") open3d();
-              else if (view3d) close3d(view3dRef.current?.() ?? view3d);
-            }}
-          />
-          <span className="h-6 w-px shrink-0 bg-[color:var(--lab-navy-950)]/25" aria-hidden />
+      {/*
+        상단: 조작 줄 하나 (모바일은 상단바가 없어 로고·검색·메뉴도 여기) + 그 아래 상태.
+        [로고] ⟨가로 스크롤: 검색 · 2D|3D · 매매|전세 · 조건 · 지표(2D 마커 / 3D 범례·구 이동) · 정비구역 · 조건 칩들⟩ [≡]
+        줄은 3D 화면(z-20)·하단 독(z-40) 위(z-50) — 2D·3D에서 같은 자리. 팝오버는 fixed 라 스크롤 줄에 잘리지 않는다.
+      */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-2 pt-[calc(env(safe-area-inset-top)+8px)] sm:pt-3">
         <div
-          className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto overflow-y-hidden overscroll-x-contain py-1 pl-0.5 pr-3 sm:pr-4"
-          style={{ scrollbarWidth: "none" }}
-          role="toolbar"
-          aria-label="지도 조건"
+          className="pointer-events-auto relative z-50 flex items-center gap-1.5 pl-3 pr-2 sm:pl-4 sm:pr-0"
+          data-map-controls
         >
-          <div className="inline-flex h-9 shrink-0 rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] p-0.5 shadow-sm" role="group" aria-label="거래 유형">
-            {(["trade", "jeonse"] as const).map((d) => (
-              <button
-                key={d}
-                type="button"
-                aria-pressed={conditions.deal === d}
-                onClick={() => {
-                  if (conditions.deal === d) return;
-                  // 가격 구간은 거래유형마다 다르므로 바꿀 때 뺀다
-                  const ranges = { ...conditions.ranges };
-                  delete ranges.price;
-                  updateConditions({ ...conditions, deal: d, ranges });
-                }}
-                className={`relative rounded-full px-3.5 text-[14px] leading-5 transition-colors before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-[''] ${
-                  conditions.deal === d
-                    ? "bg-[color:var(--lab-navy-950)] font-semibold text-white"
-                    : "font-medium text-[color:var(--lab-navy-950)]"
-                }`}
-              >
-                {DEAL_LABEL[d]}
-              </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              setSheetOnly(null);
-              setSheetOpen(true);
-            }}
-            aria-haspopup="dialog"
-            className={`relative inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 text-[14px] leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
-              nActive > 0
-                ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-surface)] font-semibold text-[color:var(--lab-teal-700)]"
-                : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] font-medium text-[color:var(--lab-navy-950)]"
-            }`}
+          {/* 브랜드 — 집 모양만 (상단바 로고 대신, 모바일만) */}
+          <span
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[color:var(--lab-border)] bg-white shadow-sm sm:hidden"
+            role="img"
+            aria-label="집랩"
           >
-            <SlidersHorizontal className="h-4 w-4" aria-hidden />
-            조건
-            {nActive > 0 ? (
-              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[color:var(--lab-brand-primary)] px-1 text-[12px] font-semibold leading-none text-white tabular-nums">
-                {nActive}
-              </span>
-            ) : null}
-          </button>
-          {CHIP_ORDER.map((key) => {
-            const def = key === "heating" ? null : chipDefs.find((d) => d.id === key)!;
-            const on = def ? !isFullRange(def, conditions.ranges[def.id]) : conditions.heating.length > 0;
-            const label = def
-              ? on
-                ? `${def.label} ${conditionSummary(def, conditions.ranges[def.id])}`
-                : def.label
-              : on
-                ? `${conditions.heating.join("·")}난방`
-                : "난방";
-            return (
-              <button
-                key={key}
-                type="button"
-                aria-haspopup="dialog"
-                onClick={() => {
-                  setSheetOnly(key);
-                  setSheetOpen(true);
-                }}
-                className={`relative inline-flex h-9 shrink-0 items-center gap-0.5 whitespace-nowrap rounded-full border px-3 text-[14px] leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
-                  on
-                    ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]"
-                    : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] font-medium text-[color:var(--lab-navy-950)]"
-                }`}
-              >
-                {label}
-                <ChevronDown className="h-4 w-4 opacity-60" aria-hidden />
-              </button>
-            );
-          })}
-        </div>
-        </div>
-        <div className="flex flex-col items-start gap-2 px-3 sm:px-4">
-          <div className="flex items-center gap-2">
-          {level === "complex" ? (
-            // 마커에 보일 값 — 조건(필터)이 아니라 보기 방식이라 칩 줄과 따로 둔다
-            <button
-              type="button"
-              aria-haspopup="dialog"
-              onClick={() => setMetricOpen(true)}
-              className="pointer-events-auto relative -mt-0.5 inline-flex h-8 items-center gap-1 whitespace-nowrap rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] pl-2.5 pr-2 text-[13px] font-semibold leading-5 text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-['']"
-            >
-              <MapPin className="h-4 w-4" aria-hidden />
-              마커 표시: {MARKER_METRICS.find((m) => m.id === metric)!.label}
-              <ChevronDown className="h-4 w-4 opacity-60" aria-hidden />
-            </button>
-          ) : null}
-          {level === "complex" || level === "dong" ? (
-            <button
-              type="button"
-              aria-pressed={redevOn}
-              onClick={() => {
-                setRedevOn((v) => !v);
-                setZoneId(null);
-                zoneKeyRef.current = "";
-                if (redevOn) setZones([]);
+            <span className="block h-[22px] w-[22px] overflow-hidden" aria-hidden>
+              <Image src="/brand/jiplab-logo.png" alt="" width={1065} height={406} priority className="h-[22px] w-auto max-w-none" />
+            </span>
+          </span>
+          <div
+            className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto overflow-y-hidden overscroll-x-contain py-1 pl-0.5 pr-1 sm:pr-4 [&::-webkit-scrollbar]:hidden"
+            style={{ scrollbarWidth: "none" }}
+            role="toolbar"
+            aria-label="지도 조건"
+          >
+            {/* 통합 검색 — 상단바와 같은 검색 (모바일만, PC는 상단바에 있음) */}
+            <HeaderAptSearch className="shrink-0 sm:hidden" buttonClassName={MAP_ICON_BUTTON} />
+            <MapViewSwitch
+              mode={view3d ? "3d" : "2d"}
+              onChange={(m) => {
+                if (m === "3d") open3d();
+                else if (view3d) close3d(view3dRef.current?.() ?? view3d);
               }}
-              className={`pointer-events-auto relative -mt-0.5 inline-flex h-8 items-center gap-1 whitespace-nowrap rounded-full border pl-2.5 pr-3 text-[13px] font-semibold leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-[''] ${
-                redevOn
-                  ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
-                  : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)]"
+            />
+            <span className="h-6 w-px shrink-0 bg-[color:var(--lab-navy-950)]/25" aria-hidden />
+            <div className="inline-flex h-9 shrink-0 rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] p-0.5 shadow-sm" role="group" aria-label="거래 유형">
+              {(["trade", "jeonse"] as const).map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  aria-pressed={conditions.deal === d}
+                  onClick={() => {
+                    if (conditions.deal === d) return;
+                    // 가격 구간은 거래유형마다 다르므로 바꿀 때 뺀다
+                    const ranges = { ...conditions.ranges };
+                    delete ranges.price;
+                    updateConditions({ ...conditions, deal: d, ranges });
+                  }}
+                  className={`relative rounded-full px-3.5 text-[14px] leading-5 transition-colors before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-[''] ${
+                    conditions.deal === d
+                      ? "bg-[color:var(--lab-navy-950)] font-semibold text-white"
+                      : "font-medium text-[color:var(--lab-navy-950)]"
+                  }`}
+                >
+                  {DEAL_LABEL[d]}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSheetOnly(null);
+                setSheetOpen(true);
+              }}
+              aria-haspopup="dialog"
+              className={`relative inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 text-[14px] leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
+                nActive > 0
+                  ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-surface)] font-semibold text-[color:var(--lab-teal-700)]"
+                  : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] font-medium text-[color:var(--lab-navy-950)]"
               }`}
             >
-              <Construction className="h-4 w-4" aria-hidden />
-              정비구역
+              <SlidersHorizontal className="h-4 w-4" aria-hidden />
+              조건
+              {nActive > 0 ? (
+                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[color:var(--lab-brand-primary)] px-1 text-[12px] font-semibold leading-none text-white tabular-nums">
+                  {nActive}
+                </span>
+              ) : null}
             </button>
-          ) : null}
+            {!view3d && level === "complex" ? (
+              // 마커에 보일 값 — 조건(필터)이 아니라 보기 방식 (3D는 이 자리에 범례 알약)
+              <button
+                type="button"
+                aria-haspopup="dialog"
+                aria-label={`마커 표시: ${MARKER_METRICS.find((m) => m.id === metric)!.label}`}
+                onClick={() => setMetricOpen(true)}
+                className="relative inline-flex h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] pl-2.5 pr-2 text-[14px] font-semibold leading-5 text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']"
+              >
+                <MapPin className="h-4 w-4" aria-hidden />
+                마커: {MARKER_METRICS.find((m) => m.id === metric)!.label}
+                <ChevronDown className="h-4 w-4 opacity-60" aria-hidden />
+              </button>
+            ) : null}
+            {/* 3D 지도의 지표(범례) 알약 · 구 이동 — Seoul3DMap 이 여기에 그린다 (portal) */}
+            <span ref={setSlot3d} className="contents" />
+            {!view3d && (level === "complex" || level === "dong") ? (
+              <button
+                type="button"
+                aria-pressed={redevOn}
+                onClick={() => {
+                  setRedevOn((v) => !v);
+                  setZoneId(null);
+                  zoneKeyRef.current = "";
+                  if (redevOn) setZones([]);
+                }}
+                className={`relative inline-flex h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border pl-2.5 pr-3 text-[14px] font-semibold leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
+                  redevOn
+                    ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
+                    : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)]"
+                }`}
+              >
+                <Construction className="h-4 w-4" aria-hidden />
+                정비구역
+              </button>
+            ) : null}
+            {CHIP_ORDER.map((key) => {
+              const def = key === "heating" ? null : chipDefs.find((d) => d.id === key)!;
+              const on = def ? !isFullRange(def, conditions.ranges[def.id]) : conditions.heating.length > 0;
+              const label = def
+                ? on
+                  ? `${def.label} ${conditionSummary(def, conditions.ranges[def.id])}`
+                  : def.label
+                : on
+                  ? `${conditions.heating.join("·")}난방`
+                  : "난방";
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  aria-haspopup="dialog"
+                  onClick={() => {
+                    setSheetOnly(key);
+                    setSheetOpen(true);
+                  }}
+                  className={`relative inline-flex h-9 shrink-0 items-center gap-0.5 whitespace-nowrap rounded-full border px-3 text-[14px] leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
+                    on
+                      ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]"
+                      : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] font-medium text-[color:var(--lab-navy-950)]"
+                  }`}
+                >
+                  {label}
+                  <ChevronDown className="h-4 w-4 opacity-60" aria-hidden />
+                </button>
+              );
+            })}
           </div>
+          {/* ≡ 사이트 메뉴 — 상단바와 같은 서랍 (모바일만) */}
+          <div className="shrink-0 sm:hidden">
+            <SiteMenuButton buttonClassName={MAP_ICON_BUTTON} />
+          </div>
+        </div>
+        <div className="flex flex-col items-start gap-2 px-3 sm:px-4">
           {redevOn && (level === "complex" || level === "dong") ? (
             <p className="pointer-events-auto flex flex-wrap items-center gap-x-2.5 rounded-lg bg-[color:var(--lab-surface)]/95 px-2.5 py-1 text-[13px] leading-5 text-[color:var(--lab-muted)] shadow-sm">
               {[
@@ -1033,7 +1070,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
         className="absolute right-3 bottom-[calc(env(safe-area-inset-bottom)+84px+var(--map-sheet-peek,0px))] inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)] shadow-sm sm:right-4 sm:bottom-[calc(env(safe-area-inset-bottom)+16px)]"
         style={
           selected
-            ? { bottom: `calc(env(safe-area-inset-bottom) + ${cardMore ? 252 : 196}px)`, visibility: cardMore ? "hidden" : undefined }
+            ? { bottom: `calc(env(safe-area-inset-bottom) + ${cardMore ? 188 : 132}px)`, visibility: cardMore ? "hidden" : undefined }
             : undefined
         }
       >
@@ -1055,7 +1092,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
 
       {/* 하단: 선택 단지 카드 — 작게(약 108px): 이름·위치 / 최근 거래·12개월 / 단지 상세 · 3D. 나머지 값은 '더보기' */}
       {selected ? (
-        <div className="absolute inset-x-0 bottom-0 px-3 pb-[calc(env(safe-area-inset-bottom)+76px)] sm:p-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 px-3 pb-[calc(env(safe-area-inset-bottom)+12px)] sm:p-4 sm:pb-4">
           <div
             className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] px-3.5 pb-2.5 pt-2.5 shadow-lg"
             data-map2d-card
@@ -1168,7 +1205,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
       ) : null}
 
       {zone && !selected ? (
-        <div className="absolute inset-x-0 bottom-0 px-4 pb-[calc(env(safe-area-inset-bottom)+76px)] sm:p-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] sm:p-4 sm:pb-4">
           <div className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] p-4 shadow-lg">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
@@ -1307,6 +1344,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
           onLabelMetricChange={chooseMetric}
           sessionPath={pathname}
           onMoveEnd={setCam3d}
+          controlsSlot={slot3d}
           satelliteKey={satelliteKey}
         />
       ) : null}

@@ -11,6 +11,7 @@
  */
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import maplibregl, {
   type GeoJSONSource,
@@ -23,6 +24,7 @@ import { LabIndeterminateBar } from "@/components/ui/LabLoading";
 import { ComplexCardMore } from "@/components/map/ComplexCardMore";
 import { fitComplexCamera } from "@/components/map3d/fit-camera";
 import { SEOUL_DISTRICTS } from "@/components/map3d/seoul-districts";
+import { mapInteractionEnd, mapInteractionStart } from "@/lib/map/map-dock";
 import {
   MAP3D_ATTRIBUTION,
   Map3dAttribution,
@@ -87,9 +89,21 @@ const SHAPE_CACHE_MAX = 16;
 
 let protocolAdded = false;
 
-/** MapLibre 컨트롤 — 모바일 아래 탭 막대 위로, 손가락 크기(44px) */
+/** 팝오버(범례·구 이동) — 조작 줄은 가로 스크롤이라 fixed 로 버튼 아래에 띄운다 (잘리지 않게) */
+type PopPos = { top: number; left: number };
+function popoverPos(el: HTMLElement, width: number): PopPos {
+  const r = el.getBoundingClientRect();
+  return { top: r.bottom + 6, left: Math.max(8, Math.min(r.left, window.innerWidth - width - 8)) };
+}
+const LEGEND_W = 244;
+const GU_W = 264;
+/** 단지를 담을 때 위 여백 — 조작 줄 아래 (줄을 못 찾으면 이 값) */
+const FRAME_TOP_FALLBACK = 64;
+
+/** MapLibre 컨트롤 — 모바일 아래 탭 막대 위로(카드가 뜨면 독이 숨고 카드 위로), 손가락 크기(44px) */
 const CONTROL_CSS = `
 .seoul3d .maplibregl-ctrl-bottom-right{bottom:calc(env(safe-area-inset-bottom) + 76px + var(--map-sheet-peek, 0px))}
+@media (max-width:639.98px){.seoul3d[data-card] .maplibregl-ctrl-bottom-right{bottom:calc(env(safe-area-inset-bottom) + 132px)}}
 @media (min-width:640px){.seoul3d .maplibregl-ctrl-bottom-right{bottom:0}}
 .seoul3d .maplibregl-ctrl-group button{width:40px;height:40px}
 `;
@@ -373,6 +387,7 @@ export default function Seoul3DMap({
   onLabelMetricChange,
   onMoveEnd,
   satelliteKey = null,
+  controlsSlot = null,
 }: {
   initial: Map3dView;
   /** 2D 지도의 조건(거래유형·전용면적·필터 칩) — 2D와 같은 단지만 보이게 */
@@ -398,6 +413,8 @@ export default function Seoul3DMap({
   onMoveEnd?: (v: Map3dView) => void;
   /** 브이월드 위성영상 키 (없으면 위성 버튼을 숨긴다) */
   satelliteKey?: string | null;
+  /** 밖(MapSearchPage)의 조작 줄 안 자리 — 지표 알약·구 이동을 그 줄에 그린다 (없으면 지도 위 왼쪽) */
+  controlsSlot?: HTMLElement | null;
 }) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MlMap | null>(null);
@@ -436,22 +453,24 @@ export default function Seoul3DMap({
   const skipFrameRef = useRef<string | null>(frameInitialSelected ? null : initialSelectedId);
   const selectedIdRef = useRef<string | null>(initialSelectedId);
   /** 지표 · 색 범례 팝오버 */
-  const [legendOpen, setLegendOpen] = useState(false);
+  const [legendPos, setLegendPos] = useState<PopPos | null>(null);
+  const legendOpen = legendPos != null;
   const legendRef = useRef<HTMLDivElement | null>(null);
   /** 구 이동 팝오버 — 3D는 끌어서 멀리 가기 어려워 구 단위로 바로 */
-  const [guOpen, setGuOpen] = useState(false);
+  const [guPos, setGuPos] = useState<PopPos | null>(null);
+  const guOpen = guPos != null;
   const guRef = useRef<HTMLDivElement | null>(null);
   // 팝오버 밖을 누르거나 Esc — 닫는다
   useEffect(() => {
     if (!legendOpen && !guOpen) return;
     const onDown = (e: PointerEvent) => {
-      if (!legendRef.current?.contains(e.target as Node)) setLegendOpen(false);
-      if (!guRef.current?.contains(e.target as Node)) setGuOpen(false);
+      if (!legendRef.current?.contains(e.target as Node)) setLegendPos(null);
+      if (!guRef.current?.contains(e.target as Node)) setGuPos(null);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setLegendOpen(false);
-        setGuOpen(false);
+        setLegendPos(null);
+        setGuPos(null);
       }
     };
     document.addEventListener("pointerdown", onDown, true);
@@ -462,7 +481,7 @@ export default function Seoul3DMap({
     };
   }, [legendOpen, guOpen]);
   const goDistrict = (d: { lat: number; lng: number }) => {
-    setGuOpen(false);
+    setGuPos(null);
     setSelectedId(null);
     const map = mapRef.current;
     if (!map) return;
@@ -755,6 +774,11 @@ export default function Seoul3DMap({
         void fetchRef.current();
       });
       map.on("rotate", () => setBearing(map.getBearing()));
+      // 손으로 움직이는 동안(끌기·핀치·회전·기울이기) 하단 독을 비킨다 — 코드로 나는 것(flyTo)은 빼고
+      map.on("movestart", (e) => {
+        if ((e as { originalEvent?: unknown }).originalEvent) mapInteractionStart();
+      });
+      map.on("moveend", mapInteractionEnd);
       map.on("moveend", () => {
         persist();
         const mc = map.getCenter();
@@ -938,9 +962,13 @@ export default function Seoul3DMap({
       if (!bb) return;
       const box = map.getContainer();
       const w = box.clientWidth;
-      // 가려지는 곳 — 위: 필터 줄 + 지표 알약(약 96px), 아래: 작은 단지 카드(모바일은 독까지)
+      // 가려지는 곳 — 위: 조작 줄(재어서, 안전 영역 포함), 아래: 작은 단지 카드(약 108px). 카드가 뜨면 독은 숨고
+      // 카드가 아래 안전 영역까지 내려오므로 모바일은 카드 + 안전 영역(약 34px)만큼
       const mobile = w < 640;
-      const safe = { top: 104, bottom: mobile ? 212 : 148, left: 16, right: 16 };
+      const row = document.querySelector("[data-map-controls]")?.getBoundingClientRect();
+      const rowBottom = row ? row.bottom - box.getBoundingClientRect().top : 0;
+      const top = rowBottom > 0 && rowBottom < box.clientHeight / 2 ? Math.round(rowBottom) + 12 : FRAME_TOP_FALLBACK;
+      const safe = { top, bottom: mobile ? 164 : 148, left: 16, right: 16 };
       const maxH = Math.max(0, ...(shape?.buildings ?? []).map((b) => buildingHeight(b)));
       // 아주 높은 탑상형은 덜 기울여 (위가 덜 길어지게)
       const pitch = maxH > 120 ? 50 : FOCUS_PITCH;
@@ -996,26 +1024,17 @@ export default function Seoul3DMap({
           ? "3D 건물 준비 중 — 바탕 지도와 단지만 보여요"
           : null;
 
-  return (
-    <div className="seoul3d absolute inset-0 z-20 bg-[#f4f5f2]" role="region" aria-label="서울 3D 지도">
-      <style>{CONTROL_CSS + PINS_CSS}</style>
-      <div ref={hostRef} className="h-full w-full" role="application" aria-label="3D 지도 — 두 손가락으로 기울이고 돌려 보세요" />
-
-      {loading ? <LabIndeterminateBar className="pointer-events-none absolute inset-x-0 top-0 !h-0.5 !rounded-none" /> : null}
-      {/*
-        위: 맨 위 줄(2D | 3D · 거래유형 · 조건)은 MapSearchPage가 이 위에 그린다. 그 아래는 한 줄만 —
-        지표 알약(누르면 지표 고르기 · 색 범례 팝오버) + 짧은 상태. 안내(확대·서울 밖·오류)는 있을 때만 한 줄 더.
-      */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col items-start gap-1.5 px-3 pt-[54px] sm:px-4 sm:pt-[60px]">
-        <div className="flex max-w-full items-center gap-1.5">
+  /** 지표(범례) 알약 · 구 이동 — 조작 줄(controlsSlot)에 portal 로, 없으면 지도 위 왼쪽 */
+  const pills = (
+    <>
           <div ref={legendRef} className="pointer-events-auto relative shrink-0">
             <button
               type="button"
               aria-haspopup="dialog"
               aria-expanded={legendOpen}
               aria-controls={legendOpen ? "map3d-legend" : undefined}
-              onClick={() => setLegendOpen((v) => !v)}
-              className="relative inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] pl-3 pr-2 text-[13px] font-semibold leading-5 text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']"
+              onClick={(e) => setLegendPos(legendOpen ? null : popoverPos(e.currentTarget, LEGEND_W))}
+              className="relative inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] pl-3 pr-2 text-[14px] font-semibold leading-5 text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']"
               data-map3d-legend-pill
             >
               {/* 이름표 값(2D 마커 표시와 같음) + 점 색 막대 — 하나의 알약 */}
@@ -1036,7 +1055,8 @@ export default function Seoul3DMap({
                 id="map3d-legend"
                 role="dialog"
                 aria-label="이름표 값 · 점 색 · 범례"
-                className="absolute left-0 top-[calc(100%+6px)] z-10 w-[244px] rounded-xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] p-2.5 shadow-[0_8px_24px_rgb(15_23_42/0.16)]"
+                style={legendPos ?? undefined}
+                className="fixed z-[60] w-[244px] rounded-xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] p-2.5 shadow-[0_8px_24px_rgb(15_23_42/0.16)]"
               >
                 <p className="mb-1.5 text-[12px] font-semibold leading-4 text-[color:var(--lab-navy-950)]">
                   이름표 값 <span className="font-normal text-[color:var(--lab-muted)]">· 2D 마커와 같음</span>
@@ -1108,8 +1128,8 @@ export default function Seoul3DMap({
               aria-haspopup="dialog"
               aria-expanded={guOpen}
               aria-controls={guOpen ? "map3d-gu" : undefined}
-              onClick={() => setGuOpen((v) => !v)}
-              className="relative inline-flex h-8 items-center gap-1 whitespace-nowrap rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] pl-2.5 pr-2 text-[13px] font-semibold leading-5 text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']"
+              onClick={(e) => setGuPos(guOpen ? null : popoverPos(e.currentTarget, GU_W))}
+              className="relative inline-flex h-9 items-center gap-1 whitespace-nowrap rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] pl-2.5 pr-2 text-[14px] font-semibold leading-5 text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']"
             >
               <MapPin className="h-3.5 w-3.5" aria-hidden />
               구 이동
@@ -1123,7 +1143,8 @@ export default function Seoul3DMap({
                 id="map3d-gu"
                 role="dialog"
                 aria-label="서울 구로 이동"
-                className="absolute left-0 top-[calc(100%+6px)] z-10 w-[264px] rounded-xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] p-2 shadow-[0_8px_24px_rgb(15_23_42/0.16)]"
+                style={guPos ?? undefined}
+                className="fixed z-[60] w-[264px] rounded-xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] p-2 shadow-[0_8px_24px_rgb(15_23_42/0.16)]"
               >
                 <div className="grid grid-cols-5 gap-1">
                   {SEOUL_DISTRICTS.map((d) => (
@@ -1140,6 +1161,32 @@ export default function Seoul3DMap({
               </div>
             ) : null}
           </div>
+    </>
+  );
+
+  return (
+    <div
+      className="seoul3d absolute inset-0 z-20 bg-[#f4f5f2]"
+      role="region"
+      aria-label="서울 3D 지도"
+      data-card={cardShown ? "" : undefined}
+    >
+      <style>{CONTROL_CSS + PINS_CSS}</style>
+      <div ref={hostRef} className="h-full w-full" role="application" aria-label="3D 지도 — 두 손가락으로 기울이고 돌려 보세요" />
+
+      {loading ? <LabIndeterminateBar className="pointer-events-none absolute inset-x-0 top-0 !h-0.5 !rounded-none" /> : null}
+      {/*
+        위: 맨 위 줄(2D | 3D · 거래유형 · 조건)은 MapSearchPage가 이 위에 그린다. 그 아래는 한 줄만 —
+        지표 알약(누르면 지표 고르기 · 색 범례 팝오버) + 짧은 상태. 안내(확대·서울 밖·오류)는 있을 때만 한 줄 더.
+      */}
+      {controlsSlot ? createPortal(pills, controlsSlot) : null}
+      <div
+        className={`pointer-events-none absolute inset-x-0 top-0 flex flex-col items-start gap-1.5 px-3 sm:px-4 ${
+          controlsSlot ? "pt-[calc(env(safe-area-inset-top)+60px)] sm:pt-[64px]" : "pt-[54px] sm:pt-[60px]"
+        }`}
+      >
+        <div className="flex max-w-full items-center gap-1.5">
+          {controlsSlot ? null : pills}
           {!zoomedOut && !outside && !error && (nActive > 0 || truncated) ? (
             <p
               className="pointer-events-auto min-w-0 truncate rounded-full bg-[color:var(--lab-surface)]/95 px-2.5 py-1 text-[12px] leading-5 text-[color:var(--lab-muted)] shadow-sm"
@@ -1201,14 +1248,14 @@ export default function Seoul3DMap({
         ]}
         className={
           selected
-            ? "z-10 bottom-[calc(env(safe-area-inset-bottom)+198px)] sm:bottom-[140px]"
+            ? "z-10 bottom-[calc(env(safe-area-inset-bottom)+134px)] sm:bottom-[140px]"
             : "bottom-[calc(env(safe-area-inset-bottom)+80px+var(--map-sheet-peek,0px))] sm:bottom-1.5"
         }
       />
 
       {/* 아래: 고른 단지 카드 — 작게(약 108px): 이름·위치 / 최근 거래·지표 / 단지 상세 · 3D 탐색 */}
       {selected ? (
-        <div className="absolute inset-x-0 bottom-0 z-10 px-3 pb-[calc(env(safe-area-inset-bottom)+76px)] sm:p-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 z-10 px-3 pb-[calc(env(safe-area-inset-bottom)+12px)] sm:p-4 sm:pb-4">
           <div
             className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] px-3.5 pb-2.5 pt-2.5 shadow-lg"
             data-map3d-card
