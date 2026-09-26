@@ -1,36 +1,164 @@
 {
-  "generated_at": "2026-09-25T23:47:58.704Z",
+  "generated_at": "2026-09-26T15:59:23.876Z",
   "wave": "daejeon",
   "region": "daejeon",
   "production_write": false,
-  "cohort_terminal": false,
-  "gate": "BLOCKED",
-  "stopped": "HOLD_429",
-  "http_429": true,
+  "cohort_terminal": true,
+  "gate": "PASS",
+  "api_calls": 16213,
+  "reused_ops": 585,
+  "reuse_confirmation_api_calls": 0,
+  "http_429": false,
   "http_429_count": 0,
   "http_5xx": 0,
   "timeouts": 0,
-  "api_calls": 54,
-  "reused_ops": 0,
   "retries": 4,
-  "reuse_confirmation_api_calls": null,
+  "segments_completed": 14,
+  "segment_size": 40,
+  "runtime_ms": 17072993,
+  "stopped": "ok",
+  "canonical_total": 83249880640,
   "selected_sidos": [
     "30"
   ],
   "complexes": 561,
-  "no_published_month": null,
-  "periods": [],
-  "target_months": 0,
-  "mapping_mismatch": 0,
-  "duplicate_keys": 0,
-  "by_sido": [],
-  "samples": [],
-  "totals": {
-    "COMPLETE": 0,
+  "complexes_by_sido": {
+    "30": 561
+  },
+  "checkpoint_records": 16209,
+  "no_published_month": 23,
+  "no_published_month_by_sido": {
+    "30": 23
+  },
+  "identity_conflicts": 0,
+  "classification": {
+    "COMPLETE": 538,
+    "NO_PUBLISHED_MONTH": 23,
     "PARTIAL": 0,
     "MISSING": 0,
     "FAILED": 0,
-    "would_insert": 0,
+    "IDENTITY_CONFLICT": 0
+  },
+  "classification_sum": 561,
+  "periods": [
+    "202607",
+    "202608",
+    "202609"
+  ],
+  "period_distribution": {
+    "202607": 257,
+    "202608": 266,
+    "202609": 15
+  },
+  "target_months": 538,
+  "mapping_mismatch": 0,
+  "duplicate_keys": 0,
+  "invalid_amounts": 0,
+  "existing_fee_keys": 0,
+  "would_delete": 0,
+  "baseline_fee_rows": 7461,
+  "baseline_fee_complexes": 7348,
+  "by_sido": [
+    {
+      "sido_code": "30",
+      "sido": "대전광역시",
+      "targets": 538,
+      "COMPLETE": 538,
+      "PARTIAL": 0,
+      "MISSING": 0,
+      "FAILED": 0,
+      "would_insert": 538,
+      "would_update": 0
+    }
+  ],
+  "samples": [
+    {
+      "complex_id": "cx_b4d1cdb037b42aad",
+      "sido_code": "30",
+      "period": "202608",
+      "status": "COMPLETE",
+      "amount": 65684043,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_500d5379bb4fdc7b",
+      "sido_code": "30",
+      "period": "202607",
+      "status": "COMPLETE",
+      "amount": 234249499,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_5472247bad99e931",
+      "sido_code": "30",
+      "period": "202608",
+      "status": "COMPLETE",
+      "amount": 541244172,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_6c196b0da9da8ed0",
+      "sido_code": "30",
+      "period": "202608",
+      "status": "COMPLETE",
+      "amount": 284216667,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_c1e15f471c86c15d",
+      "sido_code": "30",
+      "period": "202608",
+      "status": "COMPLETE",
+      "amount": 311226885,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_cd37f823adfd7a52",
+      "sido_code": "30",
+      "period": "202607",
+      "status": "COMPLETE",
+      "amount": 497171896,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_99f744b9a909531d",
+      "sido_code": "30",
+      "period": "202608",
+      "status": "COMPLETE",
+      "amount": 313722625,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_f590c47c527f996e",
+      "sido_code": "30",
+      "period": "202607",
+      "status": "COMPLETE",
+      "amount": 406118578,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_34ddc257b4cf6294",
+      "sido_code": "30",
+      "period": "202607",
+      "status": "COMPLETE",
+      "amount": 219048892,
+      "would": "insert"
+    },
+    {
+      "complex_id": "cx_f7208e278b68a19a",
+      "sido_code": "30",
+      "period": "202607",
+      "status": "COMPLETE",
+      "amount": 250073959,
+      "would": "insert"
+    }
+  ],
+  "totals": {
+    "COMPLETE": 538,
+    "PARTIAL": 0,
+    "MISSING": 0,
+    "FAILED": 0,
+    "would_insert": 538,
     "would_update": 0
   }
 }

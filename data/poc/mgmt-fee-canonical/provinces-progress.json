@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-26T15:19:04.172Z",
-  "driver_status": "daejeon acquiring",
+  "generated_at": "2026-09-26T15:59:27.834Z",
+  "driver_status": "daejeon dry-run PASS",
   "fee_table": {
     "rows": 7461,
     "complexes": 7348
   },
-  "api_calls_total": 154156,
+  "api_calls_total": 156448,
   "applied_rows_total": 4538,
   "provinces": [
     {
@@ -92,20 +92,20 @@
       "province": "daejeon",
       "sido_code": "30",
       "sido": "대전광역시",
-      "phase": "ACQUIRE_QUOTA_HOLD",
+      "phase": "DRYRUN_PASS",
       "cohort": 561,
-      "terminal": 481,
-      "unfinished": 80,
-      "COMPLETE": 462,
-      "NO_PUBLISHED_MONTH": 19,
+      "terminal": 561,
+      "unfinished": 0,
+      "COMPLETE": 538,
+      "NO_PUBLISHED_MONTH": 23,
       "PARTIAL": 0,
       "MISSING": 0,
       "FAILED": 0,
       "IDENTITY_CONFLICT": 0,
-      "api_calls": 13921,
+      "api_calls": 16213,
       "http_429": 0,
       "retries": 4,
-      "dryrun_gate": null,
+      "dryrun_gate": "PASS",
       "applied_rows": 0
     },
     {
