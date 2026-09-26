@@ -1243,10 +1243,13 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   {view ? (
                     <>
                       <p className="text-[13px] tabular-nums text-[color:var(--lab-navy-950)]">
-                        {floorNow}층 눈높이에서 200m 안에 막힘없는 방향{" "}
+                        {floorNow}층 트임{" "}
                         <b className="text-[15px]">
                           {Math.round(view.openShare * 100)}%
                         </b>
+                        <span className="ml-1 text-[12px] text-[color:var(--lab-muted)]">
+                          사방(360°) 중 200m 안에 건물·지형이 없는 방향
+                        </span>
                       </p>
                       <OpenDirections view={view} />
                       <p className="flex items-center gap-2.5 whitespace-nowrap text-[12px] text-[color:var(--lab-muted)]">
@@ -1260,7 +1263,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                         </span>
                         <span className="flex items-center gap-1">
                           <span className="h-2 w-2 rounded-sm" style={{ background: "#ef4444" }} aria-hidden />
-                          80m 안 가림
+                          80m 안 막힘
                         </span>
                       </p>
                     </>
@@ -1268,7 +1271,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                 </div>
               ) : (
                 <p className="mt-1 text-[13px] text-[color:var(--lab-muted)]">
-                  동을 선택하면 층별 조망을 계산해요.
+                  동을 고르면 층마다 얼마나 트였는지 보여줘요.
                 </p>
               )
             ) : null}
@@ -1349,9 +1352,10 @@ function WindowOverlay({
   onLook: (deg: number) => void;
   onExit: () => void;
 }) {
-  const blocked = Math.round(info.blockedShare * 100);
+  // 조망 패널과 같은 말로 — 트임(200m 안에 막힘없는 비율), 높을수록 좋다
+  const open = 100 - Math.round(info.blockedShare * 100);
   const tone =
-    blocked >= 60 ? "text-rose-600" : blocked >= 30 ? "text-amber-600" : "text-[color:var(--lab-teal-700)]";
+    open <= 40 ? "text-rose-600" : open <= 70 ? "text-amber-600" : "text-[color:var(--lab-teal-700)]";
   const stepBtn =
     "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-950)] transition active:scale-95 disabled:opacity-40";
   return (
@@ -1400,27 +1404,37 @@ function WindowOverlay({
             </p>
           </div>
           <div className="rounded-lg bg-[color:var(--lab-brand-subtle)] px-2 py-1.5">
-            <p className="text-[12px] text-[color:var(--lab-teal-700)]">가림 비율</p>
-            <p className={`text-[15px] font-bold tabular-nums ${tone}`}>{blocked}%</p>
+            <p className="text-[12px] text-[color:var(--lab-teal-700)]">트임</p>
+            <p className={`text-[15px] font-bold tabular-nums ${tone}`}>{open}%</p>
           </div>
         </div>
         <p className="mt-1 text-[12px] leading-[17px] text-[color:var(--lab-muted)]">
           {Math.abs(info.yaw) >= 5
-            ? `지금 ${info.lookDir}을 보는 중(정면에서 ${info.yaw > 0 ? "오른쪽" : "왼쪽"} ${Math.abs(info.yaw)}°) · `
-            : ""}
-          {info.frontHill ? "언덕·산이 먼저 가려요 · " : info.frontDong ? `${info.frontDong}이 먼저 보여요 · ` : ""}가림 = 화면에 보이는 가로 {info.spanDeg}° 중 200m 안에서 막힌 비율
-          {info.roughGround ? " · 비탈이라 지형 자료가 거칠어 창 자리 땅높이 기준으로 보여줘요" : ""}
+            ? `${info.lookDir}쪽을 보는 중 (정면에서 ${info.yaw > 0 ? "오른쪽" : "왼쪽"}으로 ${Math.abs(info.yaw)}°)`
+            : "창 정면을 보는 중"}
+          {info.frontHill ? " · 앞을 언덕·산이 먼저 가려요" : info.frontDong ? ` · 가장 가까운 건물 ${info.frontDong}` : ""}
+          <br />
+          트임 = 지금 보이는 가로 {info.spanDeg}° 중 200m 안에 건물·지형이 없는 비율
+          {info.roughGround ? " · 비탈이라 창 자리 땅높이 기준" : ""}
         </p>
-        <div className="mt-1.5 flex items-center gap-1.5">
-          <button type="button" className={stepBtn} onClick={() => onLook(-15)} aria-label="왼쪽으로 둘러보기">
-            <ChevronLeft className="h-4 w-4" aria-hidden />
-          </button>
-          <button type="button" className={stepBtn} onClick={() => onLook(15)} aria-label="오른쪽으로 둘러보기">
-            <ChevronRight className="h-4 w-4" aria-hidden />
-          </button>
-        </div>
+        {/* 둘러보기(◀ ▶)와 층 슬라이더를 한 줄에 */}
         <div className="mt-1.5">
-          <FloorSlider floor={info.floor} max={maxFloors} onChange={onFloor} onCommit={onFloorDone} />
+          <FloorSlider
+            floor={info.floor}
+            max={maxFloors}
+            onChange={onFloor}
+            onCommit={onFloorDone}
+            before={
+              <button type="button" className={stepBtn} onClick={() => onLook(-15)} aria-label="왼쪽으로 둘러보기">
+                <ChevronLeft className="h-4 w-4" aria-hidden />
+              </button>
+            }
+            after={
+              <button type="button" className={stepBtn} onClick={() => onLook(15)} aria-label="오른쪽으로 둘러보기">
+                <ChevronRight className="h-4 w-4" aria-hidden />
+              </button>
+            }
+          />
         </div>
       </div>
     </>
@@ -1790,11 +1804,16 @@ function FloorSlider({
   max,
   onChange,
   onCommit,
+  before,
+  after,
 }: {
   floor: number;
   max: number;
   onChange: (f: number) => void;
   onCommit?: (f: number) => void;
+  /** 슬라이더 양옆 (창문 시점의 둘러보기 ◀ ▶) */
+  before?: React.ReactNode;
+  after?: React.ReactNode;
 }) {
   const commit = (e: React.SyntheticEvent<HTMLInputElement>) =>
     onCommit?.(Number(e.currentTarget.value));
@@ -1809,18 +1828,22 @@ function FloorSlider({
         </span>
         <span className="tabular-nums">1층 ~ {max}층</span>
       </span>
-      <input
-        type="range"
-        min={1}
-        max={Math.max(1, max)}
-        step={1}
-        value={floor}
-        onChange={(e) => onChange(Number(e.target.value))}
-        onPointerUp={commit}
-        onKeyUp={commit}
-        className="w-full touch-pan-x accent-[color:var(--lab-brand-primary)]"
-        aria-label="층"
-      />
+      <span className="flex items-center gap-2">
+        {before}
+        <input
+          type="range"
+          min={1}
+          max={Math.max(1, max)}
+          step={1}
+          value={floor}
+          onChange={(e) => onChange(Number(e.target.value))}
+          onPointerUp={commit}
+          onKeyUp={commit}
+          className="min-w-0 flex-1 touch-pan-x accent-[color:var(--lab-brand-primary)]"
+          aria-label="층"
+        />
+        {after}
+      </span>
     </label>
   );
 }
