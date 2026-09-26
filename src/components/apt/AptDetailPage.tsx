@@ -1,33 +1,28 @@
 "use client";
 
 import {
+  use,
   useEffect,
   useMemo,
   useRef,
   useState,
+  type ReactNode,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
 } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
-import { ComplexMgmtFeeCard, ComplexMgmtFeeEmpty } from "@/components/apt/ComplexMgmtFeeCard";
 import { ComplexHeroMeta } from "@/components/apt/ComplexHeroMeta";
 import { complexHeroMeta } from "@/lib/complex-detail/hero-meta";
-import { ComplexNearbyLifeSection } from "@/components/apt/ComplexNearbyLifeSection";
-import { ComplexNearbySalesSection } from "@/components/apt/ComplexNearbySalesSection";
-import { ComplexCompareSection } from "@/components/apt/ComplexCompareSection";
-import { ComplexRegionRankSection } from "@/components/apt/ComplexRegionRankSection";
-import { ComplexUnitMixSection } from "@/components/apt/ComplexUnitMixSection";
 import { ComplexJeonseBenchmark } from "@/components/apt/ComplexJeonseBenchmark";
-import { ComplexTradeInsightSection } from "@/components/apt/ComplexTradeInsightSection";
 import { ComplexTradeActivity } from "@/components/apt/ComplexTradeActivity";
 import { ComplexRentMetrics } from "@/components/apt/ComplexRentMetrics";
 import { SaveComplexButton } from "@/components/complexes/SaveComplexButton";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 import { getRegion } from "@/lib/constants/regions";
 import type { AptDetailResponse } from "@/lib/molit/apt-client";
-import { APT_API_VERSION } from "@/lib/molit/apt-client";
+import { APT_DETAIL_MONTHS, buildAptDetailUrl } from "@/lib/apt/apt-detail-url";
 import { unpackAptDetail } from "@/lib/molit/apt-detail-wire";
 import {
   AptPriceChart,
@@ -36,7 +31,6 @@ import {
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
 import { areaOptionContains, resolveAreaKeyAlias } from "@/lib/apt/area-groups";
 import { AptStickyNav } from "@/components/apt/AptStickyNav";
-import { ComplexPurchaseCalculatorSection } from "@/components/apt/calculator/ComplexPurchaseCalculatorSection";
 import {
   TransactionList,
 } from "@/components/apt/TransactionHistory";
@@ -67,7 +61,6 @@ import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { Complex3dEntryCard } from "@/components/complex-3d/Complex3dEntry";
 import { ComplexRedevSection } from "@/components/apt/ComplexRedevSection";
-import { ComplexTypeDongSection } from "@/components/apt/ComplexTypeDongSection";
 import { attachTypeSupply, fetchComplexTypes } from "@/lib/apt/area-supply";
 import { pickLatestDeal } from "@/lib/deals/latest";
 
@@ -84,14 +77,87 @@ import {
 } from "@/components/ui/LabSection";
 import { LabStatTiles } from "@/components/ui/LabStatTiles";
 import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
+import { lazySection } from "@/components/ui/lazySection";
+import {
+  LazyMountProvider,
+  scrollToSectionWhenReady,
+  useMountAllLazy,
+} from "@/components/ui/LazyMountWhenNear";
 import {
   formatDealDate,
   formatEok,
 } from "@/lib/utils/format";
 
 /** DB 모드는 months와 무관하게 전체 이력을 주므로 한 번에 120개월로 요청 */
-const DETAIL_MONTHS = 120;
+const DETAIL_MONTHS = APT_DETAIL_MONTHS;
 const RECENT_YEARS = 3;
+
+/*
+ * 첫 화면(헤더·실거래 현황·차트) 아래 섹션은 따로 받는다 — 첫 로드 JS에서 빼고,
+ * 시세가 뜬 뒤 한가할 때 미리 받아 둔다(preloadSectionChunks).
+ */
+const loadTradeInsight = () =>
+  import("@/components/apt/ComplexTradeInsightSection").then((m) => m.ComplexTradeInsightSection);
+const loadTypeDong = () =>
+  import("@/components/apt/ComplexTypeDongSection").then((m) => m.ComplexTypeDongSection);
+const loadUnitMix = () =>
+  import("@/components/apt/ComplexUnitMixSection").then((m) => m.ComplexUnitMixSection);
+const loadCalculator = () =>
+  import("@/components/apt/calculator/ComplexPurchaseCalculatorSection").then(
+    (m) => m.ComplexPurchaseCalculatorSection,
+  );
+const loadRegionRank = () =>
+  import("@/components/apt/ComplexRegionRankSection").then((m) => m.ComplexRegionRankSection);
+const loadCompare = () =>
+  import("@/components/apt/ComplexCompareSection").then((m) => m.ComplexCompareSection);
+const loadNearbyLife = () =>
+  import("@/components/apt/ComplexNearbyLifeSection").then((m) => m.ComplexNearbyLifeSection);
+const loadNearbySales = () =>
+  import("@/components/apt/ComplexNearbySalesSection").then((m) => m.ComplexNearbySalesSection);
+const loadMgmtFeeCard = () =>
+  import("@/components/apt/ComplexMgmtFeeCard").then((m) => m.ComplexMgmtFeeCard);
+const loadMgmtFeeEmpty = () =>
+  import("@/components/apt/ComplexMgmtFeeCard").then((m) => m.ComplexMgmtFeeEmpty);
+
+const ComplexTradeInsightSection = lazySection(loadTradeInsight);
+const ComplexTypeDongSection = lazySection(loadTypeDong);
+const ComplexUnitMixSection = lazySection(loadUnitMix);
+const ComplexPurchaseCalculatorSection = lazySection(loadCalculator);
+const ComplexRegionRankSection = lazySection(loadRegionRank);
+const ComplexCompareSection = lazySection(loadCompare);
+const ComplexNearbyLifeSection = lazySection(loadNearbyLife);
+const ComplexNearbySalesSection = lazySection(loadNearbySales);
+const ComplexMgmtFeeCard = lazySection(loadMgmtFeeCard);
+const ComplexMgmtFeeEmpty = lazySection(loadMgmtFeeEmpty);
+
+const LAZY_SECTIONS = [
+  ComplexTradeInsightSection,
+  ComplexTypeDongSection,
+  ComplexUnitMixSection,
+  ComplexPurchaseCalculatorSection,
+  ComplexRegionRankSection,
+  ComplexCompareSection,
+  ComplexNearbyLifeSection,
+  ComplexNearbySalesSection,
+  ComplexMgmtFeeCard,
+  ComplexMgmtFeeEmpty,
+];
+
+let sectionChunksRequested = false;
+/** 시세가 뜬 뒤 한가할 때 섹션 코드만 미리 받는다(데이터 요청은 섹션이 마운트될 때). */
+function preloadSectionChunks(): () => void {
+  if (sectionChunksRequested || typeof window === "undefined") return () => {};
+  const run = () => {
+    sectionChunksRequested = true;
+    for (const section of LAZY_SECTIONS) void section.preload();
+  };
+  if (typeof window.requestIdleCallback === "function") {
+    const id = window.requestIdleCallback(run, { timeout: 3000 });
+    return () => window.cancelIdleCallback(id);
+  }
+  const t = window.setTimeout(run, 300);
+  return () => window.clearTimeout(t);
+}
 
 async function fetchAptDetail(
   aptName: string,
@@ -99,16 +165,25 @@ async function fetchAptDetail(
   months: number,
   gu?: string,
 ): Promise<AptDetailResponse> {
-  const qs = new URLSearchParams({
-    aptName,
-    region,
-    months: String(months),
-  });
-  if (gu?.trim()) qs.set("gu", gu.trim());
-  qs.set("v", APT_API_VERSION);
-  const res = await fetch(`/api/apt-detail?${qs.toString()}`);
+  // page.tsx가 같은 주소로 preload해 두므로 JS가 늦게 떠도 요청은 HTML 파싱 때 이미 출발해 있다.
+  const res = await fetch(buildAptDetailUrl({ aptName, region, months, gu }));
   if (!res.ok) throw new Error("failed");
   return unpackAptDetail(await res.json());
+}
+
+/** 시세가 오기 전 첫 화면 자리(서버 스트리밍 대기 중에도 같은 모양) */
+export function AptDetailSkeleton() {
+  return (
+    <div className={DETAIL_PAGE_SHELL}>
+      <div className="h-24 animate-pulse rounded-xl bg-slate-200/70" />
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="h-20 animate-pulse rounded-xl bg-slate-200/60" />
+        ))}
+      </div>
+      <div className="h-64 animate-pulse rounded-xl bg-slate-200/50" />
+    </div>
+  );
 }
 
 function ymFromDealDate(dealDate: string): string {
@@ -124,12 +199,6 @@ function recentYearsRange(length: number, years = RECENT_YEARS) {
   };
 }
 
-function scrollToSection(id: string) {
-  const el = document.getElementById(`section-${id}`);
-  if (!el) return;
-  el.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
 type PeriodPreset = "recent1" | "recent3" | "recent5" | "full" | "custom";
 
 export function AptDetailPage({
@@ -137,7 +206,8 @@ export function AptDetailPage({
   regionSlug,
   gu,
   initialAreaKey,
-  complexDetail = null,
+  complexDetail: complexDetailProp = null,
+  complexDetailPromise,
   initialNearbyTab,
   initialSchoolLevel,
 }: {
@@ -148,6 +218,11 @@ export function AptDetailPage({
   initialAreaKey?: string;
   /** Phase 7.2 enrichment (nullable; market must render without it) */
   complexDetail?: ComplexDetailV1 | null;
+  /**
+   * 서버가 기다리지 않고 넘기는 단지정보(스트리밍). 시세가 온 뒤에만 읽으므로
+   * 셸 HTML·시세 요청은 이것을 기다리지 않는다. 보통 시세보다 먼저 도착한다.
+   */
+  complexDetailPromise?: Promise<ComplexDetailV1 | null>;
   initialNearbyTab?: string;
   /** Restore school-level sub-tab when returning from school detail. */
   initialSchoolLevel?: string;
@@ -179,6 +254,9 @@ export function AptDetailPage({
   });
 
   const data = detailQuery.data;
+  // `use`는 조건부 호출 가능 — 시세가 오기 전(서버 렌더 포함)에는 단지정보를 기다리지 않는다.
+  const complexDetail =
+    data && complexDetailPromise ? use(complexDetailPromise) : complexDetailProp;
 
   /** URL > 84㎡대/거래량 자동 > all */
   const resolvedAreaKey = useMemo(() => {
@@ -234,6 +312,12 @@ export function AptDetailPage({
   ]);
 
   useLoadProgressWhen(detailQuery.isLoading && !data, "시세 불러오는 중…");
+
+  const hasData = !!data;
+  useEffect(() => {
+    if (!hasData) return;
+    return preloadSectionChunks();
+  }, [hasData]);
 
   const chartMonths = data?.chart.map((p) => p.yearMonth) ?? [];
   const dataKey = `${aptName}|${regionSlug}|${chartMonths.length}|${data?.loadedMonths ?? 0}`;
@@ -480,40 +564,39 @@ export function AptDetailPage({
     setRangeOverride({ start: 0, end: chartMonths.length - 1 });
   };
 
+  // 계산기 화면에서 돌아옴(#calculator): 계산기 섹션이 마운트·배치된 뒤 스크롤(아래 섹션은 해시가 있으면 바로 마운트된다)
   useEffect(() => {
-    if (!data) return;
     if (typeof window === "undefined") return;
     if (window.location.hash !== "#calculator") return;
-    const t = window.setTimeout(() => scrollToSection("calculator"), 0);
-    return () => window.clearTimeout(t);
-  }, [data]);
+    return scrollToSectionWhenReady("section-calculator");
+  }, []);
 
   /**
    * Only when returning from school detail (?nearbyTab=school#section-nearby-life):
-   * scroll to 주변 생활, then strip restore markers so a later fresh apt entry
+   * scroll to 주변 생활 once it is mounted and laid out, then strip restore markers so a later fresh apt entry
    * defaults to 교통 again.
    */
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (initialNearbyTab !== "school") return;
     if (window.location.hash !== "#section-nearby-life") return;
-    const t = window.setTimeout(() => {
-      scrollToSection("nearby-life");
-      try {
-        const u = new URL(window.location.href);
-        u.searchParams.delete("nearbyTab");
-        u.searchParams.delete("schoolLevel");
-        u.hash = "";
-        window.history.replaceState(
-          window.history.state,
-          "",
-          `${u.pathname}${u.search}`,
-        );
-      } catch {
-        /* ignore */
-      }
-    }, 0);
-    return () => window.clearTimeout(t);
+    return scrollToSectionWhenReady("section-nearby-life", {
+      onScrolled: () => {
+        try {
+          const u = new URL(window.location.href);
+          u.searchParams.delete("nearbyTab");
+          u.searchParams.delete("schoolLevel");
+          u.hash = "";
+          window.history.replaceState(
+            window.history.state,
+            "",
+            `${u.pathname}${u.search}`,
+          );
+        } catch {
+          /* ignore */
+        }
+      },
+    });
   }, [initialNearbyTab]);
 
   const periodButtons = (
@@ -547,17 +630,7 @@ export function AptDetailPage({
 
 
   if (detailQuery.isLoading && !data) {
-    return (
-      <div className={DETAIL_PAGE_SHELL}>
-        <div className="h-24 animate-pulse rounded-xl bg-slate-200/70" />
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl bg-slate-200/60" />
-          ))}
-        </div>
-        <div className="h-64 animate-pulse rounded-xl bg-slate-200/50" />
-      </div>
-    );
+    return <AptDetailSkeleton />;
   }
 
   if ((detailQuery.isError && !data) || !data) {
@@ -609,7 +682,7 @@ export function AptDetailPage({
   });
 
   return (
-    <div className={DETAIL_PAGE_SHELL}>
+    <LazySectionShell className={DETAIL_PAGE_SHELL}>
       <AptStickyNav
         anchor={stickyAnchorRef}
         aptName={data.aptName}
@@ -864,7 +937,7 @@ export function AptDetailPage({
         </div>
       </LabSection>
 
-      <LabSectionBoundary id="section-trade-insight" title="거래 분석">
+      <LabSectionBoundary id="section-trade-insight" mountWhenNear title="거래 분석">
         <ComplexTradeInsightSection
           items={areaFiltered}
           maxFloor={complexDetail?.building?.maxFloor ?? null}
@@ -877,12 +950,12 @@ export function AptDetailPage({
       </LabSectionBoundary>
 
       {identity?.complexId ? (
-        <LabSectionBoundary id="section-type-dong" title="타입·동 정보">
+        <LabSectionBoundary id="section-type-dong" mountWhenNear title="타입·동 정보">
           <ComplexTypeDongSection complexId={identity.complexId} selectedArea={selectedArea} items={data.items} />
         </LabSectionBoundary>
       ) : null}
 
-      <LabSectionBoundary id="section-unit-mix" title="평형 구성">
+      <LabSectionBoundary id="section-unit-mix" mountWhenNear title="평형 구성">
         <ComplexUnitMixSection
           unitMix={complexDetail?.unitMix}
           areas={areasWithSupply}
@@ -892,7 +965,7 @@ export function AptDetailPage({
         />
       </LabSectionBoundary>
 
-      <LabSectionBoundary id="section-calculator" title="세금·대출 계산">
+      <LabSectionBoundary id="section-calculator" mountWhenNear title="세금·대출 계산">
       <ComplexPurchaseCalculatorSection
           complexId={identity?.complexId ?? null}
           complexName={data.aptName}
@@ -918,7 +991,7 @@ export function AptDetailPage({
         />
       </LabSectionBoundary>
 
-      <LabSectionBoundary id="section-region-rank" title="지역 비교">
+      <LabSectionBoundary id="section-region-rank" mountWhenNear title="지역 비교">
       <ComplexRegionRankSection
           complexId={identity?.complexId ?? null}
           aptName={data.aptName}
@@ -932,7 +1005,7 @@ export function AptDetailPage({
       </LabSectionBoundary>
 
       {data ? (
-        <LabSectionBoundary id="section-comparison" title="단지 비교">
+        <LabSectionBoundary id="section-comparison" mountWhenNear title="단지 비교">
       <ComplexCompareSection
             aptName={aptName}
             regionSlug={regionSlug}
@@ -946,7 +1019,7 @@ export function AptDetailPage({
         </LabSectionBoundary>
       ) : null}
 
-      <LabSectionBoundary id="section-nearby-life" title="주변 생활">
+      <LabSectionBoundary id="section-nearby-life" mountWhenNear title="주변 생활">
       <ComplexNearbyLifeSection
           aptName={aptName}
           identity={identity ?? null}
@@ -961,7 +1034,7 @@ export function AptDetailPage({
         />
       </LabSectionBoundary>
 
-      <LabSectionBoundary id="section-nearby-sales" title="주변 공급">
+      <LabSectionBoundary id="section-nearby-sales" mountWhenNear title="주변 공급">
       <ComplexNearbySalesSection
           aptName={aptName}
           sigungu={nearbySigungu}
@@ -970,7 +1043,7 @@ export function AptDetailPage({
       </LabSectionBoundary>
 
       {complexDetail?.management ? (
-        <LabSectionBoundary id="section-management" title="관리비">
+        <LabSectionBoundary id="section-management" mountWhenNear title="관리비">
       <ComplexMgmtFeeCard
             management={complexDetail.management}
             selectedPyeongLabel={
@@ -998,8 +1071,46 @@ export function AptDetailPage({
           />
         </LabSectionBoundary>
       ) : complexDetail ? (
-        <ComplexMgmtFeeEmpty householdCount={complexDetail.basic?.householdCount ?? null} />
+        <LabSectionBoundary id="section-management" mountWhenNear title="관리비">
+          <ComplexMgmtFeeEmpty householdCount={complexDetail.basic?.householdCount ?? null} />
+        </LabSectionBoundary>
       ) : null}
+    </LazySectionShell>
+  );
+}
+
+/**
+ * 아래 섹션 마운트 게이트의 범위. 시세가 뜬 뒤 한가할 때 남은 섹션을 동시 요청 2개 이하로 차례로 마운트한다.
+ */
+function LazySectionShell({ className, children }: { className: string; children: ReactNode }) {
+  return (
+    <LazyMountProvider backgroundActive maxConcurrent={2}>
+      <SectionNavJumpCapture className={className}>{children}</SectionNavJumpCapture>
+    </LazyMountProvider>
+  );
+}
+
+/**
+ * 섹션 탭(포털로 떠 있지만 React 이벤트는 여기로 올라온다)을 누르면 남은 섹션을 전부 마운트 —
+ * 위 섹션이 뒤늦게 자라 점프 위치가 밀리지 않게.
+ */
+function SectionNavJumpCapture({
+  className,
+  children,
+}: {
+  className: string;
+  children: ReactNode;
+}) {
+  const mountAll = useMountAllLazy();
+  return (
+    <div
+      className={className}
+      onClickCapture={(e) => {
+        const target = e.target as Element | null;
+        if (target?.closest?.("button[data-section]")) mountAll();
+      }}
+    >
+      {children}
     </div>
   );
 }
