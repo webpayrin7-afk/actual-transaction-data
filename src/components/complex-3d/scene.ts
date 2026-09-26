@@ -14,6 +14,7 @@ import { Line2 } from "three/examples/jsm/lines/Line2.js";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 import type { Complex3d, Complex3dBuilding, FloorBand, Poi3d, Ring } from "@/lib/complex-3d/read";
 import type { TerrainGridPayload } from "@/lib/complex-3d/ground";
+import { WALKER_LOOK, type WalkerId, type WalkerLook } from "@/lib/complex-3d/walker-profiles";
 import { facadeSunColor, firstPrismHit, makePrism, prismsInFront, sunBlocked, type Prism } from "@/components/complex-3d/facade-sun";
 
 export const FLOOR_M = 3;
@@ -35,6 +36,9 @@ export type WalkRouteDraw = {
   target: { lng: number; lat: number };
   name: string;
   totalSec: number;
+  /** 기본 속도(4.5km/h)로 걸었을 때 — 빨리 감기 배율을 걷는 사람과 상관없이 같게 */
+  baseSec?: number;
+  walker?: WalkerId;
 };
 
 /** 동의 주력 평형 (세대가 가장 많은 평형) */
@@ -159,86 +163,233 @@ const WIN_RAY = WIN_YAW + WIN_SPAN_MAX / 2;
 
 type Local = { x: number; z: number };
 
-/** 빨리 감기 재생 길이 — 실제 걷는 시간의 약 1/80, 6~14초 */
-const walkPlayMs = (sec: number) => Math.max(6000, Math.min(14000, sec * 12));
+/**
+ * 빨리 감기 재생 길이 — 실제 걷는 시간의 약 1/80, 6~14초.
+ * 걷는 사람을 바꿔도 빨리 감기 배율은 같게: 기본 속도 기준 길이를 정한 뒤 걷는 사람 시간 비율만큼 늘이거나 줄인다.
+ */
+export const walkPlayMs = (baseSec: number, sec = baseSec) =>
+  Math.max(6000, Math.min(14000, baseSec * 12)) * (sec / Math.max(1, baseSec));
 
-/** 걷는 사람 — 실제 크기(키 약 1.7m) 저폴리 모형. 머리·몸통·팔·다리, 팔다리는 어깨·엉덩이를 축으로 흔든다 */
+/**
+ * 걷는 사람 — 절차로 만든 저폴리 모형(외부 파일 없음). 캡슐·구로 둥글게, 어깨·팔꿈치·엉덩이·무릎·발목 관절.
+ * 기준 키 1.72m로 만들고 걷는 사람 키에 맞춰 몸 전체를 줄이거나 늘린다.
+ */
 type WalkerRig = {
   root: THREE.Group;
   body: THREE.Group;
-  legL: THREE.Group;
-  legR: THREE.Group;
-  armL: THREE.Group;
-  armR: THREE.Group;
+  torso: THREE.Group;
+  hipL: THREE.Group;
+  hipR: THREE.Group;
+  kneeL: THREE.Group;
+  kneeR: THREE.Group;
+  ankleL: THREE.Group;
+  ankleR: THREE.Group;
+  shoulderL: THREE.Group;
+  shoulderR: THREE.Group;
+  elbowL: THREE.Group;
+  elbowR: THREE.Group;
   ring: THREE.Mesh;
+  look: WalkerLook;
 };
 
+const RIG_H = 1.72;
+const HIP_Y = 0.89;
+const THIGH = 0.42;
+const SHIN = 0.4;
+
 let walkerParts: {
-  leg: THREE.BufferGeometry;
-  arm: THREE.BufferGeometry;
-  torso: THREE.BufferGeometry;
+  geos: THREE.BufferGeometry[];
   head: THREE.BufferGeometry;
+  hair: THREE.BufferGeometry;
+  torso: THREE.BufferGeometry;
+  pelvis: THREE.BufferGeometry;
+  upperArm: THREE.BufferGeometry;
+  foreArm: THREE.BufferGeometry;
+  hand: THREE.BufferGeometry;
+  thigh: THREE.BufferGeometry;
+  shin: THREE.BufferGeometry;
+  foot: THREE.BufferGeometry;
   ring: THREE.BufferGeometry;
-  shirt: THREE.Material;
-  pants: THREE.Material;
-  skin: THREE.Material;
   ringMat: THREE.Material;
+  mats: Map<number, THREE.Material>;
 } | null = null;
 
 function walkerKit() {
   if (walkerParts) return walkerParts;
-  // 팔다리는 위 끝이 원점(관절)에 오게 내려 둔다
-  const leg = new THREE.BoxGeometry(0.17, 0.86, 0.2).translate(0, -0.43, 0);
-  const arm = new THREE.BoxGeometry(0.12, 0.62, 0.13).translate(0, -0.31, 0);
+  // 팔다리는 위 끝이 원점(관절)에 오게 내려 둔다. 캡슐 전체 길이 = 길이 + 2 × 반지름
+  const cap = (r: number, len: number) => new THREE.CapsuleGeometry(r, len, 3, 10).translate(0, -(len / 2 + r), 0);
+  const head = new THREE.SphereGeometry(0.115, 16, 12);
+  const hair = new THREE.SphereGeometry(0.122, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.52).rotateX(-0.25);
+  const torso = new THREE.CapsuleGeometry(0.16, 0.3, 4, 12).scale(1, 1, 0.66);
+  const pelvis = new THREE.SphereGeometry(0.155, 12, 8).scale(1, 0.62, 0.72);
+  const upperArm = cap(0.045, 0.2);
+  const foreArm = cap(0.04, 0.17);
+  const hand = new THREE.SphereGeometry(0.045, 8, 6);
+  const thigh = cap(0.07, THIGH - 0.14);
+  const shin = cap(0.055, SHIN - 0.11);
+  // 둥근 신발 — 발목 아래 앞으로 길게
+  const foot = new THREE.SphereGeometry(0.06, 10, 6).scale(0.95, 0.55, 2).translate(0, -0.035, 0.055);
+  const ring = new THREE.RingGeometry(0.55, 0.85, 24).rotateX(-Math.PI / 2);
   walkerParts = {
-    leg,
-    arm,
-    torso: new THREE.BoxGeometry(0.46, 0.62, 0.26),
-    head: new THREE.IcosahedronGeometry(0.14, 1),
-    ring: new THREE.RingGeometry(0.55, 0.85, 24).rotateX(-Math.PI / 2),
-    // transparent: 경로 선(투명 목록·깊이 검사 끔)보다 뒤에 그려 사람이 선 위에 보이게 (불투명도는 1 그대로)
-    shirt: new THREE.MeshLambertMaterial({ color: 0x2563eb, transparent: true }),
-    pants: new THREE.MeshLambertMaterial({ color: 0x1e293b, transparent: true }),
-    skin: new THREE.MeshLambertMaterial({ color: 0xf2c9a5, transparent: true }),
+    geos: [head, hair, torso, pelvis, upperArm, foreArm, hand, thigh, shin, foot, ring],
+    head,
+    hair,
+    torso,
+    pelvis,
+    upperArm,
+    foreArm,
+    hand,
+    thigh,
+    shin,
+    foot,
+    ring,
     // 건물에 가려도 발밑 고리는 보이게 (위치 찾기용)
     ringMat: new THREE.MeshBasicMaterial({ color: 0x1d4ed8, depthTest: false, transparent: true, opacity: 0.85 }),
+    mats: new Map(),
   };
   return walkerParts;
 }
 
-function makeWalker(): WalkerRig {
+/** 걷는 사람 공유 자원 — 그룹을 비울 때 남긴다 */
+function walkerShared(): unknown[] {
+  const k = walkerParts;
+  return k ? [...k.geos, k.ringMat, ...k.mats.values()] : [];
+}
+
+/** 색마다 한 재질 — transparent: 경로 선(투명 목록·깊이 검사 끔)보다 뒤에 그려 사람이 선 위에 보이게 (불투명도는 1 그대로) */
+function walkerMat(color: number): THREE.Material {
   const k = walkerKit();
-  const root = new THREE.Group();
-  const body = new THREE.Group();
-  root.add(body);
-  const limb = (geo: THREE.BufferGeometry, mat: THREE.Material, x: number, y: number) => {
-    const pivot = new THREE.Group();
-    pivot.position.set(x, y, 0);
+  let m = k.mats.get(color);
+  if (!m) {
+    m = new THREE.MeshLambertMaterial({ color, transparent: true });
+    k.mats.set(color, m);
+  }
+  return m;
+}
+
+function makeWalker(look: WalkerLook, elder: boolean): WalkerRig {
+  const k = walkerKit();
+  const skin = walkerMat(0xf3d3bd);
+  const hairMat = walkerMat(elder ? 0xd6d6dc : 0x5b4a42);
+  const shoe = walkerMat(0x5a6473);
+  const shirt = walkerMat(look.shirt);
+  const pants = walkerMat(look.pants);
+  const mesh = (geo: THREE.BufferGeometry, mat: THREE.Material, shadow = false) => {
     const m = new THREE.Mesh(geo, mat);
-    m.castShadow = true;
+    m.castShadow = shadow;
     m.renderOrder = 6; // 경로 선 위에 그린다
-    pivot.add(m);
-    body.add(pivot);
-    return pivot;
+    return m;
   };
-  const legL = limb(k.leg, k.pants, -0.11, 0.88);
-  const legR = limb(k.leg, k.pants, 0.11, 0.88);
-  const armL = limb(k.arm, k.shirt, -0.3, 1.46);
-  const armR = limb(k.arm, k.shirt, 0.3, 1.46);
-  const torso = new THREE.Mesh(k.torso, k.shirt);
-  torso.position.y = 1.19;
-  torso.castShadow = true;
-  torso.renderOrder = 6;
-  const head = new THREE.Mesh(k.head, k.skin);
-  head.position.y = 1.64;
-  head.castShadow = true;
-  head.renderOrder = 6;
-  body.add(torso, head);
-  const ring = new THREE.Mesh(k.ring, k.ringMat);
+  const pivot = (parent: THREE.Object3D, x: number, y: number, z = 0) => {
+    const g = new THREE.Group();
+    g.position.set(x, y, z);
+    parent.add(g);
+    return g;
+  };
+  const root = new THREE.Group();
+  const s = look.heightM / RIG_H;
+  const body = new THREE.Group();
+  body.scale.setScalar(s);
+  root.add(body);
+  const w = look.build;
+
+  // 골반·다리
+  const pel = mesh(k.pelvis, pants, true);
+  pel.position.y = HIP_Y + 0.04;
+  pel.scale.x = w;
+  body.add(pel);
+  const leg = (side: number) => {
+    const hip = pivot(body, side * 0.09 * w, HIP_Y);
+    hip.add(mesh(k.thigh, pants, true));
+    const knee = pivot(hip, 0, -THIGH);
+    knee.add(mesh(k.shin, pants, true));
+    const ankle = pivot(knee, 0, -SHIN);
+    ankle.add(mesh(k.foot, shoe));
+    return { hip, knee, ankle };
+  };
+  const L = leg(-1);
+  const R = leg(1);
+
+  // 몸통 — 허리를 축으로 (어르신은 조금 숙이고, 걸을 때 비튼다)
+  const torso = pivot(body, 0, HIP_Y + 0.06);
+  torso.rotation.x = look.stoop;
+  const chest = mesh(k.torso, shirt, true);
+  chest.position.y = 0.3;
+  chest.scale.x = w;
+  torso.add(chest);
+  const neck = pivot(torso, 0, 0.6, look.stoop * 0.1);
+  const head = mesh(k.head, skin, true);
+  head.position.y = 0.13;
+  head.scale.setScalar(look.head);
+  neck.add(head);
+  const hair = mesh(k.hair, hairMat);
+  hair.position.y = 0.135;
+  hair.scale.setScalar(look.head);
+  neck.add(hair);
+  const arm = (side: number) => {
+    const shoulder = pivot(torso, side * 0.2 * w, 0.52);
+    shoulder.rotation.z = side * 0.06;
+    shoulder.add(mesh(k.upperArm, shirt));
+    const elbow = pivot(shoulder, 0, -0.29);
+    elbow.add(mesh(k.foreArm, skin));
+    const hand = mesh(k.hand, skin);
+    hand.position.y = -0.27;
+    elbow.add(hand);
+    return { shoulder, elbow };
+  };
+  const AL = arm(-1);
+  const AR = arm(1);
+
+  const ring = mesh(k.ring, k.ringMat);
   ring.position.y = 0.08;
   ring.renderOrder = 5;
   root.add(ring);
-  return { root, body, legL, legR, armL, armR, ring };
+  return {
+    root,
+    body,
+    torso,
+    hipL: L.hip,
+    hipR: R.hip,
+    kneeL: L.knee,
+    kneeR: R.knee,
+    ankleL: L.ankle,
+    ankleR: R.ankle,
+    shoulderL: AL.shoulder,
+    shoulderR: AR.shoulder,
+    elbowL: AL.elbow,
+    elbowR: AR.elbow,
+    ring,
+    look,
+  };
+}
+
+/**
+ * 걷는 자세 — phase(라디안, 2π = 두 걸음), swing 0이면 서 있는 자세.
+ * 다리는 앞뒤로 엇갈리고 앞으로 나가는 다리는 무릎을 굽힌다. 팔은 반대 다리와 같이, 몸은 발이 모일 때 살짝 올라가고 좌우로 흔들린다.
+ */
+function poseWalker(w: WalkerRig, phase: number, swing: number) {
+  const A = 0.42 * w.look.swing * swing;
+  const sin = Math.sin(phase);
+  const cos = Math.cos(phase);
+  // 앞으로 = rotation.x 음수 (모형은 +z를 본다)
+  w.hipL.rotation.x = -A * sin;
+  w.hipR.rotation.x = A * sin;
+  // 앞으로 내딛는 동안(다리가 앞으로 움직일 때) 무릎을 굽힌다
+  const K = 0.95 * w.look.swing * swing;
+  const kl = K * Math.max(0, cos) + 0.08 * swing;
+  const kr = K * Math.max(0, -cos) + 0.08 * swing;
+  w.kneeL.rotation.x = kl;
+  w.kneeR.rotation.x = kr;
+  w.ankleL.rotation.x = -kl * 0.35 + A * sin * 0.3;
+  w.ankleR.rotation.x = -kr * 0.35 - A * sin * 0.3;
+  const Aa = 0.5 * w.look.swing * swing;
+  w.shoulderL.rotation.x = Aa * sin;
+  w.shoulderR.rotation.x = -Aa * sin;
+  w.elbowL.rotation.x = -(0.22 + 0.3 * swing * Math.max(0, -sin));
+  w.elbowR.rotation.x = -(0.22 + 0.3 * swing * Math.max(0, sin));
+  w.body.position.y = 0.035 * swing * (Math.abs(cos) - 0.6);
+  w.body.rotation.z = 0.035 * swing * sin;
+  w.torso.rotation.y = 0.08 * swing * sin;
 }
 
 /**
@@ -535,7 +686,7 @@ export class Complex3dScene {
       this.facadeSunMat,
       this.walkLineMat,
       this.walkCaseMat,
-      ...(walkerParts ? Object.values(walkerParts) : []),
+      ...walkerShared(),
     ]);
     for (const g of Object.values(this.groups)) disposeGroup(g, keep);
     this.walker = null;
@@ -640,7 +791,15 @@ export class Complex3dScene {
     return { position, target };
   }
 
+  /** ms가 0이면 바로 옮긴다 (움직임 줄이기) */
   private flyTo(position: THREE.Vector3, target: THREE.Vector3, ms = 450) {
+    if (ms <= 0) {
+      this.anim = null;
+      this.camera.position.copy(position);
+      this.controls.target.copy(target);
+      this.controls.update();
+      return;
+    }
     this.anim = {
       p0: this.camera.position.clone(),
       p1: position,
@@ -676,8 +835,8 @@ export class Complex3dScene {
     this.flyTo(new THREE.Vector3(t.x, t.y + off.y, t.z + Math.max(0.01, flat)), t);
   }
 
-  /** 동 하나로 다가가기 — 지금 보는 방향은 유지 */
-  focus(id: string) {
+  /** 동 하나로 다가가기 — 지금 보는 방향은 유지 (reduced면 날아가지 않고 바로) */
+  focus(id: string, reduced = false) {
     const b = this.data?.buildings.find((x) => x.id === id);
     if (!b?.rings) return;
     const c = this.ringCenter(b.rings);
@@ -691,7 +850,7 @@ export class Complex3dScene {
     const visible = Math.max(0.35, 1 - this.insetTarget / Math.max(1, this.host.clientHeight));
     const dist = Math.max(240, h * 5.5) / visible;
     const dir = new THREE.Vector3(Math.sin(polar) * Math.sin(az), Math.cos(polar), Math.sin(polar) * Math.cos(az));
-    this.flyTo(target.clone().add(dir.multiplyScalar(dist)), target);
+    this.flyTo(target.clone().add(dir.multiplyScalar(dist)), target, reduced ? 0 : 450);
   }
 
   private ringCenter(rings: Ring[]): Local {
@@ -1571,6 +1730,25 @@ export class Complex3dScene {
     return this.windowInfo();
   }
 
+  /**
+   * 창문 시점 층 끌기 — 눈높이만 바로 옮긴다 (가림 광선은 그대로, 다시 재는 일은 enterWindowView로 가끔).
+   * 창 자리 땅높이 보정(lift)은 들어올 때 값 그대로.
+   */
+  setWindowEyeFloor(floor: number): WindowViewInfo | null {
+    const w = this.win;
+    if (!w) return null;
+    const fb = this.floorBase(w.id, floor);
+    if (!fb) return null;
+    const base = this.base(w.id);
+    const lift = w.eye.y - (base + w.eyeM);
+    const eyeY = Math.min(fb.y + 1.5, base + fb.h - 0.5);
+    w.floor = Math.max(1, Math.min(fb.floors, Math.round(floor)));
+    w.eyeM = eyeY - base;
+    w.eye.y = eyeY + lift;
+    if (w.anim) w.anim = null;
+    return this.windowInfo();
+  }
+
   /** 지금 화면에 보이는 가로 폭 안에서 200m 안에 막힌 비율, 정면(±4°) 첫 건물까지 거리 */
   private windowInfo(): WindowViewInfo {
     const w = this.win!;
@@ -1686,9 +1864,7 @@ export class Complex3dScene {
    */
   private clearWalkGroup() {
     // 경로 선 재질(walkLineMat·walkCaseMat)과 걷는 사람 모형(walkerKit)은 함께 쓰니 남긴다
-    const k = walkerParts;
-    const keep = new Set<unknown>([this.walkLineMat, this.walkCaseMat]);
-    if (k) for (const v of Object.values(k)) keep.add(v);
+    const keep = new Set<unknown>([this.walkLineMat, this.walkCaseMat, ...walkerShared()]);
     disposeGroup(this.groups.walk, keep);
     this.walker = null;
   }
@@ -1789,7 +1965,7 @@ export class Complex3dScene {
     this.groups.walk.add(pin);
 
     // 걷는 사람 — 경로 방향을 보고 선다 (경로 선은 땅에서 lift만큼 띄웠지만 사람은 땅에 발을 딛는다)
-    const rig = makeWalker();
+    const rig = makeWalker(WALKER_LOOK[d.walker ?? "female"], d.walker === "elder");
     this.groups.walk.add(rig.root);
     this.walker = rig;
     this.walkPhase = 0;
@@ -1801,7 +1977,7 @@ export class Complex3dScene {
     if (reduced) {
       this.onWalkProgress(d.totalSec, true);
     } else {
-      this.walkAnim = { start: performance.now(), ms: walkPlayMs(d.totalSec) };
+      this.walkAnim = { start: performance.now(), ms: walkPlayMs(d.baseSec ?? d.totalSec, d.totalSec) };
       this.onWalkProgress(0, false);
     }
     if (this.walkFollow) this.followWalker(true);
@@ -1810,7 +1986,7 @@ export class Complex3dScene {
 
   replayWalk() {
     if (!this.walkPath || !this.walkDraw || this.walkReduced) return;
-    this.walkAnim = { start: performance.now(), ms: walkPlayMs(this.walkDraw.totalSec) };
+    this.walkAnim = { start: performance.now(), ms: walkPlayMs(this.walkDraw.baseSec ?? this.walkDraw.totalSec, this.walkDraw.totalSec) };
   }
 
   clearWalk() {
@@ -1819,6 +1995,18 @@ export class Complex3dScene {
     this.walkPath = null;
     this.walkAnim = null;
     this.walker = null;
+  }
+
+  /**
+   * 걷기 끝내기 — 재생을 멈추고 경로·사람·핀(CSS2D 요소까지)을 지우고, 따라가기를 끄고, 보통 둘러보기로 돌려 놓는다.
+   * 카메라는 호출하는 쪽이 (고른 동 또는 단지 전체로) 옮긴다.
+   */
+  endWalk() {
+    this.clearWalk();
+    this.walkFollow = false;
+    this.anim = null;
+    this.controls.enabled = !this.win;
+    this.controls.minDistance = MIN_DIST;
   }
 
   /** 경로 전체가 보이게 — 위에서 비스듬히, 아래 패널이 가리는 만큼 멀리서 */
@@ -1856,12 +2044,7 @@ export class Complex3dScene {
     if (!w) return;
     w.root.position.set(p.x, this.groundAt(p.x, p.z) + 0.15, p.z);
     w.root.rotation.y = yaw;
-    const a = Math.sin(this.walkPhase) * swing;
-    w.legL.rotation.x = a * 0.6;
-    w.legR.rotation.x = -a * 0.6;
-    w.armL.rotation.x = -a * 0.5;
-    w.armR.rotation.x = a * 0.5;
-    w.body.position.y = Math.abs(Math.cos(this.walkPhase)) * 0.05 * swing;
+    poseWalker(w, this.walkPhase, swing);
   }
 
   private lastFrameAt = 0;
@@ -1893,7 +2076,8 @@ export class Complex3dScene {
     let dy = target - this.walkerYaw;
     dy = Math.atan2(Math.sin(dy), Math.cos(dy));
     this.walkerYaw += dy * Math.min(1, dt * 8);
-    this.walkPhase += dt * 11;
+    // 걸음 수에 맞춰 흔든다 — 2π = 두 걸음. 빨리 감기라 실제보다 약 1.9배 빠르게 (걷는 사람끼리 비율은 그대로)
+    this.walkPhase += dt * Math.PI * w.look.cadence * 1.9;
     this.placeWalker(p, this.walkerYaw, k >= 1 ? 0 : 1);
     if (this.walkFollow) this.followWalker(false, dt);
     const now = performance.now();
@@ -1953,10 +2137,16 @@ export class Complex3dScene {
     this.controls.target.copy(target);
   }
 
-  private down: { x: number; y: number } | null = null;
+  /** 누른 손가락 — 탭 판정용. 두 손가락(핀치)이 한 번이라도 닿았다면 그 동작은 탭이 아니다 */
+  private down: { x: number; y: number; id: number } | null = null;
+  private touches = new Set<number>();
+  private multi = false;
   private dragAt: { x: number; y: number; id: number } | null = null;
   private onPointerDown = (e: PointerEvent) => {
-    this.down = { x: e.clientX, y: e.clientY };
+    if (!this.touches.size) this.multi = false;
+    this.touches.add(e.pointerId);
+    if (this.touches.size > 1) this.multi = true;
+    this.down = { x: e.clientX, y: e.clientY, id: e.pointerId };
     if (this.win) {
       this.dragAt = { x: e.clientX, y: e.clientY, id: e.pointerId };
       // 마우스를 패널 위에서 놓아도 pointerup이 캔버스로 오게
@@ -1980,17 +2170,23 @@ export class Complex3dScene {
     this.lookWindow(-(e.clientX - d.x) * k, (e.clientY - d.y) * k, true);
     this.dragAt = { x: e.clientX, y: e.clientY, id: e.pointerId };
   };
-  private onPointerCancel = () => {
+  private onPointerCancel = (e: PointerEvent) => {
+    this.touches.delete(e.pointerId);
     this.dragAt = null;
+    this.down = null;
   };
   private onPointerUp = (e: PointerEvent) => {
+    this.touches.delete(e.pointerId);
     if (this.win) {
       if (this.renderer.domElement.hasPointerCapture?.(e.pointerId)) this.renderer.domElement.releasePointerCapture(e.pointerId);
       this.dragAt = null;
       if (this.win) this.onWindowInfo(this.windowInfo());
       return;
     }
-    if (!this.down || Math.hypot(e.clientX - this.down.x, e.clientY - this.down.y) > 6) return;
+    // 핀치 뒤 마지막 손가락을 떼는 것, 다른 손가락의 떼기, 끌기는 탭이 아니다 (걷기 중 핀치가 동 고르기로 읽혀 경로가 다시 맞춰지던 문제)
+    const down = this.down;
+    if (this.multi || !down || down.id !== e.pointerId || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) return;
+    this.down = null;
     const rect = this.renderer.domElement.getBoundingClientRect();
     const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
     this.raycaster.setFromCamera(ndc, this.camera);
@@ -2003,6 +2199,16 @@ export class Complex3dScene {
           : [...this.ownMeshes.values()];
     const hit = this.raycaster.intersectObjects(pool, false)[0];
     const id = (hit?.object.userData.id as string | undefined) ?? null;
+    // 걷기 — 빈 곳을 눌러도 출발 동을 풀지 않는다 (경로가 바뀌어 화면이 다시 맞춰지지 않게)
+    if (!id && this.mode === "walk") return;
+    // 일조·조망 — 한 번 탭으로 고르고 그 동으로 다가간다
+    if (id && (this.mode === "sun" || this.mode === "view")) {
+      this.lastTap = null;
+      this.select(id);
+      this.onSelect(id);
+      this.focus(id, window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+      return;
+    }
     // 한 번 탭 = 선택만, 같은 동을 두 번 탭 = 그 동으로 다가가기
     const now = performance.now();
     if (id && this.lastTap && this.lastTap.id === id && now - this.lastTap.at < 350) {
