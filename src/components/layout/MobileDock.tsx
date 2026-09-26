@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { HOME_QUICK_NAV } from "@/lib/nav/home-quick-nav";
-import { isMapHomePath, useMapDockHidden } from "@/lib/map/map-dock";
+import { isMapHomePath } from "@/lib/map/map-dock";
 
 /** Space the page must leave at the bottom so the last content/footer isn't under the dock. */
 export const MOBILE_DOCK_SPACER = "h-[calc(80px+env(safe-area-inset-bottom))] sm:hidden";
@@ -19,15 +19,15 @@ const IDLE_SHOW_MS = 1000;
  * 모바일 떠 있는 독 (B+ 내비) — 좌우 여백을 둔 캡슐, 아이콘 + 13px 라벨 5개.
  * 아래로 스크롤하면 숨고, 위로 올리거나 스크롤을 멈추고 잠시(1초) 지나면 나타난다.
  * 맨 위·맨 아래에서는 항상 보인다.
- * 지도 첫 화면(/, /map)에서는 지도를 조작하는 동안·단지 카드가 떠 있는 동안 비킨다 (lib/map/map-dock).
+ * 지도 첫 화면(/, /map)에서는 늘 보인다 (처음 온 사람이 다른 메뉴를 알게) — 대신 조금 더 아래에 붙는다.
  * 데스크톱(≥sm)은 상단 메뉴·사이드바를 쓰므로 숨김.
  */
 export function MobileDock() {
   const pathname = usePathname();
   const [scrollHidden, setHidden] = useState(false);
-  const mapHidden = useMapDockHidden();
   const onMap = isMapHomePath(pathname);
-  const hidden = scrollHidden || (onMap && mapHidden);
+  // 지도는 스크롤이 없어 늘 보인다
+  const hidden = !onMap && scrollHidden;
   const lastY = useRef(0);
 
   useEffect(() => {
@@ -71,15 +71,12 @@ export function MobileDock() {
     <nav
       aria-label="주요 탐색"
       data-mobile-dock={hidden ? "hidden" : "shown"}
-      inert={onMap && hidden ? true : undefined}
       className={[
         "fixed inset-x-4 z-40 sm:hidden",
-        "bottom-[calc(env(safe-area-inset-bottom)+12px)]",
+        onMap ? "bottom-[calc(env(safe-area-inset-bottom)+4px)]" : "bottom-[calc(env(safe-area-inset-bottom)+12px)]",
         "rounded-2xl border border-[color:var(--lab-border)] bg-white/95 shadow-[0_6px_20px_rgba(15,23,42,0.12)] backdrop-blur",
         "transition-[transform,opacity] duration-200 ease-out motion-reduce:transition-none",
-        hidden
-          ? `translate-y-[calc(100%+24px)] ${onMap ? "pointer-events-none opacity-0" : ""}`
-          : "translate-y-0 opacity-100",
+        hidden ? "translate-y-[calc(100%+24px)]" : "translate-y-0 opacity-100",
       ].join(" ")}
     >
       <ul className="grid h-14 grid-cols-5">

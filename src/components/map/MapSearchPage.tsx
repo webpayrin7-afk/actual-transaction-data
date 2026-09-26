@@ -49,7 +49,6 @@ import { MapBriefingSheet, type BriefingTarget, type BriefingView } from "@/comp
 import { Map3dInvite, mark3dInviteDone, read3dInviteDone } from "@/components/map/Map3dInvite";
 import { SEOUL_BOUNDS } from "@/components/map3d/seoul-3d-style";
 import { clear3dSession, read3dSession, replaceViewParam, shouldJump } from "@/lib/map/view-state";
-import { mapInteractionEnd, mapInteractionStart, resetMapDock, setMapCardOpen } from "@/lib/map/map-dock";
 
 /** 서울 3D 지도 — MapLibre(약 1MB)는 3D를 열 때만 받는다 (2D 번들에 넣지 않음). */
 const Seoul3DMap = dynamic(() => import("@/components/map3d/Seoul3DMap"), {
@@ -439,9 +438,6 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
           }, 250);
         });
         maps.Event.addListener(map, "click", () => setSelectedId(null));
-        // 끌기·핀치·줌 동안 하단 독을 비킨다 (멈추면 1초 뒤 돌아옴)
-        for (const ev of ["dragstart", "pinchstart", "zoom_changed"]) maps.Event.addListener(map, ev, mapInteractionStart);
-        for (const ev of ["dragend", "pinchend", "idle"]) maps.Event.addListener(map, ev, mapInteractionEnd);
         void fetchViewport();
       } catch {
         setState("error");
@@ -848,12 +844,6 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
   }, [view3d, cam3d, view2d]);
   // 고른 단지가 있으면(카드가 불러오는 중이어도) 숨김 — 2D·3D 전환 때 잠깐 떴다 사라지지 않게
   const briefingHidden = view3d ? card3d || sel3d != null : Boolean(selectedId) || Boolean(zone);
-  // 카드가 떠 있는 동안 하단 독을 숨기고 카드를 아래 안전 영역까지 내린다 (모바일)
-  const cardOpen = view3d ? card3d : Boolean(selected) || Boolean(zone);
-  useEffect(() => {
-    setMapCardOpen(cardOpen);
-  }, [cardOpen]);
-  useEffect(() => () => resetMapDock(), []);
   const showInvite = inviteDone === false && !view3d && center != null && inSeoul(center);
 
   return (
@@ -1058,7 +1048,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
         className="absolute right-3 bottom-[calc(env(safe-area-inset-bottom)+84px+var(--map-sheet-peek,0px))] inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)] shadow-sm sm:right-4 sm:bottom-[calc(env(safe-area-inset-bottom)+16px)]"
         style={
           selected
-            ? { bottom: `calc(env(safe-area-inset-bottom) + ${cardMore ? 188 : 132}px)`, visibility: cardMore ? "hidden" : undefined }
+            ? { bottom: `calc(env(safe-area-inset-bottom) + ${cardMore ? 244 : 188}px)`, visibility: cardMore ? "hidden" : undefined }
             : undefined
         }
       >
@@ -1080,7 +1070,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
 
       {/* 하단: 선택 단지 카드 — 작게(약 108px): 이름·위치 / 최근 거래·12개월 / 단지 상세 · 3D. 나머지 값은 '더보기' */}
       {selected ? (
-        <div className="absolute inset-x-0 bottom-0 px-3 pb-[calc(env(safe-area-inset-bottom)+12px)] sm:p-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 px-3 pb-[calc(env(safe-area-inset-bottom)+68px)] sm:p-4 sm:pb-4">
           <div
             className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] px-3.5 pb-2.5 pt-2.5 shadow-lg"
             data-map2d-card
@@ -1193,7 +1183,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
       ) : null}
 
       {zone && !selected ? (
-        <div className="absolute inset-x-0 bottom-0 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] sm:p-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 px-4 pb-[calc(env(safe-area-inset-bottom)+68px)] sm:p-4 sm:pb-4">
           <div className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] p-4 shadow-lg">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">

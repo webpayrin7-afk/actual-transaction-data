@@ -24,7 +24,6 @@ import { LabIndeterminateBar } from "@/components/ui/LabLoading";
 import { ComplexCardMore } from "@/components/map/ComplexCardMore";
 import { fitComplexCamera } from "@/components/map3d/fit-camera";
 import { SEOUL_DISTRICTS } from "@/components/map3d/seoul-districts";
-import { mapInteractionEnd, mapInteractionStart } from "@/lib/map/map-dock";
 import {
   MAP3D_ATTRIBUTION,
   Map3dAttribution,
@@ -103,7 +102,7 @@ const FRAME_TOP_FALLBACK = 64;
 /** MapLibre 컨트롤 — 모바일 아래 탭 막대 위로(카드가 뜨면 독이 숨고 카드 위로), 손가락 크기(44px) */
 const CONTROL_CSS = `
 .seoul3d .maplibregl-ctrl-bottom-right{bottom:calc(env(safe-area-inset-bottom) + 76px + var(--map-sheet-peek, 0px))}
-@media (max-width:639.98px){.seoul3d[data-card] .maplibregl-ctrl-bottom-right{bottom:calc(env(safe-area-inset-bottom) + 132px)}}
+@media (max-width:639.98px){.seoul3d[data-card] .maplibregl-ctrl-bottom-right{bottom:calc(env(safe-area-inset-bottom) + 188px)}}
 @media (min-width:640px){.seoul3d .maplibregl-ctrl-bottom-right{bottom:0}}
 .seoul3d .maplibregl-ctrl-group button{width:40px;height:40px}
 `;
@@ -774,11 +773,6 @@ export default function Seoul3DMap({
         void fetchRef.current();
       });
       map.on("rotate", () => setBearing(map.getBearing()));
-      // 손으로 움직이는 동안(끌기·핀치·회전·기울이기) 하단 독을 비킨다 — 코드로 나는 것(flyTo)은 빼고
-      map.on("movestart", (e) => {
-        if ((e as { originalEvent?: unknown }).originalEvent) mapInteractionStart();
-      });
-      map.on("moveend", mapInteractionEnd);
       map.on("moveend", () => {
         persist();
         const mc = map.getCenter();
@@ -968,7 +962,7 @@ export default function Seoul3DMap({
       const row = document.querySelector("[data-map-controls]")?.getBoundingClientRect();
       const rowBottom = row ? row.bottom - box.getBoundingClientRect().top : 0;
       const top = rowBottom > 0 && rowBottom < box.clientHeight / 2 ? Math.round(rowBottom) + 12 : FRAME_TOP_FALLBACK;
-      const safe = { top, bottom: mobile ? 164 : 148, left: 16, right: 16 };
+      const safe = { top, bottom: mobile ? 220 : 148, left: 16, right: 16 };
       const maxH = Math.max(0, ...(shape?.buildings ?? []).map((b) => buildingHeight(b)));
       // 아주 높은 탑상형은 덜 기울여 (위가 덜 길어지게)
       const pitch = maxH > 120 ? 50 : FOCUS_PITCH;
@@ -1248,14 +1242,14 @@ export default function Seoul3DMap({
         ]}
         className={
           selected
-            ? "z-10 bottom-[calc(env(safe-area-inset-bottom)+134px)] sm:bottom-[140px]"
+            ? "z-10 bottom-[calc(env(safe-area-inset-bottom)+190px)] sm:bottom-[140px]"
             : "bottom-[calc(env(safe-area-inset-bottom)+80px+var(--map-sheet-peek,0px))] sm:bottom-1.5"
         }
       />
 
       {/* 아래: 고른 단지 카드 — 작게(약 108px): 이름·위치 / 최근 거래·지표 / 단지 상세 · 3D 탐색 */}
       {selected ? (
-        <div className="absolute inset-x-0 bottom-0 z-10 px-3 pb-[calc(env(safe-area-inset-bottom)+12px)] sm:p-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 z-10 px-3 pb-[calc(env(safe-area-inset-bottom)+68px)] sm:p-4 sm:pb-4">
           <div
             className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] px-3.5 pb-2.5 pt-2.5 shadow-lg"
             data-map3d-card
