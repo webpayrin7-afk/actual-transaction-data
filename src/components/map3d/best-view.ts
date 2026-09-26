@@ -5,15 +5,19 @@ import type { Map as MlMap } from "maplibre-gl";
  *
  * 방향마다(15°씩) 카메라가 놓일 쪽(보는 방향의 반대)의 건물 타일을 보고, 단지 가운데(높이의 절반)에서
  * 카메라로 올라가는 시선(기울기에 따른 오르막)보다 높이 솟은 만큼을 더해 '가림 점수'로 삼는다.
- * 여기에 '앞에서 보기'를 더한다 — 동의 긴 축에 수직인 두 면 중 남쪽을 더 향한 면(아파트 앞면)을 정면에서
- * 보는 방향을 기준으로, 거기서 돌수록 벌점. 앞이 트여 있으면 앞에서, 앞이 가리면 조금 돌아서 본다. 15°마다 돌려 본다.
+ * 여기에 '앞에서 보기'를 더한다 — 동의 긴 면(남쪽을 더 향한 앞면)을 정면에서 약 25° 비스듬히 보는 방향이 가장 좋고,
+ * 거기서 벗어날수록·뒷면일수록 벌점. 앞이 트여 있으면 앞에서, 앞이 가리면 조금 돌아서 본다. 15°마다 돌려 본다.
  * 어느 쪽이든 많이 가리면 더 내려다보게(기울기를 줄여) 한다.
  */
 
 const SECTOR_DEG = 28;
 const REACH_M = 450;
-/** 앞면 정면에서 90° 돌 때 벌점 (가림 점수 단위: m) — 앞이 크게 가려야 돌아간다 */
+/** 앞면을 보는 이상적인 각도에서 65° 벗어날 때 벌점 (가림 점수 단위: m) */
 const FRONT_PENALTY = 60;
+/** 앞면 정면에서 이만큼 비스듬히 보는 게 가장 좋다 (옆면이 조금 보여 입체감) */
+const OBLIQUE_DEG = 25;
+/** 북쪽 면(뒷면)에서 볼 때 벌점 */
+const BACK_SIDE_PENALTY = 30;
 /** 동 축을 모를 때: 남쪽에서 보는 쪽에서 180° 돌 때 벌점 */
 const SOUTH_PENALTY = 24;
 const STEP_DEG = 15;
@@ -76,20 +80,19 @@ export function chooseBestView(
     return s;
   };
 
-  // 앞면 정면 보기 방향 — 긴 축에 수직인 두 면 중 남쪽을 더 향한 면. 카메라는 그 면 앞에서 면을 본다
-  // (면이 향한 방위 n → 보는 방향 bearing = n + 180). 축을 모르면 남쪽에서 북쪽 보기(0°)
-  let front = 0;
-  if (opts.axisDeg != null) {
-    const n1 = (opts.axisDeg + 90) % 360;
-    const n2 = (opts.axisDeg + 270) % 360;
-    const south = (n: number) => -Math.cos((n * Math.PI) / 180); // 남(180°)이면 1
-    const n = south(n1) >= south(n2) ? n1 : n2;
-    // 앞면이 남쪽에서 60° 넘게 돌아 있으면(동 방향을 잘못 읽었거나 동·서향) 남쪽 보기로
-    front = Math.abs(n - 180) <= 60 ? (n + 180) % 360 : 0;
-  }
+  // 앞면 보기 — 동의 긴 축에 수직인 두 면 가운데 남쪽을 더 향한 면을, 정면에서 약 25° 비스듬히(입체감) 본다.
+  // 두 면 모두 따져 보되 북쪽 면에서 보면 벌점. 축을 모르면 남쪽에서 북쪽 보기(0°)에 가까울수록.
+  const angDist = (x: number, y: number) => Math.abs(((x - y + 540) % 360) - 180);
   const look = (b: number) => {
-    const diff = Math.abs(((b - front + 540) % 360) - 180); // 0~180
-    return opts.axisDeg != null ? (diff / 90) * FRONT_PENALTY : (diff / 180) * SOUTH_PENALTY;
+    if (opts.axisDeg == null) return (angDist(b, 0) / 180) * SOUTH_PENALTY;
+    let best = Infinity;
+    for (const n of [(opts.axisDeg + 90) % 360, (opts.axisDeg + 270) % 360]) {
+      const fb = (n + 180) % 360; // 이 면을 정면으로 보는 방향
+      const south = -Math.cos((n * Math.PI) / 180); // 면이 남쪽을 향하면 1
+      const pen = (Math.abs(angDist(b, fb) - OBLIQUE_DEG) / 65) * FRONT_PENALTY + ((1 - south) / 2) * BACK_SIDE_PENALTY;
+      best = Math.min(best, pen);
+    }
+    return best;
   };
   let best: BestView = { bearing: 0, pitch: opts.pitch, score: Infinity };
   for (let b = 0; b < 360; b += STEP_DEG) {
