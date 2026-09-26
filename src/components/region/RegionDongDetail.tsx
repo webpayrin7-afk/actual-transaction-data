@@ -2,7 +2,6 @@
 
 import { useRef } from "react";
 import { BackLink } from "@/components/layout/BackLink";
-import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
 import { RegionHeroMeta } from "@/components/region/RegionHeroMeta";
@@ -51,8 +50,6 @@ export function RegionDongDetail({
   const bjdongCd = overview.data?.bjdongCd ?? trend.data?.dong?.bjdongCd ?? null;
   const rankingCode = rankingDongRegionCode(lawdCd, bjdongCd);
   const anchor = useRef<HTMLDivElement | null>(null);
-
-  useLoadProgressWhen(overview.isLoading && !overview.data, "동 정보 불러오는 중…");
 
   return (
     <div className={PAGE_SHELL}>

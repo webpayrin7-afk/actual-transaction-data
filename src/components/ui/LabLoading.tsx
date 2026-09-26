@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { LAB_SECTION_SURFACE } from "@/components/ui/LabSection";
 
 /**
  * 가로 진행 막대 — 끝을 모르는 로딩(서버 응답 대기)용. 청록 막대가 왼→오로 흐른다.
@@ -30,9 +31,33 @@ export function LabLoadingDots({ className = "" }: { className?: string }) {
   );
 }
 
+/** 아주 빨리 끝나는 로딩은 번쩍이지 않게 0.25초 뒤에만 보인다 */
+function useDelayedShow(ms = 250): boolean {
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const t = window.setTimeout(() => setShown(true), ms);
+    return () => window.clearTimeout(t);
+  }, [ms]);
+  return shown;
+}
+
+/** 로딩 자리 가운데 — 진행 막대 + 점 세 개 + "○○ 불러오는 중…" */
+function LabLoadingBody({ text, shown }: { text: string; shown: boolean }) {
+  return (
+    <div
+      className="flex flex-col items-center justify-center gap-2 transition-opacity duration-200"
+      style={{ opacity: shown ? 1 : 0 }}
+    >
+      <LabIndeterminateBar className="max-w-32" />
+      <LabLoadingDots className="mt-1" />
+      <p className="detail-meta">{text}…</p>
+    </div>
+  );
+}
+
 /**
  * 데이터 자리 로딩 — 섹션 틀(제목·탭·표 머리 등)은 그대로 그려 두고, 데이터가 들어갈 자리에만 넣는다.
- * 회색 빈 상자 대신 가운데 점 세 개와 "○○ 불러오는 중…".
+ * 회색 빈 상자 대신 진행 막대 · 점 세 개 · "○○ 불러오는 중…".
  */
 export function LabDataLoading({
   label = "불러오는 중",
@@ -43,35 +68,32 @@ export function LabDataLoading({
   minHeight?: number;
   className?: string;
 }) {
-  // 아주 빨리 끝나는 로딩은 번쩍이지 않게 0.25초 뒤에만 보인다
-  const [shown, setShown] = useState(false);
-  useEffect(() => {
-    const t = window.setTimeout(() => setShown(true), 250);
-    return () => window.clearTimeout(t);
-  }, []);
+  const shown = useDelayedShow();
   return (
     <div
-      className={`flex flex-col items-center justify-center gap-2 transition-opacity duration-200 ${className}`}
-      style={{ minHeight, opacity: shown ? 1 : 0 }}
+      className={`flex flex-col items-center justify-center ${className}`}
+      style={{ minHeight }}
       aria-busy="true"
       aria-live="polite"
     >
-      <LabLoadingDots />
-      <p className="detail-meta">{label}…</p>
+      <LabLoadingBody text={label} shown={shown} />
     </div>
   );
 }
 
 /**
- * 섹션 로딩 — 회색 빈 상자 대신, 무엇을 불러오는지와 진행 막대를 보여 준다.
- * 페이지는 먼저 뜨고 아래 섹션만 늦게 채워질 때 쓴다.
+ * 섹션 로딩 — 섹션 카드 틀(제목 포함)을 바로 그리고, 안에서 진행 막대가 돈다.
+ * 페이지 전체를 막지 않고 섹션마다 따로 채워질 때 쓴다(데이터·코드를 아직 받는 중인 섹션 자리).
  */
 export function LabSectionLoading({
+  id,
   title,
   label,
   minHeight = 160,
   className = "",
 }: {
+  /** 섹션 탭·앵커용 id (진짜 섹션과 같은 id) */
+  id?: string;
   /** 섹션 제목 (있으면 카드 머리에) */
   title?: string;
   /** "관리비 불러오는 중" 처럼 — 없으면 "{title} 불러오는 중" */
@@ -79,34 +101,28 @@ export function LabSectionLoading({
   minHeight?: number;
   className?: string;
 }) {
-  // 아주 빨리 끝나는 로딩은 문구가 번쩍이지 않게 0.25초 뒤에만 보인다
-  const [shown, setShown] = useState(false);
-  useEffect(() => {
-    const t = window.setTimeout(() => setShown(true), 250);
-    return () => window.clearTimeout(t);
-  }, []);
+  const shown = useDelayedShow();
   const text = label ?? (title ? `${title} 불러오는 중` : "불러오는 중");
   return (
     <section
-      className={`section-card flex flex-col ${className}`}
+      id={id}
+      aria-label={title}
+      className={`${LAB_SECTION_SURFACE} flex scroll-mt-28 flex-col gap-3 ${className}`.trim()}
       style={{ minHeight }}
       aria-busy="true"
       aria-live="polite"
     >
       {title ? <h2 className="detail-section-title">{title}</h2> : null}
-      <div
-        className="flex flex-1 flex-col items-center justify-center gap-2 py-6 transition-opacity duration-200"
-        style={{ opacity: shown ? 1 : 0 }}
-      >
-        <LabLoadingDots />
-        <p className="detail-meta">{text}…</p>
+      {/* 위쪽에 둔다 — 높은 틀(시세 등)에서도 로딩이 첫 화면 안에 보이게 */}
+      <div className="flex flex-col items-center pt-10 pb-6">
+        <LabLoadingBody text={text} shown={shown} />
       </div>
     </section>
   );
 }
 
 /**
- * 화면 맨 위 진행 막대 — 페이지 이동·첫 데이터 로딩 동안.
+ * 화면 맨 위 진행 막대 — 페이지 이동 동안만(섹션 데이터 로딩은 섹션 안에서 보인다).
  * 시작하면 빠르게 30%까지, 이후 90%를 향해 천천히 차오르고, 끝나면 100%로 채운 뒤 사라진다.
  */
 export function LabTopProgress({ active, label }: { active: boolean; label?: string | null }) {

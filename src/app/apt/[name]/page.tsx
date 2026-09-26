@@ -101,7 +101,7 @@ export default async function AptPage({ params, searchParams }: PageProps) {
         </Suspense>
       ) : null}
       <AptDetailEnterTransition>
-        <Suspense fallback={<AptDetailSkeleton />}>
+        <Suspense fallback={<AptDetailSkeleton aptName={aptName} regionSlug={regionSlug} gu={gu} />}>
           <AptDetailPage
             aptName={aptName}
             regionSlug={regionSlug}

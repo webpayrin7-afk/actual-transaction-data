@@ -9,6 +9,7 @@ import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
 import { LabStickySectionNav } from "@/components/ui/LabStickySectionNav";
 import { LAB_EXPERIMENTS, getLabDef } from "@/lib/lab/definitions";
+import { LabSectionLoading } from "@/components/ui/LabLoading";
 
 const SECTIONS = LAB_EXPERIMENTS.map((d) => ({ id: d.slug, label: d.shortTitle }));
 
@@ -39,7 +40,7 @@ export function LabPage() {
       <div ref={anchorRef} className="-mb-3 h-0 sm:-mb-6" aria-hidden />
       <LabStickySectionNav anchor={anchorRef} sections={SECTIONS} title="오늘의 실험실" ariaLabel="실험 목록" />
 
-      {query.isLoading ? <div className="lab-skeleton" aria-label="실험실 불러오는 중" /> : null}
+      {query.isLoading ? <LabSectionLoading title="오늘의 실험실" label="실험 불러오는 중" minHeight={320} /> : null}
       {query.isError ? (
         <div className="flex flex-col gap-3">
           <p className="lab-state lab-state-error">실험실 데이터를 불러오지 못했습니다.</p>

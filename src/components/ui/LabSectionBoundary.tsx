@@ -7,6 +7,8 @@ import { LazyMountWhenNear } from "@/components/ui/LazyMountWhenNear";
 type SectionBoundaryContextValue = {
   /** 섹션 제목 — 로딩 자리에 "○○ 불러오는 중"으로 쓴다 */
   title: string;
+  /** 로딩 자리(섹션 틀) 최소 높이(px) — 불러온 뒤 높이와 비슷하게 */
+  placeholderMinHeight?: number;
   /** 섹션이 실제로 그려졌음을 알린다(lazySection) — 다시 시도 횟수를 0으로 되돌린다 */
   onSectionReady: () => void;
 };
@@ -62,8 +64,16 @@ export class LabSectionBoundary extends Component<
   private contextValue: SectionBoundaryContextValue | null = null;
 
   private getContextValue(): SectionBoundaryContextValue {
-    if (!this.contextValue || this.contextValue.title !== this.props.title) {
-      this.contextValue = { title: this.props.title, onSectionReady: this.onSectionReady };
+    if (
+      !this.contextValue ||
+      this.contextValue.title !== this.props.title ||
+      this.contextValue.placeholderMinHeight !== this.props.placeholderMinHeight
+    ) {
+      this.contextValue = {
+        title: this.props.title,
+        placeholderMinHeight: this.props.placeholderMinHeight,
+        onSectionReady: this.onSectionReady,
+      };
     }
     return this.contextValue;
   }

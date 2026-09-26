@@ -14,6 +14,7 @@ import type {
   PolicySourceKey,
 } from "@/lib/market/policy-news";
 import { seoulDateOf, seoulToday } from "@/lib/market/time";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 
 async function fetchPolicyNews(): Promise<PolicyNewsResponse> {
   const res = await fetch("/api/market-news");
@@ -114,7 +115,7 @@ export function MarketPolicyNews({ id }: { id?: string }) {
         </p>
       }
     >
-      {query.isLoading ? <div className="lab-skeleton" aria-label="정책 발표 불러오는 중" /> : null}
+      {query.isLoading ? <LabDataLoading label="정책 발표 불러오는 중" minHeight={240} /> : null}
 
       {query.isError || allFailed ? (
         <p className="lab-state">

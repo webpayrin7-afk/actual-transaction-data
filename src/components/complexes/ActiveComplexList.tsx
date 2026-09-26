@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import type { ActiveComplexesResponse } from "@/lib/complexes/active-complexes";
 import { LabSection } from "@/components/ui/LabSection";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 
 async function fetchActive(): Promise<ActiveComplexesResponse> {
   const res = await fetch("/api/complexes/active");
@@ -23,7 +23,6 @@ export function ActiveComplexList() {
   });
 
   const data = query.data;
-  useLoadProgressWhen(query.isLoading && !data, "단지 목록 불러오는 중…");
   // 순위 목록 공통: 최대 10개, 처음 5개 + 더보기
   const items = (data?.items ?? []).slice(0, 10);
   const visible = expanded ? items : items.slice(0, LAB_LIST_PREVIEW);
@@ -34,7 +33,7 @@ export function ActiveComplexList() {
       tip={data?.note ? <p>{data.note}</p> : undefined}
     >
       {query.isLoading ? (
-        <div className="lab-skeleton" />
+        <LabDataLoading label="단지 불러오는 중" minHeight={280} />
       ) : query.isError ? (
         <p className="detail-body">{(query.error as Error).message}</p>
       ) : !items.length ? (

@@ -5,7 +5,6 @@ import { Fragment, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowDownRight, ArrowUpRight, ChevronRight } from "lucide-react";
 import { LabSection as LabExperiments } from "@/components/lab/LabSection";
-import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { PAGE_SHELL_MENU as PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { MarketPolicyNews } from "@/components/market/MarketPolicyNews";
 import { MarketRegionBreakdown } from "@/components/market/MarketRegionBreakdown";
@@ -13,6 +12,7 @@ import { LAB_SECTION_SURFACE, LabSection } from "@/components/ui/LabSection";
 import { MarketFlowSummary } from "@/components/market/MarketFlowSummary";
 import { MarketHeadlines } from "@/components/market/MarketHeadlines";
 import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
+import { LabDataLoading, LabSectionLoading } from "@/components/ui/LabLoading";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { LabStickySectionNav } from "@/components/ui/LabStickySectionNav";
@@ -32,7 +32,6 @@ import type { MarketRecord, MarketRecordsResponse } from "@/lib/market/records";
 import { seoulToday } from "@/lib/market/time";
 import { fetchMarketHome, MARKET_HOME_QUERY_KEY, MARKET_HOME_STALE_MS } from "@/lib/market/home-client";
 import { formatArea, formatDealDate, formatEok } from "@/lib/utils/format";
-
 
 /** 섹션 앵커 — 스티키 섹션 탭 (policy §12.3). 렌더되지 않은 섹션은 탭에서 빠진다. */
 const MARKET_SECTIONS = [
@@ -209,7 +208,7 @@ function TodayRecords({ date }: { date: string }) {
     queryFn: () => fetchRecords(date),
     staleTime: 5 * 60 * 1000,
   });
-  if (query.isLoading) return <div className="lab-skeleton" aria-label="오늘의 기록 불러오는 중" />;
+  if (query.isLoading) return <LabDataLoading label="오늘의 기록 불러오는 중" minHeight={240} />;
   if (query.isError) return <p className="lab-state">오늘의 기록을 불러오지 못했습니다.</p>;
   const records = query.data?.records ?? [];
   if (records.length === 0) return <p className="lab-state">오늘 확인된 매매가 아직 없어 기록이 없습니다.</p>;
@@ -342,7 +341,6 @@ export function MarketHome() {
   const stickyAnchorRef = useRef<HTMLDivElement | null>(null);
 
   const data = query.data;
-  useLoadProgressWhen(query.isLoading && !data, "시장 불러오는 중…");
   const hasNewDeals = (data?.kpis.newDealCount ?? 0) > 0;
   // 자정~다음 갱신 사이엔 확인일이 어제 — '오늘' 대신 날짜로 말한다
   const dayWord =
@@ -369,7 +367,10 @@ export function MarketHome() {
         ariaLabel="시장 섹션"
       />
 
-      {query.isLoading ? <div className="lab-skeleton" /> : null}
+      {/* 첫 로딩: 섹션 틀을 먼저 그리고 섹션마다 안에서 로딩 (페이지 전체 로딩 대신) */}
+      {query.isLoading && !data ? (
+        <LabSectionLoading id="market-summary" title="오늘의 요약" minHeight={170} />
+      ) : null}
 
       {query.isError ? (
         <LabSection id="market-summary" title="오늘의 요약">
@@ -445,6 +446,14 @@ export function MarketHome() {
 
       {/* 오늘 시장 데이터 — 가격 이슈 · 지역별 새 거래 · 거래량 급증 */}
       <div className="grid grid-cols-1 gap-3 sm:gap-6 lg:grid-cols-2 lg:items-start lg:gap-8">
+        {query.isLoading && !data ? (
+          <>
+            <LabSectionLoading id="market-price-issues" title="오늘의 가격 이슈" minHeight={480} />
+            <LabSectionLoading id="market-regions" title="오늘 거래가 확인된 지역" minHeight={290} />
+            <LabSectionLoading id="market-volume" title="거래량 급증 단지" minHeight={500} />
+          </>
+        ) : null}
+
         {data && hasIssues ? (
           <PriceIssuesSection id="market-price-issues" data={data} />
         ) : null}

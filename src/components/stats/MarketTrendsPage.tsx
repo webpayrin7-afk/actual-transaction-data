@@ -5,7 +5,6 @@ import { useCallback, useId, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
-import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
 import { LabTabs } from "@/components/ui/LabTabs";
@@ -133,7 +132,6 @@ export function MarketTrendsPage() {
   const dealLoading = dealQuery.isLoading;
   const dealError = dealQuery.isError;
   const retryDeal = () => void dealQuery.refetch();
-  useLoadProgressWhen((loading && !data) || (dealLoading && !deal), "시장 동향 불러오는 중…");
 
   return (
     <div className={PAGE_SHELL}>

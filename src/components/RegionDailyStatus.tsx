@@ -14,7 +14,6 @@ import {
 } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import {
   RegionRankingTable,
   RegionPriceSection,
@@ -731,17 +730,6 @@ export function RegionDailyStatus({
     }
     return map;
   }, [initialDaysQuery.data, extraSections, bulkExtra]);
-
-  const historyShellLoading =
-    (historyQuery.isFetching || initialDaysQuery.isFetching) &&
-    !historyQuery.data &&
-    !initialDaysQuery.data;
-  const marketStatusLoading =
-    (latestQuery.isFetching && !latestQuery.data) ||
-    historyShellLoading ||
-    pendingDates.length > 0;
-
-  useLoadProgressWhen(marketStatusLoading, "시장 현황 불러오는 중…");
 
   const fetchDaySections = useCallback(
     async (dates: string[]) => {

@@ -6,6 +6,7 @@ import type { ApplyhomeCompetition, ApplyhomeNotice, ApplyhomeOverview } from "@
 import { LabSection } from "@/components/ui/LabSection";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 
 export async function fetchApplyhome(): Promise<ApplyhomeOverview> {
   const res = await fetch("/api/applyhome");
@@ -154,7 +155,7 @@ export function ApplyhomeUpcomingSection({ filter, toolbar }: { filter: PresaleF
     >
       {toolbar}
       {query.isLoading ? (
-        <div className="lab-skeleton" />
+        <LabDataLoading label="청약 일정 불러오는 중" minHeight={240} />
       ) : items.length === 0 ? (
         <p className="detail-body">지금 접수 중이거나 예정된 청약이 없습니다.</p>
       ) : (

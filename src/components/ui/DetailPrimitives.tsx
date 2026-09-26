@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 
 /**
  * ZIPLAB UI Policy v2 role primitives for complex detail.
@@ -87,9 +88,7 @@ export function DetailAsyncState({
 }) {
   if (kind === "loading") {
     return (
-      <div className="lab-skeleton" aria-busy="true" aria-label="불러오는 중">
-        <span className="sr-only">{children}</span>
-      </div>
+      <LabDataLoading label={typeof children === "string" ? children.replace(/…$/, "") : "불러오는 중"} minHeight={112} />
     );
   }
   if (kind === "error") {

@@ -8,6 +8,7 @@ import { LabSection } from "@/components/ui/LabSection";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LabTag } from "@/components/ui/LabTag";
 import { shortMan } from "@/components/presale/ApplyhomeSections";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 
 type ResultsResponse = {
   total: number;
@@ -100,7 +101,7 @@ export function PresaleResults({
       ) : null}
 
       {query.isLoading ? (
-        <div className="lab-skeleton" />
+        <LabDataLoading label="경쟁률 불러오는 중" minHeight={280} />
       ) : query.isError ? (
         <p className="detail-body">{(query.error as Error).message}</p>
       ) : !data || data.items.length === 0 ? (

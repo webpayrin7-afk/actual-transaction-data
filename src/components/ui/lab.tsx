@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from "react";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 
 /**
  * Tab hierarchy (ZIPLAB UI Policy v2 §11):
@@ -47,7 +48,9 @@ export function LabState({
   children?: ReactNode;
 }) {
   if (tone === "loading")
-    return <div className="lab-skeleton" aria-label="불러오는 중" />;
+    return (
+      <LabDataLoading label={typeof children === "string" ? children.replace(/…$/, "") : "불러오는 중"} minHeight={112} />
+    );
   return <div className={`lab-state lab-state-${tone}`}>{children}</div>;
 }
 

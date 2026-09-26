@@ -59,7 +59,7 @@ export default async function RegionPage({
 
   return (
     <main className="flex-1">
-      <Suspense fallback={<RegionPageLoadFallback />}>
+      <Suspense fallback={<RegionPageLoadFallback regionName={region.name} />}>
         <Dashboard region={region} initialTab={initialTab} />
       </Suspense>
     </main>
