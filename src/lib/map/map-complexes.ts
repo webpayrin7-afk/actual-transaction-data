@@ -103,6 +103,8 @@ export const MAP_COMPLEX_LITE_KEYS = [
   "priceMan",
   "priceDate",
   "pyeongLabel",
+  // 평형을 모르면 대표 전용㎡ (2D 마커와 같게)
+  "mainAreaSqm",
   "perPyeongMan",
   "change1yPct",
   "buildYear",

@@ -1419,7 +1419,11 @@ export default function Seoul3DMap({
             <p className="mt-0.5 flex min-w-0 items-baseline gap-1.5 whitespace-nowrap text-[13px] leading-5 text-[color:var(--lab-muted)]">
               <span className="shrink-0">
                 최근 {dealLabel}
-                {selected.pyeongLabel ? ` ${selected.pyeongLabel}` : ""}
+                {selected.pyeongLabel
+                  ? ` ${selected.pyeongLabel}`
+                  : selected.mainAreaSqm
+                    ? ` ${Math.floor(selected.mainAreaSqm)}㎡`
+                    : ""}
               </span>
               <span className="shrink-0 text-[15px] font-bold tabular-nums text-[color:var(--lab-teal-700)]">
                 {selected.priceMan ? formatEok(selected.priceMan) : "거래 없음"}
