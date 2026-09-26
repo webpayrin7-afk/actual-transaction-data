@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-09-26T15:59:27.834Z",
-  "driver_status": "daejeon dry-run PASS",
+  "generated_at": "2026-09-26T16:00:32.741Z",
+  "driver_status": "daejeon applied",
   "fee_table": {
-    "rows": 7461,
-    "complexes": 7348
+    "rows": 7999,
+    "complexes": 7886
   },
   "api_calls_total": 156448,
-  "applied_rows_total": 4538,
+  "applied_rows_total": 5076,
   "provinces": [
     {
       "province": "incheon",
@@ -92,7 +92,7 @@
       "province": "daejeon",
       "sido_code": "30",
       "sido": "대전광역시",
-      "phase": "DRYRUN_PASS",
+      "phase": "APPLIED",
       "cohort": 561,
       "terminal": 561,
       "unfinished": 0,
@@ -106,7 +106,7 @@
       "http_429": 0,
       "retries": 4,
       "dryrun_gate": "PASS",
-      "applied_rows": 0
+      "applied_rows": 538
     },
     {
       "province": "ulsan",
