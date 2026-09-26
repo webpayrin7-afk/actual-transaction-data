@@ -126,7 +126,12 @@ export function ComplexTypeDongMap({
 
   useEffect(
     () => () => {
-      mapRef.current?.destroy?.();
+      // 지도 인증이 실패한 상태 등에서 네이버 지도 내부가 destroy 중 던지면 페이지 이동 전체가 깨진다 — 정리는 조용히.
+      try {
+        mapRef.current?.destroy?.();
+      } catch {
+        /* ignore */
+      }
       mapRef.current = null;
     },
     [],
@@ -202,7 +207,13 @@ export function ComplexTypeDongMap({
       map.morph?.(new maps.LatLng(c.lat, c.lng), 17, { duration: 250 });
     }
     return () => {
-      for (const d of drawn) d.setMap(null);
+      for (const d of drawn) {
+        try {
+          d.setMap(null);
+        } catch {
+          /* ignore — 지도 내부 오류가 페이지 이동을 깨지 않게 */
+        }
+      }
     };
   }, [ready, buildings, typeDongs, typeLabel, pickedDong, wide]);
 
