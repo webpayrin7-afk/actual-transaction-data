@@ -117,6 +117,39 @@ type SchoolZoneGeo = { geometry: GeoJSON.FeatureCollection };
 /** 단지를 담을 때 범위의 최소 한 변 (m) — 작은 단지도 둘레가 조금 보이게 */
 const FRAME_MIN_SPAN_M = 220;
 
+/**
+ * 단지 동들의 긴 축 방위(도, 북 0°·동 90°) — 외곽선 꼭짓점의 주성분. 동이 없거나 거의 정사각이면 null.
+ * 선택 카메라가 동의 긴 면(앞·뒷면)을 보게 하는 데 쓴다 (best-view.ts)
+ */
+function longAxisDeg(shape: Complex3d | null): number | null {
+  const pts: Array<[number, number]> = [];
+  for (const b of shape?.buildings ?? []) for (const p of b.rings?.[0] ?? []) pts.push(p);
+  if (pts.length < 3) return null;
+  const lat0 = pts[0]![1];
+  const kx = 111_320 * Math.cos((lat0 * Math.PI) / 180);
+  const xs = pts.map((p) => p[0] * kx);
+  const ys = pts.map((p) => p[1] * 111_320);
+  const mx = xs.reduce((a, v) => a + v, 0) / xs.length;
+  const my = ys.reduce((a, v) => a + v, 0) / ys.length;
+  let sxx = 0;
+  let syy = 0;
+  let sxy = 0;
+  for (let i = 0; i < xs.length; i++) {
+    const dx = xs[i]! - mx;
+    const dy = ys[i]! - my;
+    sxx += dx * dx;
+    syy += dy * dy;
+    sxy += dx * dy;
+  }
+  const tr = sxx + syy;
+  const det = sxx * syy - sxy * sxy;
+  const l1 = tr / 2 + Math.sqrt(Math.max(0, (tr * tr) / 4 - det));
+  const l2 = tr - l1;
+  if (l1 <= 0 || l2 / l1 > 0.8) return null; // 거의 정사각 — 긴 축이 없다
+  const ang = 0.5 * Math.atan2(2 * sxy, sxx - syy); // x축(동쪽)에서 반시계
+  return ((90 - (ang * 180) / Math.PI) % 180 + 180) % 180; // 방위(북 0°)
+}
+
 /** 범위를 가운데 기준으로 가로·세로 최소 minM 미터까지 넓힌다 */
 function minSpan(b: [number, number, number, number], minM: number): [number, number, number, number] {
   const cx = (b[0] + b[2]) / 2;
@@ -1022,7 +1055,7 @@ export default function Seoul3DMap({
         [(bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2],
         maxH,
         (lng, lat) => inGeometry([lng, lat], site?.fill) || own.some((r) => inRing([lng, lat], r)),
-        { pitch: basePitch, steepPitch: 42 },
+        { pitch: basePitch, steepPitch: 42, axisDeg: longAxisDeg(shape) },
       );
       const pitch = view.pitch;
       // 기울기·원근·높이까지 넣어 보이는 곳의 약 90%를 채우게 (fit-camera.ts)

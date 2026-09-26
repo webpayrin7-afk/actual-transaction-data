@@ -20,6 +20,9 @@ import { facadeSunColor, firstPrismHit, makePrism, prismsInFront, sunBlocked, ty
 export const FLOOR_M = 3;
 /** 평소 둘러보기에서 가장 가까이 다가갈 수 있는 거리 (m) — 걷기 따라가기 중에는 풀어 둔다 */
 const MIN_DIST = 40;
+/** 걷기 모드 반투명 — 단지 동 / 주변 건물 */
+const WALK_XRAY_OWN = 0.75;
+const WALK_XRAY_NEIGHBOR = 0.38;
 /** 카메라가 보는 곳은 단지에서 이만큼까지 */
 const PAN_LIMIT_M = 1600;
 /** 가장 멀리 (m) */
@@ -959,12 +962,16 @@ export class Complex3dScene {
 
   /**
    * 걷기 모드에서는 건물을 반투명하게 — 경로·걷는 사람이 건물 뒤로 가도 가려지지 않게.
+   * 단지 동은 조금만(동 모양이 흐려 보이지 않게), 주변 건물은 많이.
    * 재질마다 원래 값을 기억해 두었다가 다른 모드에서 되돌린다 (재질을 여러 동이 함께 써도 안전).
    */
   private applyWalkXray() {
     const on = this.mode === "walk";
     const seen = new Set<THREE.Material>();
-    for (const g of [this.groups.own, this.groups.neighbors]) {
+    for (const [g, alpha] of [
+      [this.groups.own, WALK_XRAY_OWN],
+      [this.groups.neighbors, WALK_XRAY_NEIGHBOR],
+    ] as const) {
       g.traverse((o) => {
         const mesh = o as THREE.Mesh;
         if (!mesh.isMesh) return;
@@ -976,7 +983,7 @@ export class Complex3dScene {
           if (on) {
             if (!ud.xray) ud.xray = { transparent: m.transparent, opacity: m.opacity, depthWrite: m.depthWrite };
             m.transparent = true;
-            m.opacity = Math.min(ud.xray.opacity, 0.38);
+            m.opacity = Math.min(ud.xray.opacity, alpha);
             m.depthWrite = false;
           } else if (ud.xray) {
             m.transparent = ud.xray.transparent;
