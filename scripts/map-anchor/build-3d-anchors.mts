@@ -6,6 +6,7 @@
  *   npx tsx scripts/map-anchor/build-3d-anchors.mts --apply --from=<jsonl>  # 없는 것만 넣기 (INSERT OR IGNORE)
  *   npx tsx scripts/map-anchor/build-3d-anchors.mts --all                     # 이미 있는 단지도 다시 계산 (dry-run)
  *   npx tsx scripts/map-anchor/build-3d-anchors.mts --update --from=<jsonl> # 값이 달라진 행만 고치기 (다시 돌리면 0)
+ *   npx tsx scripts/map-anchor/build-3d-anchors.mts --all --ids=<file>        # 파일에 적은 단지만 다시 계산 (dry-run)
  *
  * 규칙: dry-run → 건수 확인 → apply → 다시 apply = 0.
  * - 외곽선이 있는 동만. 가운데가 단지 좌표에서 FAR_M 넘게 떨어지면 잘못 이은 필지로 보고 넣지 않는다.
@@ -62,7 +63,11 @@ async function dryRun() {
          AND NOT EXISTS (SELECT 1 FROM complex_3d_anchor a WHERE a.complex_id = m.complex_id)`,
     ).catch(() => client.execute(`SELECT complex_id FROM apt_complex_master WHERE lawd_cd LIKE '11%' AND latitude IS NOT NULL`))
   ).rows.map((r) => String(r.complex_id));
-  const file = `data/map-anchor/3d-anchors-${new Date().toISOString().slice(0, 10)}.jsonl`;
+  // --ids=<file>: 이 단지들만 (한 줄에 하나 — 예: 동 모양을 채운 단지). 파일 이름에 -ids를 붙여 전체 dry-run 파일과 섞이지 않게
+  const idsFile = arg("ids");
+  const only = idsFile ? new Set(readFileSync(idsFile, "utf8").split(/\r?\n/).map((s) => s.trim()).filter(Boolean)) : null;
+  if (only) ids.splice(0, ids.length, ...ids.filter((id) => only.has(id)));
+  const file = `data/map-anchor/3d-anchors-${new Date().toISOString().slice(0, 10)}${only ? "-ids" : ""}.jsonl`;
   writeFileSync(file, "");
   const counts = { candidates: ids.length, ok: 0, no_shape: 0, no_height: 0, far: 0, error: 0 };
   let i = 0;
