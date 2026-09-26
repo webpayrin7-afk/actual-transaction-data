@@ -229,7 +229,8 @@ function isSubwayPoi(p: { name: string; subcategory: string }): boolean {
 
 function subwayLinesOf(p: PoiItem): string[] {
   if (p.lines && p.lines.length > 0) {
-    return p.lines.map((l) => l.replace(/호선$/u, "").trim()).filter(Boolean);
+    // 배지는 짧게 — "2호선"→"2", "경의중앙선"→"경의중앙" (색은 원래 이름으로도 같게 찾는다)
+    return p.lines.map((l) => l.replace(/호선$/u, "").replace(/(?<=[가-힣]{2})선$/u, "").trim()).filter(Boolean);
   }
   const matches = [...(p.subcategory || "").matchAll(/(\d+)\s*호선/g)].map(
     (m) => m[1],

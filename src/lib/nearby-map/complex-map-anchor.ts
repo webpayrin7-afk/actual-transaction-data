@@ -75,7 +75,10 @@ const NAMED_LINE_COLORS: Array<[string, string]> = [
 ];
 
 export function subwayLineColor(lineOrSubcategory: string): string {
-  const named = NAMED_LINE_COLORS.find(([k]) => lineOrSubcategory.includes(k));
+  // 배지용 짧은 이름("부산1", "경의중앙")도 같은 색으로
+  const named = NAMED_LINE_COLORS.find(
+    ([k]) => lineOrSubcategory.includes(k) || k.replace(/호선$/u, "") === lineOrSubcategory,
+  );
   if (named) return named[1];
   const m = lineOrSubcategory.match(/(\d+)\s*호선/) || lineOrSubcategory.match(/^(\d+)$/);
   const n = m?.[1];

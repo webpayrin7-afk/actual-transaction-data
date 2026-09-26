@@ -341,15 +341,8 @@ export function ComplexMgmtFeeCard({
             <dl>
               <InfoRow
                 label="계산 방식"
-                value={
-                  fallback?.kind === "area"
-                    ? "단지 전체 관리비 ÷ 단지 전용면적 합계 × 선택 평형 전용면적"
-                    : fallback?.kind === "household"
-                      ? "단지 전체 관리비 ÷ 세대수"
-                      : "주거전용면적 기준 관리비 단가 × 선택 평형 전용면적"
-                }
+                value="주거전용면적 기준 관리비 단가 × 선택 평형 전용면적"
               />
-              {fallback?.perM2 != null ? <InfoRow label="㎡당 단가" value={formatWonPerSqm(fallback.perM2)} /> : null}
               <InfoRow
                 label="기준월"
                 value={formatMonthKo(estimate.latestMonth)}
@@ -436,11 +429,6 @@ export function ComplexMgmtFeeCard({
                     valueLabel={formatWonRangeAsManwon(fallback.wonMin, fallback.wonMax)}
                   />
                 </div>
-                <p className="detail-body mt-2">
-                  {fallback.kind === "area"
-                    ? `이 단지는 평형별 관리비를 공개하지 않아, 단지 전체 관리비(${management.averageLabel})를 전용면적 비율로 나눠 계산했어요. 실제 세대별 금액과는 다를 수 있어요.`
-                    : `이 단지는 평형별 관리비를 공개하지 않아, 단지 전체 관리비(${management.averageLabel})를 세대수로 나눈 평균을 보여 드려요. 평형이 클수록 실제 금액은 이보다 높을 수 있어요.`}
-                </p>
               </>
             ) : (
               <>
@@ -459,8 +447,15 @@ export function ComplexMgmtFeeCard({
             <dl>
               <InfoRow
                 label="계산 방식"
-                value="주거전용면적 기준 관리비 단가 × 선택 평형 전용면적"
+                value={
+                  fallback?.kind === "area"
+                    ? "단지 전체 관리비 ÷ 단지 전용면적 합계 × 선택 평형 전용면적"
+                    : fallback?.kind === "household"
+                      ? "단지 전체 관리비 ÷ 세대수"
+                      : "주거전용면적 기준 관리비 단가 × 선택 평형 전용면적"
+                }
               />
+              {fallback?.perM2 != null ? <InfoRow label="㎡당 단가" value={formatWonPerSqm(fallback.perM2)} /> : null}
               <InfoRow
                 label="최근 자료"
                 value={formatYyyymmBasisLabel(management.latest.periodYyyymm)}
@@ -469,8 +464,11 @@ export function ComplexMgmtFeeCard({
             <div className="detail-subsection-rule">
               <p className="detail-subsection-title">안내</p>
               <p className="detail-body mt-1">
-                평형별 관리비 자료가 있는 단지는 평형별 실제 부과 단가로 계산합니다. 이 단지는 그 자료가 없어 단지 전체
-                평균으로 나눈 참고값이며, 사용량과 부과 항목에 따라 실제 금액은 달라질 수 있습니다.
+                {fallback?.kind === "area"
+                  ? `이 단지는 평형별 관리비를 공개하지 않아, 단지 전체 관리비(${management.averageLabel})를 전용면적 비율로 나눠 계산했어요. 실제 세대별 금액과는 다를 수 있어요.`
+                  : fallback?.kind === "household"
+                    ? `이 단지는 평형별 관리비를 공개하지 않아, 단지 전체 관리비(${management.averageLabel})를 세대수로 나눈 평균을 보여 드려요. 평형이 클수록 실제 금액은 이보다 높을 수 있어요.`
+                    : "이 단지가 공개한 관리비 자료로는 금액을 계산할 수 없어요."}
               </p>
             </div>
           </LabDisclosure>
