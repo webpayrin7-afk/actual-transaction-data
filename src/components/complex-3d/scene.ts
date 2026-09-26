@@ -831,7 +831,7 @@ export class Complex3dScene {
       ]);
       const open = r.distance == null || r.distance >= 200;
       const mat = new THREE.MeshBasicMaterial({
-        color: open ? TEAL : r.distance! >= 80 ? 0xf59e0b : 0xef4444,
+        color: open ? 0x0ea5e9 : r.distance! >= 80 ? 0xf59e0b : 0xef4444,
         transparent: true,
         opacity: open ? 0.28 : 0.35,
         side: THREE.DoubleSide,

@@ -1114,7 +1114,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                       <OpenDirections view={view} />
                       <p className="flex items-center gap-2.5 whitespace-nowrap text-[12px] text-[color:var(--lab-muted)]">
                         <span className="flex items-center gap-1">
-                          <span className="h-2 w-2 rounded-sm" style={{ background: "#0e9aa0" }} aria-hidden />
+                          <span className="h-2 w-2 rounded-sm" style={{ background: "#0ea5e9" }} aria-hidden />
                           200m+ 트임
                         </span>
                         <span className="flex items-center gap-1">
@@ -1574,10 +1574,10 @@ function OpenDirections({ view }: { view: ViewResult }) {
     const nearestHit = Math.min(...rays.map((r) => r.distance ?? Infinity));
     return { label, open, nearestHit };
   });
-  // 모형 위 부채꼴과 같은 색: 트임(200m+) 청록 · 80~200m 주황 · 80m 안 빨강
+  // 모형 위 부채꼴과 같은 색: 트임(200m+) 하늘색(건물 청록과 구분) · 80~200m 주황 · 80m 안 빨강
   const tone = (s: (typeof sectors)[number]) =>
     s.open >= 0.6 || !Number.isFinite(s.nearestHit)
-      ? { fg: "#0f766e", bg: "#ecfdf5", border: "#99f6e4" }
+      ? { fg: "#0369a1", bg: "#f0f9ff", border: "#7dd3fc" }
       : s.nearestHit >= 80
         ? { fg: "#b45309", bg: "#fffbeb", border: "#fcd34d" }
         : { fg: "#dc2626", bg: "#fef2f2", border: "#fca5a5" };
