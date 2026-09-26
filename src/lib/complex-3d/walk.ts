@@ -10,6 +10,7 @@
 import type { Ring } from "@/lib/complex-3d/read";
 import { bboxAround, elevationSampler, type Bbox, type ElevationInfo, type Sampler } from "@/lib/complex-3d/terrain";
 import { loadCrosswalks, type Crosswalk } from "@/lib/complex-3d/crosswalks";
+import type { WalkerId } from "@/lib/complex-3d/walker-profiles";
 
 export const WALK_HALF_M = 1100;
 const STATION_MAX_M = 1000;
@@ -77,7 +78,53 @@ export type WalkPayload = {
   network: { ways: number; nodes: number; crossingNodes: number; signalNodes: number; fetchedAt: string };
   assumptions: string[];
   attribution: string;
+  /** 걷는 사람을 고른 요청 — 시간은 평지 속도 비율로 바꿔 두었다. timeScale = 기본(4.5km/h) 걷는 시간 대비 */
+  walker?: { id: WalkerId; mps: number; timeScale: number };
 };
+
+// ── 걷는 사람별 속도 ─────────────────────────────────────────────────────────
+/**
+ * 평지 보행 속도 (m/s) — 경로 계산의 기본값(4.5km/h = 1.25 m/s)에 곱할 비율로 쓴다.
+ *  - 성인 남성 1.35 / 성인 여성 1.27: 편한 걸음 속도 메타분석 (Bohannon & Andrews 2011, Physiotherapy 97(3)) 20~50대 범위,
+ *    한 걸음 남 0.75m·여 0.66m (키 × 약 0.41~0.43).
+ *  - 어르신 1.0: 경찰청 「교통신호기 설치·관리 매뉴얼」 보행 신호 시간 산정 보행속도 1.0 m/s (노인·어린이 보호구역은 0.8 m/s),
+ *    Knoblauch et al. 1996 (TRR 1538) 고령 보행자 하위 15% 약 0.97 m/s 와 맞다.
+ *  - 어린이(초등) 1.1: 보호구역 설계 속도(0.8)와 성인 사이 — 초등 저·고학년 편한 걸음 평균 범위.
+ * 기울기(Tobler)·계단 배율·신호 대기는 그대로 — 평지 속도만 달라서 걷는 시간이 속도 비율만큼 늘거나 준다.
+ */
+export const WALKER_MPS: Record<WalkerId, number> = { male: 1.35, female: 1.27, child: 1.1, elder: 1.0 };
+
+/**
+ * 저장된 기본 결과(평지 1.25 m/s)를 걷는 사람 속도로 바꾼다 — 보행망을 다시 계산하지 않는다.
+ * 걷는 시간은 모든 구간이 평지 속도에 반비례하므로 정확히 비율만 곱하면 된다. 신호 대기는 그대로.
+ * 동별 시간(perDong)은 걷기·대기가 합쳐져 있어 대표 경로의 걷기 비중으로 나눠 근사한다.
+ * 고른 경로 자체는 기본 속도로 찾은 길 그대로 (느린 걸음이라 다른 길이 더 빠른 경우는 드물고 차이가 작다).
+ */
+export function applyWalker(p: WalkPayload, id: WalkerId): WalkPayload {
+  const mps = WALKER_MPS[id];
+  const r = BASE_MPS / mps;
+  const min = (s: number) => Math.max(1, Math.round(s / 60));
+  return {
+    ...p,
+    walker: { id, mps, timeScale: Math.round(r * 10000) / 10000 },
+    destinations: p.destinations.map((d) => {
+      const walkSec = Math.round(d.walkSec * r);
+      const total0 = Math.max(1, d.walkSec + d.waitSec);
+      const k = (walkSec + d.waitSec) / total0;
+      const perDong = d.perDong.map((x) => ({ ...x, min: Math.max(1, Math.round(x.min * k)) }));
+      const mins = perDong.map((x) => x.min);
+      return {
+        ...d,
+        walkSec,
+        totalMin: min(walkSec + d.waitSec),
+        walkMin: min(walkSec),
+        perDong,
+        range: mins.length ? [Math.min(...mins), Math.max(...mins)] : null,
+      };
+    }),
+    assumptions: [`평지 속도 ${mps.toFixed(2)} m/s (걷는 사람: ${id}) — 기본 4.5km/h 결과의 걷는 시간에 ${r.toFixed(3)}배`, ...p.assumptions],
+  };
+}
 
 // ── OSM ──────────────────────────────────────────────────────────────────────
 export type Tags = Record<string, string>;

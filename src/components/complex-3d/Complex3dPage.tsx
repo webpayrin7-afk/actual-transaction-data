@@ -17,6 +17,13 @@ import {
 import type { Complex3d } from "@/lib/complex-3d/read";
 import { groundSizeM, WALK_VERSION, type TerrainGridPayload } from "@/lib/complex-3d/ground";
 import type { WalkDestination, WalkPayload } from "@/lib/complex-3d/walk";
+import {
+  DEFAULT_WALKER,
+  isWalkerId,
+  WALKER_IDS,
+  WALKER_LABEL,
+  type WalkerId,
+} from "@/lib/complex-3d/walker-profiles";
 import { has3dModel } from "@/lib/complex-3d/gate";
 import { BackLink } from "@/components/layout/BackLink";
 import { InfoTip } from "@/components/ui/InfoTip";
@@ -59,10 +66,17 @@ async function fetchTerrain(id: string): Promise<TerrainGridPayload | null> {
   return res.ok ? res.json() : null;
 }
 
-async function fetchWalk(id: string, from: string | null, wheel: boolean): Promise<WalkPayload> {
+async function fetchWalk(
+  id: string,
+  from: string | null,
+  wheel: boolean,
+  walker: WalkerId,
+): Promise<WalkPayload> {
   const q = new URLSearchParams({ v: String(WALK_VERSION) });
   if (from) q.set("from", from);
   if (wheel) q.set("mode", "wheel");
+  // 걷는 사람 속도로 시간 바꾸기는 서버에서 (화면은 결과만)
+  q.set("walker", walker);
   const res = await fetch(`/api/complex-3d/${encodeURIComponent(id)}/walk?${q}`);
   if (!res.ok) {
     const body = (await res.json().catch(() => null)) as { error?: string } | null;
@@ -97,6 +111,12 @@ const reducedMotion = () =>
 
 const FLOAT =
   "bg-white/95 shadow-[0_2px_10px_rgba(15,23,42,0.14)] backdrop-blur";
+/** 고른 칩·버튼 — 앱 다른 곳(LabFilterChips·ComplexTypeDongSection)과 같은 청록 선택 모양 */
+const CHIP_ON =
+  "border border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]";
+const CHIP_OFF =
+  "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-950)]";
+const WALKER_KEY = "ziplab.complex3d.walker";
 
 /** 3D 단지 탐색 — 화면 전체가 모형, 위·오른쪽·아래에 떠 있는 조작 */
 export function Complex3dPage({ complexId }: { complexId: string }) {
@@ -124,6 +144,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     if (toastTimer.current) window.clearTimeout(toastTimer.current);
     toastTimer.current = window.setTimeout(() => setToast(null), 1800);
   };
+  // 장면 콜백(한 번만 연결)에서 지금 모드를 읽는다
+  const modeRef = useRef<SceneMode>("base");
   useEffect(() => {
     showToastRef.current = showToast;
   });
@@ -133,6 +155,26 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   const [pickedType, setPickedType] = useState<string | null>(null);
   const [picker, setPicker] = useState<"dong" | "type" | null>(null);
   const [walkPick, setWalkPick] = useState<string | null>(null);
+  // 걷기 종료 — 누르면 경로를 지우고 도착지 목록만 (다시 고르면 풀린다)
+  const [walkEnded, setWalkEnded] = useState(false);
+  // 걷는 사람 — 브라우저에 기억 (못 읽으면 기본)
+  const [walker, setWalkerState] = useState<WalkerId>(() => {
+    if (typeof window === "undefined") return DEFAULT_WALKER;
+    try {
+      const v = window.localStorage.getItem(WALKER_KEY);
+      return isWalkerId(v) ? v : DEFAULT_WALKER;
+    } catch {
+      return DEFAULT_WALKER;
+    }
+  });
+  const setWalker = (v: WalkerId) => {
+    setWalkerState(v);
+    try {
+      window.localStorage.setItem(WALKER_KEY, v);
+    } catch {
+      /* 저장 못 해도 이번 화면에서는 그대로 */
+    }
+  };
   const [wheel, setWheel] = useState(false);
   const [walkProgress, setWalkProgress] = useState<{ sec: number; done: boolean } | null>(null);
   // 걷기 — 사람 뒤에서 따라가는 카메라
@@ -144,6 +186,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   // 우리 집 창문 시점 — 켜져 있으면 정보(방향·앞 건물·가림)
   const [windowInfo, setWindowInfo] = useState<WindowViewInfo | null>(null);
   const inWindow = !!windowInfo;
+  // 창문 시점 방향키(위·아래 = 층)가 최신 층·처리기를 읽게
+  const winFloorRef = useRef<{ move: (f: number) => void; floor: number }>({ move: () => {}, floor: 1 });
   // 모바일에서 아래 정보 패널이 가리는 만큼 모형 중심을 위로 (넓은 화면은 패널이 옆에 떠 있어 그대로)
   useEffect(() => {
     if (!ready) return;
@@ -301,7 +345,10 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         s.onSelect = (id) => {
           setSelected(id);
           setNearest(id ? s.dongContext(id) : null);
-          if (id) showToastRef.current("두 번 누르면 해당 동으로 이동합니다");
+          // 일조·조망은 한 번 탭으로 바로 다가가니 안내하지 않는다
+          const m = modeRef.current;
+          if (id && m !== "sun" && m !== "view")
+            showToastRef.current("두 번 누르면 해당 동으로 이동합니다");
         };
         s.onHeading = setHeading;
         s.onWalkProgress = (sec, done) => setWalkProgress({ sec, done });
@@ -341,42 +388,81 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
 
   // 걷기 — 고른 동에서 출발 (없으면 단지 가운데 동)
   const walkQuery = useQuery({
-    queryKey: ["complex-3d-walk", complexId, selected, wheel],
-    queryFn: () => fetchWalk(complexId, selected, wheel),
+    queryKey: ["complex-3d-walk", complexId, selected, wheel, walker],
+    queryFn: () => fetchWalk(complexId, selected, wheel, walker),
     staleTime: 60 * 60_000,
     enabled: mode === "walk" && !!d && hasShape,
     retry: 1,
   });
   const walk = walkQuery.data;
-  const walkDest: WalkDestination | null =
-    walk?.destinations.find((x) => x.id === walkPick) ??
-    walk?.destinations[0] ??
-    null;
+  const walkDest: WalkDestination | null = walkEnded
+    ? null
+    : (walk?.destinations.find((x) => x.id === walkPick) ??
+      walk?.destinations[0] ??
+      null);
+  // 경로 화면 맞추기는 고른 경로(도착지·출발 동·유모차)가 바뀔 때 한 번만 — 지형이 늦게 오거나 걷는 사람만 바꾸면
+  // 다시 그리기만 하고 카메라는 사용자가 둔 곳 그대로
+  const framedWalk = useRef<string | null>(null);
   useEffect(() => {
     const s = sceneRef.current;
     if (!s || !ready) return;
-    if (mode !== "walk" || !walkDest) {
+    if (mode !== "walk" || !walkDest || !walk) {
       s.clearWalk();
+      framedWalk.current = null;
       return;
     }
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const key = `${walkDest.id}|${walk.from.buildingId}|${walk.mode}`;
+    const total = walkDest.walkSec + walkDest.waitSec;
+    const scale = walk.walker?.timeScale ?? 1;
     // 패널 높이가 잡힌 뒤 경로가 보이게
-    const t = window.setTimeout(
-      () =>
-        s.showWalk(
-          {
-            points: walkDest.points,
-            marks: walkDest.marks,
-            target: walkDest.target,
-            name: walkDest.name,
-            totalSec: walkDest.walkSec + walkDest.waitSec,
-          },
-          reduced,
-        ),
-      120,
-    );
+    const t = window.setTimeout(() => {
+      const frame = framedWalk.current !== key;
+      framedWalk.current = key;
+      s.showWalk(
+        {
+          points: walkDest.points,
+          marks: walkDest.marks,
+          target: walkDest.target,
+          name: walkDest.name,
+          totalSec: total,
+          baseSec: walkDest.walkSec / scale + walkDest.waitSec,
+          walker: walk.walker?.id ?? DEFAULT_WALKER,
+        },
+        reduced,
+        frame,
+      );
+    }, 120);
     return () => window.clearTimeout(t);
-  }, [mode, walkDest, ready, terrainOn]);
+  }, [mode, walkDest, walk, ready, terrainOn]);
+
+  // 걷기 종료 — 재생·경로·사람·핀·따라가기를 모두 끄고, 카메라는 고른 동(없으면 단지 전체)으로. 도착지 목록은 그대로
+  const endWalk = () => {
+    const s = sceneRef.current;
+    setWalkEnded(true);
+    setWalkPick(null);
+    setWalkFollow(false);
+    setWalkProgress(null);
+    framedWalk.current = null;
+    if (!s) return;
+    s.endWalk();
+    if (selected) s.focus(selected, reducedMotion());
+    else s.resetView();
+  };
+  const endWalkRef = useRef(endWalk);
+  useEffect(() => {
+    endWalkRef.current = endWalk;
+    modeRef.current = mode;
+  });
+  const walkOn = mode === "walk" && !!walkDest;
+  useEffect(() => {
+    if (!walkOn || inWindow) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") endWalkRef.current();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [walkOn, inWindow]);
 
   // 따라가기 — 걷기 모드에서만 (나가면 끈다)
   useEffect(() => {
@@ -482,8 +568,18 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
       if (e.key === "Escape") {
         sceneRef.current?.exitWindowView(reducedMotion());
         setWindowInfo(null);
-      } else if (e.key === "ArrowLeft") sceneRef.current?.lookWindow(-10);
+        return;
+      }
+      // 층 슬라이더에 초점이 있으면 방향키는 슬라이더가 (층만 바뀌고 둘러보기는 하지 않게)
+      const el = e.target as HTMLElement | null;
+      if (el && el.tagName === "INPUT") return;
+      if (e.key === "ArrowLeft") sceneRef.current?.lookWindow(-10);
       else if (e.key === "ArrowRight") sceneRef.current?.lookWindow(10);
+      else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        e.preventDefault();
+        const w = winFloorRef.current;
+        w.move(w.floor + (e.key === "ArrowUp" ? 1 : -1));
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -493,7 +589,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     const s = sceneRef.current;
     if (!s) return;
     s.select(id);
-    s.focus(id);
+    s.focus(id, reducedMotion());
     setSelected(id);
     setNearest(s.dongContext(id));
   };
@@ -541,28 +637,41 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   const modeTitle = MODES.find((m) => m.id === mode)!.label;
 
   const floorSlider = sel ? (
-    <label className="flex flex-col gap-1">
-      <span className="flex items-baseline justify-between text-[12px] text-[color:var(--lab-muted)]">
-        <span>
-          몇 층에서 볼까요?{" "}
-          <b className="text-[14px] tabular-nums text-[color:var(--lab-navy-950)]">
-            {floorNow}층
-          </b>
-        </span>
-        <span className="tabular-nums">1층 ~ {maxFloors}층</span>
-      </span>
-      <input
-        type="range"
-        min={1}
-        max={Math.max(1, maxFloors)}
-        step={1}
-        value={floorNow}
-        onChange={(e) => setViewFloor(Number(e.target.value))}
-        className="w-full accent-[color:var(--lab-brand-primary)]"
-        aria-label="층"
-      />
-    </label>
+    <FloorSlider floor={floorNow} max={maxFloors} onChange={setViewFloor} />
   ) : null;
+
+  // 창문 시점 층 끌기 — 눈높이는 바로 옮기고, 가림 광선은 150ms에 한 번 + 놓을 때 다시 잰다
+  const winCalcAt = useRef(0);
+  const winTimer = useRef<number | null>(null);
+  const recalcWindow = (floor: number) => {
+    const s = sceneRef.current;
+    if (winTimer.current) window.clearTimeout(winTimer.current);
+    winTimer.current = null;
+    if (!s || !selected || !s.inWindowView) return;
+    winCalcAt.current = performance.now();
+    const info = s.enterWindowView(selected, floor, true);
+    if (info) setWindowInfo(info);
+  };
+  const moveWindowFloor = (floor: number) => {
+    const s = sceneRef.current;
+    if (!s) return;
+    const f = Math.max(1, Math.min(maxFloors, Math.round(floor)));
+    setViewFloor(f);
+    const info = s.setWindowEyeFloor(f);
+    if (info) setWindowInfo(info);
+    if (winTimer.current) window.clearTimeout(winTimer.current);
+    const wait = Math.max(0, 150 - (performance.now() - winCalcAt.current));
+    winTimer.current = window.setTimeout(() => recalcWindow(f), wait);
+  };
+  useEffect(() => {
+    winFloorRef.current = { move: moveWindowFloor, floor: windowInfo?.floor ?? floorNow };
+  });
+  useEffect(
+    () => () => {
+      if (winTimer.current) window.clearTimeout(winTimer.current);
+    },
+    [],
+  );
 
   return (
     <div
@@ -646,7 +755,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   aria-expanded={picker === f.id}
                   className={`flex h-8 items-center gap-1 rounded-full px-3 text-[13px] font-semibold tabular-nums transition active:scale-95 ${
                     f.on
-                      ? "bg-[color:var(--lab-navy-950)] text-white shadow-[0_2px_10px_rgba(15,23,42,0.25)]"
+                      ? `${CHIP_ON} shadow-[0_2px_10px_rgba(15,23,42,0.14)]`
                       : `${FLOAT} text-[color:var(--lab-navy-950)]`
                   }`}
                 >
@@ -688,7 +797,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                   }}
                   className={`rounded-full border px-2.5 py-1 text-[12px] font-semibold ${
                     !sel
-                      ? "border-[color:var(--lab-navy-950)] bg-[color:var(--lab-navy-950)] text-white"
+                      ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
                       : "border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
                   }`}
                 >
@@ -752,10 +861,11 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                         setPickedType(t.id);
                         setPicker(null);
                       }}
-                      className={`flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition active:scale-[0.99] ${
+                      aria-pressed={pickedType === t.id}
+                      className={`flex w-full items-center gap-2 rounded-lg border px-2 py-2 text-left transition active:scale-[0.99] ${
                         pickedType === t.id
-                          ? "bg-[color:var(--lab-brand-subtle)]"
-                          : ""
+                          ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)]"
+                          : "border-transparent"
                       }`}
                     >
                       <span
@@ -766,7 +876,13 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                         }}
                         aria-hidden
                       />
-                      <span className="flex-1 text-[14px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
+                      <span
+                        className={`flex-1 text-[14px] font-semibold tabular-nums ${
+                          pickedType === t.id
+                            ? "text-[color:var(--lab-teal-700)]"
+                            : "text-[color:var(--lab-navy-950)]"
+                        }`}
+                      >
                         {t.label}
                       </span>
                       <span className="text-[12px] tabular-nums text-[color:var(--lab-muted)]">
@@ -784,7 +900,10 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
               <button
                 key={m.id}
                 type="button"
-                onClick={() => setMode(m.id)}
+                onClick={() => {
+                  setMode(m.id);
+                  setWalkEnded(false);
+                }}
                 aria-pressed={mode === m.id}
                 className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition active:scale-95 ${
                   mode === m.id
@@ -894,10 +1013,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           info={windowInfo}
           dong={sel.dong ?? "동"}
           maxFloors={maxFloors}
-          onFloor={(f) => {
-            setViewFloor(f);
-            enterWindow(f);
-          }}
+          onFloor={moveWindowFloor}
+          onFloorDone={recalcWindow}
           onLook={(deg) => sceneRef.current?.lookWindow(deg)}
           onExit={exitWindow}
         />
@@ -1022,10 +1139,10 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                         type="button"
                         onClick={() => setSeason(x.id)}
                         aria-pressed={season === x.id}
-                        className={`rounded-full px-2 py-0.5 text-[12px] font-semibold transition active:scale-95 ${
+                        className={`rounded-full border px-2 py-0.5 text-[12px] font-semibold transition active:scale-95 ${
                           season === x.id
-                            ? "bg-white text-[color:var(--lab-navy-950)] shadow-sm"
-                            : "text-[color:var(--lab-muted)]"
+                            ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)] shadow-sm"
+                            : "border-transparent text-[color:var(--lab-muted)]"
                         }`}
                       >
                         {x.label}
@@ -1172,7 +1289,13 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                 loading={walkQuery.isFetching && !walk}
                 error={walkQuery.isError ? (walkQuery.error as Error).message : null}
                 picked={walkDest}
-                onPick={setWalkPick}
+                onPick={(id) => {
+                  setWalkEnded(false);
+                  setWalkPick(id);
+                }}
+                onEnd={endWalk}
+                walker={walker}
+                onWalker={setWalker}
                 wheel={wheel}
                 onWheel={setWheel}
                 progress={walkProgress}
@@ -1196,6 +1319,7 @@ function WindowOverlay({
   dong,
   maxFloors,
   onFloor,
+  onFloorDone,
   onLook,
   onExit,
 }: {
@@ -1203,6 +1327,7 @@ function WindowOverlay({
   dong: string;
   maxFloors: number;
   onFloor: (f: number) => void;
+  onFloorDone: (f: number) => void;
   onLook: (deg: number) => void;
   onExit: () => void;
 }) {
@@ -1275,26 +1400,9 @@ function WindowOverlay({
           <button type="button" className={stepBtn} onClick={() => onLook(15)} aria-label="오른쪽으로 둘러보기">
             <ChevronRight className="h-4 w-4" aria-hidden />
           </button>
-          <span className="ml-auto text-[12px] text-[color:var(--lab-muted)]">층</span>
-          <button
-            type="button"
-            className={stepBtn}
-            onClick={() => onFloor(info.floor - 1)}
-            disabled={info.floor <= 1}
-            aria-label="한 층 아래"
-          >
-            <span className="text-[16px] font-bold leading-none" aria-hidden>−</span>
-          </button>
-          <span className="w-10 text-center text-[14px] font-bold tabular-nums text-[color:var(--lab-navy-950)]">{info.floor}층</span>
-          <button
-            type="button"
-            className={stepBtn}
-            onClick={() => onFloor(info.floor + 1)}
-            disabled={info.floor >= maxFloors}
-            aria-label="한 층 위"
-          >
-            <span className="text-[16px] font-bold leading-none" aria-hidden>+</span>
-          </button>
+        </div>
+        <div className="mt-1.5">
+          <FloorSlider floor={info.floor} max={maxFloors} onChange={onFloor} onCommit={onFloorDone} />
         </div>
       </div>
     </>
@@ -1488,9 +1596,7 @@ function FacadeSunControl({
           aria-checked={on}
           onClick={onToggle}
           className={`flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-[12px] font-semibold transition active:scale-95 ${
-            on
-              ? "bg-[color:var(--lab-navy-950)] text-white"
-              : "border border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
+            on ? CHIP_ON : CHIP_OFF
           }`}
         >
           외벽 일조 색칠
@@ -1660,13 +1766,57 @@ function DongTrades({ complexId, dong }: { complexId: string; dong: string }) {
   );
 }
 
-/** 걷기 — 도착지 목록 · 고른 경로 요약 · 빨리 감기 시간 */
+/** 층 슬라이더 — 조망 패널과 창문 시점이 같은 모양·범위·문구. onCommit은 손을 떼거나 방향키를 놓을 때 */
+function FloorSlider({
+  floor,
+  max,
+  onChange,
+  onCommit,
+}: {
+  floor: number;
+  max: number;
+  onChange: (f: number) => void;
+  onCommit?: (f: number) => void;
+}) {
+  const commit = (e: React.SyntheticEvent<HTMLInputElement>) =>
+    onCommit?.(Number(e.currentTarget.value));
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="flex items-baseline justify-between text-[12px] text-[color:var(--lab-muted)]">
+        <span>
+          몇 층에서 볼까요?{" "}
+          <b className="text-[14px] tabular-nums text-[color:var(--lab-navy-950)]">
+            {floor}층
+          </b>
+        </span>
+        <span className="tabular-nums">1층 ~ {max}층</span>
+      </span>
+      <input
+        type="range"
+        min={1}
+        max={Math.max(1, max)}
+        step={1}
+        value={floor}
+        onChange={(e) => onChange(Number(e.target.value))}
+        onPointerUp={commit}
+        onKeyUp={commit}
+        className="w-full touch-pan-x accent-[color:var(--lab-brand-primary)]"
+        aria-label="층"
+      />
+    </label>
+  );
+}
+
+/** 걷기 — 걷는 사람 · 도착지 목록 · 고른 경로 요약 · 빨리 감기 시간 · 걷기 종료 */
 function WalkPanel({
   walk,
   loading,
   error,
   picked,
   onPick,
+  onEnd,
+  walker,
+  onWalker,
   wheel,
   onWheel,
   progress,
@@ -1681,6 +1831,9 @@ function WalkPanel({
   error: string | null;
   picked: WalkDestination | null;
   onPick: (id: string) => void;
+  onEnd: () => void;
+  walker: WalkerId;
+  onWalker: (v: WalkerId) => void;
   wheel: boolean;
   onWheel: (v: boolean) => void;
   progress: { sec: number; done: boolean } | null;
@@ -1694,29 +1847,56 @@ function WalkPanel({
     k === "subway" ? "역" : k === "school" ? "학교" : "버스";
   const summary = (x: WalkDestination) =>
     [
-      `${x.totalMin}분`,
       `${x.distanceM.toLocaleString("ko-KR")}m`,
       x.gainM >= 2 ? `오르막 ${x.gainM}m` : null,
       `횡단보도 ${x.crossings}`,
     ]
       .filter(Boolean)
       .join(" · ");
+  const chip =
+    "flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-[12px] font-semibold transition active:scale-95";
   return (
     <div className="mt-1 flex flex-col gap-1.5">
       <div className="flex items-center justify-between gap-2">
         <p className="min-w-0 truncate text-[12px] text-[color:var(--lab-muted)]">
           {fromDong ? `${fromDong} 출발` : "단지 출발"} · 동을 누르면 그 동에서 출발
         </p>
+        {picked ? (
+          <button
+            type="button"
+            onClick={onEnd}
+            aria-label="걷기 종료 (Esc)"
+            className="flex h-9 shrink-0 items-center gap-1 rounded-full bg-[color:var(--lab-navy-950)] px-3.5 text-[13px] font-semibold text-white transition active:scale-95"
+          >
+            <X className="h-3.5 w-3.5" aria-hidden />
+            걷기 종료
+          </button>
+        ) : null}
+      </div>
+      {/* 걷는 사람 — 시간(서버 계산)과 모형 모습이 같이 바뀐다 */}
+      <div
+        role="radiogroup"
+        aria-label="걷는 사람"
+        className="-mx-0.5 flex gap-1 overflow-x-auto px-0.5 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {WALKER_IDS.map((id) => (
+          <button
+            key={id}
+            type="button"
+            role="radio"
+            aria-checked={walker === id}
+            onClick={() => onWalker(id)}
+            className={`${chip} ${walker === id ? CHIP_ON : CHIP_OFF}`}
+          >
+            {WALKER_LABEL[id]}
+          </button>
+        ))}
         <button
           type="button"
           role="switch"
           aria-checked={wheel}
           onClick={() => onWheel(!wheel)}
-          className={`flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-[12px] font-semibold transition active:scale-95 ${
-            wheel
-              ? "bg-[color:var(--lab-navy-950)] text-white"
-              : "border border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
-          }`}
+          className={`${chip} ${wheel ? CHIP_ON : CHIP_OFF}`}
         >
           유모차·휠체어
         </button>
@@ -1732,33 +1912,45 @@ function WalkPanel({
           주변에 걸어서 갈 역·학교 경로를 찾지 못했어요.
         </p>
       ) : walk ? (
-        <ul className="flex flex-col divide-y divide-[color:var(--lab-border)]">
+        <ul className="flex flex-col gap-0.5">
           {walk.destinations.map((x) => {
             const on = picked?.id === x.id;
             return (
-              <li key={x.id}>
+              <li
+                key={x.id}
+                className={`rounded-lg border ${
+                  on
+                    ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)]"
+                    : "border-transparent"
+                }`}
+              >
                 <button
                   type="button"
                   onClick={() => onPick(x.id)}
                   aria-pressed={on}
-                  className={`flex w-full flex-col items-start gap-0.5 ${on && progress ? "rounded-t-lg" : "rounded-lg"} px-1.5 py-1.5 text-left transition active:scale-[0.99] ${
-                    on ? "bg-[color:var(--lab-brand-subtle)]" : ""
-                  }`}
+                  className="flex w-full flex-col items-start gap-0.5 rounded-lg px-1.5 py-1.5 text-left transition active:scale-[0.99]"
                 >
                   <span className="flex w-full items-baseline gap-1.5">
                     <span className="shrink-0 rounded bg-slate-100 px-1 text-[11px] font-semibold text-[color:var(--lab-muted)]">
                       {kindLabel(x.kind)}
                     </span>
-                    <span className="min-w-0 truncate text-[14px] font-bold text-[color:var(--lab-navy-950)]">
+                    <span
+                      className={`min-w-0 truncate text-[14px] font-bold ${
+                        on ? "text-[color:var(--lab-teal-700)]" : "text-[color:var(--lab-navy-950)]"
+                      }`}
+                    >
                       {x.name}
                     </span>
+                    <span className="shrink-0 text-[14px] font-bold tabular-nums text-[color:var(--lab-teal-700)]">
+                      {x.totalMin}분
+                    </span>
                     {x.sub && x.kind !== "bus" ? (
-                      <span className="shrink-0 text-[12px] text-[color:var(--lab-muted)]">
+                      <span className="min-w-0 truncate text-[12px] text-[color:var(--lab-muted)]">
                         {x.sub}
                       </span>
                     ) : null}
                   </span>
-                  <span className="text-[13px] font-semibold tabular-nums text-[color:var(--lab-teal-700)]">
+                  <span className="text-[12px] font-semibold tabular-nums text-[color:var(--lab-muted)]">
                     {summary(x)}
                   </span>
                   {on ? (
@@ -1790,19 +1982,13 @@ function WalkPanel({
                   ) : null}
                 </button>
                 {on && progress ? (
-                  <div
-                    className="flex items-center gap-1.5 rounded-b-lg bg-[color:var(--lab-brand-subtle)] px-1.5 pb-1.5 text-[12px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]"
-                  >
+                  <div className="flex items-center gap-1.5 px-1.5 pb-1.5 text-[12px] font-semibold tabular-nums text-[color:var(--lab-teal-700)]">
                     <button
                       type="button"
                       role="switch"
                       aria-checked={follow}
                       onClick={() => onFollow(!follow)}
-                      className={`flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-[12px] font-semibold transition active:scale-95 ${
-                        follow
-                          ? "bg-[color:var(--lab-navy-950)] text-white"
-                          : "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-950)]"
-                      }`}
+                      className={`${chip} ${follow ? CHIP_ON : CHIP_OFF}`}
                     >
                       <Footprints className="h-3.5 w-3.5" aria-hidden />
                       따라가기
@@ -1815,7 +2001,7 @@ function WalkPanel({
                         type="button"
                         onClick={onReplay}
                         aria-label="다시 걷기"
-                        className="flex h-7 w-7 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-white transition active:scale-95"
+                        className="flex h-7 w-7 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-950)] transition active:scale-95"
                       >
                         <RotateCcw className="h-3.5 w-3.5" aria-hidden />
                       </button>
@@ -1829,7 +2015,8 @@ function WalkPanel({
       ) : null}
       {walk ? (
         <p className="text-[11px] leading-[15px] text-[color:var(--lab-muted)]">
-          {walk.attribution} · 평지 시속 4.5km·경사 반영
+          {walk.attribution} · {WALKER_LABEL[walk.walker?.id ?? walker]} 평지 시속{" "}
+          {walk.walker ? (walk.walker.mps * 3.6).toFixed(1) : "4.5"}km·경사 반영
           {terrainLabel ? ` · 지형 ${terrainLabel}` : ""} · 역 안 승강장까지 시간 제외
         </p>
       ) : null}
