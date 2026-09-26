@@ -44,6 +44,7 @@ import { LabIndeterminateBar } from "@/components/ui/LabLoading";
 import type { Map3dView } from "@/components/map3d/Seoul3DMap";
 import { MapViewSwitch } from "@/components/map/MapViewSwitch";
 import { setMapCardOpen } from "@/lib/map/map-dock";
+import { displayAptName } from "@/lib/apt/display-name";
 import { ComplexCardMore } from "@/components/map/ComplexCardMore";
 import { MapBriefingSheet, type BriefingTarget, type BriefingView } from "@/components/map/MapBriefingSheet";
 import { Map3dInvite, mark3dInviteDone, read3dInviteDone } from "@/components/map/Map3dInvite";
@@ -1096,7 +1097,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
           >
             <div className="flex items-center gap-2">
               <p className="min-w-0 flex-1 truncate leading-5">
-                <span className="text-[15px] font-bold text-[color:var(--lab-teal-700)]">{selected.aptName}</span>
+                <span className="text-[15px] font-bold text-[color:var(--lab-teal-700)]">{displayAptName(selected.aptName)}</span>
                 {selected.guRank ? (
                   <span
                     className="ml-1.5 rounded px-1 text-[11px] font-semibold leading-4"

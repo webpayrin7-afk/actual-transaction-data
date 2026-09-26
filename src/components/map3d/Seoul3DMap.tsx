@@ -23,6 +23,7 @@ import { ChevronDown, Compass, MapPin, Satellite, X } from "lucide-react";
 import { LabIndeterminateBar } from "@/components/ui/LabLoading";
 import { ComplexCardMore } from "@/components/map/ComplexCardMore";
 import { fitComplexCamera } from "@/components/map3d/fit-camera";
+import { displayAptName } from "@/lib/apt/display-name";
 import { chooseBestView } from "@/components/map3d/best-view";
 import { SEOUL_DISTRICTS } from "@/components/map3d/seoul-districts";
 import {
@@ -186,7 +187,7 @@ function metricText(v: number | null, metric: Map3dMetric): string {
 
 /** 긴 단지 이름은 이름표에서 줄인다 (카드에는 전체 이름) */
 function shortName(name: string): string {
-  const s = name.trim();
+  const s = displayAptName(name);
   return s.length > 11 ? `${s.slice(0, 10)}…` : s;
 }
 
@@ -1317,7 +1318,7 @@ export default function Seoul3DMap({
           >
             <div className="flex items-center gap-2">
               <p className="min-w-0 flex-1 truncate leading-5">
-                <span className="text-[15px] font-bold text-[color:var(--lab-teal-700)]">{selected.aptName}</span>
+                <span className="text-[15px] font-bold text-[color:var(--lab-teal-700)]">{displayAptName(selected.aptName)}</span>
                 <span className="ml-1.5 text-[12px] text-[color:var(--lab-muted)]">
                   {[
                     selected.dong,

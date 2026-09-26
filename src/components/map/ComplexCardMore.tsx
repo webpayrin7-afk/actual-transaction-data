@@ -17,7 +17,8 @@ export function ComplexCardMore({
     c.rangeMinMan != null && c.rangeMaxMan != null
       ? c.rangeMinMan === c.rangeMaxMan
         ? shortEok(c.rangeMinMan)
-        : `${shortEok(c.rangeMinMan)}~${shortEok(c.rangeMaxMan)}`
+        : // 칸이 좁아 앞의 '억'은 뗀다 ('28.6~29.2억')
+          `${shortEok(c.rangeMinMan).replace(/억$/, "")}~${shortEok(c.rangeMaxMan)}`
       : null;
   const items: Array<[string, string | null, string | null]> = [
     ["12개월 거래가", range, null],
