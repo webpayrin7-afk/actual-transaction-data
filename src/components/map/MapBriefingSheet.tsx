@@ -6,7 +6,7 @@ import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-quer
 import { ChevronRight, ChevronUp, MapPin } from "lucide-react";
 import { LabDataLoading, LabLoadingDots } from "@/components/ui/LabLoading";
 import { LabTabs, labTabPanelId } from "@/components/ui/LabTabs";
-import type { MarketDealItem, MarketHomeResponse, MarketVolumeItem } from "@/lib/market/home";
+import type { MarketDealItem, MarketVolumeItem } from "@/lib/market/home";
 import { fetchMarketHome, MARKET_HOME_QUERY_KEY, MARKET_HOME_STALE_MS } from "@/lib/market/home-client";
 import {
   localScope,

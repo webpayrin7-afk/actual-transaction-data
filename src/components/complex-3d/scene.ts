@@ -915,20 +915,43 @@ export class Complex3dScene {
     this.flyTo(new THREE.Vector3(t.x, t.y + off.y, t.z + Math.max(0.01, flat)), t);
   }
 
-  /** 동 하나로 다가가기 — 지금 보는 방향은 유지 (reduced면 날아가지 않고 바로) */
+  /**
+   * 동 하나로 다가가기 — 그 동이 가장 잘 보이는 자리에서: 앞면(긴 축에 수직, 남쪽 쪽) 정면에서
+   * 조금 비스듬히(천정에서 62°), 동 높이가 화면에 알맞게 차도록. 지금 보는 방향은 따르지 않는다. (reduced면 바로)
+   */
   focus(id: string, reduced = false) {
     const b = this.data?.buildings.find((x) => x.id === id);
-    if (!b?.rings) return;
-    const c = this.ringCenter(b.rings);
+    if (!b?.rings?.[0]) return;
+    const pts = b.rings[0].map(([lng, lat]) => this.toLocal(lng, lat));
+    const mx = pts.reduce((a, q) => a + q.x, 0) / pts.length;
+    const mz = pts.reduce((a, q) => a + q.z, 0) / pts.length;
+    let sxx = 0, szz = 0, sxz = 0;
+    for (const q of pts) {
+      sxx += (q.x - mx) ** 2;
+      szz += (q.z - mz) ** 2;
+      sxz += (q.x - mx) * (q.z - mz);
+    }
+    const ang = 0.5 * Math.atan2(2 * sxz, sxx - szz);
+    // 앞면 방향 (남쪽 z+ 쪽) — 동 정보의 향과 같은 규칙
+    let nx = -Math.sin(ang);
+    let nz = Math.cos(ang);
+    if (nz < 0) {
+      nx = -nx;
+      nz = -nz;
+    }
+    // 긴 변 길이 — 폭이 넓은 판상형은 조금 더 멀리
+    const along = Math.max(...pts.map((q) => Math.abs((q.x - mx) * Math.cos(ang) + (q.z - mz) * Math.sin(ang)))) * 2;
     const { h } = buildingHeight(b);
-    // 동 꼭대기보다 위를 보며(바닥이 화면 아래쪽으로 더 내려가게), 지금 방위는 유지하고 위에서 비스듬히(천정에서 50°) — 옆 동까지 조금 보이게 여유 있게
-    const target = new THREE.Vector3(c.x, this.base(id) + h * 1.1 + 8, c.z);
-    const off = this.camera.position.clone().sub(this.controls.target);
-    const az = Math.atan2(off.x, off.z);
-    const polar = (50 * Math.PI) / 180;
-    // 아래 패널이 화면을 가리면 보이는 높이가 줄어드니 그만큼 멀리서
+    const target = new THREE.Vector3(mx, this.base(id) + h * 0.55, mz);
+    const polar = (62 * Math.PI) / 180;
+    const az = Math.atan2(nx, nz);
     const visible = Math.max(0.35, 1 - this.insetTarget / Math.max(1, this.host.clientHeight));
-    const dist = Math.max(240, h * 5.5) / visible;
+    const vfov = (this.camera.fov * Math.PI) / 180;
+    const hfov = 2 * Math.atan(Math.tan(vfov / 2) * this.camera.aspect);
+    // 높이는 보이는 세로의 약 60%, 폭은 가로의 약 70%를 채우게
+    const needH = (h * 0.5) / (Math.tan(vfov / 2) * 0.6 * visible);
+    const needW = (along * 0.5) / (Math.tan(hfov / 2) * 0.7);
+    const dist = Math.min(this.controls.maxDistance, Math.max(90, needH, needW));
     const dir = new THREE.Vector3(Math.sin(polar) * Math.sin(az), Math.cos(polar), Math.sin(polar) * Math.cos(az));
     this.flyTo(target.clone().add(dir.multiplyScalar(dist)), target, reduced ? 0 : 450);
   }
