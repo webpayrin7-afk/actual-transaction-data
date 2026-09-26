@@ -76,7 +76,175 @@ export function calmBasemap(style: StyleSpecification): StyleSpecification {
     }
     return [l];
   });
+  // 역·명소 이름 — 지명(동·구) 글자 바로 아래에 끼워 넣는다 (지명이 겹침 우선)
+  const at = layers.findIndex((l) => l.id === "label_other");
+  const lm = landmarkLayers();
+  if (at >= 0) layers.splice(at, 0, ...lm);
+  else layers.push(...lm);
   return { ...style, layers } as StyleSpecification;
+}
+
+/* ─────────────── 역·명소 이름 (위치 잡기용) ─────────────── */
+
+/** 역 점 아이콘 이름 — 지도의 styleimagemissing에서 stationDotImage()로 채운다 */
+export const STATION_ICON = "zl-station-dot";
+
+/**
+ * 큰 환승역·철도역 — 줌 12부터 보인다 (나머지 역은 줌 14부터).
+ * OSM 이름은 '용산'·'서울역'처럼 '역'이 붙기도 안 붙기도 해서 둘 다 넣는다.
+ */
+const HUB_STATIONS = [
+  "서울", "용산", "영등포", "청량리", "신도림", "강남", "잠실", "고속터미널", "사당", "왕십리",
+  "홍대입구", "여의도", "종로3가", "시청", "건대입구", "삼성", "노량진", "서울대입구",
+  "구로디지털단지", "수서", "공덕", "동대문역사문화공원", "광화문", "성수", "천호", "노원",
+  "김포공항", "교대", "양재", "신촌", "합정", "이태원", "선릉", "가산디지털단지", "상봉", "창동",
+];
+
+/**
+ * 누구나 아는 명소 — 줌 13.5부터 이름만 맞으면 보인다 (OSM 이름 그대로).
+ * 바탕 타일의 poi 순위(rank)는 타일 칸 안 순서라 롯데월드타워도 7위로 나와서, 이름으로 고른다.
+ */
+const KEY_LANDMARKS = [
+  "롯데월드타워", "롯데월드", "코엑스", "남산서울타워", "N서울타워", "서울숲", "여의도공원", "올림픽공원",
+  "경복궁", "창덕궁", "덕수궁", "창경궁", "광화문광장", "서울광장", "동대문디자인플라자", "국립중앙박물관",
+  "전쟁기념관", "용산가족공원", "용산어린이정원", "63빌딩", "63스퀘어", "더현대 서울", "IFC몰",
+  "잠실야구장", "서울월드컵경기장", "고척스카이돔", "올림픽 주경기장", "서울어린이대공원", "어린이대공원",
+  "북서울꿈의숲", "보라매공원", "월드컵공원", "하늘공원", "선유도공원", "노들섬", "여의도한강공원",
+  "반포한강공원", "뚝섬한강공원", "잠실한강공원", "서울아산병원", "삼성서울병원", "서울대학교병원",
+  "세브란스병원", "서울성모병원", "서울대학교", "연세대학교", "고려대학교", "서강대학교", "이화여자대학교",
+  "한양대학교", "성균관대학교", "건국대학교", "경희대학교", "중앙대학교", "숙명여자대학교",
+  "동국대학교 서울캠퍼스", "청와대", "국회의사당", "서울특별시청", "서울시청", "센트럴시티", "석촌호수",
+  "서울식물원", "몽촌토성", "명동성당", "남대문시장", "광장시장", "가락시장",
+];
+
+const NAME: ExpressionSpecification = ["coalesce", ["get", "name:ko"], ["get", "name"]];
+const RANK: ExpressionSpecification = ["coalesce", ["get", "rank"], 99];
+const HUB_NAMES = [...new Set(HUB_STATIONS.flatMap((n) => [n, `${n}역`]))];
+const IS_STATION: ExpressionSpecification = [
+  "all",
+  ["==", ["get", "class"], "railway"],
+  ["match", ["get", "subclass"], ["station", "subway"], true, false],
+  ["has", "name"],
+];
+const IS_HUB: ExpressionSpecification = ["match", NAME, HUB_NAMES, true, false];
+const IS_KEY_LANDMARK: ExpressionSpecification = ["match", NAME, [...new Set(KEY_LANDMARKS)], true, false];
+/** 가까이 볼 때만 — 대학·큰 병원·명소·박물관·경기장·공원 (편의점·의원·버스정류장 등은 빼고) */
+const IS_MINOR_LANDMARK: ExpressionSpecification = [
+  "all",
+  ["has", "name"],
+  ["!", IS_KEY_LANDMARK],
+  [
+    "any",
+    ["all", ["==", ["get", "class"], "college"], ["==", ["get", "subclass"], "university"]],
+    ["all", ["==", ["get", "class"], "hospital"], ["in", "병원", NAME], ["!", ["in", "의원", NAME]]],
+    ["all", ["==", ["get", "class"], "attraction"], ["==", ["get", "subclass"], "attraction"]],
+    ["match", ["get", "class"], ["museum", "stadium"], true, false],
+    ["all", ["==", ["get", "class"], "park"], ["!", ["in", "어린이", NAME]], ["in", "공원", NAME]],
+  ],
+];
+/** 역 이름은 '역'으로 끝나게 ('용산' → '용산역') */
+const STATION_TEXT: ExpressionSpecification = [
+  "case",
+  ["==", ["slice", NAME, ["-", ["length", NAME], 1]], "역"],
+  NAME,
+  ["concat", NAME, "역"],
+];
+
+const LABEL_NAVY = "#1e2f5c";
+const LABEL_SLATE = "#3f4a5c";
+const LABEL_PARK = "#3b6b45";
+const HALO = { "text-halo-color": "rgba(255,255,255,0.95)", "text-halo-width": 1.6, "text-halo-blur": 0.3 };
+
+function stationLayer(id: string, hub: boolean): StyleSpecification["layers"][number] {
+  return {
+    id,
+    type: "symbol",
+    source: "openmaptiles",
+    "source-layer": "poi",
+    minzoom: hub ? 12 : 14,
+    filter: ["all", IS_STATION, hub ? IS_HUB : ["!", IS_HUB]],
+    layout: {
+      "icon-image": STATION_ICON,
+      "icon-size": hub ? 1 : 0.85,
+      "text-field": STATION_TEXT,
+      "text-font": [hub ? "Noto Sans Bold" : "Noto Sans Regular"],
+      "text-size": hub ? ["interpolate", ["linear"], ["zoom"], 12, 11, 15, 12.5] : 11.5,
+      "text-anchor": "left",
+      "text-offset": [0.7, 0],
+      "text-max-width": 8,
+      "symbol-sort-key": hub ? 0 : 1,
+      "text-padding": 4,
+    },
+    paint: { "text-color": LABEL_NAVY, ...HALO },
+  };
+}
+
+function landmarkLayer(
+  id: string,
+  minzoom: number,
+  filter: ExpressionSpecification,
+  key = false,
+): StyleSpecification["layers"][number] {
+  return {
+    id,
+    type: "symbol",
+    source: "openmaptiles",
+    "source-layer": "poi",
+    minzoom,
+    filter,
+    layout: {
+      "text-field": NAME,
+      // 이름난 명소는 굵게 — 도로 이름(같은 회색 계열)과 구별
+      "text-font": [key ? "Noto Sans Bold" : "Noto Sans Regular"],
+      "text-size": ["interpolate", ["linear"], ["zoom"], 14, 10.5, 17, 11.5],
+      "text-max-width": 7,
+      "text-padding": 6,
+      "symbol-sort-key": RANK,
+    },
+    paint: {
+      "text-color": ["match", ["get", "class"], "park", LABEL_PARK, LABEL_SLATE],
+      ...HALO,
+      "text-opacity": ["interpolate", ["linear"], ["zoom"], minzoom, 0, minzoom + 0.4, 1],
+    },
+  };
+}
+
+/**
+ * 역·명소 이름 레이어 — 중요할수록 먼저(앞 레이어가 겹침 우선), 줌이 커질수록 많이:
+ * 큰 환승역(줌 12~) → 모든 역(14~) → 이름난 명소(13.5~) → 대학·큰 병원·공원 등(15.5~ 칸 순위 2 이하, 16.5~ 4 이하)
+ */
+export function landmarkLayers(): StyleSpecification["layers"] {
+  // 스타일 배열 뒤쪽이 겹침 우선이라, 덜 중요한 것을 앞에 둔다
+  return [
+    landmarkLayer("zl-landmark-more", 16.5, ["all", IS_MINOR_LANDMARK, [">", RANK, 2], ["<=", RANK, 4]]),
+    landmarkLayer("zl-landmark-minor", 15.5, ["all", IS_MINOR_LANDMARK, ["<=", RANK, 2]]),
+    stationLayer("zl-station", false),
+    landmarkLayer("zl-landmark-key", 13.5, ["all", ["!=", ["get", "class"], "railway"], IS_KEY_LANDMARK], true),
+    stationLayer("zl-station-hub", true),
+  ];
+}
+
+/** 역 점 — 흰 속 + 남색 테두리 (2배 해상도, 화면에선 약 8px) */
+export function stationDotImage(): { width: number; height: number; data: Uint8Array } {
+  const size = 16;
+  const data = new Uint8Array(size * size * 4);
+  const c = (size - 1) / 2;
+  const outer = 7.5;
+  const ring = 2.6;
+  const navy = [0x1e, 0x2f, 0x5c];
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const d = Math.hypot(x - c, y - c);
+      const a = Math.max(0, Math.min(1, outer - d)); // 가장자리 부드럽게
+      const t = Math.max(0, Math.min(1, d - (outer - ring))); // 0=속(흰), 1=테두리(남색)
+      const i = (y * size + x) * 4;
+      data[i] = Math.round(255 + (navy[0]! - 255) * t);
+      data[i + 1] = Math.round(255 + (navy[1]! - 255) * t);
+      data[i + 2] = Math.round(255 + (navy[2]! - 255) * t);
+      data[i + 3] = Math.round(255 * a);
+    }
+  }
+  return { width: size, height: size, data };
 }
 
 /** 건물 높이 — 줌 12.5까지는 솟아오르듯 (첫 화면 부담 줄이기) */

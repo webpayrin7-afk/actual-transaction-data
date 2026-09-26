@@ -53,9 +53,11 @@ import {
   SELECTED_SITE_FILL,
   SELECTED_SITE_LINE,
   SEOUL_BOUNDS,
+  STATION_ICON,
   buildingsTilesUrl,
   calmBasemap,
   metricColor,
+  stationDotImage,
   type Map3dMetric,
 } from "@/components/map3d/seoul-3d-style";
 import { ComplexPins, PINS_CSS, type PinDatum } from "@/components/map3d/complex-pins";
@@ -731,6 +733,10 @@ export default function Seoul3DMap({
         );
       }
       map.touchPitch.enable();
+      // 역 이름 옆 점 아이콘 — 바탕 스프라이트에 없어 처음 쓰일 때 만들어 넣는다
+      map.on("styleimagemissing", (e) => {
+        if (e.id === STATION_ICON && !map.hasImage(STATION_ICON)) map.addImage(STATION_ICON, stationDotImage(), { pixelRatio: 2 });
+      });
       map.on("error", (e) => {
         const msg = String((e as { error?: Error }).error?.message ?? "");
         const src = (e as { sourceId?: string }).sourceId;
