@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Check, ChevronDown, ChevronRight, Construction, MapPin, LocateFixed, SlidersHorizontal, X } from "lucide-react";
+import dynamic from "next/dynamic";
+import { Box, Check, ChevronDown, ChevronRight, Construction, MapPin, LocateFixed, SlidersHorizontal, X } from "lucide-react";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import { MapConditionSheet, conditionSummary, type ConditionKey } from "@/components/map/MapConditionSheet";
 import {
@@ -38,6 +39,19 @@ import {
 import type { MapArea, MapAreaLevel } from "@/lib/map/map-areas";
 import { REDEV_STAGES, type RedevZoneShape } from "@/lib/redev/read";
 import { formatDealDate, formatEok } from "@/lib/utils/format";
+import { LabIndeterminateBar } from "@/components/ui/LabLoading";
+import type { Map3dView } from "@/components/map3d/Seoul3DMap";
+
+/** 서울 3D 지도 — MapLibre(약 1MB)는 3D를 열 때만 받는다 (2D 번들에 넣지 않음). */
+const Seoul3DMap = dynamic(() => import("@/components/map3d/Seoul3DMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2.5 bg-[#f4f5f2]" aria-busy="true">
+      <LabIndeterminateBar className="max-w-[180px]" />
+      <p className="detail-meta">3D 지도 불러오는 중…</p>
+    </div>
+  ),
+});
 
 type Bounds = { getMin(): { y: number; x: number }; getMax(): { y: number; x: number } };
 type MapWithBounds = NaverMapInstance & {
@@ -165,6 +179,33 @@ export function MapSearchPage() {
   /** 마커에 보일 값 — 브라우저에 기억 */
   const [metric, setMetric] = useState<MarkerMetric>("price");
   const [metricOpen, setMetricOpen] = useState(false);
+  /** 3D 지도로 볼 때 시작 위치 (null = 2D) */
+  const [view3d, setView3d] = useState<Map3dView | null>(null);
+  const open3d = () => {
+    // 2D 지도가 못 떴어도(인증 실패 등) 3D는 연다 — 마지막으로 본 곳에서
+    let v = readLastView();
+    try {
+      const map = mapRef.current;
+      if (map) v = { lat: map.getCenter().y, lng: map.getCenter().x, zoom: map.getZoom() };
+    } catch {
+      /* 2D 지도 상태를 못 읽으면 저장된 위치 */
+    }
+    setSelectedId(null);
+    // 네이버 줌(256px 타일)과 MapLibre 줌(512px)은 1 차이 — 같은 축척으로 연다
+    setView3d({ lat: v.lat, lng: v.lng, zoom: Math.max(v.zoom, COMPLEX_ZOOM) - 1 });
+  };
+  const close3d = (v: Map3dView) => {
+    setView3d(null);
+    const maps = window.naver?.maps;
+    try {
+      if (maps && mapRef.current) {
+        mapRef.current.setCenter(new maps.LatLng(v.lat, v.lng));
+        mapRef.current.setZoom?.(Math.round(v.zoom + 1));
+      }
+    } catch {
+      /* 2D 지도가 준비되지 않았으면 그대로 */
+    }
+  };
   /** 정비구역 레이어 (서울) */
   const [redevOn, setRedevOn] = useState(false);
   const [zones, setZones] = useState<RedevZoneShape[]>([]);
@@ -710,7 +751,6 @@ export function MapSearchPage() {
           })}
         </div>
         <div className="flex flex-col items-start gap-2 px-3 sm:px-4">
-          {level === "complex" || level === "dong" ? (
           <div className="flex items-center gap-2">
           {level === "complex" ? (
             // 마커에 보일 값 — 조건(필터)이 아니라 보기 방식이라 칩 줄과 따로 둔다
@@ -725,6 +765,7 @@ export function MapSearchPage() {
               <ChevronDown className="h-4 w-4 opacity-60" aria-hidden />
             </button>
           ) : null}
+          {level === "complex" || level === "dong" ? (
             <button
               type="button"
               aria-pressed={redevOn}
@@ -743,8 +784,19 @@ export function MapSearchPage() {
               <Construction className="h-4 w-4" aria-hidden />
               정비구역
             </button>
-          </div>
           ) : null}
+            {/* 서울 3D 지도 — 누를 때만 MapLibre·건물 타일을 불러온다 */}
+            <button
+              type="button"
+              aria-pressed={view3d != null}
+              aria-label="3D로 보기"
+              onClick={open3d}
+              className="pointer-events-auto relative -mt-0.5 inline-flex h-8 items-center gap-1 whitespace-nowrap rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] pl-2.5 pr-3 text-[13px] font-semibold leading-5 text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-['']"
+            >
+              <Box className="h-4 w-4" aria-hidden />
+              3D
+            </button>
+          </div>
           {redevOn && (level === "complex" || level === "dong") ? (
             <p className="pointer-events-auto flex flex-wrap items-center gap-x-2.5 rounded-lg bg-[color:var(--lab-surface)]/95 px-2.5 py-1 text-[13px] leading-5 text-[color:var(--lab-muted)] shadow-sm">
               {[
@@ -1059,6 +1111,14 @@ export function MapSearchPage() {
           </span>
         </p>
       </LabBottomSheet>
+
+      {view3d ? (
+        <Seoul3DMap
+          initial={view3d}
+          conditions={conditions}
+          onClose={close3d}
+        />
+      ) : null}
 
       <MapConditionSheet
         open={sheetOpen}
