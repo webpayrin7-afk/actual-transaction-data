@@ -2,6 +2,7 @@
 
 import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import Link from "next/link";
 import {
   useCallback,
@@ -992,7 +993,7 @@ export function RegionDailyStatus({
         {latestQuery.isError ? (
           <p className="detail-body">새로 확인된 신고가를 불러오지 못했습니다.</p>
         ) : latestQuery.isLoading && !latest ? (
-          <div className="h-32 animate-pulse rounded-lg bg-slate-100" />
+          <LabDataLoading label="신고가 불러오는 중" minHeight={128} />
         ) : singogaDeals.length > 0 ? (
           <>
             <div className="flex flex-col gap-2">
@@ -1112,7 +1113,7 @@ export function RegionDailyStatus({
           {(historyQuery.isLoading || initialDaysQuery.isLoading) &&
           !historyQuery.data &&
           !initialDaysQuery.data ? (
-            <div className="h-24 animate-pulse rounded-lg bg-slate-200/50" />
+            <LabDataLoading label="거래 불러오는 중" minHeight={192} />
           ) : null}
           {(calendarSelected ? [calendarSelected] : listedDates).map((date) => {
             const section = sectionByDate.get(date);
@@ -1178,7 +1179,7 @@ export function RegionDailyStatus({
             );
           })}
           {pendingDates.length > 0 ? (
-            <div className="h-16 animate-pulse rounded-lg bg-slate-200/50" />
+            <LabDataLoading label="거래 불러오는 중" minHeight={64} />
           ) : null}
           {!calendarSelected && hasMoreHistory && pendingDates.length === 0 ? (
             <LabMoreButton expanded={false} onToggle={loadNextHistory} />

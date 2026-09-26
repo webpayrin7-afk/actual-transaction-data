@@ -13,7 +13,7 @@ import {
   CHART_JEONSE,
   CHART_TICK,
   CHART_TRADE,
-  ChartSkeleton,
+  ChartLoading,
   ChartTooltipBox,
   SectionError,
   formatManwonShort,
@@ -113,7 +113,7 @@ export function TrendsPriceLevelSection({
             })}
           />
           {loading ? (
-            <ChartSkeleton />
+            <ChartLoading label="시세 불러오는 중" />
           ) : rows.length < 2 ? (
             <p className="lab-state">표시할 자료가 없습니다.</p>
           ) : (

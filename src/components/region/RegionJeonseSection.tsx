@@ -4,6 +4,7 @@ import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSectio
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { useMemo, useState } from "react";
 import { Area, ComposedChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { rankingComplexHref } from "@/lib/region-ranking/public";
@@ -141,10 +142,7 @@ export function RegionJeonseSection({
       />
 
       {query.isLoading || !data ? (
-        <div className="space-y-2">
-          <div className="h-10 w-40 animate-pulse rounded-lg bg-slate-100" />
-          <div className="h-[120px] animate-pulse rounded-lg bg-slate-100" />
-        </div>
+        <LabDataLoading label="전세가율 불러오는 중" minHeight={176} />
       ) : (latest?.pairCount ?? 0) === 0 ? (
         <p className="detail-body">
           최근 3개월에 매매와 전세가 함께 거래된 단지가 없어 전세가율을 계산하지 않았어요.

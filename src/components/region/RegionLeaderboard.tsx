@@ -1,5 +1,6 @@
 "use client";
 
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import { LabMoreButton } from "@/components/ui/LabMoreButton";
 import { RankCircle } from "@/components/ui/RankCircle";
 import { useMemo, useState } from "react";
@@ -160,11 +161,7 @@ export function RegionLeaderboard({
       ) : null}
 
       {query.isLoading ? (
-        <div className="mt-4 space-y-2" aria-label="순위 불러오는 중">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-14 animate-pulse rounded-xl bg-slate-100" />
-          ))}
-        </div>
+        <LabDataLoading label="순위 불러오는 중" minHeight={312} className="mt-4" />
       ) : query.isError ? (
         <div className="mt-4 rounded-xl bg-slate-50 px-3 py-4 text-center">
           <p className="text-sm font-medium text-slate-700">

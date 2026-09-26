@@ -5,6 +5,7 @@ import { RankCircle } from "@/components/ui/RankCircle";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
@@ -159,11 +160,7 @@ export function RegionRankingTable({
         }}
       />
       {query.isLoading ? (
-        <div className="space-y-2">
-          {Array.from({ length: RANK_PREVIEW }).map((_, i) => (
-            <div key={i} className="h-9 animate-pulse rounded-md bg-slate-100" />
-          ))}
-        </div>
+        <LabDataLoading label="순위 불러오는 중" minHeight={264} />
       ) : rows.length === 0 ? (
         <p className="detail-body">{emptyText}</p>
       ) : (

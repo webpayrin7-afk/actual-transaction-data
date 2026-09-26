@@ -19,7 +19,7 @@ import {
   CHART_JEONSE,
   CHART_TICK,
   CHART_TRADE,
-  ChartSkeleton,
+  ChartLoading,
   ChartTooltipBox,
   SectionError,
   formatManwonShort,
@@ -145,7 +145,7 @@ export function TrendsDealPriceSection({
             })}
           />
           {loading ? (
-            <ChartSkeleton />
+            <ChartLoading label="거래가격 불러오는 중" />
           ) : rows.length < 2 ? (
             <p className="lab-state">표시할 실거래가 없습니다.</p>
           ) : (

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ExternalLink } from "lucide-react";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import type { BankLoanRate, DreamMoneyResult } from "@/lib/seoul/dream-money";
 
 type Filter = "first" | "all";
@@ -112,6 +113,45 @@ export function LoanRatesPanel({
     return start === end ? start : `${start} ~ ${end}`;
   }, [q.data]);
 
+  // 필터·정렬은 데이터와 무관 — 불러오는 동안에도 그대로 그린다
+  const filterBar = (
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="inline-flex gap-0.5 rounded-[10px] border border-[color:var(--lab-border)] bg-white p-0.5 text-sm">
+        <button
+          type="button"
+          onClick={() => setFilter("all")}
+          className={`min-h-11 rounded-md px-3 font-medium ${
+            filter === "all" ? "bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]" : "text-[color:var(--lab-muted)]"
+          }`}
+        >
+          전체
+        </button>
+        <button
+          type="button"
+          onClick={() => setFilter("first")}
+          className={`min-h-11 rounded-md px-3 font-medium ${
+            filter === "first" ? "bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]" : "text-[color:var(--lab-muted)]"
+          }`}
+        >
+          1금융
+        </button>
+      </div>
+      <label className="detail-label flex items-center gap-1.5">
+        정렬
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value as SortKey)}
+          className="lab-input w-auto px-2"
+        >
+          <option value="min">최저금리</option>
+          <option value="avg">평균금리</option>
+          <option value="name">기관명</option>
+        </select>
+      </label>
+      {q.data ? <span className="ml-auto detail-meta tabular-nums">{rows.length}곳</span> : null}
+    </div>
+  );
+
   const HeadingTag = heading;
 
   return (
@@ -136,10 +176,10 @@ export function LoanRatesPanel({
       </div>
 
       {q.isLoading ? (
-        <div
-          className="h-32 animate-pulse lab-skeleton"
-          aria-hidden
-        />
+        <>
+          {filterBar}
+          <LabDataLoading label="금리 불러오는 중" minHeight={240} />
+        </>
       ) : q.isError ? (
         <div className="rounded-[var(--lab-radius-md)] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
           {(q.error as Error).message}
@@ -157,41 +197,7 @@ export function LoanRatesPanel({
             </p>
           ) : null}
 
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="inline-flex gap-0.5 rounded-[10px] border border-[color:var(--lab-border)] bg-white p-0.5 text-sm">
-              <button
-                type="button"
-                onClick={() => setFilter("all")}
-                className={`min-h-11 rounded-md px-3 font-medium ${
-                  filter === "all" ? "bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]" : "text-[color:var(--lab-muted)]"
-                }`}
-              >
-                전체
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilter("first")}
-                className={`min-h-11 rounded-md px-3 font-medium ${
-                  filter === "first" ? "bg-[color:var(--lab-brand-subtle)] font-semibold text-[color:var(--lab-teal-700)]" : "text-[color:var(--lab-muted)]"
-                }`}
-              >
-                1금융
-              </button>
-            </div>
-            <label className="detail-label flex items-center gap-1.5">
-              정렬
-              <select
-                value={sort}
-                onChange={(e) => setSort(e.target.value as SortKey)}
-                className="lab-input w-auto px-2"
-              >
-                <option value="min">최저금리</option>
-                <option value="avg">평균금리</option>
-                <option value="name">기관명</option>
-              </select>
-            </label>
-            <span className="ml-auto detail-meta tabular-nums">{rows.length}곳</span>
-          </div>
+          {filterBar}
 
           {rows.length === 0 ? (
             <p className="lab-card px-4 py-8 text-center text-sm text-[color:var(--lab-muted)]">

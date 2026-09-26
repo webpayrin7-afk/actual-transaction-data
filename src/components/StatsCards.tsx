@@ -1,6 +1,7 @@
 "use client";
 
 import { Activity, ArrowUpRight, CalendarCheck2 } from "lucide-react";
+import { LabLoadingDots } from "@/components/ui/LabLoading";
 import type { TransactionStats } from "@/types/transaction";
 
 interface StatsCardsProps {
@@ -8,41 +9,30 @@ interface StatsCardsProps {
   isLoading: boolean;
 }
 
-function SkeletonMini() {
-  return (
-    <div className="h-28 animate-pulse rounded-2xl border border-slate-200 bg-white/70" />
-  );
-}
-
 export function StatsCards({ stats, isLoading }: StatsCardsProps) {
-  if (isLoading || !stats) {
-    return (
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <SkeletonMini />
-        <SkeletonMini />
-        <SkeletonMini />
-      </div>
-    );
-  }
+  // 카드 틀(이름·아이콘·설명)은 먼저 그리고, 숫자 자리만 불러오는 중 표시
+  const loading = isLoading || !stats;
+  const count = (n: number | undefined) =>
+    loading || n == null ? null : `${n.toLocaleString("ko-KR")}건`;
 
   const miniCards = [
     {
       label: "조회 결과",
-      value: `${stats.totalCount.toLocaleString("ko-KR")}건`,
+      value: count(stats?.totalCount),
       hint: "필터 적용 후 총 거래",
       icon: Activity,
       accent: "bg-teal-50 text-teal-700",
     },
     {
       label: "오늘 등록",
-      value: `${stats.todayCount.toLocaleString("ko-KR")}건`,
+      value: count(stats?.todayCount),
       hint: "당일 계약일자 기준",
       icon: CalendarCheck2,
       accent: "bg-sky-50 text-sky-700",
     },
     {
       label: "최근 7일",
-      value: `${stats.recentCount.toLocaleString("ko-KR")}건`,
+      value: count(stats?.recentCount),
       hint: "단기 거래 동향",
       icon: ArrowUpRight,
       accent: "bg-emerald-50 text-emerald-700",
@@ -69,7 +59,7 @@ export function StatsCards({ stats, isLoading }: StatsCardsProps) {
               </span>
             </div>
             <p className="text-2xl font-semibold tracking-tight text-slate-900">
-              {card.value}
+              {card.value ?? <LabLoadingDots />}
             </p>
             <p className="mt-1 truncate text-xs text-slate-500">{card.hint}</p>
           </article>

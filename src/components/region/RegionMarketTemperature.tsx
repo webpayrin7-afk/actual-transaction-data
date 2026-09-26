@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import { LabSubsectionHeader } from "@/components/ui/LabSection";
 import { LabStatTiles, type LabStatTile } from "@/components/ui/LabStatTiles";
 import { useRegionMarketDetail } from "@/components/region/useRegionScopeQueries";
@@ -116,7 +117,7 @@ export function RegionMarketTemperature({ scope }: { scope: RegionScope }) {
         }
       />
       {query.isLoading ? (
-        <div className="mt-2 h-[140px] animate-pulse rounded-lg bg-slate-100" />
+        <LabDataLoading label="시장 온도 불러오는 중" minHeight={140} className="mt-2" />
       ) : points.length < 2 ? null : !points.some((p) => p.share != null) ? (
         <p className="detail-meta mt-2">거래가 적어 추이를 표시하지 않아요.</p>
       ) : (

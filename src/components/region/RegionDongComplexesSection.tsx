@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import { LabSection } from "@/components/ui/LabSection";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
@@ -16,7 +17,7 @@ import type {
 /** 지도는 "지도" 보기를 고를 때만 SDK와 함께 불러온다 — 메인 지도와 같은 가격 마커. */
 const DongComplexMap = dynamic(() => import("@/components/region/DongComplexMap").then((m) => m.DongComplexMap), {
   ssr: false,
-  loading: () => <div className="h-full w-full animate-pulse bg-slate-100" />,
+  loading: () => <LabDataLoading label="지도 불러오는 중" className="h-full w-full" />,
 });
 
 const VIEWS = [
@@ -131,11 +132,7 @@ export function RegionDongComplexesSection({
       {failed ? (
         <p className="detail-body">단지 목록을 불러오지 못했습니다.</p>
       ) : loading ? (
-        <div className="space-y-2">
-          {Array.from({ length: LAB_LIST_PREVIEW }).map((_, i) => (
-            <div key={i} className="h-12 animate-pulse rounded-lg bg-slate-100" />
-          ))}
-        </div>
+        <LabDataLoading label="단지 불러오는 중" minHeight={272} />
       ) : complexes.length === 0 ? (
         <p className="detail-body">이 동에서 찾은 아파트 단지가 없습니다.</p>
       ) : (

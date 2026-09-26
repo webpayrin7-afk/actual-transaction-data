@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import type { RegionBrowseResponse, RegionDongSummary } from "@/lib/molit/service";
 import { regionDongHref } from "@/lib/molit/region-paths";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
 
 async function fetchRegionDongs(region: string): Promise<RegionBrowseResponse> {
@@ -66,7 +67,7 @@ export function RegionDongBrowse({ regionSlug }: { regionSlug: string }) {
       {query.isError ? (
         <p className="detail-body">동 목록을 불러오지 못했습니다.</p>
       ) : query.isLoading && !data ? (
-        <div className="h-20 animate-pulse rounded-lg bg-slate-100" />
+        <LabDataLoading label="동 목록 불러오는 중" minHeight={160} />
       ) : dongs.length === 0 ? (
         <p className="detail-body">표시할 동이 없습니다.</p>
       ) : (

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import type { TrendPeriod } from "@/lib/market/trends-regions";
 import { TREND_PERIOD_MONTHS } from "@/lib/market/trends-regions";
 
@@ -141,8 +142,9 @@ export function ChartLegend({
   );
 }
 
-export function ChartSkeleton() {
-  return <div className={`${CHART_BOX} animate-pulse rounded-lg bg-slate-100`} aria-hidden />;
+/** 차트 자리 로딩 — 차트 크기를 그대로 잡아 두고 점 세 개 + "○○ 불러오는 중…". */
+export function ChartLoading({ label = "차트 불러오는 중" }: { label?: string }) {
+  return <LabDataLoading label={label} minHeight={220} className={CHART_BOX} />;
 }
 
 export function SectionError({ onRetry, children }: { onRetry?: () => void; children?: ReactNode }) {

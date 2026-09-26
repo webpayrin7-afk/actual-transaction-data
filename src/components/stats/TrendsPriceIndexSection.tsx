@@ -26,7 +26,7 @@ import {
   CHART_TRADE,
   CHART_UP,
   ChartLegend,
-  ChartSkeleton,
+  ChartLoading,
   ChartTooltipBox,
   SectionError,
   niceTicks,
@@ -171,7 +171,7 @@ export function TrendsPriceIndexSection({
             <LabSubsectionHeader title="매매·전세가격지수 추이" meta="지수" />
             <div className="mt-3">
               {loading ? (
-                <ChartSkeleton />
+                <ChartLoading label="지수 불러오는 중" />
               ) : rows.length < 2 ? (
                 <p className="lab-state">표시할 지수가 없습니다.</p>
               ) : (
@@ -263,7 +263,7 @@ export function TrendsPriceIndexSection({
             />
             <div className="mt-3">
               {loading ? (
-                <ChartSkeleton />
+                <ChartLoading label="변동률 불러오는 중" />
               ) : years.length === 0 ? (
                 <p className="lab-state">표시할 연도가 없습니다.</p>
               ) : (

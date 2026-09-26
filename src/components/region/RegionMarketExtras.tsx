@@ -6,6 +6,7 @@ import {
   LabSectionHeader,
   LabSubsectionHeader,
 } from "@/components/ui/LabSection";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { useState } from "react";
 import Link from "next/link";
@@ -177,7 +178,7 @@ export function RegionTradeHighlightsSection({
         />
       </div>
       {query.isLoading ? (
-        <div className="h-40 animate-pulse rounded-lg bg-slate-100" />
+        <LabDataLoading label="거래 불러오는 중" minHeight={192} />
       ) : rows.length === 0 ? (
         <p className="detail-body">최근 1개월 매매 거래가 없습니다.</p>
       ) : (
@@ -276,7 +277,7 @@ export function RegionSupplyTimelineSection({
         tip={<p>같은 시·군·구의 청약·입주 예정 공급 정보를 보여드려요.</p>}
       />
       {query.isLoading ? (
-        <div className="h-32 animate-pulse rounded-lg bg-slate-100" />
+        <LabDataLoading label="입주 예정 불러오는 중" minHeight={160} />
       ) : failed ? (
         <p className="detail-body">주변 공급 정보를 불러오지 못했습니다.</p>
       ) : items.length === 0 ? (
