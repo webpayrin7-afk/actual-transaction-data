@@ -23,6 +23,10 @@ export const MAP3D_ATTRIBUTION: AttributionLine[] = [
 ];
 /** 위성영상을 켰을 때 더하는 출처 */
 export const SATELLITE_ATTRIBUTION: AttributionLine = { text: "위성영상 © 국토교통부 브이월드", href: "https://www.vworld.kr/" };
+/** 고른 단지의 초등학교 통학구역을 그릴 때 더하는 출처 */
+export const SCHOOL_ZONE_ATTRIBUTION: AttributionLine = {
+  text: "통학구역 © 한국지방교육행정연구재단·한국교육시설안전원",
+};
 const MAP3D_SHORT = "© OpenStreetMap · OpenFreeMap · 국토교통부";
 
 const INTRO_MS = 4000;
