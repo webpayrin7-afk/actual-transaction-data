@@ -6,6 +6,7 @@
 import {
   RANKING_V4_VERSION,
   readRankingV4Board,
+  readRankingV4BoardAtPointer,
   rerankRankingV4,
   type RankingV4Sort,
 } from "./ranking-v4";
@@ -309,26 +310,58 @@ export async function publishedComplexPosition(
   db: RankingReader,
   query: { complexId: string; areaBand?: RankingAreaBandV3 | null },
 ) {
+  const bands: RankingAreaBandV3[] =
+    query.areaBand && query.areaBand !== "ALL" ? ["ALL", query.areaBand] : ["ALL"];
+  // 단지 주소와 구·동 발행 포인터를 한 번에 읽는다(예전: 단지 → 포인터 → 후보 3단 왕복).
+  // 포인터가 없는 칸은 LEFT JOIN이라 NULL로 오고, 단지가 없으면 행이 없다.
+  const bandSlots = bands.map(() => "?").join(", ");
+  const pointerJoin = (scope: "gu" | "dong", code: string) => `
+    SELECT m.lawd_cd, m.bjdong_cd, m.legal_dong_name, m.apt_name,
+           '${scope}' AS scope, p.area_band, p.feature_run_id, p.transaction_as_of
+    FROM m LEFT JOIN region_ranking_publications p
+      ON p.region_scope = '${scope}' AND p.region_code = ${code}
+     AND p.area_band IN (${bandSlots}) AND p.period = '12M'`;
   const master = await db.execute({
-    sql: `SELECT lawd_cd, bjdong_cd, legal_dong_name, apt_name
-          FROM apt_complex_master WHERE complex_id = ?`,
-    args: [query.complexId],
+    sql: `WITH m AS (
+            SELECT lawd_cd, bjdong_cd, legal_dong_name, apt_name
+            FROM apt_complex_master WHERE complex_id = ?
+          )
+          ${pointerJoin("gu", "m.lawd_cd")}
+          UNION ALL
+          ${pointerJoin("dong", "m.lawd_cd || m.bjdong_cd")}`,
+    args: [query.complexId, ...bands, ...bands],
   });
   const row = master.rows[0];
   if (!row) return { found: false as const };
   const guCode = String(row.lawd_cd);
   const dongCode = `${guCode}${String(row.bjdong_cd)}`;
-  const bands: RankingAreaBandV3[] =
-    query.areaBand && query.areaBand !== "ALL" ? ["ALL", query.areaBand] : ["ALL"];
+  const pointers = new Map<string, { featureRunId: string; transactionAsOf: string }>();
+  for (const item of master.rows) {
+    if (item.area_band == null || item.feature_run_id == null) continue;
+    pointers.set(`${String(item.area_band)}:${String(item.scope)}`, {
+      featureRunId: String(item.feature_run_id),
+      transactionAsOf: String(item.transaction_as_of),
+    });
+  }
+  // 후보·점수는 발행 피처 런 ID 기준 인스턴스 캐시 — 발행이 바뀌면 키도 바뀐다.
   const boards = await Promise.all(
     bands.flatMap((band) =>
-      (["gu", "dong"] as const).map(async (scope) => ({
-        key: `${band}:${scope}`,
-        board: await readRankingV4Board(db, {
-          regionCode: scope === "gu" ? guCode : dongCode,
-          areaBand: band,
-        }),
-      })),
+      (["gu", "dong"] as const).map(async (scope) => {
+        const pointer = pointers.get(`${band}:${scope}`);
+        const regionCode = scope === "gu" ? guCode : dongCode;
+        return {
+          key: `${band}:${scope}`,
+          board: /^[0-9]{5}([0-9]{5})?$/.test(regionCode)
+            ? await readRankingV4BoardAtPointer(db, {
+                regionScope: scope,
+                regionCode,
+                areaBand: band,
+                featureRunId: pointer?.featureRunId ?? null,
+                transactionAsOf: pointer?.transactionAsOf ?? null,
+              })
+            : null,
+        };
+      }),
     ),
   );
   const byKey = new Map(boards.map((item) => [item.key, item.board]));
