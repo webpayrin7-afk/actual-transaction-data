@@ -489,6 +489,30 @@ async function main() {
     }
   }
 
+  // 단지 실거래 스냅샷 — 지난 갱신 뒤 transactions 변경 표시 번호가 오른 단지만 다시 만든다
+  // (이번 sync 쓰기 + sync 밖 직접 UPDATE 모두). 번호 오름차순 묶음마다 기준 번호를 올리므로
+  // 한도(APT_TX_SNAPSHOT_REFRESH_MAX)를 넘는 날은 다음 sync 가 이어서 한다.
+  // 초기 적재 전(기준 번호 없음)이면 건너뛰고, 트리거가 없으면 에러 → 요청 경로는 라이브 폴백.
+  if (!dryRun && process.env.APT_TX_SNAPSHOT_REFRESH !== "0") {
+    try {
+      const { refreshAptTxSnapshots } = await import("../src/lib/db/apt-tx-snapshot");
+      const max = Number(process.env.APT_TX_SNAPSHOT_REFRESH_MAX ?? "5000");
+      const t0 = Date.now();
+      const r = await refreshAptTxSnapshots(db, {
+        maxComplexes: Number.isFinite(max) && max > 0 ? max : 5000,
+        deadlineAt: t0 + 20 * 60 * 1000,
+        log: (msg) => console.log(msg),
+      });
+      const sum = (k: "inserted" | "updated" | "markOnly" | "deleted" | "raced" | "fresh") =>
+        r.stats.reduce((acc, s) => acc + s[k], 0);
+      console.log(
+        `[sync] apt_tx_hist_snap ${r.skipped ?? "refreshed"} changed=${r.changed} processed=${r.processed} batches=${r.batches} lawds=${r.lawds} ins=${sum("inserted")} upd=${sum("updated")} markOnly=${sum("markOnly")} del=${sum("deleted")} raced=${sum("raced")} fresh=${sum("fresh")} deferred=${r.deferred} failed=${r.failedLawds.length} wm=${r.watermark.from}→${r.watermark.to ?? "unchanged"} ms=${Date.now() - t0}`,
+      );
+    } catch (err) {
+      console.warn("[sync] apt_tx_hist_snap refresh failed (요청 경로는 라이브 폴백):", err);
+    }
+  }
+
   if (stop) {
     process.exit(2);
   }

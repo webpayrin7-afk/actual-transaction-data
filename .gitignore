@@ -61,3 +61,6 @@ data/map-anchor/
 
 # type-dong-links raw API cache
 /data/poc/type-dong-links/cache/
+
+# 서울 3D 건물 타일 (scripts/map3d로 만들고 Vercel Blob에 올린다 — 수십 MB라 git에 넣지 않음)
+/public/map3d/*.pmtiles
