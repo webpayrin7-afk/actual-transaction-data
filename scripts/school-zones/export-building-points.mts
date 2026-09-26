@@ -22,9 +22,10 @@ type Out = { complex_id: string; sd: string; lat: number; lng: number; src: stri
 /** 외곽선 넓이(㎡)·가운데 — 방향(시계·반시계) 상관없이 */
 function part(ring: Array<[number, number]>): [number, number, number] | null {
   let a = 0, cx = 0, cy = 0;
-  for (let i = 0; i < ring.length - 1; i++) {
+  for (let i = 0; i < ring.length; i++) {
+      // 닫는 변까지 (외곽선이 첫 점으로 닫혀 있지 않아도 — 닫혀 있으면 마지막 변은 길이 0)
     const [x0, y0] = ring[i]!;
-    const [x1, y1] = ring[i + 1]!;
+    const [x1, y1] = ring[(i + 1) % ring.length]!;
     const k = x0 * y1 - x1 * y0;
     a += k; cx += (x0 + x1) * k; cy += (y0 + y1) * k;
   }

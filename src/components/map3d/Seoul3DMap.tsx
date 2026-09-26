@@ -205,9 +205,10 @@ function massCenter(shape: Complex3d | null, site: SiteBoundary | null): [number
     let a = 0;
     let cx = 0;
     let cy = 0;
-    for (let i = 0; i < ring.length - 1; i++) {
+    for (let i = 0; i < ring.length; i++) {
+      // 닫는 변까지 (외곽선이 첫 점으로 닫혀 있지 않아도 — 닫혀 있으면 마지막 변은 길이 0)
       const [x0, y0] = ring[i]!;
-      const [x1, y1] = ring[i + 1]!;
+      const [x1, y1] = ring[(i + 1) % ring.length]!;
       const k = x0 * y1 - x1 * y0;
       a += k;
       cx += (x0 + x1) * k;
@@ -656,6 +657,27 @@ export default function Seoul3DMap({
         };
       }
       map.addControl(new maplibregl.NavigationControl({ visualizePitch: true, showZoom: true }), "bottom-right");
+      // 나침반(위에서 보기) — 한 번 누르면 북쪽 위·수직, 다시 누르면 누르기 전 기울기·방향으로 돌아간다
+      {
+        const compass = map.getContainer().querySelector<HTMLButtonElement>(".maplibregl-ctrl-compass");
+        let saved: { pitch: number; bearing: number } | null = null;
+        compass?.addEventListener(
+          "click",
+          (e) => {
+            const flat = map.getPitch() < 1 && Math.abs(map.getBearing()) < 1;
+            if (flat && saved) {
+              e.preventDefault();
+              e.stopImmediatePropagation();
+              const back = saved;
+              saved = null;
+              map.easeTo({ ...back, duration: reducedMotion() ? 0 : 500 });
+              return;
+            }
+            saved = flat ? null : { pitch: map.getPitch(), bearing: map.getBearing() };
+          },
+          true,
+        );
+      }
       map.touchPitch.enable();
       map.on("error", (e) => {
         const msg = String((e as { error?: Error }).error?.message ?? "");

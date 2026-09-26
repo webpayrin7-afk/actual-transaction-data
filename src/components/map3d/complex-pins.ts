@@ -85,7 +85,7 @@ export const PINS_CSS = `
 .cx-sel .cx-dot{width:calc(var(--cx-d) + 4px);height:calc(var(--cx-d) + 4px);box-shadow:0 0 0 1px #fff,0 0 0 3.5px #0f172a}
 .cx-sel .cx-label{bottom:calc(var(--cx-d)/2 + ${LABEL_GAP + 4}px);background:#0f766e;border-color:#0b4f4a;color:#fff}
 .cx-sel .cx-val{color:#fff!important}
-.cx-pins[data-has-sel] .cx-pin:not(.cx-sel){opacity:.45}
+.cx-pins[data-has-sel] .cx-pin:not(.cx-sel){opacity:.75}
 .cx-pins[data-has-sel] .cx-pin:not(.cx-sel) .cx-label{box-shadow:none}
 .cx-sel{z-index:2}
 .cx-arrow{position:absolute;left:50%;bottom:100%;margin-bottom:2px;width:18px;height:18px;margin-left:-9px;animation:cx-bounce 1s ease-in-out infinite;filter:drop-shadow(0 1px 1px rgb(15 23 42/.35))}
