@@ -36,7 +36,7 @@ type Zone = {
   base_date: string;
 };
 type School = { zone_id: string; facility_school_id: string; school_name: string };
-type Link = { complex_id: string; zone_id: string; zone_kind: string; lat: number; lng: number; src: string };
+type Link = { complex_id: string; zone_id: string; zone_kind: string; lat: number; lng: number; src: string; share?: number | null };
 type Built = { stats: Record<string, unknown> & { link_base_date: string | null; sds: string[] }; zones: Zone[]; schools: School[]; links: Link[] };
 
 function arg(name: string): string | undefined {
@@ -58,11 +58,14 @@ async function main() {
   const zoneBase = [...new Set(built.zones.map((z) => z.base_date))];
   if (zoneBase.length !== 1) throw new Error(`통학구역 기준일이 여럿: ${zoneBase.join(",")}`);
 
-  // 학교 코드 — 정확 일치만
+  // 학교 코드 — 정확 일치만. 통학구역 SD_CD(광주 29·전남 46)와 school_master 새 시도코드(전남광주통합특별시 12)가 다를 수 있어
+  // 구역 시도코드로 못 찾으면 새 코드로 한 번 더 찾는다 (강원 42→51·전북 45→52 는 SHP 도 이미 새 코드).
+  const SD_ALIAS: Record<string, string[]> = { "29": ["12"], "46": ["12"], "42": ["51"], "45": ["52"] };
+  const smSds = [...new Set(sds.flatMap((s) => [s, ...(SD_ALIAS[s] ?? [])]))];
   const sm = await db.execute({
     sql: `SELECT school_code, school_name, sido_code, sgg_code, status FROM school_master
-           WHERE school_level = 'elementary' AND sido_code IN (${sds.map(() => "?").join(",")})`,
-    args: sds,
+           WHERE school_level = 'elementary' AND sido_code IN (${smSds.map(() => "?").join(",")})`,
+    args: smSds,
   });
   const byKey = new Map<string, Array<{ code: string; sgg: string | null; status: string | null }>>();
   for (const r of sm.rows) {
@@ -77,6 +80,7 @@ async function main() {
   const schoolCode = (s: School): string | null => {
     const z = zoneById.get(s.zone_id)!;
     let c = byKey.get(`${z.sd_cd}|${s.school_name}`) ?? [];
+    for (const alt of SD_ALIAS[z.sd_cd] ?? []) if (!c.length) c = byKey.get(`${alt}|${s.school_name}`) ?? [];
     if (c.length > 1 && z.sgg_cd) {
       const same = c.filter((x) => x.sgg === `${z.sd_cd}${z.sgg_cd}`);
       if (same.length) c = same;
@@ -157,6 +161,8 @@ async function main() {
     await db.execute(stmt);
   }
   const now = new Date().toISOString();
+  // share 열(relink-complexes.ts 가 더함)이 있으면 동 넓이 비율도 함께 넣는다 — 나중에 relink 로 다시 쓰지 않게
+  const hasShare = (await db.execute("PRAGMA table_info(complex_elem_school_zones)")).rows.some((r) => String(r.name) === "share");
   const run = async (stmts: InStatement[]) => {
     let affected = 0;
     for (let i = 0; i < stmts.length; i += 200) {
@@ -182,9 +188,9 @@ async function main() {
     ),
     complex_elem_school_zones: await run(
       newLinks.map((l) => ({
-        sql: `INSERT OR IGNORE INTO complex_elem_school_zones (complex_id, zone_id, zone_kind, point_lat, point_lng, point_source, zone_base_date, computed_at)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        args: [l.complex_id, l.zone_id, l.zone_kind, l.lat, l.lng, l.src, zoneBase[0]!, now],
+        sql: `INSERT OR IGNORE INTO complex_elem_school_zones (complex_id, zone_id, zone_kind, point_lat, point_lng, point_source, zone_base_date, computed_at${hasShare ? ", share" : ""})
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?${hasShare ? ", ?" : ""})`,
+        args: [l.complex_id, l.zone_id, l.zone_kind, l.lat, l.lng, l.src, zoneBase[0]!, now, ...(hasShare ? [l.share ?? null] : [])],
       })),
     ),
   };
