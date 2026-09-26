@@ -160,7 +160,44 @@ function labelValue(c: MapComplex, metric: MarkerMetric): { text: string; color:
   return { text: v.text, color: v.color ?? "#115e59" };
 }
 
-function toGeoJson(list: MapComplex[], metric: Map3dMetric, labelMetric: MarkerMetric): GeoJSON.FeatureCollection {
+/** 고른 단지 점을 옮길 자리 — 단지 좌표는 필지 모서리·길가일 때가 있어, 동들의 가운데(면적 가중)로 */
+type PointAt = { id: string; lng: number; lat: number };
+
+function massCenter(shape: Complex3d | null, site: SiteBoundary | null): [number, number] | null {
+  let sx = 0;
+  let sy = 0;
+  let sw = 0;
+  for (const b of shape?.buildings ?? []) {
+    const ring = b.rings?.[0];
+    if (!ring || ring.length < 4) continue;
+    // 넓이·무게중심 (경위도 그대로 — 단지 크기에서는 충분)
+    let a = 0;
+    let cx = 0;
+    let cy = 0;
+    for (let i = 0; i < ring.length - 1; i++) {
+      const [x0, y0] = ring[i]!;
+      const [x1, y1] = ring[i + 1]!;
+      const k = x0 * y1 - x1 * y0;
+      a += k;
+      cx += (x0 + x1) * k;
+      cy += (y0 + y1) * k;
+    }
+    if (Math.abs(a) < 1e-14) continue;
+    sx += cx / 3;
+    sy += cy / 3;
+    sw += a;
+  }
+  if (sw !== 0) return [sx / sw, sy / sw];
+  if (site?.bbox) return [(site.bbox[0] + site.bbox[2]) / 2, (site.bbox[1] + site.bbox[3]) / 2];
+  return null;
+}
+
+function toGeoJson(
+  list: MapComplex[],
+  metric: Map3dMetric,
+  labelMetric: MarkerMetric,
+  moved: PointAt | null = null,
+): GeoJSON.FeatureCollection {
   return {
     type: "FeatureCollection",
     features: list.map((c) => {
@@ -174,7 +211,8 @@ function toGeoJson(list: MapComplex[], metric: Map3dMetric, labelMetric: MarkerM
         hh: c.householdCount ?? 0,
       };
       if (v != null) props.v = v;
-      return { type: "Feature", geometry: { type: "Point", coordinates: [c.lng, c.lat] }, properties: props };
+      const at = moved?.id === c.complexId ? [moved.lng, moved.lat] : [c.lng, c.lat];
+      return { type: "Feature", geometry: { type: "Point", coordinates: at }, properties: props };
     }),
   };
 }
@@ -384,6 +422,8 @@ export default function Seoul3DMap({
   const [complexes, setComplexes] = useState<MapComplex[]>([]);
   const [truncated, setTruncated] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId);
+  const [selAtRaw, setSelAt] = useState<PointAt | null>(null);
+  const selAt = selAtRaw && selAtRaw.id === selectedId ? selAtRaw : null;
   /** 되살린 단지는 카메라를 다시 담지 않는다 (저장된 카메라 그대로) */
   const skipFrameRef = useRef<string | null>(frameInitialSelected ? null : initialSelectedId);
   const selectedIdRef = useRef<string | null>(initialSelectedId);
@@ -791,9 +831,9 @@ export default function Seoul3DMap({
     labelMetricRef.current = labelMetric;
     const map = mapRef.current;
     if (!map || !styleReady) return;
-    (map.getSource("complexes") as GeoJSONSource | undefined)?.setData(toGeoJson(visible, metric, labelMetric));
+    (map.getSource("complexes") as GeoJSONSource | undefined)?.setData(toGeoJson(visible, metric, labelMetric, selAt));
     map.setPaintProperty("complex-dots", "circle-color", stepColor(metric));
-  }, [visible, metric, labelMetric, styleReady]);
+  }, [visible, metric, labelMetric, styleReady, selAt]);
 
   // 고른 단지 — 점 테두리 · 이름표
   useEffect(() => {
@@ -838,6 +878,10 @@ export default function Seoul3DMap({
     let curSite: SiteBoundary | null = null;
     const paintSel = () => {
       if (ac.signal.aborted) return;
+      const c = massCenter(curShape, curSite);
+      setSelAt((prev) =>
+        c && !(prev?.id === id && prev.lng === c[0] && prev.lat === c[1]) ? { id, lng: c[0], lat: c[1] } : prev,
+      );
       const own = curShape ? buildingsGeoJson(curShape).features : [];
       setSrc("sel-buildings", { type: "FeatureCollection", features: [...tileBuildingsOf(map, curShape, curSite), ...own] });
     };
