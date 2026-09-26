@@ -339,9 +339,11 @@ export async function replaceMonthTransactions(params: {
     );
   }
 
-  // sync_months metadata는 transaction write가 있을 때만 (1 cell upsert)
+  // sync_months metadata는 transaction write가 있을 때만 (1 cell upsert).
+  // 맨 마지막 문장(= 마지막 묶음)에 둔다 — 거래 묶음이 모두 들어간 뒤에만 이 달이 적재 완료로 보인다.
+  // 중간 묶음에서 실패하면 sync_months 는 예전 값 그대로 → 다음 sync 가 다시 비교해 채운다.
   if (wroteTx) {
-    statements.unshift({
+    statements.push({
       sql: `INSERT INTO sync_months (lawd_cd, year_month, deal_kind, synced_at, row_count)
             VALUES (?, ?, ?, ?, ?)
             ON CONFLICT(lawd_cd, year_month, deal_kind) DO UPDATE SET

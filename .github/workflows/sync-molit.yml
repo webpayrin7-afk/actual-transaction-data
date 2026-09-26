@@ -32,6 +32,12 @@ on:
         required: false
         default: "true"
 
+# 15분 cron 이 앞 실행과 겹치지 않게 한 번에 하나만 (뒤 실행은 기다림, 취소하지 않음).
+# 대기 중 실행은 그룹당 1개만 남는다 — 더 새 실행이 오면 대기 중이던 것만 교체된다.
+concurrency:
+  group: sync-molit-warehouse
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest
