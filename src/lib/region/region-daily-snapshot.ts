@@ -16,7 +16,10 @@
  * 3) 달 목록(contractMonthOptions·activityYearMonths)은 sync_months 에서 온다(거래 번호로 안 잡힘).
  *    같은 SELECT 에서 지금 달 목록을 같이 읽어 그 두 필드를 라이브와 같은 함수로 다시 만든다.
  *    지금 sync_months 가 비었으면(라이브는 transactions 로 대신 셈) 저장 때도 비었을 때만 쓴다.
- * 표가 없거나(트리거 미적용 포함) 읽기가 실패하면 null. ZIPLAB_REGION_DAILY_SNAPSHOT=0 이면 읽지 않는다.
+ * 4) 트리거: transactions 트리거 4개·변경 표시 표·이 표의 새 열이 모두 있을 때만 (sqlite_master, 인스턴스당
+ *    캐시 — 있음 2분, 없음 5분). 없으면 스냅샷 SELECT 도 보내지 않는다 (요청마다 실패하는 쿼리 없음).
+ *    트리거 없이 표만 있으면 번호가 안 바뀌어 "번호 같음"이 거짓이 되므로, 표만으로는 믿지 않는다.
+ * 읽기가 실패하면 null (스키마 에러면 게이트를 닫는다). ZIPLAB_REGION_DAILY_SNAPSHOT=0 이면 읽지 않는다.
  *
  * 쓰는 쪽 규칙(빌더): strict 계산(DB 에러를 던짐)만 저장하고, 저장은 계산 전에 읽은 번호가
  * 그대로일 때만 되는 조건부 쓰기(markUnchangedCondition)로 한다.
@@ -30,6 +33,14 @@ import {
   isMarkCurrent,
   markUnchangedCondition,
 } from "@/lib/db/snapshot-freshness";
+import {
+  TX_CHANGE_TRIGGERS,
+  createSnapshotSchemaGate,
+  isMissingSchemaError,
+  readSnapshotSchemaStatus,
+  type RequiredTable,
+  type SnapshotSchemaStatus,
+} from "@/lib/db/tx-change-status";
 import { yearMonthFromSeoulDate } from "@/lib/market/time";
 import { monthSelectorOptions } from "@/lib/region/market-insight";
 
@@ -41,6 +52,46 @@ export function regionDailySnapshotEnabled(): boolean {
 }
 
 type SqlPart = { sql: string; args: Array<string | number> };
+
+/** 읽기·쓰기에 필요한 이 표의 열 (옛 표에는 없을 수 있음) */
+export const REGION_DAILY_SNAPSHOT_TABLE: RequiredTable = {
+  name: "region_daily_snapshot",
+  columns: ["payload", "seoul_date", "tx_mark", "build_seq", "months_key", "hero_date", "hero_is_today"],
+};
+
+const readGate = createSnapshotSchemaGate({
+  label: "region-daily",
+  tables: [REGION_DAILY_SNAPSHOT_TABLE],
+});
+
+/** 테스트 전용: 스키마를 바꾼 뒤 캐시된 확인을 버린다 */
+export function resetRegionDailySnapshotGate(): void {
+  readGate.reset();
+}
+
+/** 빌더·검증용 (캐시 없음): 트리거·표·열. 에러는 던진다. */
+export function readRegionDailySnapshotSchemaStatus(
+  db: Client,
+  opts: { includeSnapshotTable?: boolean } = {},
+): Promise<SnapshotSchemaStatus> {
+  return readSnapshotSchemaStatus(
+    db,
+    opts.includeSnapshotTable === false ? [] : [REGION_DAILY_SNAPSHOT_TABLE],
+  );
+}
+
+/**
+ * 조건부 쓰기용: 트리거 4개가 지금도 transactions 에 걸려 있을 때만 참 (sqlite_master, 쓰기 한 번에 약 280행 읽기).
+ * 빌더가 실행 중에 트리거가 지워져도 저장하지 않는다.
+ */
+function triggersPresentCondition(): SqlPart {
+  return {
+    sql: `(SELECT COUNT(*) FROM sqlite_master
+            WHERE type = 'trigger' AND tbl_name = 'transactions'
+              AND name IN (${TX_CHANGE_TRIGGERS.map(() => "?").join(",")})) = ?`,
+    args: [...TX_CHANGE_TRIGGERS, TX_CHANGE_TRIGGERS.length],
+  };
+}
 
 /**
  * 지금 달 목록 — queryAvailableTradeMonths 의 sync_months 쿼리와 같은 조건, 쉼표로 이은 문자열.
@@ -102,6 +153,8 @@ export async function readRegionDailySnapshot<T extends MonthOptionFields>(param
   if (!db) return null;
   const lawdCodes = [...params.region.lawdCodes];
   if (lawdCodes.length === 0) return null;
+  // 트리거·표·열이 없으면 스냅샷 SELECT 를 보내지 않는다 (캐시된 확인, 대부분 왕복 없음)
+  if (!(await readGate.isReady(db))) return null;
   try {
     const mark = changeMarkSubquery({ lawds: lawdCodes });
     const months = regionMonthsKeySubquery(lawdCodes);
@@ -143,6 +196,10 @@ export async function readRegionDailySnapshot<T extends MonthOptionFields>(param
     }
     return payload;
   } catch (error) {
+    if (isMissingSchemaError(error)) {
+      readGate.markMissing(error instanceof Error ? error.message : String(error));
+      return null;
+    }
     if (!readFailWarned) {
       readFailWarned = true;
       console.warn(
@@ -264,12 +321,13 @@ export type SnapshotWrite = {
 export function snapshotWriteStatement(w: SnapshotWrite): InStatement {
   const unchanged = markUnchangedCondition({ lawds: w.region.lawdCodes }, w.basis.mark);
   const months = regionMonthsKeySubquery(w.region.lawdCodes);
+  const triggers = triggersPresentCondition();
   return {
     sql: `INSERT INTO region_daily_snapshot
             (region_slug, part, year_month, seoul_date, source_sync, content_hash, built_at, payload,
              tx_mark, build_seq, months_key, hero_date, hero_is_today)
           SELECT ?, ?, ?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?
-           WHERE ${unchanged.sql} AND ${months.sql} = ?
+           WHERE ${unchanged.sql} AND ${months.sql} = ? AND ${triggers.sql}
           ON CONFLICT(region_slug, part, year_month) DO UPDATE SET
             seoul_date = excluded.seoul_date,
             source_sync = excluded.source_sync,
@@ -297,6 +355,7 @@ export function snapshotWriteStatement(w: SnapshotWrite): InStatement {
       ...unchanged.args,
       ...months.args,
       w.basis.monthsKey,
+      ...triggers.args,
     ],
   };
 }
@@ -358,13 +417,27 @@ export async function refreshRegionDailySnapshots(params: {
   const { createHash } = await import("node:crypto");
   const t0 = Date.now();
 
-  // 표·트리거가 없으면 여기서 던진다 — 번호 없이는 저장하지 않는다.
+  // 트리거·변경 표시 표가 없으면 던진다 — 트리거 없는 번호는 믿을 수 없다(바뀌지 않음).
+  // apply 면 이 표·열도 있어야 한다 (스크립트가 ensureRegionDailySnapshotTable 을 먼저 부름).
+  // 드라이런은 이 표가 없거나 옛 표여도 "행 없음"으로 보고 계산만 한다.
+  const status = await readRegionDailySnapshotSchemaStatus(db);
+  const snapTable = `${REGION_DAILY_SNAPSHOT_TABLE.name}`;
+  const trackingMissing = status.missing.filter((m) => !m.includes(snapTable));
+  if (trackingMissing.length > 0) {
+    throw new Error(`tx change tracking not installed — missing ${trackingMissing.join(", ")}`);
+  }
+  const tableReady = status.ready;
+  if (apply && !tableReady) {
+    throw new Error(`region_daily_snapshot not ready — missing ${status.missing.join(", ")}`);
+  }
   const globalRes = await db.execute(
     `SELECT ${changeMarkSubquery({ global: true }).sql} AS g`,
   );
   const globalSeq = intOrNull(globalRes.rows[0]?.g);
   if (globalSeq == null) throw new Error("tx_change_seq: unexpected value");
-  const existing = await readExistingSnapshotRows(db, yearMonth);
+  const existing = tableReady
+    ? await readExistingSnapshotRows(db, yearMonth)
+    : new Map<string, ExistingSnapshotRow>();
 
   const summary: RegionDailySnapshotRefreshSummary = {
     seoulDate,
