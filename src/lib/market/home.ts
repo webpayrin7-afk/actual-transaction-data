@@ -26,6 +26,8 @@ const VOLUME_WINDOW_DAYS = 30;
 const VOLUME_SCAN_LIMIT = 1000;
 /** 늘어난 건수 순위라 순위 정책(최대 10 · 5개 + 더보기)을 따른다 */
 const VOLUME_LIST_LIMIT = 10;
+/** 지도 브리핑 '이 지역' — 시·군·구마다 앞에서 이만큼까지 (전국 목록 밖의 것만 따로 보낸다) */
+const LOCAL_PER_LAWD = 5;
 const MIN_RECENT_VOLUME = 5;
 const MIN_PRIOR_VOLUME = 3;
 const MIN_VOLUME_GROWTH_RATIO = 2;
@@ -50,6 +52,8 @@ export interface MarketDealItem {
   kindLabel: string;
   /** 시스템 최초 확인 시각 (ISO). 신고일 아님 */
   firstSeenAt?: string | null;
+  /** 시·군·구 LAWD 5자리 — 예전 스냅샷에는 없다 */
+  lawdCd?: string;
 }
 
 export interface MarketVolumeItem {
@@ -61,6 +65,24 @@ export interface MarketVolumeItem {
   priorCount: number;
   increaseCount: number;
   growthPct: number | null;
+  /** 시·군·구 LAWD 5자리 */
+  lawdCd?: string;
+}
+
+/**
+ * 지도 브리핑 '이 지역'(시·도 · 구) 거르기용 — 전체 목록은 앞 몇 개만 보내므로,
+ * LAWD별 전체 개수와, 구마다 앞 LOCAL_PER_LAWD개 중 전국 목록에 빠진 것만(전체 순서 그대로) 더 보낸다.
+ * 구·시·도 어느 쪽으로 걸러도 앞 5개는 (전국 목록 ∪ extra) 안에 모두 있다.
+ */
+export interface MarketLocalList<T> {
+  counts: Record<string, number>;
+  extra: T[];
+}
+
+export interface MarketLocalLists {
+  singoga?: MarketLocalList<MarketDealItem>;
+  drops?: MarketLocalList<MarketDealItem>;
+  volumeSurges?: MarketLocalList<MarketVolumeItem>;
 }
 
 /** 오늘 새로 확인된 매매의 지역 분포 — 시·군·구(지역 페이지 단위) */
@@ -113,6 +135,8 @@ export interface MarketHomeResponse {
   notables: MarketDealItem[];
   /** 읽기 시점 집계 (스냅샷에는 없음) */
   regionBreakdown?: MarketRegionBreakdown | null;
+  /** 지역별 개수·목록 보충 (예전 스냅샷에는 없음) */
+  local?: MarketLocalLists;
   warning?: string;
 }
 
@@ -155,6 +179,20 @@ function hrefFor(row: {
   gu: string;
 }): string {
   return aptDetailHref(row.aptName, regionSlugFor(row.lawdCd, row.gu), row.gu);
+}
+
+/** 정렬된 전체 목록 → LAWD별 개수 + 앞 `shown`개 밖에서 구마다 앞 LOCAL_PER_LAWD개 */
+function localList<T extends { lawdCd?: string }>(sorted: T[], shown: number): MarketLocalList<T> {
+  const counts: Record<string, number> = {};
+  const extra: T[] = [];
+  sorted.forEach((item, i) => {
+    const k = item.lawdCd;
+    if (!k) return;
+    const n = (counts[k] ?? 0) + 1;
+    counts[k] = n;
+    if (i >= shown && n <= LOCAL_PER_LAWD) extra.push(item);
+  });
+  return { counts, extra };
 }
 
 function emptyResponse(warning?: string): MarketHomeResponse {
@@ -301,6 +339,7 @@ async function computeVolumeSurges(asOfDate: string): Promise<MarketVolumeItem[]
         gu,
         dong: String(row.dong ?? ""),
         href: hrefFor({ aptName, lawdCd, gu }),
+        lawdCd,
         recentCount,
         priorCount,
         increaseCount: recentCount - priorCount,
@@ -414,6 +453,7 @@ function withVolumeSurges(
       ...payload.kpis,
       volumeSurgeCount: volumeSurges.length,
     },
+    local: { ...payload.local, volumeSurges: localList(volumeSurges, VOLUME_LIST_LIMIT) },
   };
 }
 
@@ -639,6 +679,7 @@ export async function computeMarketHome(opts?: {
         kind: "singoga",
         kindLabel: "신규 신고가",
         firstSeenAt: tx.firstSeenAt,
+        lawdCd: tx.lawdCd,
       });
     }
     if (dropFlag) {
@@ -658,6 +699,7 @@ export async function computeMarketHome(opts?: {
         kind: "drop",
         kindLabel: "신규 하락거래",
         firstSeenAt: tx.firstSeenAt,
+        lawdCd: tx.lawdCd,
       });
     }
     if (tx.dealAmount >= HIGH_PRICE_MAN) {
@@ -679,6 +721,7 @@ export async function computeMarketHome(opts?: {
         kind: "high",
         kindLabel: "신규 고가거래",
         firstSeenAt: tx.firstSeenAt,
+        lawdCd: tx.lawdCd,
       });
     }
   }
@@ -721,6 +764,10 @@ export async function computeMarketHome(opts?: {
     highDeals: highDeals.slice(0, LIST_LIMIT),
     volumeSurges: [],
     notables,
+    local: {
+      singoga: localList(singoga, LIST_LIMIT),
+      drops: localList(drops, LIST_LIMIT),
+    },
   };
 }
 

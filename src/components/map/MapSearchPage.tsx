@@ -43,10 +43,10 @@ import { formatDealDate, formatEok } from "@/lib/utils/format";
 import { LabIndeterminateBar } from "@/components/ui/LabLoading";
 import type { Map3dView } from "@/components/map3d/Seoul3DMap";
 import { MapViewSwitch } from "@/components/map/MapViewSwitch";
-import { MapBriefingSheet, type BriefingTarget } from "@/components/map/MapBriefingSheet";
+import { MapBriefingSheet, type BriefingTarget, type BriefingView } from "@/components/map/MapBriefingSheet";
 import { Map3dInvite, mark3dInviteDone, read3dInviteDone } from "@/components/map/Map3dInvite";
 import { SEOUL_BOUNDS } from "@/components/map3d/seoul-3d-style";
-import { clear3dSession, read3dSession, replaceViewParam } from "@/lib/map/view-state";
+import { clear3dSession, read3dSession, replaceViewParam, shouldJump } from "@/lib/map/view-state";
 
 /** 서울 3D 지도 — MapLibre(약 1MB)는 3D를 열 때만 받는다 (2D 번들에 넣지 않음). */
 const Seoul3DMap = dynamic(() => import("@/components/map3d/Seoul3DMap"), {
@@ -241,6 +241,9 @@ function MapSearchPageInner() {
   const [focus3d, setFocus3d] = useState<{ lat: number; lng: number; complexId: string | null; seq: number } | null>(null);
   /** 3D 지도에 단지 카드가 떠 있나 — 그동안 브리핑 시트를 숨긴다 */
   const [card3d, setCard3d] = useState(false);
+  /** 브리핑 '지역' 범위용 — 2D 지도가 멈춘 곳(네이버 줌), 3D 카메라가 멈춘 곳(MapLibre 줌) */
+  const [view2d, setView2d] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
+  const [cam3d, setCam3d] = useState<Map3dView | null>(null);
   /** 처음 온 사람 3D 안내 — 한 번 닫거나 3D를 쓰면 끝 (null = 아직 모름, 서버 렌더와 같게) */
   const [inviteDone, setInviteDone] = useState<boolean | null>(null);
   useEffect(() => {
@@ -266,6 +269,7 @@ function MapSearchPageInner() {
       /* 2D 지도 상태를 못 읽으면 저장된 위치 */
     }
     setSelectedId(null);
+    setCam3d(null);
     // 네이버 줌(256px 타일)과 MapLibre 줌(512px)은 1 차이 — 같은 축척으로 연다
     setView3d({ lat: v.lat, lng: v.lng, zoom: Math.max(v.zoom, COMPLEX_ZOOM) - 1 });
   };
@@ -275,6 +279,8 @@ function MapSearchPageInner() {
     clear3dSession(pathname);
     setFocus3d(null);
     setCard3d(false);
+    setCam3d(null);
+    setView2d({ lat: v.lat, lng: v.lng, zoom: Math.round(v.zoom + 1) });
     const maps = window.naver?.maps;
     try {
       if (maps && mapRef.current) {
@@ -381,6 +387,7 @@ function MapSearchPageInner() {
         // 2D가 없어도 3D 안내·브리핑은 마지막으로 본 곳 기준으로
         const v = readLastView();
         setCenter({ lat: v.lat, lng: v.lng });
+        setView2d(v);
         setState("error");
         setError(loaded.ok ? NAVER_AUTH_FAILURE_MESSAGE : loaded.reason);
         return;
@@ -400,7 +407,11 @@ function MapSearchPageInner() {
         }) as MapWithBounds;
         mapRef.current = map;
         setCenter({ lat: view.lat, lng: view.lng });
+        setView2d({ lat: view.lat, lng: view.lng, zoom: view.zoom });
         maps.Event.addListener(map, "idle", () => {
+          // 브리핑 범위는 시트가 400ms 기다렸다 정한다 — 여기서는 멈춘 곳만 알린다
+          const ic = map.getCenter();
+          setView2d({ lat: ic.y, lng: ic.x, zoom: map.getZoom() });
           window.clearTimeout(idleTimer);
           idleTimer = window.setTimeout(() => {
             setCullTick((t) => t + 1);
@@ -746,31 +757,55 @@ function MapSearchPageInner() {
     setConditions(next);
   };
 
-  /** 브리핑 항목 → 지도 이동. 2D는 가운데·줌을 옮기고 단지를 고르고, 3D는 날아가서 단지를 고른다(경계·강조). */
+  /** 2D 지도를 옮긴다 — 가까우면 부드럽게(morph), 멀거나 줌이 크게 바뀌거나 동작 줄이기면 바로. 못 옮기면 false */
+  const move2d = (lat: number, lng: number, zoom: number, forceJump = false): boolean => {
+    const map = mapRef.current;
+    const maps = window.naver?.maps;
+    if (!map || !maps || isNaverMapAuthFailed()) return false;
+    try {
+      const at = new maps.LatLng(lat, lng);
+      const c = map.getCenter();
+      const jump = forceJump || shouldJump({ lat: c.y, lng: c.x, zoom: map.getZoom() }, { lat, lng, zoom });
+      if (map.morph && !jump && !prefersReducedMotion()) map.morph(at, zoom);
+      else {
+        map.setCenter(at);
+        map.setZoom?.(zoom);
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  /**
+   * 브리핑 항목 → 지도 이동. 2D는 가운데·줌을 옮기고 단지를 고르고, 3D는 그리로 가서 단지를 고른다(경계·강조).
+   * 가까우면 날고, 멀면(약 15km 넘게) 바로 옮긴다. 3D에서 서울 밖을 고르면 2D로 바꿔서 옮긴다(3D는 서울만).
+   */
   const goToTarget = (t: BriefingTarget) => {
     const complexId = t.kind === "complex" ? t.complexId : null;
     setZoneId(null);
-    if (view3d) {
-      setFocus3d({ lat: t.lat, lng: t.lng, complexId, seq: Date.now() });
-      return;
-    }
-    const map = mapRef.current;
-    const maps = window.naver?.maps;
     // 네이버 지도: 단지는 단지 거리보다 한 칸 더, 지역은 단지가 보이는 거리
     const zoom = complexId ? COMPLEX_ZOOM + 2 : COMPLEX_ZOOM;
-    if (map && maps && state !== "error") {
-      try {
-        const at = new maps.LatLng(t.lat, t.lng);
-        if (map.morph && !prefersReducedMotion()) map.morph(at, zoom);
-        else {
-          map.setCenter(at);
-          map.setZoom?.(zoom);
-        }
-        setSelectedId(complexId);
+    if (view3d) {
+      if (inSeoul(t) || state === "error") {
+        // 서울이거나 2D를 못 띄웠으면(인증 실패 등) 3D 안에서 옮긴다 (먼 곳은 3D가 바로 옮김)
+        setFocus3d({ lat: t.lat, lng: t.lng, complexId, seq: Date.now() });
         return;
-      } catch {
-        /* 2D가 안 되면 아래 3D로 */
       }
+      // 3D → 2D (주소 view 도 2D로), 그 자리로 바로
+      setView3d(null);
+      replaceViewParam("2d");
+      clear3dSession(pathname);
+      setFocus3d(null);
+      setCard3d(false);
+      setCam3d(null);
+      setView2d({ lat: t.lat, lng: t.lng, zoom });
+      if (move2d(t.lat, t.lng, zoom, true)) setSelectedId(complexId);
+      return;
+    }
+    if (state !== "error" && move2d(t.lat, t.lng, zoom)) {
+      setSelectedId(complexId);
+      return;
     }
     // 2D 지도를 못 띄웠으면(인증 실패 등) 그 자리를 3D로 연다
     saveLastView({ lat: t.lat, lng: t.lng, zoom });
@@ -778,9 +813,18 @@ function MapSearchPageInner() {
     clear3dSession(pathname);
     replaceViewParam("3d");
     setSelectedId(null);
+    setCam3d(null);
     setView3d({ lat: t.lat, lng: t.lng, zoom: zoom - 1 });
     setFocus3d({ lat: t.lat, lng: t.lng, complexId, seq: Date.now() });
   };
+  /** 브리핑 범위 — 지금 보는 지도(3D면 카메라, 아직 안 움직였으면 연 자리) */
+  const briefView = useMemo<BriefingView | null>(() => {
+    if (view3d) {
+      const v = cam3d ?? view3d;
+      return { lat: v.lat, lng: v.lng, zoom: v.zoom, mode: "3d" };
+    }
+    return view2d ? { ...view2d, mode: "2d" } : null;
+  }, [view3d, cam3d, view2d]);
   const briefingHidden = view3d ? card3d : Boolean(selected) || Boolean(zone);
   const showInvite = inviteDone === false && !view3d && center != null && inSeoul(center);
 
@@ -1002,7 +1046,7 @@ function MapSearchPageInner() {
           >
             <div className="flex items-center gap-2">
               <p className="min-w-0 flex-1 truncate leading-5">
-                <span className="text-[15px] font-bold text-[color:var(--lab-navy-950)]">{selected.aptName}</span>
+                <span className="text-[15px] font-bold text-[color:var(--lab-teal-700)]">{selected.aptName}</span>
                 {selected.guRank ? (
                   <span
                     className="ml-1.5 rounded px-1 text-[11px] font-semibold leading-4"
@@ -1043,7 +1087,7 @@ function MapSearchPageInner() {
                     ? ` ${Math.floor(selected.mainAreaSqm)}㎡`
                     : ""}
               </span>
-              <span className="shrink-0 text-[15px] font-bold tabular-nums text-[color:var(--lab-navy-950)]">
+              <span className="shrink-0 text-[15px] font-bold tabular-nums text-[color:var(--lab-teal-700)]">
                 {selected.priceMan ? formatEok(selected.priceMan) : "거래 없음"}
               </span>
               {selected.priceDate ? <span className="shrink-0 tabular-nums">{formatDealDate(selected.priceDate)}</span> : null}
@@ -1106,14 +1150,14 @@ function MapSearchPageInner() {
             <div className="mt-1.5 flex gap-2">
               <Link
                 href={selected.href}
-                className="inline-flex h-9 flex-1 items-center justify-center rounded-lg bg-[color:var(--lab-navy-950)] text-[14px] font-semibold text-white"
+                className="lab-button lab-button-primary h-9 !min-h-9 flex-1 text-[14px]"
               >
                 단지 상세
               </Link>
               {selected3d ? (
                 <Link
                   href={`/complex-3d/${selected.complexId}`}
-                  className="inline-flex h-9 flex-1 items-center justify-center rounded-lg border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] text-[14px] font-semibold text-[color:var(--lab-navy-950)]"
+                  className="lab-button lab-button-secondary h-9 !min-h-9 flex-1 text-[14px]"
                 >
                   3D 탐색
                 </Link>
@@ -1121,7 +1165,7 @@ function MapSearchPageInner() {
                 <button
                   type="button"
                   disabled
-                  className="inline-flex h-9 flex-1 items-center justify-center rounded-lg border border-[color:var(--lab-border)] text-[14px] font-medium text-[color:var(--lab-muted)]"
+                  className="lab-button lab-button-secondary h-9 !min-h-9 flex-1 text-[14px]"
                 >
                   {selected3d === false ? "3D 준비 중" : "3D 탐색"}
                 </button>
@@ -1281,11 +1325,12 @@ function MapSearchPageInner() {
           labelMetric={metric}
           onLabelMetricChange={chooseMetric}
           sessionPath={pathname}
+          onMoveEnd={setCam3d}
         />
       ) : null}
 
       {/* 오늘의 시장 브리핑 — 2D·3D 모두 (단지 카드가 뜨면 숨김) */}
-      <MapBriefingSheet hidden={briefingHidden} onTarget={goToTarget} />
+      <MapBriefingSheet hidden={briefingHidden} view={briefView} onTarget={goToTarget} />
 
       {showInvite ? (
         <Map3dInvite
