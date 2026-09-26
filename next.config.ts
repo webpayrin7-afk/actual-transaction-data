@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // 화면이 예전 배포로 떠 있는지 비교할 배포 번호 (NewVersionReload ↔ /api/build)
+  env: { NEXT_PUBLIC_DEPLOYMENT_ID: process.env.VERCEL_DEPLOYMENT_ID ?? process.env.VERCEL_GIT_COMMIT_SHA ?? "" },
   // Phone/tunnel preview (Cloudflare Quick Tunnel) needs the public host allowlisted
   // so client fetches/HMR are not blocked as cross-origin in `next dev`.
   allowedDevOrigins: [

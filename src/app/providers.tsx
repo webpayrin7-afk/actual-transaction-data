@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Suspense, useState } from "react";
 import { GlobalLoadProgress, LoadProgressProvider } from "@/components/layout/LoadProgress";
 import { InternalNavTracker } from "@/components/layout/InternalNavTracker";
+import { NewVersionReload } from "@/components/layout/NewVersionReload";
 import { ScrollToTopOnNavigate } from "@/components/layout/ScrollToTopOnNavigate";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -27,6 +28,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <InternalNavTracker />
           <ScrollToTopOnNavigate />
           <GlobalLoadProgress />
+          <NewVersionReload />
         </Suspense>
         {children}
       </LoadProgressProvider>
