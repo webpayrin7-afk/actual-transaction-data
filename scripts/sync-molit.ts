@@ -437,6 +437,24 @@ async function main() {
     console.log("[sync] apt_catalog rebuild skipped (no writes)");
   }
 
+  // 지도 단지 최근 거래 스냅샷 — 변경 번호가 바뀐 시군구의 바뀐 단지만 다시 만든다.
+  // 실패해도 지도는 변경 번호가 다른 단지를 거래 표에서 바로 읽는다(결과는 같고 느릴 뿐).
+  // 한 번에 시군구 30개까지 — 처음 채우기(모든 시군구)는 여러 번의 동기화에 나눠 이어 간다.
+  if (written > 0 && !dryRun) {
+    try {
+      const db = getDb();
+      if (db) {
+        const { refreshMapComplexRecent } = await import("../src/lib/map/map-complex-recent");
+        const r = await refreshMapComplexRecent(db, { mode: "stale", maxLawds: 30 });
+        console.log(
+          `[sync] map_complex_recent refreshed lawds=${r.lawds} targets=${r.targets} written=${r.written} markOnly=${r.markOnly} skippedChanged=${r.skippedChanged} deleted=${r.deleted}`,
+        );
+      }
+    } catch (err) {
+      console.warn("[sync] map_complex_recent refresh failed:", err);
+    }
+  }
+
   // 시장 홈 스냅샷 — 쓰기가 있거나 강제 플래그일 때 갱신
   const rebuildMarket =
     !dryRun &&
