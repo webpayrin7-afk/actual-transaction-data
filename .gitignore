@@ -58,3 +58,6 @@ data/map-anchor/
 # local API page caches (resumable; not source)
 /data/supply-fill-cache/
 /data/profile-fill-cache/
+
+# type-dong-links raw API cache
+/data/poc/type-dong-links/cache/
