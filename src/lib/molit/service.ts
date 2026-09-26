@@ -30,6 +30,10 @@ import {
 } from "@/lib/market/time";
 import { fetchTransactionsByType, hasApiKey } from "@/lib/molit/client";
 import { filterTransactions, sortByDealDateDesc } from "@/lib/molit/parse";
+import {
+  readRegionDailySnapshot,
+  type RegionDailySnapshotPart,
+} from "@/lib/region/region-daily-snapshot";
 import { buildRegionDemoTransactions } from "@/lib/mock/region-demo";
 import { MOCK_TRANSACTIONS } from "@/lib/mock/sample-data";
 import {
@@ -820,8 +824,11 @@ async function typePriorMaxesForDeals(params: {
   historyTrades: Transaction[];
   lawdCodes: string[];
   source: "db" | "api";
+  /** 스냅샷 만들기: DB 읽기 실패를 삼키지 않고 던진다 */
+  strict?: boolean;
 }): Promise<number[]> {
   const { deals, historyTrades, lawdCodes, source } = params;
+  const strict = params.strict === true;
   const tradesByApt = groupByAptName(historyTrades);
   const priorMaxes = deals.map((tx) =>
     priorTypeMaxAmount({
@@ -861,8 +868,11 @@ async function typePriorMaxesForDeals(params: {
         const dealIndex = sqlIndexes[i]!;
         priorMaxes[dealIndex] = Math.max(priorMaxes[dealIndex] ?? 0, sqlMax);
       });
+    } else if (strict) {
+      throw new Error("apt prior max: DB 없음");
     }
   } catch (error) {
+    if (strict) throw error;
     console.warn("[region-daily] apt prior max db read failed:", error);
   }
   return priorMaxes;
@@ -1051,6 +1061,30 @@ export async function getRegionDaily(params: {
   }
 
   const t0 = performance.now();
+  // 첫 화면(이번 달, 날짜·offset 지정 없음)은 동기화 뒤 만든 스냅샷 1행으로 먼저 본다.
+  // 거래 번호·날짜 규칙이 안 맞거나 읽기 실패면 null → 아래 라이브 계산.
+  const todayYm = yearMonthFromSeoulDate(today);
+  if (
+    hasDb() &&
+    (part === "latest" || part === "history" || part === "days") &&
+    seenMonth === todayYm &&
+    contractMonth === todayYm &&
+    dateList.length === 0 &&
+    offset === 0
+  ) {
+    const snap = await readRegionDailySnapshot<RegionDailyResponse>({
+      region,
+      part,
+      yearMonth: todayYm,
+      seoulDate: today,
+    });
+    if (snap) {
+      if (activeProfile) {
+        activeProfile.totalMs += Math.round(performance.now() - t0);
+      }
+      return cachePayload(cacheKey, snap);
+    }
+  }
   const payload = await computeRegionDaily({
     region,
     part,
@@ -1064,6 +1098,48 @@ export async function getRegionDaily(params: {
     activeProfile.totalMs += Math.round(performance.now() - t0);
   }
   return cachePayload(cacheKey, payload);
+}
+
+/**
+ * 스냅샷 만들기 전용: 스냅샷·요청 캐시를 거치지 않고 getRegionDaily 첫 화면과 같은 인자
+ * (contractMonth = seenMonth = yearMonth, 날짜·offset 없음)로 strict 계산한다.
+ * DB 읽기 에러는 던진다 — 부분 결과를 돌려주지 않는다.
+ */
+export async function computeRegionDailyStrict(params: {
+  region: RegionDef;
+  part: RegionDailySnapshotPart;
+  yearMonth: string;
+  seoulDate: string;
+}): Promise<RegionDailyResponse> {
+  return computeRegionDaily({
+    region: params.region,
+    part: params.part,
+    contractMonth: params.yearMonth,
+    seenMonth: params.yearMonth,
+    dates: [],
+    offset: 0,
+    today: params.seoulDate,
+    strict: true,
+  });
+}
+
+/** 검증·측정 전용: 캐시·스냅샷 없이 라이브 경로(에러를 삼키는 기존 계산) 그대로. */
+export async function computeRegionDailyLiveUncached(params: {
+  region: RegionDef;
+  part: RegionDailySnapshotPart;
+  yearMonth: string;
+  seoulDate: string;
+}): Promise<RegionDailyResponse> {
+  clearRegionDailyCaches();
+  return computeRegionDaily({
+    region: params.region,
+    part: params.part,
+    contractMonth: params.yearMonth,
+    seenMonth: params.yearMonth,
+    dates: [],
+    offset: 0,
+    today: params.seoulDate,
+  });
 }
 
 type MonthCacheEntry = {
@@ -1097,6 +1173,21 @@ function pruneExpired(
   }
 }
 
+/**
+ * strict(스냅샷 만들기): 캐시를 읽지도 쓰지도 않고, DB 읽기 에러·DB 없음은 던진다.
+ * 라이브 경로는 기존처럼 에러를 삼키고 빈 결과로 간다 — 그런 결과가 스냅샷으로 저장되면 안 된다.
+ */
+async function loadAvailableMonthsStrict(region: RegionDef): Promise<string[]> {
+  if (!hasDb()) throw new Error("region-daily strict: DB 없음");
+  const todayYm = yearMonthFromSeoulDate(seoulToday());
+  const months = await queryAvailableTradeMonths({
+    lawdCodes: [...region.lawdCodes],
+  });
+  return months.length > 0
+    ? months
+    : contractMonthOptions(todayYm, REGION_DAILY_FALLBACK_MONTHS);
+}
+
 async function loadAvailableMonths(region: RegionDef): Promise<string[]> {
   const cached = regionAvailableMonthsCache.get(region.slug);
   if (cached && cached.expires > Date.now()) return cached.months;
@@ -1120,6 +1211,38 @@ async function loadAvailableMonths(region: RegionDef): Promise<string[]> {
   });
   pruneExpired(regionAvailableMonthsCache, 48);
   return months;
+}
+
+async function loadRegionMonthTradesStrict(
+  region: RegionDef,
+  yearMonths: string[],
+): Promise<{ trades: Transaction[]; source: "db" | "api" }> {
+  if (!hasDb()) throw new Error("region-daily strict: DB 없음");
+  const unique = [...new Set(yearMonths.filter((ym) => ym.length === 6))];
+  if (unique.length === 0) return { trades: [], source: "db" };
+  // 라이브와 같은 순서(월별로 모은 뒤 요청한 월 순서대로 이어 붙임)
+  const fetched = await queryRegionTrades({
+    lawdCodes: [...region.lawdCodes],
+    yearMonths: unique,
+  });
+  const byYm = new Map<string, Transaction[]>();
+  for (const ym of unique) byYm.set(ym, []);
+  for (const tx of fetched) {
+    byYm.get(yearMonthFromDealDate(tx.dealDate))?.push(tx);
+  }
+  const trades: Transaction[] = [];
+  for (const ym of unique) trades.push(...(byYm.get(ym) ?? []));
+  return { trades, source: "db" };
+}
+
+async function loadRegionDiscoveriesStrict(
+  region: RegionDef,
+): Promise<{ trades: Transaction[]; source: "db" | "api" }> {
+  if (!hasDb()) throw new Error("region-daily strict: DB 없음");
+  const trades = await queryRegionDiscoveries({
+    lawdCodes: [...region.lawdCodes],
+  });
+  return { trades, source: "db" };
 }
 
 async function loadRegionMonthTrades(
@@ -1215,6 +1338,7 @@ async function loadRegionDiscoveries(
 async function loadAptHistoryForDeals(
   lawdCodes: string[],
   deals: Transaction[],
+  strict = false,
 ): Promise<Transaction[]> {
   const norms = [
     ...new Set(deals.map((tx) => normalizeAptName(tx.aptName)).filter(Boolean)),
@@ -1224,7 +1348,10 @@ async function loadAptHistoryForDeals(
     lawdCodes,
     aptNameNorms: norms,
   });
-  if (!rows) return [];
+  if (!rows) {
+    if (strict) throw new Error("apt history: DB 없음");
+    return [];
+  }
   return rows.map((row) => ({
     id: row.id,
     dealType: "trade" as const,
@@ -1366,8 +1493,10 @@ async function enrichSeenDay(params: {
   offset: number;
   withSparkline: boolean;
   skipHistoryReload?: boolean;
+  strict?: boolean;
 }): Promise<RegionDailyDaySection> {
   const { lawdCodes, source, daySeen, offset, withSparkline } = params;
+  const strict = params.strict === true;
   let historyTrades = params.historyTrades;
   const date = daySeen[0]?.axisDate ?? "";
   const totalCount = daySeen.length;
@@ -1383,8 +1512,10 @@ async function enrichSeenDay(params: {
       historyTrades = await loadAptHistoryForDeals(
         lawdCodes,
         daySeen.map(({ tx }) => tx),
+        strict,
       );
     } catch (error) {
+      if (strict) throw error;
       console.warn("[region-daily] apt history db read failed:", error);
     }
   }
@@ -1417,6 +1548,7 @@ async function enrichSeenDay(params: {
     historyTrades,
     lawdCodes,
     source,
+    strict,
   });
 
   const enriched = daySeen.map(({ tx, firstSeenDate, axisDate }, index) =>
@@ -1465,9 +1597,18 @@ async function computeRegionDaily(params: {
   dates: string[];
   offset: number;
   today: string;
+  /**
+   * 스냅샷 만들기 전용: DB 읽기 에러·DB 없음을 삼키지 않고 던지고 요청 캐시를 쓰지 않는다.
+   * 부분(열화) 결과가 스냅샷으로 저장되지 않게 한다. market·all 은 지원하지 않는다.
+   */
+  strict?: boolean;
 }): Promise<RegionDailyResponse> {
   const { region, part, contractMonth, seenMonth, dates, offset, today } =
     params;
+  const strict = params.strict === true;
+  if (strict && (!hasDb() || part === "market" || part === "all")) {
+    throw new Error(`region-daily strict: 지원하지 않는 호출 (part=${part}, db=${hasDb()})`);
+  }
   const lawdCodes = [...region.lawdCodes];
   const todayYm = yearMonthFromSeoulDate(today);
   const needsKpis = part === "market" || part === "all";
@@ -1490,10 +1631,20 @@ async function computeRegionDaily(params: {
   };
 
   const [availableMonths, discovered, monthLoad] = await Promise.all([
-    needsMonths ? loadAvailableMonths(region) : Promise.resolve([] as string[]),
-    needsLatest ? loadRegionDiscoveries(region) : Promise.resolve(emptyTradeLoad),
+    needsMonths
+      ? strict
+        ? loadAvailableMonthsStrict(region)
+        : loadAvailableMonths(region)
+      : Promise.resolve([] as string[]),
+    needsLatest
+      ? strict
+        ? loadRegionDiscoveriesStrict(region)
+        : loadRegionDiscoveries(region)
+      : Promise.resolve(emptyTradeLoad),
     needsKpis || needsHistory
-      ? loadRegionMonthTrades(region, [...kpiMonths, ...historyMonths])
+      ? strict
+        ? loadRegionMonthTradesStrict(region, [...kpiMonths, ...historyMonths])
+        : loadRegionMonthTrades(region, [...kpiMonths, ...historyMonths])
       : Promise.resolve(emptyTradeLoad),
   ]);
   const monthScopedTrades = monthLoad.trades;
@@ -1600,8 +1751,10 @@ async function computeRegionDaily(params: {
         sharedHistory = await loadAptHistoryForDeals(
           lawdCodes,
           historyRows.map(({ tx }) => tx),
+          strict,
         );
       } catch (error) {
+        if (strict) throw error;
         console.warn("[region-daily] apt history db read failed:", error);
       }
     }
@@ -1617,6 +1770,7 @@ async function computeRegionDaily(params: {
           offset: dayOffset,
           withSparkline,
           skipHistoryReload: true,
+          strict,
         });
       }),
     );
@@ -1632,8 +1786,10 @@ async function computeRegionDaily(params: {
         heroHistory = await loadAptHistoryForDeals(
           lawdCodes,
           daySeen.map(({ tx }) => tx),
+          strict,
         );
       } catch (error) {
+        if (strict) throw error;
         console.warn("[region-daily] apt history db read failed:", error);
       }
     }
@@ -1646,6 +1802,7 @@ async function computeRegionDaily(params: {
           offset: 0,
           withSparkline: true,
           skipHistoryReload: true,
+          strict,
         })
       : null;
     if (activeProfile) {
