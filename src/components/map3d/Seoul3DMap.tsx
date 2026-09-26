@@ -22,7 +22,12 @@ import { Protocol } from "pmtiles";
 import { ChevronDown, Compass, Satellite, X } from "lucide-react";
 import { LabIndeterminateBar } from "@/components/ui/LabLoading";
 import { ComplexCardMore } from "@/components/map/ComplexCardMore";
-import { MAP3D_ATTRIBUTION, Map3dAttribution, SATELLITE_ATTRIBUTION } from "@/components/map3d/Map3dAttribution";
+import {
+  MAP3D_ATTRIBUTION,
+  Map3dAttribution,
+  SATELLITE_ATTRIBUTION,
+  SCHOOL_ZONE_ATTRIBUTION,
+} from "@/components/map3d/Map3dAttribution";
 import { MARKER_METRICS, markerValue, shortEok, shortPerPyeong, type MarkerMetric } from "@/components/map/complex-marker";
 import type { MapComplex, MapDealKind } from "@/lib/map/map-complexes";
 import { activeCount, areaQuery, matches, type MapConditions } from "@/lib/map/map-filters";
@@ -92,6 +97,9 @@ const CONTROL_CSS = `
 `;
 
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
+/** 고른 단지의 초등학교 통학구역 — 대지·건물(청록)과 겹치지 않는 호박색, 옅게 */
+const SCHOOL_ZONE_COLOR = "#d97706";
+type SchoolZoneGeo = { geometry: GeoJSON.FeatureCollection };
 
 function reducedMotion(): boolean {
   try {
@@ -516,6 +524,9 @@ export default function Seoul3DMap({
   }, [onMoveEnd]);
   const shapeCache = useRef(new Map<string, Complex3d | null>());
   const siteCache = useRef(new Map<string, SiteBoundary | null>());
+  const zoneCache = useRef(new Map<string, SchoolZoneGeo | null>());
+  /** 통학구역을 그리고 있는 단지 — 출처 ⓘ에 통학구역 출처를 더할 때만 */
+  const [zoneShownId, setZoneShownId] = useState<string | null>(null);
 
   const deal = conditions.deal;
   const { min: areaMin, max: areaMax } = areaQuery(conditions);
@@ -682,6 +693,32 @@ export default function Seoul3DMap({
         }
         // 도로·지명 글자 아래에 건물을 둔다
         const firstSymbol = map.getStyle().layers.find((l) => l.type === "symbol")?.id;
+        // 고른 단지 초등학교 통학구역 — 대지 경계보다 아래, 옅은 면 + 점선
+        map.addSource("sel-zone", { type: "geojson", data: EMPTY });
+        map.addLayer(
+          {
+            id: "sel-zone-fill",
+            type: "fill",
+            source: "sel-zone",
+            paint: { "fill-color": SCHOOL_ZONE_COLOR, "fill-opacity": 0.08 },
+          },
+          firstSymbol,
+        );
+        map.addLayer(
+          {
+            id: "sel-zone-line",
+            type: "line",
+            source: "sel-zone",
+            layout: { "line-join": "round" },
+            paint: {
+              "line-color": SCHOOL_ZONE_COLOR,
+              "line-opacity": 0.85,
+              "line-width": ["interpolate", ["linear"], ["zoom"], 13, 1.5, 16, 2.5],
+              "line-dasharray": [2, 1.5],
+            },
+          },
+          firstSymbol,
+        );
         // 고른 단지 대지 경계 — 건물 아래 바닥에 (기울이면 건물이 가린다)
         map.addSource("sel-site", { type: "geojson", data: EMPTY });
         map.addLayer(
@@ -883,6 +920,29 @@ export default function Seoul3DMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusSeq, styleReady]);
 
+  // 고른 단지의 초등학교 통학구역 — 한 단지씩 불러 그린다. 없으면(서울·경기 밖·판정 없음) 그리지 않는다.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !styleReady) return;
+    const src = map.getSource("sel-zone") as GeoJSONSource | undefined;
+    // 바꾸거나 풀면 먼저 지운다 (출처는 zoneShownId === selectedId 일 때만 보여 따로 비우지 않는다)
+    src?.setData(EMPTY);
+    if (!selectedId) return;
+    const id = selectedId;
+    const ac = new AbortController();
+    const p = zoneCache.current.has(id)
+      ? Promise.resolve(zoneCache.current.get(id) ?? null)
+      : fetch(`/api/complex-school-zone/${id}`, { signal: ac.signal })
+          .then((r) => (r.ok ? (r.json() as Promise<SchoolZoneGeo>) : null))
+          .then((z) => (remember(zoneCache.current, id, z), z));
+    p.then((z) => {
+      if (ac.signal.aborted || !z?.geometry?.features?.length) return;
+      src?.setData(z.geometry);
+      setZoneShownId(id);
+    }).catch(() => {});
+    return () => ac.abort();
+  }, [selectedId, styleReady]);
+
   // 위성영상 — 바탕 지도 위, 단지 경계·건물 아래 (길 이름 등 글자는 그 위에 그대로)
   useEffect(() => {
     const map = mapRef.current;
@@ -901,7 +961,7 @@ export default function Seoul3DMap({
       });
     }
     if (!map.getLayer("satellite")) {
-      map.addLayer({ id: "satellite", type: "raster", source: "satellite", paint: { "raster-opacity": 0.95 } }, "sel-site-fill");
+      map.addLayer({ id: "satellite", type: "raster", source: "satellite", paint: { "raster-opacity": 0.95 } }, "sel-zone-fill");
     }
   }, [satellite, satelliteKey, styleReady]);
 
@@ -1251,7 +1311,11 @@ export default function Seoul3DMap({
 
       {/* 왼쪽 아래 출처 ⓘ — 독·시트 위, 단지 카드가 뜨면 카드 위로 */}
       <Map3dAttribution
-        lines={satellite && satelliteKey ? [...MAP3D_ATTRIBUTION, SATELLITE_ATTRIBUTION] : MAP3D_ATTRIBUTION}
+        lines={[
+          ...MAP3D_ATTRIBUTION,
+          ...(satellite && satelliteKey ? [SATELLITE_ATTRIBUTION] : []),
+          ...(zoneShownId && zoneShownId === selectedId ? [SCHOOL_ZONE_ATTRIBUTION] : []),
+        ]}
         className={
           selected
             ? "z-10 bottom-[calc(env(safe-area-inset-bottom)+198px)] sm:bottom-[140px]"

@@ -6,9 +6,17 @@ import { isJamsilElsSchoolPilot } from "@/lib/complex-detail/jamsil-els-school-p
 import { JAMSIL_ELS_MAP_PILOT } from "@/lib/nearby-map/jamsil-els-pilot";
 import type {
   AttendanceZoneConfidence,
+  ProductAttendanceSchool,
   ProductAttendanceZone,
   ProductAttendanceZonePayload,
 } from "@/lib/complex-detail/attendance-zone";
+import { getDb } from "@/lib/db/client";
+import {
+  ELEM_ZONE_NOTE,
+  ELEM_ZONE_SOURCE_LABEL,
+  readComplexElemZones,
+  type ElemZoneSchool,
+} from "@/lib/complex-detail/elem-school-zone-server";
 import jamIlElementarySeed from "../../../data/poc/attendance-zone/seoul-jamsil-jam-il-elementary.v1.json";
 
 export type AttendanceZoneSeed = {
@@ -56,6 +64,66 @@ function isPilotComplex(params: {
 
 export function loadJamIlElementaryAttendanceSeed(): AttendanceZoneSeed {
   return jamIlElementarySeed as AttendanceZoneSeed;
+}
+
+function toProductSchool(s: ElemZoneSchool): ProductAttendanceSchool {
+  return {
+    name: s.name,
+    establishment: s.establishment ?? "",
+    schoolCode: s.schoolCode,
+    roadAddress: s.roadAddress,
+    distanceM: null,
+    detailLinkable: Boolean(s.schoolCode),
+    isNearby: false,
+    walkMin: s.walkMin,
+  };
+}
+
+/**
+ * 미리 계산한 통학구역(complex_elem_school_zones)으로 만든 배정 초등학교.
+ * 계산 행이 없으면 null — 부르는 쪽이 (잠실엘스 시범 seed 등) 다른 길로.
+ */
+export async function readAttendanceZonePayloadFromDb(
+  complexId: string | null | undefined,
+): Promise<ProductAttendanceZonePayload | null> {
+  const id = complexId?.trim();
+  const db = getDb();
+  if (!id || !db) return null;
+  const data = await readComplexElemZones(db, id, { walk: true }).catch(() => null);
+  if (!data?.zones.length) return null;
+
+  const single = data.zones.filter((z) => z.kind === "single");
+  const joint = data.zones.filter((z) => z.kind === "joint");
+  const designated = single.flatMap((z) => z.schools);
+  const seen = new Set(designated.map((s) => s.name));
+  const jointSchools: ElemZoneSchool[] = [];
+  for (const s of joint.flatMap((z) => z.schools)) {
+    if (seen.has(s.name)) continue;
+    seen.add(s.name);
+    jointSchools.push(s);
+  }
+  const jointNoSchool = joint.find((z) => !z.schools.length) ?? null;
+  const main = single[0] ?? joint[0]!;
+  const month = data.baseDate?.slice(0, 7) ?? null;
+
+  const elementary: ProductAttendanceZone = {
+    id: `elem-zone-${main.zoneId}`,
+    type: "attendance_zone",
+    officialName: main.name,
+    zoneKind: single.length ? "single" : "joint",
+    description: "이 주소의 초등학교 통학구역입니다.",
+    infoText: "",
+    ctaLabel: "",
+    schoolYear: null,
+    baseDate: data.baseDate,
+    confidence: "DERIVED",
+    designatedSchools: designated.map(toProductSchool),
+    jointSchools: jointSchools.map(toProductSchool),
+    jointZoneName: jointNoSchool && !jointSchools.length ? jointNoSchool.name : null,
+    note: `${month ? `통학구역 기준일 ${month} · ` : ""}${ELEM_ZONE_NOTE}`,
+    attributionLabel: ELEM_ZONE_SOURCE_LABEL,
+  };
+  return { elementary, elementaryStatus: "CONFIRMED" };
 }
 
 export function buildAttendanceZonePayload(params: {

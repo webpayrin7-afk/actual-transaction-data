@@ -2,7 +2,8 @@
  * Lazy nearby-schools API.
  * 잠실엘스 pilot: NEIS schoolInfo (official coords, else client NAVER Geocode).
  * 그 외 단지: complex_nearby_schools + school_master (미리 계산, 1.5km).
- * No DB write. No catchment / assignment claim.
+ * 배정 초등학교: complex_elem_school_zones (통학구역 도형 안에 단지 좌표가 드는지 미리 판정) — 인근 학교 목록과 별개.
+ * No DB write.
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -17,7 +18,10 @@ import {
   toSchoolLevelCode,
 } from "@/lib/complex-detail/nearby-schools";
 import { buildSchoolDistrictsPayload } from "@/lib/complex-detail/school-district-server";
-import { buildAttendanceZonePayload } from "@/lib/complex-detail/attendance-zone-server";
+import {
+  buildAttendanceZonePayload,
+  readAttendanceZonePayloadFromDb,
+} from "@/lib/complex-detail/attendance-zone-server";
 import { JAMSIL_ELS_MAP_PILOT } from "@/lib/nearby-map/jamsil-els-pilot";
 import { readMaterializedNearbySchools } from "@/lib/school-materialization/read-nearby";
 import { getDb } from "@/lib/db/client";
@@ -67,7 +71,11 @@ async function materializedResponse(complexId: string) {
   if (!getDb()) return NextResponse.json(empty, short);
 
   try {
-    const mat = await readMaterializedNearbySchools(complexId);
+    const [mat, zone] = await Promise.all([
+      readMaterializedNearbySchools(complexId),
+      readAttendanceZonePayloadFromDb(complexId),
+    ]);
+    const attendanceZone = zone ?? NOT_APPLICABLE_ATTENDANCE;
     const schools = (mat?.schools ?? [])
       .filter((s) => s.lat != null && s.lng != null)
       .map((s) => ({
@@ -87,10 +95,11 @@ async function materializedResponse(complexId: string) {
         coordSource: "NEIS" as const,
         source: "NEIS" as const,
       }));
-    if (!schools.length) return NextResponse.json(empty, ok);
+    if (!schools.length) return NextResponse.json({ ...empty, attendanceZone }, ok);
     return NextResponse.json(
       {
         ...base,
+        attendanceZone,
         status: "READY",
         reason: null,
         attribution: mat?.attribution ?? "출처: 학교알리미",
@@ -168,10 +177,14 @@ export async function GET(req: NextRequest) {
     aptName,
     complexId: complexId || null,
   });
-  const attendanceZone = buildAttendanceZonePayload({
-    aptName,
-    complexId: complexId || null,
-  });
+  const attendanceZone =
+    (await readAttendanceZonePayloadFromDb(
+      complexId || JAMSIL_ELS_MAP_PILOT.complexId,
+    ).catch(() => null)) ??
+    buildAttendanceZonePayload({
+      aptName,
+      complexId: complexId || null,
+    });
 
   try {
     const result = await fetchJamsilElsPilotSchools({
