@@ -395,20 +395,28 @@ async function main() {
   // 2) 도형 받기 (캐시)
   const key = process.env.VWORLD_API_KEY?.trim();
   if (!key && !noFetch) throw new Error("VWORLD_API_KEY 없음");
-  const featsByCx = new Map<string, Feature[]>();
+  // 받은 단지만 기록하고, 도형은 짝 찾을 때 단지마다 캐시에서 읽는다 (전국분을 메모리에 들고 있으면 힙이 넘친다)
+  const fetchedCx = new Set<string>();
+  const loadFeats = (cid: string): Feature[] | null => {
+    const path = join(CACHE, `${cid}.json`);
+    if (!existsSync(path)) return null;
+    // 동 표기가 있는 건물만 연결 후보 — 나머지는 버린다
+    return (JSON.parse(readFileSync(path, "utf8")) as Feature[]).filter((f) => splitSpbdDong(f.buld_nm_dc)[1]);
+  };
   let fetched = 0;
   let stopped: string | null = null;
   for (const t of targets) {
     const m = cxById.get(t.cid)!;
     const path = join(CACHE, `${t.cid}.json`);
     if (noFetch || stopped) {
-      if (existsSync(path)) featsByCx.set(t.cid, JSON.parse(readFileSync(path, "utf8")) as Feature[]);
+      if (existsSync(path)) fetchedCx.add(t.cid);
       continue;
     }
     try {
       const wasCached = existsSync(path);
-      featsByCx.set(t.cid, await fetchComplex(key!, t.cid, Number(m.lat), Number(m.lng)));
-      if (!wasCached && ++fetched % 50 === 0) console.log(`  받음 ${fetched}단지 (${featsByCx.size}/${targets.length})`);
+      if (!wasCached) await fetchComplex(key!, t.cid, Number(m.lat), Number(m.lng));
+      fetchedCx.add(t.cid);
+      if (!wasCached && ++fetched % 50 === 0) console.log(`  받음 ${fetched}단지 (${fetchedCx.size}/${targets.length})`);
     } catch (e) {
       if (!(e instanceof StopFetch)) throw e;
       stopped = e.message.replaceAll(key!, "<KEY>");
@@ -489,7 +497,7 @@ async function main() {
     }
   };
   for (const t of targets) {
-    const feats = featsByCx.get(t.cid);
+    const feats = fetchedCx.has(t.cid) ? loadFeats(t.cid) : null;
     if (!feats) {
       skip("complex_not_fetched");
       continue;
@@ -637,7 +645,7 @@ async function main() {
     mode: "dry-run",
     source: "VWorld 2D 데이터 API LT_C_SPBD (도로명주소 건물)",
     targets: targets.length,
-    fetched_complexes: featsByCx.size,
+    fetched_complexes: fetchedCx.size,
     fetch_stopped: stopped,
     target_residential_buildings: unlinkedRes,
     links: finalLinks.length,
