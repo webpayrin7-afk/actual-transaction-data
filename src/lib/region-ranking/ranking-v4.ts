@@ -285,13 +285,36 @@ export async function readRankingV4Board(
     args: [regionScope, query.regionCode, query.areaBand, period],
   });
   const pointer = pub.rows[0];
-  const featureRunId = pointer?.feature_run_id == null ? null : String(pointer.feature_run_id);
+  return readRankingV4BoardAtPointer(db, {
+    regionScope,
+    regionCode: query.regionCode,
+    areaBand: query.areaBand,
+    featureRunId: pointer?.feature_run_id == null ? null : String(pointer.feature_run_id),
+    transactionAsOf: pointer ? String(pointer.transaction_as_of) : null,
+  });
+}
+
+/**
+ * 발행 포인터(region_ranking_publications 행)를 이미 읽었을 때의 보드 — 포인터 조회 왕복을 건너뛴다.
+ * 후보·점수는 {@link readRankingV4Board}와 같은 캐시(발행 피처 런 ID가 키)를 쓴다.
+ */
+export async function readRankingV4BoardAtPointer(
+  db: RankingReader,
+  query: {
+    regionScope: "gu" | "dong";
+    regionCode: string;
+    areaBand: RankingAreaBandV3;
+    featureRunId: string | null;
+    transactionAsOf: string | null;
+  },
+): Promise<RankingV4Board> {
+  const { regionScope, featureRunId } = query;
   const empty: RankingV4Board = {
     published: false,
     regionScope,
     regionCode: query.regionCode,
     areaBand: query.areaBand,
-    transactionAsOf: pointer ? String(pointer.transaction_as_of) : null,
+    transactionAsOf: query.transactionAsOf,
     featureRunId,
     candidateTotal: 0,
     rows: [],

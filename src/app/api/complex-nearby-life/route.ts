@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db/client";
 import { normalizeAptName } from "@/lib/db/repository";
-import { isValidLatLng } from "@/lib/complex-detail/geo";
+import { isValidLatLng, type LatLng } from "@/lib/complex-detail/geo";
 import { fetchNearbySurroundings } from "@/lib/complex-detail/vworld";
 import { vworldReadiness } from "@/lib/complex-detail/source-status";
 import { nearestSeoulMetroStations } from "@/lib/complex-detail/seoul-metro-stations";
@@ -129,6 +129,118 @@ function subwaySubcategory(lines: string[]): string {
   return lines.map((l) => (/^\d+$/.test(l) ? `${l}호선` : l)).join("·");
 }
 
+const LIVING_EMPTY_REASON = "현재 확인 가능한 주변 생활 정보가 없습니다.";
+
+type LivingResult = {
+  status: "READY" | "EMPTY";
+  reason: string;
+  items: PoiItem[];
+  /** 실패한 원천(짧은 캐시 판단용, 응답 JSON에는 안 나간다) */
+  failed: string[];
+};
+
+// VWorld 교통 검색어(지하철역·버스정류장) 결과는 이 응답에 쓰지 않는다(교통은 역·정류장 표에서).
+// 쓰지 않는 결과의 실패로 캐시를 60초로 줄이지 않는다.
+const UNUSED_VWORLD_QUERIES = new Set(["지하철역", "버스정류장"]);
+
+// 좌표 단위 인스턴스 메모리 캐시 — 쓰는 검색어가 모두 응답했을 때만 담는다.
+const LIVING_TTL_MS = 6 * 60 * 60 * 1000;
+const LIVING_CACHE_MAX = 500;
+const livingCache = new Map<string, { at: number; value: LivingResult }>();
+
+/** 생활 POI (VWorld) — 교통·주소 조회와 동시에 돈다. */
+async function readLiving(coords: LatLng): Promise<LivingResult> {
+  const key = `${coords.lat},${coords.lng}`;
+  const hit = livingCache.get(key);
+  if (hit && Date.now() - hit.at < LIVING_TTL_MS) return hit.value;
+  const failed: string[] = [];
+  let value: LivingResult;
+  try {
+    const readiness = vworldReadiness(true);
+    if (readiness.status !== "READY") {
+      value = { status: "EMPTY", reason: LIVING_EMPTY_REASON, items: [], failed };
+    } else {
+      const places = await fetchNearbySurroundings({
+        coords,
+        onFailure: (query) => {
+          if (!UNUSED_VWORLD_QUERIES.has(query)) failed.push(`vworld:${query}`);
+        },
+      });
+      const toItem = (
+        p: (typeof places)[number],
+        subcategory: string,
+        i: number,
+      ): PoiItem | null =>
+        p.lat != null && p.lng != null
+          ? {
+              id: `${p.category}-${i}-${p.name}`,
+              name: p.name,
+              subcategory,
+              distanceMeters: p.distanceMeters,
+              distanceLabel: straightDistanceLabel(p.distanceMeters),
+              lat: p.lat,
+              lng: p.lng,
+            }
+          : null;
+
+      const items = places
+        .filter((p) =>
+          ["living", "medical", "park", "childcare"].includes(p.category),
+        )
+        .map((p, i) => {
+          const sub =
+            p.category === "living"
+              ? "마트"
+              : p.category === "medical"
+                ? "병원"
+                : p.category === "park"
+                  ? "공원"
+                  : "육아";
+          return toItem(p, sub, i);
+        })
+        .filter((x): x is PoiItem => !!x);
+
+      value = {
+        status: items.length > 0 ? "READY" : "EMPTY",
+        reason: items.length > 0 ? "" : LIVING_EMPTY_REASON,
+        items,
+        failed,
+      };
+    }
+  } catch {
+    return { status: "EMPTY", reason: LIVING_EMPTY_REASON, items: [], failed: ["living"] };
+  }
+  if (value.failed.length === 0) {
+    if (livingCache.size >= LIVING_CACHE_MAX) {
+      const oldest = livingCache.keys().next().value;
+      if (oldest !== undefined) livingCache.delete(oldest);
+    }
+    livingCache.set(key, { at: Date.now(), value });
+  }
+  return value;
+}
+
+/** 그 밖 단지 교통: 전국 도시철도 역(rail_stations) 800m 안 + 버스정류장(bus_stops) 500m 안 가까운 6곳. */
+async function readDbTransport(coords: LatLng) {
+  const failed: string[] = [];
+  const onFailure = (source: string) => {
+    failed.push(source);
+  };
+  const db = getDb();
+  if (!db) failed.push("db");
+  const [stations, stops] = db
+    ? await Promise.all([
+        readNearbyRailStations(db, coords, { maxMeters: 800, onFailure }),
+        readNearbyBusStops(db, coords, {
+          maxMeters: 500,
+          limit: 6,
+          onFailure,
+        }),
+      ])
+    : [[], []];
+  return { stations, stops, failed };
+}
+
 /**
  * Complex Detail “주변 생활” payload.
  * Address from master; POI/schools only when client supplies NAVER-geocoded lat/lng.
@@ -144,9 +256,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "aptName required" }, { status: 400 });
   }
 
-  const { address, failed: addressFailed } =
-    await resolveCanonicalAddress(aptName);
   const coords = isValidLatLng({ lat, lng }) ? { lat, lng } : null;
+  const jamsilPilot = isJamsilElsTransportPilot(aptName);
+  // 주소·교통(DB)·생활(VWorld)은 서로 기다릴 이유가 없어 한꺼번에 시작한다.
+  const addressP = resolveCanonicalAddress(aptName);
+  const dbTransportP = coords && !jamsilPilot ? readDbTransport(coords) : null;
+  const livingP = coords ? readLiving(coords) : null;
+  const { address, failed: addressFailed } = await addressP;
 
   if (!coords) {
     return NextResponse.json(
@@ -168,16 +284,10 @@ export async function GET(request: NextRequest) {
   }
 
   let transportItems: PoiItem[] = [];
-  let livingItems: PoiItem[] = [];
   let transportStatus: "READY" | "EMPTY" | "ERROR" = "EMPTY";
-  let livingStatus: "READY" | "EMPTY" | "ERROR" = "EMPTY";
   let transportReason = "";
-  let livingReason = "";
   // 일부 원천 실패 기록(응답 JSON에는 안 나간다) — 하나라도 있으면 짧은 캐시.
   const failedSources = new Set<string>();
-  const onFailure = (source: string) => {
-    failedSources.add(source);
-  };
   let transportMeta: {
     subwaySource: string;
     subwayFiles?: string[];
@@ -208,7 +318,7 @@ export async function GET(request: NextRequest) {
 
   // ---- TRANSPORT (Seoul Metro CSV + Seoul official bus-stop artifact; never TAGO/VWorld for Seoul) ----
   // Subway + bus distances ALWAYS use the same live request center (client NAVER geocode).
-  if (isJamsilElsTransportPilot(aptName)) {
+  if (jamsilPilot || !dbTransportP) {
     // Display policy: all distinct physical stations within ≤800m (after merge),
     // distance ASC. No max-count cap; never pad with stations beyond 800m.
     const subwayItems: PoiItem[] = nearestSeoulMetroStations(coords, {
@@ -274,19 +384,8 @@ export async function GET(request: NextRequest) {
       centerUsed: coords,
     };
   } else {
-    // 그 밖 단지: 전국 도시철도 역(rail_stations) 800m 안 + 버스정류장(bus_stops) 500m 안 가까운 6곳.
-    const db = getDb();
-    if (!db) failedSources.add("db");
-    const [stations, stops] = db
-      ? await Promise.all([
-          readNearbyRailStations(db, coords, { maxMeters: 800, onFailure }),
-          readNearbyBusStops(db, coords, {
-            maxMeters: 500,
-            limit: 6,
-            onFailure,
-          }),
-        ])
-      : [[], []];
+    const { stations, stops, failed } = await dbTransportP;
+    for (const source of failed) failedSources.add(source);
     const busItems: PoiItem[] = stops.map((b) => ({
       id: b.id,
       name: b.name,
@@ -329,61 +428,8 @@ export async function GET(request: NextRequest) {
   }
 
   // ---- LIVING (VWorld allowed; independent of transport) ----
-  try {
-    const readiness = vworldReadiness(true);
-    if (readiness.status !== "READY") {
-      livingStatus = "EMPTY";
-      livingReason = "현재 확인 가능한 주변 생활 정보가 없습니다.";
-    } else {
-      const places = await fetchNearbySurroundings({
-        coords,
-        onFailure: (query) => onFailure(`vworld:${query}`),
-      });
-      const toItem = (
-        p: (typeof places)[number],
-        subcategory: string,
-        i: number,
-      ): PoiItem | null =>
-        p.lat != null && p.lng != null
-          ? {
-              id: `${p.category}-${i}-${p.name}`,
-              name: p.name,
-              subcategory,
-              distanceMeters: p.distanceMeters,
-              distanceLabel: straightDistanceLabel(p.distanceMeters),
-              lat: p.lat,
-              lng: p.lng,
-            }
-          : null;
-
-      livingItems = places
-        .filter((p) =>
-          ["living", "medical", "park", "childcare"].includes(p.category),
-        )
-        .map((p, i) => {
-          const sub =
-            p.category === "living"
-              ? "마트"
-              : p.category === "medical"
-                ? "병원"
-                : p.category === "park"
-                  ? "공원"
-                  : "육아";
-          return toItem(p, sub, i);
-        })
-        .filter((x): x is PoiItem => !!x);
-
-      livingStatus = livingItems.length > 0 ? "READY" : "EMPTY";
-      livingReason =
-        livingStatus === "EMPTY"
-          ? "현재 확인 가능한 주변 생활 정보가 없습니다."
-          : "";
-    }
-  } catch {
-    livingStatus = "EMPTY";
-    livingReason = "현재 확인 가능한 주변 생활 정보가 없습니다.";
-    failedSources.add("living");
-  }
+  const living = livingP ? await livingP : null;
+  for (const source of living?.failed ?? []) failedSources.add(source);
 
   // School tab uses lazy /api/complex-nearby-schools (NEIS + client NAVER Geocode).
   // Keep this payload inert so transport/living are unaffected.
@@ -417,9 +463,9 @@ export async function GET(request: NextRequest) {
         meta: transportMeta,
       },
       living: {
-        status: livingStatus,
-        reason: livingReason,
-        items: livingItems,
+        status: living?.status ?? "EMPTY",
+        reason: living?.reason ?? LIVING_EMPTY_REASON,
+        items: living?.items ?? [],
       },
       commerce: {
         status: "NOT_READY",
