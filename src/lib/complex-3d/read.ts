@@ -10,6 +10,7 @@ import { LAWD_TO_REGION, districtNameFromCode } from "@/lib/constants/regions-re
 import { slugFromLawd } from "@/lib/constants/nationwide-lawd";
 import { railStationsBoxStatement, rankNearbyRailStations } from "@/lib/transit/rail-stations";
 import { txNameLinksStatement, txNameNormsFromLinks } from "@/lib/complex-detail/tx-name-norms";
+import { GROUP_IDS_SQL } from "@/lib/complex-group/groups";
 
 export type Ring = Array<[number, number]>; // [lng, lat]
 
@@ -160,14 +161,38 @@ async function readAll(db: Client, stmts: Array<{ stmt: InStatement; optional?: 
   }
 }
 
-/** 단지 좌표(지도 기준점 우선)와 이름 */
-function masterStatement(complexId: string): InStatement {
+/**
+ * 단지 묶음(complex_group)이면 멤버 전체 동을 한 단지로 — 동·동 모양·평형·라인은 멤버 단지 번호 전체에서 읽는다.
+ * `group: false` 는 이 단지 하나만 (경계를 멤버별로 따로 만들 때).
+ */
+type Scope = { sql: string; args: string[] };
+function idsScope(complexId: string, group: boolean): Scope {
+  return group ? { sql: GROUP_IDS_SQL, args: [complexId, complexId] } : { sql: "SELECT ?", args: [complexId] };
+}
+
+/**
+ * 단지 좌표(지도 기준점 우선)와 이름. 묶음이면 대표 단지 행 + 묶음 가운데 점(멤버 동 외곽선 전체 가운데).
+ */
+function masterStatement(complexId: string, group: boolean): InStatement {
+  if (!group) {
+    return {
+      sql: `SELECT m.complex_id, m.apt_name, m.apt_name_norm, m.lawd_cd, m.legal_dong_name, m.sigungu,
+                   COALESCE(a.lat, m.latitude) AS lat, COALESCE(a.lng, m.longitude) AS lng
+            FROM apt_complex_master m LEFT JOIN complex_map_anchor a ON a.complex_id = m.complex_id
+            WHERE m.complex_id = ?`,
+      args: [complexId],
+    };
+  }
   return {
     sql: `SELECT m.complex_id, m.apt_name, m.apt_name_norm, m.lawd_cd, m.legal_dong_name, m.sigungu,
-                 COALESCE(a.lat, m.latitude) AS lat, COALESCE(a.lng, m.longitude) AS lng
-          FROM apt_complex_master m LEFT JOIN complex_map_anchor a ON a.complex_id = m.complex_id
-          WHERE m.complex_id = ?`,
-    args: [complexId],
+                 COALESCE(g.anchor_lat, a.lat, m.latitude) AS lat, COALESCE(g.anchor_lng, a.lng, m.longitude) AS lng
+          FROM apt_complex_master m
+          LEFT JOIN complex_map_anchor a ON a.complex_id = m.complex_id
+          LEFT JOIN complex_group g ON g.primary_complex_id = m.complex_id
+          WHERE m.complex_id = COALESCE(
+            (SELECT g2.primary_complex_id FROM complex_group_member gm JOIN complex_group g2 ON g2.group_id = gm.group_id
+             WHERE gm.complex_id = ?), ?)`,
+    args: [complexId, complexId],
   };
 }
 
@@ -175,14 +200,14 @@ function masterStatement(complexId: string): InStatement {
  * 동(건축물대장 번호) ↔ GIS 건물 후보 — 같은 시군구에서 번호 뒤쪽(앞 5자리 기관코드 제외)이 같은 건물.
  * 시군구·번호를 하위 질의로 읽어 마스터·동 조회를 기다리지 않는다 (idx_gis_buildings_bldrgst).
  */
-function linkedGisStatement(complexId: string, columns: string): InStatement {
+function linkedGisStatement(complexId: string, columns: string, ids: Scope): InStatement {
   return {
     sql: `SELECT ${columns} FROM gis_buildings
           WHERE lawd_cd = (SELECT lawd_cd FROM apt_complex_master WHERE complex_id = ?)
             AND bldrgst_pk IN (
               SELECT substr(mgm_bldrgst_pk, 6) FROM complex_buildings
-              WHERE complex_id = ? AND length(mgm_bldrgst_pk) > 5)`,
-    args: [complexId, complexId],
+              WHERE complex_id IN (${ids.sql}) AND length(mgm_bldrgst_pk) > 5)`,
+    args: [complexId, ...ids.args],
   };
 }
 
@@ -206,10 +231,11 @@ export async function readComplex3dCoverage(
   db: Client,
   complexId: string,
 ): Promise<Complex3d["coverage"] | null> {
+  const ids = idsScope(complexId, true);
   const [mRows, cbRows, gisRows] = await readAll(db, [
-    { stmt: masterStatement(complexId) },
-    { stmt: { sql: `SELECT mgm_bldrgst_pk FROM complex_buildings WHERE complex_id = ?`, args: [complexId] } },
-    { stmt: linkedGisStatement(complexId, "bldrgst_pk, lat, lng, (rings IS NOT NULL AND rings <> 'null') AS has_rings") },
+    { stmt: masterStatement(complexId, true) },
+    { stmt: { sql: `SELECT mgm_bldrgst_pk FROM complex_buildings WHERE complex_id IN (${ids.sql})`, args: ids.args } },
+    { stmt: linkedGisStatement(complexId, "bldrgst_pk, lat, lng, (rings IS NOT NULL AND rings <> 'null') AS has_rings", ids) },
   ]);
   const m = mRows![0];
   if (!m || m.lat == null) return null;
@@ -232,23 +258,26 @@ export async function readComplex3dCoverage(
 export async function readComplex3d(
   db: Client,
   complexId: string,
-  opts: { shapesOnly?: boolean } = {},
+  opts: { shapesOnly?: boolean; group?: boolean } = {},
 ): Promise<Complex3d | null> {
   const lite = !!opts.shapesOnly;
+  const group = opts.group !== false;
+  const ids = idsScope(complexId, group);
   const first = await readAll(db, [
-    { stmt: masterStatement(complexId) },
+    { stmt: masterStatement(complexId, group) },
     {
       stmt: {
         sql: `SELECT building_id, mgm_bldrgst_pk, dong_label, building_name, main_usage, residential_flag,
                      household_count, floor_count, underground_floor_count, height_m
-              FROM complex_buildings WHERE complex_id = ?`,
-        args: [complexId],
+              FROM complex_buildings WHERE complex_id IN (${ids.sql})`,
+        args: ids.args,
       },
     },
     {
       stmt: linkedGisStatement(
         complexId,
         "bld_key, bldrgst_pk, height_m, floors_above, floors_below, approval_date, rings, lat, lng, change_type",
+        ids,
       ),
     },
     ...(lite
@@ -259,15 +288,15 @@ export async function readComplex3d(
               sql: `SELECT l.building_id, l.household_count, u.display_pyeong_label, u.exclusive_area
                     FROM unit_type_building_links l
                     JOIN apt_canonical_unit_types u ON u.unit_type_id = l.unit_type_id
-                    WHERE l.complex_id = ?`,
-              args: [complexId],
+                    WHERE l.complex_id IN (${ids.sql})`,
+              args: ids.args,
             },
           },
           {
             stmt: {
               sql: `SELECT building_id, line, exclusive_area, supply_area, unit_count, floor_min, floor_max
-                    FROM complex_unit_lines WHERE complex_id = ? ORDER BY building_id, line`,
-              args: [complexId],
+                    FROM complex_unit_lines WHERE complex_id IN (${ids.sql}) ORDER BY building_id, line`,
+              args: ids.args,
             },
             optional: true,
           },

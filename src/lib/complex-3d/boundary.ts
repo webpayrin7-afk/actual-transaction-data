@@ -11,6 +11,7 @@
  */
 import type { Client } from "@libsql/client";
 import { readComplex3d, type Ring } from "@/lib/complex-3d/read";
+import { groupMemberIds } from "@/lib/complex-group/groups";
 
 export type SiteBoundary = {
   complexId: string;
@@ -283,13 +284,34 @@ async function anchorOf(db: Client, complexId: string): Promise<{ lat: number; l
   }
 }
 
-/** 단지 경계 한 개. 단지를 모르면 null. 브이월드가 잠시 안 되면 추정 경계를 주되 저장하지 않는다 */
+/**
+ * 단지 경계 한 개. 단지를 모르면 null. 브이월드가 잠시 안 되면 추정 경계를 주되 저장하지 않는다.
+ * 단지 묶음(complex_group)이면 멤버마다 따로 만든(저장된) 경계를 합친다 — 같은 필지 도형은 한 번만.
+ */
 export async function readSiteBoundary(db: Client, complexId: string): Promise<SiteBoundary | null> {
+  const ids = await groupMemberIds(db, complexId);
+  if (ids.length < 2) return readOneSiteBoundary(db, complexId);
+  const parts = (await Promise.all(ids.map((id) => readOneSiteBoundary(db, id)))).filter((b): b is SiteBoundary => !!b);
+  if (!parts.length) return null;
+  const seen = new Set<string>();
+  const polys: Poly[] = [];
+  for (const b of parts)
+    for (const poly of b.fill.coordinates as Poly[]) {
+      const k = JSON.stringify(poly);
+      if (seen.has(k)) continue;
+      seen.add(k);
+      polys.push(poly);
+    }
+  const pnus = [...new Set(parts.flatMap((b) => b.pnus))];
+  return build(complexId, parts.every((b) => b.source === "parcel") ? "parcel" : "estimated", pnus, polys);
+}
+
+async function readOneSiteBoundary(db: Client, complexId: string): Promise<SiteBoundary | null> {
   const [cached, anchor] = await Promise.all([readCached(db, complexId), anchorOf(db, complexId)]);
   if (cached && (!anchor || nearAnchor(cached, anchor.lat, anchor.lng))) return cached;
 
   const [shape, meta] = await Promise.all([
-    readComplex3d(db, complexId, { shapesOnly: true }),
+    readComplex3d(db, complexId, { shapesOnly: true, group: false }),
     db.batch(
       [
         { sql: `SELECT lawd_cd, bjdong_cd, jibun FROM apt_complex_master WHERE complex_id = ?`, args: [complexId] },

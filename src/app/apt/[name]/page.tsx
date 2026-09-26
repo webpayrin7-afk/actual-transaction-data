@@ -1,6 +1,9 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { permanentRedirect } from "next/navigation";
+import { getDb } from "@/lib/db/client";
+import { groupPrimaryNameFor, groupRedirectHref } from "@/lib/complex-group/groups";
 import { AptDetailPage, AptDetailSkeleton } from "@/components/apt/AptDetailPage";
 import { FetchPreload } from "@/components/apt/AptDetailPreload";
 import { AptDetailEnterTransition } from "@/components/apt/AptDetailEnterTransition";
@@ -79,6 +82,10 @@ export default async function AptPage({ params, searchParams }: PageProps) {
   const region = getRegion(regionSlug);
   // 다구 도시(성남·수원 등)는 ?gu= 로 구를 고르고, 없으면 지역 전체 코드로 찾는다.
   const lawdCodes = resolveComplexLawdCodes(region, gu);
+  // 단지 묶음 멤버(지번별로 쪼개진 같은 단지, 예: "용산파크타워(24-1)") URL 은 대표 단지 URL 로 308 (쿼리 그대로).
+  const db = getDb();
+  const primaryName = db ? await groupPrimaryNameFor(db, lawdCodes, aptName).catch(() => null) : null;
+  if (primaryName) permanentRedirect(groupRedirectHref(primaryName, "", sp));
   // 기다리지 않는다 — 셸 HTML(preload 포함)을 먼저 보내고, 단지정보는 준비되는 대로 스트리밍한다.
   const complexDetailPromise: Promise<ComplexDetailV1 | null> = getComplexDetailV1({
     aptName,
