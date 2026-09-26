@@ -13,7 +13,6 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 import Link from "next/link";
 import maplibregl, {
-  type ExpressionSpecification,
   type GeoJSONSource,
   type Map as MlMap,
   type StyleSpecification,
@@ -51,10 +50,10 @@ import {
   SEOUL_BOUNDS,
   buildingsTilesUrl,
   calmBasemap,
-  pillImage,
-  stepColor,
+  metricColor,
   type Map3dMetric,
 } from "@/components/map3d/seoul-3d-style";
+import { ComplexPins, PINS_CSS, type PinDatum } from "@/components/map3d/complex-pins";
 
 /** 3D 시작 위치 — 기울기·방향이 있으면(뒤로 와서 되살릴 때) 그대로 연다 */
 export type Map3dView = Map3dCamera;
@@ -80,8 +79,6 @@ const START_PITCH = 55;
 /** 위성영상 켬·끔 기억 (브라우저) */
 const SATELLITE_PREF = "ziplab:map3d-satellite:v1";
 const FOCUS_PITCH = 58;
-/** 점을 지붕보다 조금 더 위에 (m) */
-const ROOF_GAP_M = 8;
 const FOCUS_MIN_ZOOM = 16;
 const FOCUS_MAX_ZOOM = 18.5;
 /** 고른 단지 도형 기억 (다시 골랐을 때 바로) — 많이 쌓지 않는다 */
@@ -207,83 +204,32 @@ function massCenter(shape: Complex3d | null, site: SiteBoundary | null): [number
   return null;
 }
 
-/** 카메라 기울기·방향 — 점을 지붕 위로 띄우는 데 쓴다 */
-type Lift = { pitch: number; bearing: number };
-
 /**
- * 동 가운데 지붕 위(높이 top m + 여유)에 떠 있는 점을, 같은 화면 자리에 보이는 땅 위 점으로 옮긴다.
- * 비스듬히 보면 높이 h 인 점은 카메라 반대쪽(화면 위쪽 = 지도 방향)으로 h·tan(기울기)만큼 떨어진 땅과 겹쳐 보인다.
- * (점·이름표는 MapLibre에서 땅에만 놓을 수 있어서 — 가까운·먼 곳의 원근 차이는 무시)
+ * 단지 핀 데이터 (complex-pins.ts가 매 프레임 지붕 위에 띄워 그린다).
+ * 동 가운데·지붕 높이(anchor3d)가 있으면 그 위, 없으면 단지 좌표(고른 단지는 동들의 가운데) 땅 위.
+ * 이름표: LABEL_ZOOM부터 이름, VALUE_ZOOM부터 두 줄(이름 굵게 12px · 값 11px 지표 색), 고른 단지는 늘 두 줄.
  */
-function liftedPoint(a: [number, number, number], lift: Lift): [number, number] {
-  const d = (a[2] + ROOF_GAP_M) * Math.tan((Math.min(lift.pitch, 72) * Math.PI) / 180);
-  const b = (lift.bearing * Math.PI) / 180;
-  const kx = 111_320 * Math.cos((a[1] * Math.PI) / 180);
-  return [a[0] + (d * Math.sin(b)) / kx, a[1] + (d * Math.cos(b)) / 111_320];
+function toPins(list: MapComplex[], metric: Map3dMetric, labelMetric: MarkerMetric, moved: PointAt | null): PinDatum[] {
+  return list.map((c) => {
+    const lv = labelValue(c, labelMetric);
+    const a = c.anchor3d;
+    const at = a
+      ? { lng: a[0], lat: a[1], top: a[2] }
+      : moved?.id === c.complexId
+        ? { lng: moved.lng, lat: moved.lat, top: null }
+        : { lng: c.lng, lat: c.lat, top: null };
+    return {
+      id: c.complexId,
+      name: shortName(c.aptName),
+      value: lv.text,
+      valueColor: lv.color,
+      dotColor: metricColor(metricValue(c, metric), metric),
+      hh: c.householdCount ?? 0,
+      ...at,
+      aria: lv.text ? `${c.aptName} ${lv.text}` : c.aptName,
+    };
+  });
 }
-
-function toGeoJson(
-  list: MapComplex[],
-  metric: Map3dMetric,
-  labelMetric: MarkerMetric,
-  moved: PointAt | null = null,
-  lift: Lift = { pitch: 0, bearing: 0 },
-): GeoJSON.FeatureCollection {
-  return {
-    type: "FeatureCollection",
-    features: list.map((c) => {
-      const v = metricValue(c, metric);
-      const lv = labelValue(c, labelMetric);
-      const props: Record<string, string | number> = {
-        id: c.complexId,
-        name: shortName(c.aptName),
-        label: lv.text,
-        vc: lv.color,
-        hh: c.householdCount ?? 0,
-      };
-      if (v != null) props.v = v;
-      const at = c.anchor3d
-        ? liftedPoint(c.anchor3d, lift)
-        : moved?.id === c.complexId
-          ? [moved.lng, moved.lat]
-          : [c.lng, c.lat];
-      return { type: "Feature", geometry: { type: "Point", coordinates: at }, properties: props };
-    }),
-  };
-}
-
-/**
- * 이름(가운데 줌) → 가까이(VALUE_ZOOM부터)는 두 줄: 1줄 이름(굵게 12px) · 2줄 값(11px, 지표 색).
- * 값이 없으면 이름 한 줄.
- */
-const LABEL_TEXT = [
-  "step",
-  ["zoom"],
-  ["get", "name"],
-  VALUE_ZOOM,
-  [
-    "case",
-    ["==", ["get", "label"], ""],
-    ["get", "name"],
-    [
-      "format",
-      ["get", "name"],
-      {},
-      "\n",
-      {},
-      ["get", "label"],
-      { "text-color": ["to-color", ["get", "vc"]], "font-scale": 0.92 },
-    ],
-  ],
-] as unknown as ExpressionSpecification;
-
-/** 고른 단지 이름표는 줌과 상관없이 두 줄 (청록 바탕 위 흰 글자) */
-const SELECTED_LABEL_TEXT = [
-  "case",
-  ["==", ["get", "label"], ""],
-  ["get", "name"],
-  ["format", ["get", "name"], {}, "\n", {}, ["get", "label"], { "font-scale": 0.92 }],
-] as unknown as ExpressionSpecification;
 
 /**
  * 고른 단지 동 외곽선을 바깥으로 조금(≈0.6m) 넓힌다 — 건물 타일의 같은 건물과 벽이 겹쳐 깜빡이지 않게.
@@ -513,10 +459,8 @@ export default function Seoul3DMap({
   const [zoomedOut, setZoomedOut] = useState(initial.zoom < COMPLEX_MIN_ZOOM);
   const [outside, setOutside] = useState(!inSeoul(initial.lat, initial.lng));
   const [bearing, setBearing] = useState(0);
-  /** 점 띄우기용 — 움직임이 멈출 때만 갱신 (매 프레임 다시 그리면 이름표가 깜빡인다) */
-  const [lift, setLift] = useState<Lift>({ pitch: 0, bearing: 0 });
-  const metricRef = useRef(metric);
-  const labelMetricRef = useRef(labelMetric);
+  /** 단지 핀 층 (HTML, 매 프레임 지붕 위로) — 지도 load 때 만든다 */
+  const pinsRef = useRef<ComplexPins | null>(null);
   const persistRef = useRef<(() => void) | null>(null);
   const onMoveEndRef = useRef(onMoveEnd);
   useEffect(() => {
@@ -683,14 +627,6 @@ export default function Seoul3DMap({
           url: `pmtiles://${buildingsTilesUrl()}`,
           attribution: BUILDINGS_ATTRIBUTION,
         });
-        // 이름표 바탕 (흰 알약 · 고른 단지 청록 알약)
-        for (const [id, fill, stroke] of [
-          ["cx-pill", "#ffffff", "#0f766e"],
-          ["cx-pill-sel", "#0f766e", "#0b4f4a"],
-        ] as const) {
-          const img = pillImage(fill, stroke);
-          if (img && !map.hasImage(id)) map.addImage(id, img.data, img.options);
-        }
         // 도로·지명 글자 아래에 건물을 둔다
         const firstSymbol = map.getStyle().layers.find((l) => l.type === "symbol")?.id;
         // 고른 단지 초등학교 통학구역 — 대지 경계보다 아래, 옅은 면 + 점선
@@ -779,93 +715,20 @@ export default function Seoul3DMap({
           },
           firstSymbol,
         );
-        map.addSource("complexes", { type: "geojson", data: toGeoJson([], metricRef.current, labelMetricRef.current) });
-        map.addLayer({
-          id: "complex-dots",
-          type: "circle",
-          source: "complexes",
-          minzoom: COMPLEX_MIN_ZOOM,
-          paint: {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 13, 5, 16, 8],
-            "circle-color": stepColor(metricRef.current),
-            "circle-stroke-color": "#ffffff",
-            "circle-stroke-width": 2,
-            "circle-pitch-alignment": "viewport",
+        // 단지 핀 — HTML 층 (점 · 이름표 · 고른 단지 화살표), 매 프레임 지붕 위 화면 자리로 옮긴다
+        pinsRef.current = new ComplexPins(
+          map,
+          (id) => {
+            const c = visibleRef.current.find((x) => x.complexId === id);
+            if (c) setPicked(c);
+            setSelectedId(id);
           },
-        });
-        map.addLayer({
-          id: "complex-selected",
-          type: "circle",
-          source: "complexes",
-          filter: ["==", ["get", "id"], ""],
-          paint: {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 13, 9, 16, 13],
-            "circle-color": "rgba(0,0,0,0)",
-            "circle-stroke-color": "#0f172a",
-            "circle-stroke-width": 2.5,
-            "circle-pitch-alignment": "viewport",
-          },
-        });
-        // 단지 이름표 — 세대수 큰 단지 먼저, 겹치면 작은 단지 이름표를 뺀다. 점 위에 알약 바탕.
-        const pillLayout: maplibregl.SymbolLayerSpecification["layout"] = {
-          "icon-text-fit": "both",
-          "icon-text-fit-padding": [3, 7, 3, 7],
-          "text-size": 12,
-          "text-anchor": "bottom",
-          "text-offset": ["interpolate", ["linear"], ["zoom"], 13, ["literal", [0, -1.05]], 16, ["literal", [0, -1.35]]],
-          "text-font": ["Noto Sans Bold"],
-          "text-max-width": 20,
-          "text-line-height": 1.25,
-          "text-pitch-alignment": "viewport",
-          "icon-pitch-alignment": "viewport",
-        };
-        map.addLayer({
-          id: "complex-labels",
-          type: "symbol",
-          source: "complexes",
-          minzoom: LABEL_ZOOM,
-          filter: ["!=", ["get", "id"], ""],
-          layout: {
-            ...pillLayout,
-            "icon-image": "cx-pill",
-            "text-field": LABEL_TEXT,
-            "text-allow-overlap": false,
-            "icon-allow-overlap": false,
-            "text-padding": 3,
-            "symbol-sort-key": ["-", 0, ["coalesce", ["get", "hh"], 0]],
-          },
-          paint: { "text-color": "#0f172a" },
-        });
-        map.addLayer({
-          id: "complex-label-selected",
-          type: "symbol",
-          source: "complexes",
-          filter: ["==", ["get", "id"], ""],
-          layout: {
-            ...pillLayout,
-            "icon-image": "cx-pill-sel",
-            "text-field": SELECTED_LABEL_TEXT,
-            "text-allow-overlap": true,
-            "icon-allow-overlap": true,
-          },
-          paint: { "text-color": "#ffffff" },
-        });
-        const pick = (e: maplibregl.MapMouseEvent & { features?: maplibregl.MapGeoJSONFeature[] }) => {
-          const id = e.features?.[0]?.properties?.id;
-          if (typeof id !== "string") return;
-          const c = visibleRef.current.find((x) => x.complexId === id);
-          if (c) setPicked(c);
-          setSelectedId(id);
-        };
-        const pickable = ["complex-dots", "complex-labels", "complex-label-selected"];
-        for (const l of pickable) {
-          map.on("click", l, pick);
-          map.on("mouseenter", l, () => (map.getCanvas().style.cursor = "pointer"));
-          map.on("mouseleave", l, () => (map.getCanvas().style.cursor = ""));
-        }
-        // 빈 곳을 누르면 고르기를 푼다 (고른 단지의 동·대지를 누른 것은 그대로)
+          { min: COMPLEX_MIN_ZOOM, label: LABEL_ZOOM, value: VALUE_ZOOM },
+        );
+        // 빈 곳을 누르면 고르기를 푼다 (핀·고른 단지의 동·대지를 누른 것은 그대로)
         map.on("click", (e) => {
-          const hit = map.queryRenderedFeatures(e.point, { layers: [...pickable, "sel-buildings-3d", "sel-site-fill"] });
+          if ((e.originalEvent?.target as Element | null)?.closest?.(".cx-pin")) return;
+          const hit = map.queryRenderedFeatures(e.point, { layers: ["sel-buildings-3d", "sel-site-fill"] });
           if (!hit.length) setSelectedId(null);
         });
         setStyleReady(true);
@@ -877,8 +740,6 @@ export default function Seoul3DMap({
       map.on("rotate", () => setBearing(map.getBearing()));
       map.on("moveend", () => {
         persist();
-        const next = { pitch: Math.round(map.getPitch()), bearing: Math.round(map.getBearing()) };
-        setLift((prev) => (prev.pitch === next.pitch && prev.bearing === next.bearing ? prev : next));
         const mc = map.getCenter();
         onMoveEndRef.current?.({ lat: mc.lat, lng: mc.lng, zoom: map.getZoom() });
         window.clearTimeout(moveTimer);
@@ -890,6 +751,8 @@ export default function Seoul3DMap({
       window.clearTimeout(moveTimer);
       abortRef.current?.abort();
       if (viewRef) viewRef.current = null;
+      pinsRef.current?.destroy();
+      pinsRef.current = null;
       mapRef.current?.remove();
       mapRef.current = null;
     };
@@ -965,25 +828,11 @@ export default function Seoul3DMap({
     }
   }, [satellite, satelliteKey, styleReady]);
 
-  // 단지 점·이름표·지표 갱신
+  // 단지 핀 — 점 색·이름표 값·고른 단지 (자리는 핀 층이 매 프레임)
   useEffect(() => {
-    metricRef.current = metric;
-    labelMetricRef.current = labelMetric;
-    const map = mapRef.current;
-    if (!map || !styleReady) return;
-    (map.getSource("complexes") as GeoJSONSource | undefined)?.setData(toGeoJson(visible, metric, labelMetric, selAt, lift));
-    map.setPaintProperty("complex-dots", "circle-color", stepColor(metric));
-  }, [visible, metric, labelMetric, styleReady, selAt, lift]);
-
-  // 고른 단지 — 점 테두리 · 이름표
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !styleReady) return;
-    const id = selectedId ?? "";
-    map.setFilter("complex-selected", ["==", ["get", "id"], id]);
-    map.setFilter("complex-label-selected", ["==", ["get", "id"], id]);
-    map.setFilter("complex-labels", ["!=", ["get", "id"], id]);
-  }, [selectedId, styleReady]);
+    if (!styleReady) return;
+    pinsRef.current?.setData(toPins(visible, metric, labelMetric, selAt), selectedId);
+  }, [visible, metric, labelMetric, styleReady, selAt, selectedId]);
 
   // 고른 단지 모양·높이(동 강조, 3D 버튼) · 대지 경계 — 바꾸거나 풀면 먼저 지운다
   const [has3d, setHas3d] = useState<Record<string, boolean>>({});
@@ -1154,7 +1003,7 @@ export default function Seoul3DMap({
 
   return (
     <div className="seoul3d absolute inset-0 z-20 bg-[#f4f5f2]" role="region" aria-label="서울 3D 지도">
-      <style>{CONTROL_CSS}</style>
+      <style>{CONTROL_CSS + PINS_CSS}</style>
       <div ref={hostRef} className="h-full w-full" role="application" aria-label="3D 지도 — 두 손가락으로 기울이고 돌려 보세요" />
 
       {loading ? <LabIndeterminateBar className="pointer-events-none absolute inset-x-0 top-0 !h-0.5 !rounded-none" /> : null}

@@ -114,34 +114,6 @@ export const SELECTED_BUILDING_COLOR = "#1a9e90";
 export const SELECTED_SITE_LINE = "#0f766e";
 export const SELECTED_SITE_FILL = "#14b8a6";
 
-/**
- * 단지 이름표 바탕(알약 모양) — icon-text-fit으로 글자 크기에 맞춰 늘인다 (모서리는 그대로).
- * 기울인 건물 위에서도 읽히게 흰 바탕 + 청록 테두리, 고른 단지는 청록 바탕.
- */
-export function pillImage(fill: string, stroke: string): { data: ImageData; options: { pixelRatio: number; stretchX: Array<[number, number]>; stretchY: Array<[number, number]> } } | null {
-  const pr = 2;
-  const r = 9 * pr;
-  const w = r * 2 + 8;
-  const h = r * 2 + 4;
-  const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  const lw = 1.25 * pr;
-  ctx.beginPath();
-  ctx.roundRect(lw / 2, lw / 2, w - lw, h - lw, r - lw / 2);
-  ctx.fillStyle = fill;
-  ctx.fill();
-  ctx.lineWidth = lw;
-  ctx.strokeStyle = stroke;
-  ctx.stroke();
-  return {
-    data: ctx.getImageData(0, 0, w, h),
-    options: { pixelRatio: pr, stretchX: [[r, w - r]], stretchY: [[r, h - r]] },
-  };
-}
-
 export type Map3dMetric = "perPyeong" | "change1y";
 
 /** 평당가(만원/3.3㎡) 단계 색 — 옅은 청록 → 짙은 남색 */
@@ -165,11 +137,13 @@ export const CHANGE_STEPS: Array<[number, string, string]> = [
 
 export const NO_VALUE_COLOR = "#cbd5e1";
 
-export function stepColor(metric: Map3dMetric): ExpressionSpecification {
+/** 단지 점 색 — 값이 속한 단계 색, 값이 없으면 회색 */
+export function metricColor(v: number | null, metric: Map3dMetric): string {
+  if (v == null || !Number.isFinite(v)) return NO_VALUE_COLOR;
   const steps = metric === "perPyeong" ? PER_PYEONG_STEPS : CHANGE_STEPS;
-  const expr: unknown[] = ["step", ["get", "v"], steps[0]![1]];
-  for (const [min, color] of steps.slice(1)) expr.push(min, color);
-  return ["case", ["!", ["has", "v"]], NO_VALUE_COLOR, expr] as unknown as ExpressionSpecification;
+  let color = steps[0]![1];
+  for (const [min, c] of steps) if (v >= min) color = c;
+  return color;
 }
 
 export const LOCALE_KO: Record<string, string> = {
