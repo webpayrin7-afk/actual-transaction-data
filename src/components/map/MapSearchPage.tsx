@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Check, ChevronDown, ChevronRight, Construction, MapPin, LocateFixed, SlidersHorizontal, X } from "lucide-react";
@@ -42,6 +43,10 @@ import { formatDealDate, formatEok } from "@/lib/utils/format";
 import { LabIndeterminateBar } from "@/components/ui/LabLoading";
 import type { Map3dView } from "@/components/map3d/Seoul3DMap";
 import { MapViewSwitch } from "@/components/map/MapViewSwitch";
+import { MapBriefingSheet, type BriefingTarget } from "@/components/map/MapBriefingSheet";
+import { Map3dInvite, mark3dInviteDone, read3dInviteDone } from "@/components/map/Map3dInvite";
+import { SEOUL_BOUNDS } from "@/components/map3d/seoul-3d-style";
+import { clear3dSession, read3dSession, replaceViewParam } from "@/lib/map/view-state";
 
 /** 서울 3D 지도 — MapLibre(약 1MB)는 3D를 열 때만 받는다 (2D 번들에 넣지 않음). */
 const Seoul3DMap = dynamic(() => import("@/components/map3d/Seoul3DMap"), {
@@ -94,6 +99,19 @@ function levelForZoom(z: number): ViewLevel {
   if (z >= DONG_ZOOM) return "dong";
   if (z >= GU_ZOOM) return "gu";
   return "far";
+}
+
+function inSeoul(v: { lat: number; lng: number }): boolean {
+  const b = SEOUL_BOUNDS;
+  return v.lat >= b.south && v.lat <= b.north && v.lng >= b.west && v.lng <= b.east;
+}
+
+function prefersReducedMotion(): boolean {
+  try {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch {
+    return false;
+  }
 }
 
 function readLastView() {
@@ -161,7 +179,29 @@ function zoneColor(z: RedevZoneShape): string {
 
 /* ───────────── 컴포넌트 ───────────── */
 
+/**
+ * 지도 첫 화면(/)과 /map. 보기 방식은 주소 `?view=3d` 로 — 첫 화면부터 3D면 2D를 거치지 않고 바로 3D.
+ * useSearchParams 는 미리 그린 페이지에서 Suspense 경계가 필요하다 (그동안 빈 지도 틀).
+ */
 export function MapSearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className="relative w-full bg-[#f4f5f2]"
+          style={{ height: "calc(100dvh - var(--site-header-height, 56px))" }}
+          aria-busy="true"
+        />
+      }
+    >
+      <MapSearchPageInner />
+    </Suspense>
+  );
+}
+
+function MapSearchPageInner() {
+  const searchParams = useSearchParams();
+  const pathname = usePathname() || "/";
   const hostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapWithBounds | null>(null);
   const markersRef = useRef<Map<string, NaverMarkerInstance>>(new Map());
@@ -181,10 +221,42 @@ export function MapSearchPage() {
   const [metric, setMetric] = useState<MarkerMetric>("price");
   const [metricOpen, setMetricOpen] = useState(false);
   /** 3D 지도로 볼 때 시작 위치 (null = 2D) */
-  const [view3d, setView3d] = useState<Map3dView | null>(null);
+  const [view3d, setView3d] = useState<Map3dView | null>(() => {
+    if (searchParams.get("view") !== "3d") return null;
+    // 3D 단지 탐색·단지 상세에서 뒤로 왔으면 그때 카메라, 아니면 마지막으로 본 곳
+    const saved = read3dSession(pathname);
+    if (saved) return { lat: saved.lat, lng: saved.lng, zoom: saved.zoom, pitch: saved.pitch, bearing: saved.bearing };
+    const v = readLastView();
+    return { lat: v.lat, lng: v.lng, zoom: Math.max(v.zoom, COMPLEX_ZOOM) - 1 };
+  });
+  /** 되살린 3D 고른 단지 (처음 한 번) */
+  const [restored3dId] = useState<string | null>(() =>
+    searchParams.get("view") === "3d" ? (read3dSession(pathname)?.selectedId ?? null) : null,
+  );
+  /** 2D 단지 카드 '더보기' — 연 단지에만 (다른 단지를 고르면 접힘) */
+  const [cardMoreId, setCardMoreId] = useState<string | null>(null);
   /** 3D 지도가 지금 보는 곳 — 2D로 돌아갈 때 그 자리로 */
   const view3dRef = useRef<(() => Map3dView) | null>(null);
+  /** 브리핑에서 고른 곳 — 3D 지도가 그리로 날아가 단지를 고른다 (seq 가 바뀔 때마다) */
+  const [focus3d, setFocus3d] = useState<{ lat: number; lng: number; complexId: string | null; seq: number } | null>(null);
+  /** 3D 지도에 단지 카드가 떠 있나 — 그동안 브리핑 시트를 숨긴다 */
+  const [card3d, setCard3d] = useState(false);
+  /** 처음 온 사람 3D 안내 — 한 번 닫거나 3D를 쓰면 끝 (null = 아직 모름, 서버 렌더와 같게) */
+  const [inviteDone, setInviteDone] = useState<boolean | null>(null);
+  useEffect(() => {
+    // localStorage 는 브라우저에서만 — 첫 렌더 뒤에 읽는다
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setInviteDone(read3dInviteDone());
+  }, []);
+  const finishInvite = () => {
+    mark3dInviteDone();
+    setInviteDone(true);
+  };
   const open3d = () => {
+    finishInvite();
+    // 새로 여는 3D — 예전 카메라·고른 단지는 버리고 주소에 view=3d (기록은 쌓지 않음)
+    clear3dSession(pathname);
+    replaceViewParam("3d");
     // 2D 지도가 못 떴어도(인증 실패 등) 3D는 연다 — 마지막으로 본 곳에서
     let v = readLastView();
     try {
@@ -199,6 +271,10 @@ export function MapSearchPage() {
   };
   const close3d = (v: Map3dView) => {
     setView3d(null);
+    replaceViewParam("2d");
+    clear3dSession(pathname);
+    setFocus3d(null);
+    setCard3d(false);
     const maps = window.naver?.maps;
     try {
       if (maps && mapRef.current) {
@@ -302,6 +378,9 @@ export function MapSearchPage() {
       const loaded = await loadNaverMapsSdk();
       if (cancelled) return;
       if (!loaded.ok || !hostRef.current || isNaverMapAuthFailed()) {
+        // 2D가 없어도 3D 안내·브리핑은 마지막으로 본 곳 기준으로
+        const v = readLastView();
+        setCenter({ lat: v.lat, lng: v.lng });
         setState("error");
         setError(loaded.ok ? NAVER_AUTH_FAILURE_MESSAGE : loaded.reason);
         return;
@@ -533,6 +612,8 @@ export function MapSearchPage() {
   const zone = redevOn ? (zones.find((z) => z.zoneId === zoneId) ?? null) : null;
 
   const selected = visibleComplexes.find((c) => c.complexId === selectedId) ?? null;
+  const cardMore = selectedId != null && cardMoreId === selectedId;
+  const setCardMore = (f: (v: boolean) => boolean) => setCardMoreId(f(cardMore) ? selectedId : null);
 
   // 고른 단지에 3D 건물 모양이 있는지 — 없으면 '3D로 보기'를 막는다 (동·모양 미연결 단지가 많음)
   const [has3d, setHas3d] = useState<Record<string, boolean>>({});
@@ -665,8 +746,49 @@ export function MapSearchPage() {
     setConditions(next);
   };
 
+  /** 브리핑 항목 → 지도 이동. 2D는 가운데·줌을 옮기고 단지를 고르고, 3D는 날아가서 단지를 고른다(경계·강조). */
+  const goToTarget = (t: BriefingTarget) => {
+    const complexId = t.kind === "complex" ? t.complexId : null;
+    setZoneId(null);
+    if (view3d) {
+      setFocus3d({ lat: t.lat, lng: t.lng, complexId, seq: Date.now() });
+      return;
+    }
+    const map = mapRef.current;
+    const maps = window.naver?.maps;
+    // 네이버 지도: 단지는 단지 거리보다 한 칸 더, 지역은 단지가 보이는 거리
+    const zoom = complexId ? COMPLEX_ZOOM + 2 : COMPLEX_ZOOM;
+    if (map && maps && state !== "error") {
+      try {
+        const at = new maps.LatLng(t.lat, t.lng);
+        if (map.morph && !prefersReducedMotion()) map.morph(at, zoom);
+        else {
+          map.setCenter(at);
+          map.setZoom?.(zoom);
+        }
+        setSelectedId(complexId);
+        return;
+      } catch {
+        /* 2D가 안 되면 아래 3D로 */
+      }
+    }
+    // 2D 지도를 못 띄웠으면(인증 실패 등) 그 자리를 3D로 연다
+    saveLastView({ lat: t.lat, lng: t.lng, zoom });
+    finishInvite();
+    clear3dSession(pathname);
+    replaceViewParam("3d");
+    setSelectedId(null);
+    setView3d({ lat: t.lat, lng: t.lng, zoom: zoom - 1 });
+    setFocus3d({ lat: t.lat, lng: t.lng, complexId, seq: Date.now() });
+  };
+  const briefingHidden = view3d ? card3d : Boolean(selected) || Boolean(zone);
+  const showInvite = inviteDone === false && !view3d && center != null && inSeoul(center);
+
   return (
-    <div className="relative w-full" style={{ height: "calc(100dvh - var(--site-header-height, 56px))" }}>
+    <div
+      className={`relative w-full ${briefingHidden ? "" : "[--map-sheet-peek:96px] sm:[--map-sheet-peek:0px]"}`}
+      style={{ height: "calc(100dvh - var(--site-header-height, 56px))" }}
+    >
       {/* h-full, not absolute inset-0: the NAVER SDK forces position:relative on its host. */}
       <div ref={hostRef} className="isolate h-full w-full" role="application" aria-label="단지 가격 지도" />
 
@@ -819,7 +941,11 @@ export function MapSearchPage() {
             </p>
           ) : null}
           {statusText ? (
-            <p className="pointer-events-auto rounded-lg bg-[color:var(--lab-surface)]/95 px-2.5 py-1 text-[13px] leading-5 text-[color:var(--lab-muted)] shadow-sm">
+            // 한 줄로만 — 지도를 덜 가리게 (넘치면 말줄임, 전체는 title)
+            <p
+              className="pointer-events-auto max-w-full truncate rounded-lg bg-[color:var(--lab-surface)]/95 px-2.5 py-1 text-[12px] leading-5 text-[color:var(--lab-muted)] shadow-sm"
+              title={statusText}
+            >
               {statusText}
               {state === "loading" ? " · 불러오는 중…" : ""}
             </p>
@@ -844,15 +970,19 @@ export function MapSearchPage() {
         type="button"
         onClick={locate}
         aria-label="내 위치로 이동"
-        className="absolute right-3 bottom-[calc(env(safe-area-inset-bottom)+84px)] inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)] shadow-sm sm:right-4 sm:bottom-[calc(env(safe-area-inset-bottom)+16px)]"
-        style={selected ? { bottom: "calc(env(safe-area-inset-bottom) + 284px)" } : undefined}
+        className="absolute right-3 bottom-[calc(env(safe-area-inset-bottom)+84px+var(--map-sheet-peek,0px))] inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)] shadow-sm sm:right-4 sm:bottom-[calc(env(safe-area-inset-bottom)+16px)]"
+        style={
+          selected
+            ? { bottom: `calc(env(safe-area-inset-bottom) + ${cardMore ? 252 : 196}px)`, visibility: cardMore ? "hidden" : undefined }
+            : undefined
+        }
       >
         <LocateFixed className="h-5 w-5" aria-hidden />
       </button>
 
       {/* 하단 가운데: 화면 가운데 구·동 상세로 이동 */}
       {centerLink && !selected ? (
-        <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+84px)] flex justify-center px-16 sm:bottom-[calc(env(safe-area-inset-bottom)+16px)]">
+        <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+84px+var(--map-sheet-peek,0px))] flex justify-center px-16 sm:bottom-[calc(env(safe-area-inset-bottom)+16px)]">
           <Link
             href={centerLink.href}
             className="pointer-events-auto inline-flex h-11 min-w-0 items-center gap-0.5 rounded-full bg-[color:var(--lab-navy-950)] pl-4 pr-2.5 text-[14px] font-semibold leading-5 text-white shadow-lg"
@@ -863,82 +993,80 @@ export function MapSearchPage() {
         </div>
       ) : null}
 
-      {/* 하단: 선택 단지 카드 */}
+      {/* 하단: 선택 단지 카드 — 작게(약 108px): 이름·위치 / 최근 거래·12개월 / 단지 상세 · 3D. 나머지 값은 '더보기' */}
       {selected ? (
-        <div className="absolute inset-x-0 bottom-0 px-4 pb-[calc(env(safe-area-inset-bottom)+76px)] sm:p-4 sm:pb-4">
-          <div className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] p-4 shadow-lg">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="detail-subsection-title flex min-w-0 items-center gap-1.5">
-                  <span className="truncate">{selected.aptName}</span>
-                  {selected.guRank ? (
-                    <span
-                      className="shrink-0 rounded px-1.5 text-[12px] font-semibold leading-5"
-                      style={{
-                        color: CROWNS[selected.guRank].stroke,
-                        background: `color-mix(in srgb, ${CROWNS[selected.guRank].fill} 35%, white)`,
-                      }}
-                    >
-                      {selected.guName ? `${selected.guName} ` : ""}
-                      {selected.guRank}위
-                    </span>
-                  ) : null}
-                </p>
-                <p className="detail-meta">
+        <div className="absolute inset-x-0 bottom-0 px-3 pb-[calc(env(safe-area-inset-bottom)+76px)] sm:p-4 sm:pb-4">
+          <div
+            className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] px-3.5 pb-2.5 pt-2.5 shadow-lg"
+            data-map2d-card
+          >
+            <div className="flex items-center gap-2">
+              <p className="min-w-0 flex-1 truncate leading-5">
+                <span className="text-[15px] font-bold text-[color:var(--lab-navy-950)]">{selected.aptName}</span>
+                {selected.guRank ? (
+                  <span
+                    className="ml-1.5 rounded px-1 text-[11px] font-semibold leading-4"
+                    style={{
+                      color: CROWNS[selected.guRank].stroke,
+                      background: `color-mix(in srgb, ${CROWNS[selected.guRank].fill} 35%, white)`,
+                    }}
+                  >
+                    {selected.guName ? `${selected.guName} ` : ""}
+                    {selected.guRank}위
+                  </span>
+                ) : null}
+                <span className="ml-1.5 text-[12px] text-[color:var(--lab-muted)]">
                   {[
                     selected.dong,
                     selected.householdCount ? `${selected.householdCount.toLocaleString("ko-KR")}세대` : null,
-                    selected.buildYear ? `${selected.buildYear}년 준공` : null,
+                    selected.buildYear ? `${selected.buildYear}년` : null,
                   ]
                     .filter(Boolean)
                     .join(" · ")}
-                </p>
-              </div>
+                </span>
+              </p>
               <button
                 type="button"
                 onClick={() => setSelectedId(null)}
                 aria-label="닫기"
-                className="-mr-2 -mt-2 inline-flex h-11 w-11 shrink-0 items-center justify-center text-[color:var(--lab-muted)]"
+                className="-my-1.5 -mr-2 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[color:var(--lab-muted)]"
               >
                 <X className="h-5 w-5" aria-hidden />
               </button>
             </div>
-            <dl className="mt-3 grid grid-cols-2 gap-2">
-              <div className="rounded-xl border border-[color:var(--lab-border)] px-3 py-2">
-                <dt className="detail-label">
-                  최근 {dealLabel}
-                  {selected.pyeongLabel
-                    ? ` · ${selected.pyeongLabel}`
-                    : selected.mainAreaSqm
-                      ? ` · ${Math.floor(selected.mainAreaSqm)}㎡`
-                      : ""}
-                </dt>
-                <dd className="detail-data-value-emphasis tabular-nums">
-                  {selected.priceMan ? formatEok(selected.priceMan) : "거래 없음"}
-                </dd>
-                <dd className="detail-meta">
-                  {selected.priceDate ? formatDealDate(selected.priceDate) : "기간 내 없음"}
-                  {selected.move ? (
-                    <span className={`ml-1 whitespace-nowrap font-semibold ${selected.move === "singoga" ? "text-[#D93A3F]" : "text-[#2F62D6]"}`}>
-                      {selected.move === "singoga" ? "신고가" : "하락"}
-                    </span>
-                  ) : null}
-                </dd>
-              </div>
-              <div className="rounded-xl border border-[color:var(--lab-border)] px-3 py-2">
-                <dt className="detail-label">최근 12개월</dt>
-                <dd className="detail-data-value-emphasis tabular-nums">
+            <p className="mt-0.5 flex min-w-0 items-baseline gap-1.5 whitespace-nowrap text-[13px] leading-5 text-[color:var(--lab-muted)]">
+              <span className="shrink-0">
+                최근 {dealLabel}
+                {selected.pyeongLabel
+                  ? ` ${selected.pyeongLabel}`
+                  : selected.mainAreaSqm
+                    ? ` ${Math.floor(selected.mainAreaSqm)}㎡`
+                    : ""}
+              </span>
+              <span className="shrink-0 text-[15px] font-bold tabular-nums text-[color:var(--lab-navy-950)]">
+                {selected.priceMan ? formatEok(selected.priceMan) : "거래 없음"}
+              </span>
+              {selected.priceDate ? <span className="shrink-0 tabular-nums">{formatDealDate(selected.priceDate)}</span> : null}
+              {selected.move ? (
+                <span className={`shrink-0 font-semibold ${selected.move === "singoga" ? "text-[#D93A3F]" : "text-[#2F62D6]"}`}>
+                  {selected.move === "singoga" ? "신고가" : "하락"}
+                </span>
+              ) : null}
+              <span aria-hidden>·</span>
+              <span className="min-w-0 truncate tabular-nums">
+                12개월{" "}
+                <span className="font-semibold text-[color:var(--lab-navy-950)]">
                   {selected.rangeMinMan != null && selected.rangeMaxMan != null
                     ? selected.rangeMinMan === selected.rangeMaxMan
-                      ? formatEok(selected.rangeMinMan)
+                      ? shortEok(selected.rangeMinMan)
                       : `${shortEok(selected.rangeMinMan)}~${shortEok(selected.rangeMaxMan)}`
                     : "—"}
-                </dd>
-                <dd className="detail-meta">{selected.tradeCount12m}건 거래</dd>
-              </div>
-            </dl>
-            {selected.jeonseRatioPct != null || selected.rentYieldPct != null || selected.change1yPct != null ? (
-              <dl className="mt-2 grid grid-cols-4 gap-1 text-center">
+                </span>{" "}
+                {selected.tradeCount12m}건
+              </span>
+            </p>
+            {cardMore ? (
+              <dl className="mt-2 grid grid-cols-4 gap-1 border-t border-[color:var(--lab-border)] pt-2 text-center" id="map2d-card-more">
                 {(
                   [
                     ["전세가율", selected.jeonseRatioPct != null ? `${selected.jeonseRatioPct}%` : null, null],
@@ -966,7 +1094,7 @@ export function MapSearchPage() {
                   <div key={label} className="min-w-0">
                     <dt className="whitespace-nowrap text-[12px] leading-4 text-[color:var(--lab-muted)]">{label}</dt>
                     <dd
-                      className="whitespace-nowrap text-[15px] font-semibold leading-5 tabular-nums text-[color:var(--lab-navy-950)]"
+                      className="whitespace-nowrap text-[14px] font-semibold leading-5 tabular-nums text-[color:var(--lab-navy-950)]"
                       style={color ? { color } : undefined}
                     >
                       {value ?? "–"}
@@ -975,19 +1103,42 @@ export function MapSearchPage() {
                 ))}
               </dl>
             ) : null}
-            <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="mt-1.5 flex gap-2">
+              <Link
+                href={selected.href}
+                className="inline-flex h-9 flex-1 items-center justify-center rounded-lg bg-[color:var(--lab-navy-950)] text-[14px] font-semibold text-white"
+              >
+                단지 상세
+              </Link>
               {selected3d ? (
-                <Link href={`/complex-3d/${selected.complexId}`} className="lab-button lab-button-secondary w-full">
-                  3D로 보기
+                <Link
+                  href={`/complex-3d/${selected.complexId}`}
+                  className="inline-flex h-9 flex-1 items-center justify-center rounded-lg border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] text-[14px] font-semibold text-[color:var(--lab-navy-950)]"
+                >
+                  3D 탐색
                 </Link>
               ) : (
-                <button type="button" disabled className="lab-button lab-button-secondary w-full">
-                  {selected3d === false ? "3D 준비 중" : "3D로 보기"}
+                <button
+                  type="button"
+                  disabled
+                  className="inline-flex h-9 flex-1 items-center justify-center rounded-lg border border-[color:var(--lab-border)] text-[14px] font-medium text-[color:var(--lab-muted)]"
+                >
+                  {selected3d === false ? "3D 준비 중" : "3D 탐색"}
                 </button>
               )}
-              <Link href={selected.href} className="lab-button lab-button-primary w-full">
-                단지 상세 보기
-              </Link>
+              <button
+                type="button"
+                aria-expanded={cardMore}
+                aria-controls="map2d-card-more"
+                onClick={() => setCardMore((v) => !v)}
+                className="inline-flex h-9 shrink-0 items-center gap-0.5 rounded-lg px-2 text-[13px] font-semibold text-[color:var(--lab-teal-700)]"
+              >
+                {cardMore ? "접기" : "더보기"}
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform motion-reduce:transition-none ${cardMore ? "rotate-180" : ""}`}
+                  aria-hidden
+                />
+              </button>
             </div>
           </div>
         </div>
@@ -1119,7 +1270,32 @@ export function MapSearchPage() {
       </LabBottomSheet>
 
       {/* 서울 3D 지도 — 3D를 누를 때만 MapLibre·건물 타일을 불러온다. 맨 위 줄(전환·거래유형·조건)은 이 위에 그대로 */}
-      {view3d ? <Seoul3DMap initial={view3d} conditions={conditions} viewRef={view3dRef} /> : null}
+      {view3d ? (
+        <Seoul3DMap
+          initial={view3d}
+          conditions={conditions}
+          viewRef={view3dRef}
+          focus={focus3d}
+          onCardChange={setCard3d}
+          initialSelectedId={restored3dId}
+          labelMetric={metric}
+          onLabelMetricChange={chooseMetric}
+          sessionPath={pathname}
+        />
+      ) : null}
+
+      {/* 오늘의 시장 브리핑 — 2D·3D 모두 (단지 카드가 뜨면 숨김) */}
+      <MapBriefingSheet hidden={briefingHidden} onTarget={goToTarget} />
+
+      {showInvite ? (
+        <Map3dInvite
+          onTry={() => {
+            finishInvite();
+            open3d();
+          }}
+          onDismiss={finishInvite}
+        />
+      ) : null}
 
       <MapConditionSheet
         open={sheetOpen}

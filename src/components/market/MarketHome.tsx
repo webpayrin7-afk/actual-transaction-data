@@ -30,13 +30,9 @@ import type {
 } from "@/lib/market/home";
 import type { MarketRecord, MarketRecordsResponse } from "@/lib/market/records";
 import { seoulToday } from "@/lib/market/time";
+import { fetchMarketHome, MARKET_HOME_QUERY_KEY, MARKET_HOME_STALE_MS } from "@/lib/market/home-client";
 import { formatArea, formatDealDate, formatEok } from "@/lib/utils/format";
 
-async function fetchMarketHome(): Promise<MarketHomeResponse> {
-  const res = await fetch("/api/market-home");
-  if (!res.ok) throw new Error("시장 데이터를 불러오지 못했습니다.");
-  return res.json();
-}
 
 /** 섹션 앵커 — 스티키 섹션 탭 (policy §12.3). 렌더되지 않은 섹션은 탭에서 빠진다. */
 const MARKET_SECTIONS = [
@@ -339,9 +335,9 @@ function SummaryStat({
 
 export function MarketHome() {
   const query = useQuery({
-    queryKey: ["market-home"],
+    queryKey: MARKET_HOME_QUERY_KEY,
     queryFn: fetchMarketHome,
-    staleTime: 5 * 60 * 1000,
+    staleTime: MARKET_HOME_STALE_MS,
   });
   const stickyAnchorRef = useRef<HTMLDivElement | null>(null);
 
