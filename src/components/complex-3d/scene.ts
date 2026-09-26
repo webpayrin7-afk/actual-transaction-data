@@ -91,6 +91,29 @@ export function sunPosition(lat: number, lng: number, date: Date, hourKst: numbe
   return { altitude: Math.PI / 2 - zen, azimuth: az };
 }
 
+export type WindowViewInfo = {
+  floor: number;
+  /** 창이 난 외벽의 향 ("남향" …) */
+  facing: string;
+  /** 지금 보는 방향 ("남쪽" …) */
+  lookDir: string;
+  /** 정면에서 돌아본 각도 (도, +면 오른쪽) */
+  yaw: number;
+  /** 보는 방향 ±4° 안 첫 건물까지 (m), 500m 안에 없으면 null */
+  frontM: number | null;
+  frontDong: string | null;
+  /** 첫 가림이 건물이 아니라 지형(언덕·산) */
+  frontHill: boolean;
+  /** 보는 방향 ±30° 중 200m 안에서 막힌 비율 */
+  blockedShare: number;
+  /** 눈높이 — 동 바닥에서 (m) */
+  eyeM: number;
+};
+
+/** 창문 시점 — 좌우로 둘러볼 수 있는 범위(°)와 미리 재는 범위 */
+const WIN_YAW = 50;
+const WIN_RAY = WIN_YAW + 30;
+
 type Local = { x: number; z: number };
 
 /** 빨리 감기 재생 길이 — 실제 걷는 시간의 약 1/80, 6~14초 */
@@ -190,6 +213,7 @@ export class Complex3dScene {
 
     this.renderer.domElement.addEventListener("pointerdown", this.onPointerDown);
     this.renderer.domElement.addEventListener("pointerup", this.onPointerUp);
+    this.renderer.domElement.addEventListener("pointermove", this.onPointerMove);
     // 사용자가 직접 돌리면 진행 중인 이동은 멈춘다
     this.controls.addEventListener("start", () => (this.anim = null));
     this.setSun(new Date(), 14);
@@ -320,6 +344,8 @@ export class Complex3dScene {
     if (this.lastPois) this.setPois(this.lastPois);
     if (this.walkDraw) this.showWalk(this.walkDraw, this.walkReduced, false);
     this.paint();
+    // 창문 시점이면 땅 높이가 바뀐 동에 다시 선다
+    if (this.win) this.onWindowInfo(this.enterWindowView(this.win.id, this.win.floor, true)!);
   }
 
   private toLocal(lng: number, lat: number): Local {
@@ -524,7 +550,7 @@ export class Complex3dScene {
     this.groups.floors.visible = mode === "floors";
     this.groups.types.visible = mode === "types";
     this.groups.own.visible = mode !== "floors" && mode !== "types";
-    this.groups.view.visible = mode === "view";
+    this.groups.view.visible = mode === "view" && !this.win;
     this.groups.pois.visible = mode === "around";
     this.groups.labels.visible = mode !== "around";
   }
@@ -790,7 +816,7 @@ export class Complex3dScene {
   private markSelected() {
     for (const [id, l] of this.labelEls) l.el.classList.toggle("complex3d-label--on", id === this.selectedId);
     const l = this.selectedId ? this.labelEls.get(this.selectedId) : null;
-    if (!l) {
+    if (!l || this.win) {
       if (this.marker) this.marker.visible = false;
       return;
     }
@@ -834,6 +860,7 @@ export class Complex3dScene {
       edges.dispose();
       this.selectEdgeMaterial.resolution.set(this.host.clientWidth, this.host.clientHeight);
       group.add(new LineSegments2(geo, this.selectEdgeMaterial));
+      group.visible = !this.win;
       this.scene.add(group);
       this.selOutline = group;
     }
@@ -888,6 +915,263 @@ export class Complex3dScene {
       ? { dong: this.data!.buildings.find((x) => x.id === frontId)?.dong ?? null, meters: Math.round(hit!.distance + 0.5) }
       : null;
     return { facing, front, near: this.nearestDistance(id) };
+  }
+
+  /**
+   * 동 정면 — 정면 방향(긴 축에 수직, 남쪽 쪽: 향 계산과 같음)과, 외곽선 변 중 바깥쪽이 정면을 향한 변들.
+   * main: 정면을 향한 변 중 가장 긴 변 (창문 시점을 이 변 가운데에 둔다).
+   */
+  private facadeOf(id: string): {
+    nx: number;
+    nz: number;
+    bearing: number;
+    facing: string;
+    edges: Array<{ ax: number; az: number; bx: number; bz: number; ox: number; oz: number; len: number; dot: number }>;
+    main: { ax: number; az: number; bx: number; bz: number; ox: number; oz: number; len: number; dot: number };
+  } | null {
+    const b = this.data?.buildings.find((x) => x.id === id);
+    const ring = b?.rings?.[0];
+    if (!ring || ring.length < 4) return null;
+    const pts = ring.map(([lng, lat]) => this.toLocal(lng, lat));
+    const mx = pts.reduce((a, q) => a + q.x, 0) / pts.length;
+    const mz = pts.reduce((a, q) => a + q.z, 0) / pts.length;
+    let sxx = 0, szz = 0, sxz = 0;
+    for (const q of pts) {
+      sxx += (q.x - mx) ** 2;
+      szz += (q.z - mz) ** 2;
+      sxz += (q.x - mx) * (q.z - mz);
+    }
+    const ang = 0.5 * Math.atan2(2 * sxz, sxx - szz);
+    let nx = -Math.sin(ang);
+    let nz = Math.cos(ang);
+    if (nz < 0) {
+      nx = -nx;
+      nz = -nz;
+    }
+    // 외곽선 방향(시계/반시계)으로 각 변의 바깥쪽 법선
+    let area = 0;
+    for (let i = 0; i < pts.length - 1; i++) area += pts[i]!.x * pts[i + 1]!.z - pts[i + 1]!.x * pts[i]!.z;
+    const sign = area >= 0 ? 1 : -1;
+    const edges = [];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i]!;
+      const c = pts[i + 1]!;
+      const len = Math.hypot(c.x - a.x, c.z - a.z);
+      if (len < 0.3) continue;
+      const ox = (sign * (c.z - a.z)) / len;
+      const oz = (-sign * (c.x - a.x)) / len;
+      edges.push({ ax: a.x, az: a.z, bx: c.x, bz: c.z, ox, oz, len, dot: ox * nx + oz * nz });
+    }
+    const front = edges.filter((e) => e.dot > 0.7);
+    const main = (front.length ? front : edges).reduce((best, e) => (e.len * Math.max(0.1, e.dot) > best.len * Math.max(0.1, best.dot) ? e : best));
+    if (!main) return null;
+    const bearing = ((Math.atan2(nx, -nz) * 180) / Math.PI + 360) % 360;
+    return { nx, nz, bearing, facing: `${FACING[Math.round(bearing / 45) % 8]}향`, edges, main };
+  }
+
+  /** 층의 바닥 높이(장면 y)와 한 층 높이 — 건물 높이를 층수로 나눈 값 (층별가 색칠과 같은 모형) */
+  private floorBase(id: string, floor: number): { y: number; perFloor: number; floors: number; h: number } | null {
+    const b = this.data?.buildings.find((x) => x.id === id);
+    if (!b) return null;
+    const { h } = buildingHeight(b);
+    const floors = b.floors ?? Math.max(1, Math.round(h / FLOOR_M));
+    const perFloor = h / floors;
+    const f = Math.max(1, Math.min(floors, Math.round(floor)));
+    return { y: this.base(id) + (f - 1) * perFloor, perFloor, floors, h };
+  }
+
+  // ── 우리 집 창문 시점 ─────────────────────────────────────────────────────
+  /** 창문 시점 정보가 바뀔 때 (둘러보면 방향·가림이 바뀐다) */
+  onWindowInfo: (info: WindowViewInfo) => void = () => {};
+  private win: {
+    id: string;
+    floor: number;
+    eye: THREE.Vector3;
+    /** 정면 방위 (북=0°, 시계방향, 도) */
+    bearing0: number;
+    /** 둘러본 만큼 (도, ±WIN_YAW) */
+    yaw: number;
+    pitch: number;
+    facing: string;
+    rays: Array<{ off: number; d: number | null; dong: string | null; hill: boolean }>;
+    saved: { pos: THREE.Vector3; target: THREE.Vector3; fov: number; near: number };
+    anim: { p0: THREE.Vector3; l0: THREE.Vector3; fov0: number; start: number; ms: number } | null;
+    lastEmit: number;
+  } | null = null;
+
+  get inWindowView() {
+    return !!this.win;
+  }
+
+  /** 세로 화면에서도 가로로 약 60°가 보이게 (세로 시야각은 50~75°) */
+  private windowFov(): number {
+    const hHalf = (30 * Math.PI) / 180;
+    const v = (2 * Math.atan(Math.tan(hHalf) / Math.max(0.2, this.camera.aspect)) * 180) / Math.PI;
+    return Math.max(50, Math.min(75, v));
+  }
+
+  /**
+   * 고른 동 floor층 창가에 선다 — 정면을 향한 가장 긴 외벽 가운데, 그 층 바닥 + 1.5m 눈높이, 벽 밖 0.6m.
+   * 정면 ±80°를 2°마다 수평으로 쏴 첫 가림까지 거리를 재 둔다 (둘러볼 때 다시 쏘지 않는다).
+   */
+  enterWindowView(id: string, floor: number, reduced: boolean): WindowViewInfo | null {
+    const fa = this.facadeOf(id);
+    const fb = this.floorBase(id, floor);
+    if (!fa || !fb || !this.data) return null;
+    const m = fa.main;
+    const px = (m.ax + m.bx) / 2 + m.ox * 0.6;
+    const pz = (m.az + m.bz) / 2 + m.oz * 0.6;
+    const eyeY = Math.max(fb.y + 1.5, this.groundAt(px, pz) + 1.2);
+    const eye = new THREE.Vector3(px, Math.min(eyeY, this.base(id) + fb.h - 0.5), pz);
+    // 창이 난 변의 바깥 방향을 정면으로 (긴 축 수직과 거의 같지만 외곽선을 그대로 따른다)
+    const bearing0 = ((Math.atan2(m.ox, -m.oz) * 180) / Math.PI + 360) % 360;
+    const targets: THREE.Object3D[] = [...this.groups.neighbors.children, ...this.ownMeshes.values()];
+    const rays: Array<{ off: number; d: number | null; dong: string | null; hill: boolean }> = [];
+    for (let off = -WIN_RAY; off <= WIN_RAY; off += 2) {
+      const a = ((bearing0 + off) * Math.PI) / 180;
+      const sx = Math.sin(a);
+      const sz = -Math.cos(a);
+      this.raycaster.set(eye, new THREE.Vector3(sx, 0, sz));
+      this.raycaster.far = 500;
+      const hit = this.raycaster.intersectObjects(targets, false).find((x) => x.distance > 0.2);
+      // 땅(언덕·산)이 눈높이보다 먼저 솟으면 그게 첫 가림 — 4m 간격으로 지형을 따라가며 본다
+      let hillAt: number | null = null;
+      if (this.terrain) {
+        // 지형 격자 끝까지 (건물은 500m까지만 쏜다)
+        const far = hit ? hit.distance : this.terrain.size / 2;
+        for (let t = 4; t < far; t += t < 200 ? 4 : 8) {
+          if (this.groundAt(eye.x + sx * t, eye.z + sz * t) > eye.y) {
+            hillAt = t;
+            break;
+          }
+        }
+      }
+      const hid = hit?.object.userData.id as string | undefined;
+      rays.push(
+        hillAt != null
+          ? { off, d: hillAt, dong: null, hill: true }
+          : {
+              off,
+              d: hit ? Math.round(hit.distance) : null,
+              dong: hid && hid !== id ? (this.data.buildings.find((x) => x.id === hid)?.dong ?? null) : null,
+              hill: false,
+            },
+      );
+    }
+    const prev = this.win;
+    const saved = prev?.saved ?? {
+      pos: this.camera.position.clone(),
+      target: this.controls.target.clone(),
+      fov: this.camera.fov,
+      near: this.camera.near,
+    };
+    this.anim = null;
+    this.controls.enabled = false;
+    this.insetTarget = 0;
+    this.labels.domElement.style.display = "none";
+    if (this.marker) this.marker.visible = false;
+    if (this.selOutline) this.selOutline.visible = false;
+    this.groups.view.visible = false;
+    this.camera.near = 0.3;
+    const look0 = prev
+      ? this.camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(60).add(this.camera.position)
+      : this.controls.target.clone();
+    this.win = {
+      id,
+      floor,
+      eye,
+      bearing0,
+      yaw: prev?.id === id ? prev.yaw : 0,
+      pitch: prev?.id === id ? prev.pitch : 0,
+      facing: `${FACING[Math.round(bearing0 / 45) % 8]}향`,
+      rays,
+      saved,
+      anim: reduced ? null : { p0: this.camera.position.clone(), l0: look0, fov0: this.camera.fov, start: performance.now(), ms: prev ? 350 : 900 },
+      lastEmit: 0,
+    };
+    if (reduced) {
+      this.camera.fov = this.windowFov();
+      this.camera.updateProjectionMatrix();
+    }
+    return this.windowInfo();
+  }
+
+  /** 지금 보는 방향 ±30° 안에서 200m 안에 막힌 비율, 정면(±4°) 첫 건물까지 거리 */
+  private windowInfo(): WindowViewInfo {
+    const w = this.win!;
+    const bearing = (w.bearing0 + w.yaw + 360) % 360;
+    const within = w.rays.filter((r) => Math.abs(r.off - w.yaw) <= 30);
+    const blocked = within.filter((r) => r.d != null && r.d < 200).length / Math.max(1, within.length);
+    const front = w.rays
+      .filter((r) => Math.abs(r.off - w.yaw) <= 4 && r.d != null)
+      .sort((a, b) => a.d! - b.d!)[0];
+    return {
+      floor: w.floor,
+      facing: w.facing,
+      lookDir: `${FACING[Math.round(bearing / 45) % 8]}쪽`,
+      yaw: Math.round(w.yaw),
+      frontM: front?.d ?? null,
+      frontDong: front?.dong ?? null,
+      frontHill: !!front?.hill,
+      blockedShare: blocked,
+      eyeM: Math.round((w.eye.y - this.base(w.id)) * 10) / 10,
+    };
+  }
+
+  /** 둘러보기 — 정면에서 좌우 WIN_YAW°, 위아래 20° 안 */
+  lookWindow(dYaw: number, dPitch = 0, throttle = false) {
+    const w = this.win;
+    if (!w) return;
+    w.yaw = Math.max(-WIN_YAW, Math.min(WIN_YAW, w.yaw + dYaw));
+    w.pitch = Math.max(-20, Math.min(20, w.pitch + dPitch));
+    const now = performance.now();
+    if (!throttle || now - w.lastEmit > 80) {
+      w.lastEmit = now;
+      this.onWindowInfo(this.windowInfo());
+    }
+  }
+
+  /** 창문 시점에서 나와 들어오기 전 시점으로 */
+  exitWindowView(reduced: boolean) {
+    const w = this.win;
+    if (!w) return;
+    this.win = null;
+    this.camera.fov = w.saved.fov;
+    this.camera.near = w.saved.near;
+    this.camera.updateProjectionMatrix();
+    this.controls.enabled = true;
+    this.labels.domElement.style.display = "";
+    if (this.selOutline) this.selOutline.visible = true;
+    this.markSelected();
+    this.setMode(this.mode);
+    this.controls.target.copy(w.eye.clone().add(this.windowDir(w)));
+    if (reduced) {
+      this.camera.position.copy(w.saved.pos);
+      this.controls.target.copy(w.saved.target);
+    } else this.flyTo(w.saved.pos, w.saved.target, 700);
+  }
+
+  private windowDir(w: NonNullable<typeof this.win>): THREE.Vector3 {
+    const a = ((w.bearing0 + w.yaw) * Math.PI) / 180;
+    const p = (w.pitch * Math.PI) / 180;
+    return new THREE.Vector3(Math.sin(a) * Math.cos(p), Math.sin(p), -Math.cos(a) * Math.cos(p));
+  }
+
+  private stepWindow() {
+    const w = this.win!;
+    const look = w.eye.clone().add(this.windowDir(w).multiplyScalar(60));
+    if (w.anim) {
+      const k = Math.min(1, (performance.now() - w.anim.start) / w.anim.ms);
+      const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      this.camera.position.lerpVectors(w.anim.p0, w.eye, e);
+      this.camera.fov = w.anim.fov0 + (this.windowFov() - w.anim.fov0) * e;
+      this.camera.updateProjectionMatrix();
+      this.camera.lookAt(new THREE.Vector3().lerpVectors(w.anim.l0, look, e));
+      if (k >= 1) w.anim = null;
+      return;
+    }
+    this.camera.position.copy(w.eye);
+    this.camera.lookAt(look);
   }
 
   /** 두 동 외곽선 사이 최소 거리 (m, 평면) */
@@ -1104,10 +1388,25 @@ export class Complex3dScene {
   }
 
   private down: { x: number; y: number } | null = null;
+  private dragAt: { x: number; y: number; id: number } | null = null;
   private onPointerDown = (e: PointerEvent) => {
     this.down = { x: e.clientX, y: e.clientY };
+    if (this.win) this.dragAt = { x: e.clientX, y: e.clientY, id: e.pointerId };
+  };
+  /** 창문 시점 — 끌면 고개를 돌린다 (화면 너비만큼 끌면 약 60°) */
+  private onPointerMove = (e: PointerEvent) => {
+    const d = this.dragAt;
+    if (!this.win || !d || d.id !== e.pointerId) return;
+    const k = 60 / Math.max(240, this.host.clientWidth);
+    this.lookWindow(-(e.clientX - d.x) * k, (e.clientY - d.y) * k, true);
+    this.dragAt = { x: e.clientX, y: e.clientY, id: e.pointerId };
   };
   private onPointerUp = (e: PointerEvent) => {
+    if (this.win) {
+      this.dragAt = null;
+      if (this.win) this.onWindowInfo(this.windowInfo());
+      return;
+    }
     if (!this.down || Math.hypot(e.clientX - this.down.x, e.clientY - this.down.y) > 6) return;
     const rect = this.renderer.domElement.getBoundingClientRect();
     const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
@@ -1153,6 +1452,7 @@ export class Complex3dScene {
     this.walkLineMat.resolution.set(w, h);
     this.walkCaseMat.resolution.set(w, h);
     this.applyInset();
+    if (this.win && !this.win.anim) this.camera.fov = this.windowFov();
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
     this.labels.setSize(w, h);
@@ -1175,7 +1475,8 @@ export class Complex3dScene {
       this.applyInset();
     }
     this.stepWalk();
-    this.controls.update();
+    if (this.win) this.stepWindow();
+    else this.controls.update();
     // 멀리서 보면 동 이름표를 작게 (겹침 줄이기)
     const far = this.camera.position.distanceTo(this.controls.target) > this.bounds.radius * 2.6;
     if (far !== this.labelsFar) {
@@ -1183,7 +1484,7 @@ export class Complex3dScene {
       this.labels.domElement.classList.toggle("complex3d-far", far);
     }
     const heading = Math.round((this.controls.getAzimuthalAngle() * 180) / Math.PI);
-    if (heading !== this.lastHeading) {
+    if (!this.win && heading !== this.lastHeading) {
       this.lastHeading = heading;
       this.onHeading(heading);
     }
@@ -1196,6 +1497,7 @@ export class Complex3dScene {
     cancelAnimationFrame(this.raf);
     this.renderer.domElement.removeEventListener("pointerdown", this.onPointerDown);
     this.renderer.domElement.removeEventListener("pointerup", this.onPointerUp);
+    this.renderer.domElement.removeEventListener("pointermove", this.onPointerMove);
     this.controls.dispose();
     this.scene.traverse((o) => {
       const m = o as THREE.Mesh;
