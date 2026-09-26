@@ -402,7 +402,11 @@ export function ComplexMgmtFeeCard({
           <div>
             <p className="detail-meta">선택 평형 예상 관리비</p>
             <p className="detail-summary-value mt-1">
-              평형별 관리비 데이터 준비 중
+              평형별 관리비를 표시할 수 없어요
+            </p>
+            <p className="detail-body mt-1">
+              이 단지가 공개한 관리비 자료로는 평형별 금액을 나눠 계산할 수 없어요. 단지 전체 평균을 평형 금액으로 대신
+              쓰지 않습니다.
             </p>
           </div>
 
