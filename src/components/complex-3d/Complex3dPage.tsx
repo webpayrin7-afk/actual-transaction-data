@@ -1692,9 +1692,9 @@ function OpenDirections({ view }: { view: ViewResult }) {
       {sectors.map((s) => {
         const t = tone(s);
         return (
-          <div key={s.label} className="rounded-md border px-2 py-1.5 text-center" style={{ borderColor: t.border, background: t.bg }}>
+          <div key={s.label} className="min-w-0 rounded-md border px-1 py-1.5 text-center" style={{ borderColor: t.border, background: t.bg }}>
             <p className="text-[12px] font-semibold text-[color:var(--lab-navy-950)]">{s.label}</p>
-            <p className="text-[13px] font-bold tabular-nums" style={{ color: t.fg }}>
+            <p className="whitespace-nowrap text-[12px] font-bold tracking-tight tabular-nums sm:text-[13px]" style={{ color: t.fg }}>
               {s.open >= 0.6 || !Number.isFinite(s.nearestHit) ? "트임" : `${s.nearestHit}m 가림`}
             </p>
           </div>
