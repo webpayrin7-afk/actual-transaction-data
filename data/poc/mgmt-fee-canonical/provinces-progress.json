@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-26T13:16:24.381Z",
+  "generated_at": "2026-09-26T14:17:39.732Z",
   "driver_status": "daejeon acquiring",
   "fee_table": {
     "rows": 7461,
     "complexes": 7348
   },
-  "api_calls_total": 147172,
+  "api_calls_total": 150664,
   "applied_rows_total": 4538,
   "provinces": [
     {
@@ -94,15 +94,15 @@
       "sido": "대전광역시",
       "phase": "ACQUIRE_QUOTA_HOLD",
       "cohort": 561,
-      "terminal": 241,
-      "unfinished": 320,
-      "COMPLETE": 230,
-      "NO_PUBLISHED_MONTH": 11,
+      "terminal": 361,
+      "unfinished": 200,
+      "COMPLETE": 346,
+      "NO_PUBLISHED_MONTH": 15,
       "PARTIAL": 0,
       "MISSING": 0,
       "FAILED": 0,
       "IDENTITY_CONFLICT": 0,
-      "api_calls": 6937,
+      "api_calls": 10429,
       "http_429": 0,
       "retries": 4,
       "dryrun_gate": null,
