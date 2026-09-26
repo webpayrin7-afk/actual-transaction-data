@@ -115,11 +115,126 @@ function toZone(r: Record<string, unknown>): RedevZone {
 
 const CAT_SQL = REDEV_ZONE_CATEGORIES.map((c) => `'${c}'`).join(",");
 
-/** 단지가 들어간 정비 구역과 (있으면) 사업 단계. 사업 단계가 있는 것이 앞. */
+/** 여러 동네를 한꺼번에 묶는 넓은 촉진지구 (한 단지의 사업이 아니다) */
+const DISTRICT_CATEGORIES = new Set(["UQ5110", "UQ5120"]);
+
+/** "19790830" · "1979-08-30" · "1979.08.30" → "1979-08-30" (못 읽으면 null) */
+export function normDate(v: unknown): string | null {
+  const s = String(v ?? "").replace(/[^0-9]/g, "");
+  if (s.length < 8) return null;
+  const y = Number(s.slice(0, 4));
+  return y >= 1900 && y <= 2100 ? `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}` : null;
+}
+
+const yearOf = (d: string) => Number(d.slice(0, 4));
+
+/** 구역 ID 의 등록일 ("11000UQ181PS201912150617" → 2019-12-15). 고시일은 이 날보다 늦을 수 없어 고시일이 빈 구역의 상한으로 쓴다. */
+export function zoneRegisteredDate(zoneId: string): string | null {
+  const m = /PS(\d{8})/.exec(zoneId);
+  return m ? normDate(m[1]) : null;
+}
+
+/** 구역 이름의 뼈대 — "가락시영아파트주택재건축사업" 과 "가락시영아파트 주택재건축 정비구역" 을 같은 구역으로 본다 */
+export function zoneBaseName(name: string): string {
+  return name
+    .replace(/[\s·.,_()\-]/g, "")
+    .replace(/(주택)?(재건축|재개발)(정비)?(사업)?(정비)?(구역|지구)?/g, "")
+    .replace(/(정비사업|정비구역|정비|사업구역|사업|구역|지구)$/g, "")
+    .replace(/아파트/g, "");
+}
+
+export type ZoneStatus = "completed" | "active" | "unknown";
+
+export type ZoneStatusInput = {
+  zone: { zoneId: string; name: string; categoryCode: string | null; noticeDate: string | null };
+  project: RedevProject | null;
+  complex: { approvalDate: string | null; buildYear: number | null; households: number | null };
+};
+
+/**
+ * 단지와 구역의 관계를 날짜로 가른다.
+ * - completed: 이 단지가 그 구역 사업으로 새로 지은 단지 (또는 너무 새 단지라 그 구역의 정비 대상이 아니다)
+ * - active: 지금 있는 옛 단지에 걸린 구역 (예: 은마, 잠실주공5단지)
+ * - unknown: 날짜가 없어 가를 수 없다 → 보여 준다
+ * 고시일이 비면 구역 ID 의 등록일(고시일의 상한)로 대신한다 — 상한이라 '끝남' 쪽으로는 덜 가른다.
+ * 구역 고시일(notice_date)은 '가장 최근 고시'라 준공 뒤의 변경·이전 고시일 수 있다 (예: 가락시영 2019-01-03, 헬리오시티 사용승인 2018-12-28).
+ */
+export function classifyComplexZone({ zone, project, complex }: ZoneStatusInput): { status: ZoneStatus; reason: string } {
+  const built = complex.approvalDate; // YYYY-MM-DD
+  const builtYear = built ? yearOf(built) : complex.buildYear;
+  const notice = zone.noticeDate ?? zoneRegisteredDate(zone.zoneId);
+  const cat = zone.categoryCode ?? "";
+  const bigEnough = (complex.households ?? 0) >= 100;
+  if (builtYear == null) return { status: "unknown", reason: "no-build-date" };
+
+  // 1) 구역 고시 뒤에 사용승인 → 그 구역 사업으로 새로 지은 단지 (예: 래미안원베일리, 올림픽파크포레온)
+  //    같은 이름의 새 사업(예: 새 아현1구역)이 옛 구역에 이름으로 붙어 있어도 이 단지는 옛 사업의 결과다
+  if (notice && (built ? built > notice : builtYear > yearOf(notice))) {
+    return { status: "completed", reason: "built-after-notice" };
+  }
+  // 2) 사업 추진현황이 있으면 그 사업이 걸린 옛 단지다 — 새 단지는 착공 뒤에만 생긴다
+  //    (사업 시작 뒤 지은 작은 빌라도 재개발 철거 대상이라 착공일 뒤 사용승인만 '끝남'으로 본다)
+  if (project) {
+    const construction = normDate(project.dates.find((d) => d.stage === "착공")?.date);
+    if (construction && (built ? built > construction : builtYear > yearOf(construction))) {
+      return { status: "completed", reason: "built-after-construction-start" };
+    }
+    return { status: "active", reason: "project-in-progress" };
+  }
+  if (!notice) return { status: "unknown", reason: "no-notice-date" };
+
+  const gapYears = yearOf(notice) - builtYear;
+  // 3) 사용승인 직후(3년 안) 고시 → 준공 뒤 변경·이전 고시. 넓은 촉진지구는 100세대 이상 단지만 (촉진지구 안 새 빌라는 철거 대상일 수 있다)
+  if (gapYears <= 3 && (!DISTRICT_CATEGORIES.has(cat) || bigEnough)) {
+    return { status: "completed", reason: "notice-right-after-completion" };
+  }
+  // 4) 고시 때 새 아파트(100세대 이상)는 정비 대상이 아니다 — 그 구역·촉진지구 안에서 이미 새로 지은 단지이거나 존치 단지.
+  //    한 사업 구역은 준공 20년 미만, 여러 동네를 묶는 촉진지구는 재건축 연한인 30년 미만 (예: 길음뉴타운 2005년 단지 ↔ 길음촉진지구 2026 고시)
+  if (bigEnough && gapYears < (DISTRICT_CATEGORIES.has(cat) ? 30 : 20)) {
+    return { status: "completed", reason: "too-new-to-be-target" };
+  }
+
+  return { status: "active", reason: "built-before-notice" };
+}
+
+type ComplexFacts = ZoneStatusInput["complex"];
+
+async function readComplexFacts(db: Client, complexId: string): Promise<ComplexFacts> {
+  const r = await db
+    .execute({
+      sql: `SELECT p.approval_date, p.household_count, m.lawd_cd, m.apt_name_norm
+            FROM apt_complex_master m LEFT JOIN apt_complex_profile p ON p.complex_id = m.complex_id
+            WHERE m.complex_id = ?`,
+      args: [complexId],
+    })
+    .catch(() => ({ rows: [] as Array<Record<string, unknown>> }));
+  const row = r.rows[0] as Record<string, unknown> | undefined;
+  const facts: ComplexFacts = {
+    approvalDate: normDate(row?.approval_date),
+    buildYear: null,
+    households: num(row?.household_count),
+  };
+  // 사용승인일이 없으면 최근 실거래 건축년도(최근 200건, 인덱스 범위만)로 대신한다
+  if (!facts.approvalDate && row?.lawd_cd && row?.apt_name_norm) {
+    const t = await db
+      .execute({
+        sql: `SELECT MIN(build_year) AS y FROM (
+                SELECT build_year FROM transactions INDEXED BY idx_tx_lawd_apt_ym
+                WHERE lawd_cd = ? AND apt_name_norm = ? ORDER BY year_month DESC LIMIT 200
+              ) WHERE build_year > 1900`,
+        args: [String(row.lawd_cd), String(row.apt_name_norm)],
+      })
+      .catch(() => ({ rows: [] as Array<Record<string, unknown>> }));
+    facts.buildYear = num(t.rows[0]?.y);
+  }
+  return facts;
+}
+
+/** 단지가 들어간 정비 구역과 (있으면) 사업 단계. 사업 단계가 있는 것이 앞. 이미 끝난(이 단지를 지은) 구역은 뺀다. */
 export async function readComplexRedev(db: Client, complexId: string): Promise<ComplexRedev[]> {
   try {
     const res = await db.execute({
-      sql: `SELECT z.zone_id, z.name, z.category_name, z.gu, z.notice_date, z.lat, z.lng, p.*
+      sql: `SELECT z.zone_id, z.name, z.category_code, z.category_name, z.gu, z.notice_date, z.lat, z.lng, p.*
             FROM redev_links l
             JOIN redev_zones z ON z.zone_id = l.zone_id AND z.category_code IN (${CAT_SQL})
             LEFT JOIN redev_links pl ON pl.kind = 'project_zone' AND pl.zone_id = z.zone_id
@@ -127,22 +242,40 @@ export async function readComplexRedev(db: Client, complexId: string): Promise<C
             WHERE l.kind = 'complex_zone' AND l.ref_id = ?`,
       args: [complexId],
     });
-    const out: ComplexRedev[] = res.rows.map((r) => {
+    if (res.rows.length === 0) return [];
+    const rows = res.rows.map((r) => {
       const row = r as unknown as Record<string, unknown>;
-      return { zone: toZone(row), project: row.code != null ? toProject(row) : null };
+      return {
+        item: { zone: toZone(row), project: row.code != null ? toProject(row) : null } as ComplexRedev,
+        categoryCode: str(row.category_code),
+      };
     });
-    // 이미 끝난 사업은 빼기 — 구역 지정 뒤에 사용승인된 단지는 그 구역 사업으로 새로 지은 단지다 (예: 래미안원베일리)
-    const ap = await db
-      .execute({ sql: `SELECT approval_date FROM apt_complex_profile WHERE complex_id = ?`, args: [complexId] })
-      .catch(() => ({ rows: [] as Array<Record<string, unknown>> }));
-    const approval = String(ap.rows[0]?.approval_date ?? "").slice(0, 10);
-    const active = approval
-      ? out.filter((x) => !(x.zone.noticeDate && x.zone.noticeDate.slice(0, 10) < approval))
-      : out;
-    return active.sort((a, b) => Number(!!b.project) - Number(!!a.project));
+    const complex = await readComplexFacts(db, complexId);
+    return filterFinishedZones(rows, complex).sort((a, b) => Number(!!b.project) - Number(!!a.project));
   } catch {
     return [];
   }
+}
+
+/** 끝난 구역 빼기 — 같은 이름 뼈대의 구역 하나가 끝났으면 (준공 뒤 변경 고시로 날짜만 늦은) 나머지도 끝난 것으로 본다 */
+export function filterFinishedZones(
+  rows: Array<{ item: ComplexRedev; categoryCode: string | null }>,
+  complex: ComplexFacts,
+): ComplexRedev[] {
+  const status = rows.map(
+    ({ item, categoryCode }) =>
+      classifyComplexZone({
+        zone: { zoneId: item.zone.zoneId, name: item.zone.name, categoryCode, noticeDate: normDate(item.zone.noticeDate) },
+        project: item.project,
+        complex,
+      }).status,
+  );
+  const doneBases = new Set(
+    rows.map((r, i) => (status[i] === "completed" ? zoneBaseName(r.item.zone.name) : "")).filter((b) => b.length >= 2),
+  );
+  return rows
+    .filter((r, i) => status[i] !== "completed" && !(r.item.project == null && doneBases.has(zoneBaseName(r.item.zone.name))))
+    .map((r) => r.item);
 }
 
 export type RedevZoneShape = RedevZone & {
