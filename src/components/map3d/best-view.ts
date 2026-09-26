@@ -84,7 +84,8 @@ export function chooseBestView(
     const n2 = (opts.axisDeg + 270) % 360;
     const south = (n: number) => -Math.cos((n * Math.PI) / 180); // 남(180°)이면 1
     const n = south(n1) >= south(n2) ? n1 : n2;
-    front = (n + 180) % 360;
+    // 앞면이 남쪽에서 60° 넘게 돌아 있으면(동 방향을 잘못 읽었거나 동·서향) 남쪽 보기로
+    front = Math.abs(n - 180) <= 60 ? (n + 180) % 360 : 0;
   }
   const look = (b: number) => {
     const diff = Math.abs(((b - front + 540) % 360) - 180); // 0~180

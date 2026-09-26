@@ -91,11 +91,16 @@ export type MarkerCard = {
   arrow?: boolean;
 };
 
-/** 마커 이름 — 지번 괄호를 떼고 8자까지 ("래미안퍼스티지" · "헬리오시티…") */
-export function markerName(aptName: string): string {
-  const s = displayAptName(aptName);
+/**
+ * 마커 이름 — 지번 괄호를 떼고, 이름 앞에 붙은 법정동 이름("이촌동삼성리버스위트" → "삼성리버스위트")도 뗀다.
+ * 고른 단지는 다 보이게, 나머지는 10자까지.
+ */
+export function markerName(aptName: string, dong?: string | null, full = false): string {
+  let s = displayAptName(aptName);
+  const d = dong?.trim();
+  if (d && s.startsWith(d) && [...s].length - [...d].length >= 2) s = s.slice(d.length);
   const chars = [...s];
-  return chars.length > 8 ? `${chars.slice(0, 7).join("")}…` : s;
+  return full || chars.length <= 10 ? s : `${chars.slice(0, 9).join("")}…`;
 }
 
 const BRAND = "var(--lab-brand-primary,#0f766e)";
@@ -172,7 +177,7 @@ export function complexMarkerCard(
       ? ""
       : (c.pyeongLabel ?? (c.mainAreaSqm ? `${Math.floor(c.mainAreaSqm)}㎡` : ""));
   return {
-    name: opts.name === false && value ? "" : markerName(c.aptName),
+    name: opts.name === false && value ? "" : markerName(c.aptName, c.dong, selected),
     pyeong,
     value,
     valueColor: v?.color,
