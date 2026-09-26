@@ -8,7 +8,7 @@ import { LAB_LIST } from "@/components/ui/LabListRow";
 export const metadata: Metadata = {
   title: "부동산 계산 도구 | 아파트 데이터랩",
   description:
-    "대출 한도와 이자를 계산하고, 서울시 협력자금 실행금리를 확인하는 대출 계산기를 이용하세요.",
+    "대출 한도와 이자를 계산하고, 금융감독원 공시 대출 금리를 비교해 보세요.",
 };
 
 export default function Page() {
@@ -18,7 +18,7 @@ export default function Page() {
         <PageHeader
           title="부동산 계산 도구"
           titleClassName="detail-page-title"
-          description="완성된 계산 기능을 이용하세요. 대출 한도, 이자 계산, 서울시 협력자금 금리 정보를 확인할 수 있습니다."
+          description="완성된 계산 기능을 이용하세요. 대출 한도·이자 계산과 금융감독원 공시 대출 금리비교를 이용할 수 있습니다."
         />
 
         <LabSection title="계산기">
@@ -31,7 +31,24 @@ export default function Page() {
                 <div className="min-w-0 flex-1">
                   <p className="detail-data-value-emphasis">대출 계산기</p>
                   <p className="detail-meta">
-                    대출 한도와 이자를 계산하고, 서울시 협력자금 실행금리를 확인하세요.
+                    대출 한도와 이자를 계산하세요.
+                  </p>
+                </div>
+                <ChevronRight
+                  className="size-4 shrink-0 text-[color:var(--lab-muted)]"
+                  aria-hidden
+                />
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/rates"
+                className="flex min-h-11 items-center gap-3 py-3 hover:bg-slate-50/60"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="detail-data-value-emphasis">대출 금리비교</p>
+                  <p className="detail-meta">
+                    금융감독원 공시 기준 주택담보대출·전세자금대출 금리를 낮은 순으로 비교하세요.
                   </p>
                 </div>
                 <ChevronRight
