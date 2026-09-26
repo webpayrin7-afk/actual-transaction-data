@@ -5,7 +5,10 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import {
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
+  AppWindow,
+  Footprints,
   Maximize2,
   RotateCcw,
   SquareDashed,
@@ -23,7 +26,10 @@ import type {
   SunHours,
   ViewResult,
   DongContext,
+  WindowViewInfo,
+  FacadeSunProgress,
 } from "@/components/complex-3d/scene";
+import { FACADE_SUN_COLORS } from "@/components/complex-3d/facade-sun";
 import { TYPE_COLORS } from "@/components/complex-3d/palette";
 import { fetchComplexTypes } from "@/lib/apt/area-supply";
 import { mergeNearSupply, sameSqm, supplyLabels } from "@/lib/apt/type-labels";
@@ -85,6 +91,10 @@ const man = (v: number) =>
     ? `${(v / 10_000).toFixed(2)}억`
     : `${Math.round(v).toLocaleString("ko-KR")}만`;
 
+const reducedMotion = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 const FLOAT =
   "bg-white/95 shadow-[0_2px_10px_rgba(15,23,42,0.14)] backdrop-blur";
 
@@ -125,7 +135,15 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   const [walkPick, setWalkPick] = useState<string | null>(null);
   const [wheel, setWheel] = useState(false);
   const [walkProgress, setWalkProgress] = useState<{ sec: number; done: boolean } | null>(null);
+  // 걷기 — 사람 뒤에서 따라가는 카메라
+  const [walkFollow, setWalkFollow] = useState(false);
+  // 일조 — 외벽을 층 구간별 해 드는 시간으로 색칠
+  const [facadeOn, setFacadeOn] = useState(false);
+  const [facadeProg, setFacadeProg] = useState<FacadeSunProgress | null>(null);
   const [terrainOn, setTerrainOn] = useState(false);
+  // 우리 집 창문 시점 — 켜져 있으면 정보(방향·앞 건물·가림)
+  const [windowInfo, setWindowInfo] = useState<WindowViewInfo | null>(null);
+  const inWindow = !!windowInfo;
   // 모바일에서 아래 정보 패널이 가리는 만큼 모형 중심을 위로 (넓은 화면은 패널이 옆에 떠 있어 그대로)
   useEffect(() => {
     if (!ready) return;
@@ -140,7 +158,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     const ro = new ResizeObserver(sync);
     if (panelRef.current) ro.observe(panelRef.current);
     return () => ro.disconnect();
-  }, [ready, mode, selected, pickedType, walkPick]);
+  }, [ready, mode, selected, pickedType, walkPick, inWindow]);
 
   // 모형을 끌 때 브라우저가 같이 당겨지지 않게 (당겨서 새로고침·바운스 끄기)
   useEffect(() => {
@@ -287,7 +305,10 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         };
         s.onHeading = setHeading;
         s.onWalkProgress = (sec, done) => setWalkProgress({ sec, done });
+        s.onWalkFollow = setWalkFollow;
+        s.onFacadeSunProgress = setFacadeProg;
         s.onTerrain = () => setTerrainOn(true);
+        s.onWindowInfo = (info) => setWindowInfo(info);
         sceneRef.current = scene;
         setReady(true);
       })
@@ -301,6 +322,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
       sceneRef.current = null;
       setReady(false);
       setTerrainOn(false);
+      setWindowInfo(null);
     };
   }, [d, hasShape]);
 
@@ -356,6 +378,12 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     return () => window.clearTimeout(t);
   }, [mode, walkDest, ready, terrainOn]);
 
+  // 따라가기 — 걷기 모드에서만 (나가면 끈다)
+  useEffect(() => {
+    if (!ready) return;
+    sceneRef.current?.setWalkFollow(mode === "walk" && walkFollow, reducedMotion());
+  }, [mode, walkFollow, ready]);
+
   useEffect(() => {
     sceneRef.current?.setMode(mode);
     sceneRef.current?.setShadows(
@@ -371,6 +399,14 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     const p = sceneRef.current?.setSun(date, hour);
     if (p) setSunInfo(p);
   }, [season, hour, ready]);
+
+  // 외벽 일조 — 계절이 바뀌면 그 계절로 (계산한 계절은 기억한다)
+  useEffect(() => {
+    if (!ready) return;
+    const s = SEASONS.find((x) => x.id === season)!;
+    const date = new Date(Date.UTC(new Date().getFullYear(), s.md[0] - 1, s.md[1]));
+    sceneRef.current?.setFacadeSun(facadeOn, date, season);
+  }, [facadeOn, season, ready]);
 
   const sel = useMemo(
     () => d?.buildings.find((b) => b.id === selected) ?? null,
@@ -416,16 +452,42 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
 
   // 조망 계산 — 고른 동과 층이 바뀔 때
   useEffect(() => {
-    if (mode !== "view" || !selected || !ready) return;
+    // 창문 시점 안에서는 부채꼴이 숨어 있으니 층을 바꿔도 다시 재지 않는다 (나올 때 한 번)
+    if (mode !== "view" || !selected || !ready || inWindow) return;
     const t = window.setTimeout(
       () => setView(sceneRef.current?.computeView(selected, viewFloor) ?? null),
       60,
     );
     return () => window.clearTimeout(t);
-  }, [mode, selected, viewFloor, ready, terrainOn]);
+  }, [mode, selected, viewFloor, ready, terrainOn, inWindow]);
 
   const maxFloors = sel?.floors ?? 1;
   const floorNow = Math.min(viewFloor, maxFloors);
+
+  const enterWindow = (floor = floorNow) => {
+    const s = sceneRef.current;
+    if (!s || !selected) return;
+    setPicker(null);
+    setWindowInfo(s.enterWindowView(selected, floor, reducedMotion()));
+  };
+  const exitWindow = () => {
+    sceneRef.current?.exitWindowView(reducedMotion());
+    setWindowInfo(null);
+  };
+  // 창문 시점에서는 모드·동 고르기를 숨기므로, 나오는 길은 돌아가기·Esc 뿐이다
+  // Esc · 방향키
+  useEffect(() => {
+    if (!inWindow) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        sceneRef.current?.exitWindowView(reducedMotion());
+        setWindowInfo(null);
+      } else if (e.key === "ArrowLeft") sceneRef.current?.lookWindow(-10);
+      else if (e.key === "ArrowRight") sceneRef.current?.lookWindow(10);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [inWindow]);
 
   const pickDong = (id: string) => {
     const s = sceneRef.current;
@@ -569,7 +631,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
               <span className="truncate">{d?.name ?? "3D 단지 탐색"}</span>
             </p>
           )}
-          {d && hasShape ? (
+          {d && hasShape && !inWindow ? (
             <div className="pointer-events-auto ml-auto flex shrink-0 gap-1.5">
               {(
                 [
@@ -607,7 +669,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         </div>
 
         {/* 필터 목록 */}
-        {picker && d ? (
+        {inWindow ? null : picker && d ? (
           <div
             className="pointer-events-auto mx-3 overflow-y-auto rounded-2xl bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,0.18)]"
             style={{
@@ -736,6 +798,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           </div>
         )}
         {!picker &&
+        !inWindow &&
         d &&
         hasShape &&
         d.coverage.withShape < d.coverage.buildings ? (
@@ -773,7 +836,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
       ) : null}
 
       {/* 오른쪽: 나침반 · 단지 전체 · 위에서 보기 */}
-      {ready ? (
+      {ready && !inWindow ? (
         <div
           className="absolute right-3 z-10 flex flex-col gap-2"
           style={{ top: "calc(env(safe-area-inset-top) + 92px)" }}
@@ -826,7 +889,21 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
       ) : null}
 
       {/* 정보 패널 — 동·타입 필터를 고른 상태에서 모드별 정보를 한곳에 */}
-      {showPanel && d ? (
+      {windowInfo && sel ? (
+        <WindowOverlay
+          info={windowInfo}
+          dong={sel.dong ?? "동"}
+          maxFloors={maxFloors}
+          onFloor={(f) => {
+            setViewFloor(f);
+            enterWindow(f);
+          }}
+          onLook={(deg) => sceneRef.current?.lookWindow(deg)}
+          onExit={exitWindow}
+        />
+      ) : null}
+
+      {showPanel && d && !inWindow ? (
         <div
           ref={panelRef}
           className="absolute left-3 right-3 z-20 sm:right-auto sm:w-[400px]"
@@ -956,6 +1033,13 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                     ))}
                   </div>
                 </div>
+                <FacadeSunControl
+                  on={facadeOn}
+                  onToggle={() => setFacadeOn((v) => !v)}
+                  progress={facadeProg}
+                  seasonLabel={SEASONS.find((x) => x.id === season)!.label}
+                  dong={sel?.dong ?? null}
+                />
                 <label className="flex items-center gap-2">
                   <span className="w-[92px] shrink-0 whitespace-nowrap text-[13px] text-[color:var(--lab-muted)]">
                     그림자{" "}
@@ -1010,6 +1094,15 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
               sel ? (
                 <div className="mt-2 flex flex-col gap-2">
                   {floorSlider}
+                  <button
+                    type="button"
+                    onClick={() => enterWindow()}
+                    disabled={!ready}
+                    className="flex h-9 items-center justify-center gap-1.5 rounded-full bg-[color:var(--lab-navy-950)] text-[13px] font-semibold text-white transition active:scale-[0.98] disabled:opacity-50"
+                  >
+                    <AppWindow className="h-4 w-4" aria-hidden />
+                    이 층 창문에서 보기
+                  </button>
                   {view ? (
                     <>
                       <p className="text-[13px] tabular-nums text-[color:var(--lab-navy-950)]">
@@ -1084,6 +1177,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                 onWheel={setWheel}
                 progress={walkProgress}
                 onReplay={() => sceneRef.current?.replayWalk()}
+                follow={walkFollow}
+                onFollow={setWalkFollow}
                 fromDong={sel?.dong ?? walk?.from.dong ?? null}
                 terrainLabel={terrainQuery.data?.sourceLabel ?? null}
               />
@@ -1092,6 +1187,117 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         </div>
       ) : null}
     </div>
+  );
+}
+
+/** 창문 시점 — 방향·앞 건물·가림 요약, 층 바꾸기, 둘러보기, 돌아가기 */
+function WindowOverlay({
+  info,
+  dong,
+  maxFloors,
+  onFloor,
+  onLook,
+  onExit,
+}: {
+  info: WindowViewInfo;
+  dong: string;
+  maxFloors: number;
+  onFloor: (f: number) => void;
+  onLook: (deg: number) => void;
+  onExit: () => void;
+}) {
+  const blocked = Math.round(info.blockedShare * 100);
+  const tone =
+    blocked >= 60 ? "text-rose-600" : blocked >= 30 ? "text-amber-600" : "text-[color:var(--lab-teal-700)]";
+  const stepBtn =
+    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-950)] transition active:scale-95 disabled:opacity-40";
+  return (
+    <>
+      {/* 창틀 느낌의 가장자리 그늘 — 조작은 통과 */}
+      <div
+        className="pointer-events-none absolute inset-0 z-10"
+        style={{ boxShadow: "inset 0 0 0 6px rgba(15,23,42,0.55), inset 0 0 60px rgba(15,23,42,0.25)" }}
+        aria-hidden
+      />
+      <p
+        className={`pointer-events-none absolute left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-[12px] font-semibold text-[color:var(--lab-navy-950)] ${FLOAT}`}
+        style={{ top: "calc(env(safe-area-inset-top) + 52px)" }}
+      >
+        좌우로 끌어 둘러보기
+      </p>
+      <div
+        role="region"
+        aria-label="창문 시점"
+        className="absolute left-3 right-3 z-20 rounded-2xl border border-[color:var(--lab-brand-border)] bg-white px-3.5 py-2.5 shadow-[0_4px_16px_rgba(15,23,42,0.14)] sm:right-auto sm:w-[400px]"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 10px)" }}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-[15px] font-bold text-[color:var(--lab-teal-700)]">{dong}</span>
+          <span className="min-w-0 flex-1 truncate text-[13px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]">
+            {info.floor}층 창가 · 눈높이 {info.eyeM}m
+          </span>
+          <button
+            type="button"
+            onClick={onExit}
+            className="flex h-8 shrink-0 items-center gap-1 rounded-full bg-[color:var(--lab-navy-950)] px-3 text-[13px] font-semibold text-white transition active:scale-95"
+          >
+            <X className="h-3.5 w-3.5" aria-hidden />
+            돌아가기
+          </button>
+        </div>
+        <div className="mt-1.5 grid grid-cols-3 gap-1.5" aria-live="polite">
+          <div className="rounded-lg bg-[color:var(--lab-brand-subtle)] px-2 py-1.5">
+            <p className="text-[12px] text-[color:var(--lab-teal-700)]">방향</p>
+            <p className="text-[15px] font-bold text-[color:var(--lab-navy-950)]">{info.facing}</p>
+          </div>
+          <div className="rounded-lg bg-[color:var(--lab-brand-subtle)] px-2 py-1.5">
+            <p className="text-[12px] text-[color:var(--lab-teal-700)]">{info.frontHill ? "앞 지형까지" : "앞 건물까지"}</p>
+            <p className="truncate text-[15px] font-bold tabular-nums text-[color:var(--lab-navy-950)]">
+              {info.frontM != null ? `${info.frontM}m` : "500m+"}
+            </p>
+          </div>
+          <div className="rounded-lg bg-[color:var(--lab-brand-subtle)] px-2 py-1.5">
+            <p className="text-[12px] text-[color:var(--lab-teal-700)]">가림 비율</p>
+            <p className={`text-[15px] font-bold tabular-nums ${tone}`}>{blocked}%</p>
+          </div>
+        </div>
+        <p className="mt-1 text-[12px] leading-[17px] text-[color:var(--lab-muted)]">
+          {Math.abs(info.yaw) >= 5
+            ? `지금 ${info.lookDir}을 보는 중(정면에서 ${info.yaw > 0 ? "오른쪽" : "왼쪽"} ${Math.abs(info.yaw)}°) · `
+            : ""}
+          {info.frontHill ? "언덕·산이 먼저 가려요 · " : info.frontDong ? `${info.frontDong}이 먼저 보여요 · ` : ""}가림 = 화면에 보이는 가로 {info.spanDeg}° 중 200m 안에서 막힌 비율
+          {info.roughGround ? " · 비탈이라 지형 자료가 거칠어 창 자리 땅높이 기준으로 보여줘요" : ""}
+        </p>
+        <div className="mt-1.5 flex items-center gap-1.5">
+          <button type="button" className={stepBtn} onClick={() => onLook(-15)} aria-label="왼쪽으로 둘러보기">
+            <ChevronLeft className="h-4 w-4" aria-hidden />
+          </button>
+          <button type="button" className={stepBtn} onClick={() => onLook(15)} aria-label="오른쪽으로 둘러보기">
+            <ChevronRight className="h-4 w-4" aria-hidden />
+          </button>
+          <span className="ml-auto text-[12px] text-[color:var(--lab-muted)]">층</span>
+          <button
+            type="button"
+            className={stepBtn}
+            onClick={() => onFloor(info.floor - 1)}
+            disabled={info.floor <= 1}
+            aria-label="한 층 아래"
+          >
+            <span className="text-[16px] font-bold leading-none" aria-hidden>−</span>
+          </button>
+          <span className="w-10 text-center text-[14px] font-bold tabular-nums text-[color:var(--lab-navy-950)]">{info.floor}층</span>
+          <button
+            type="button"
+            className={stepBtn}
+            onClick={() => onFloor(info.floor + 1)}
+            disabled={info.floor >= maxFloors}
+            aria-label="한 층 위"
+          >
+            <span className="text-[16px] font-bold leading-none" aria-hidden>+</span>
+          </button>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -1257,6 +1463,95 @@ function SunStatsView({ stats, season }: { stats: SunHours; season: Season }) {
   );
 }
 
+/** 외벽 일조 색칠 — 켜기, 계산 진행, 범례, 고른 동의 층 구간별 요약 */
+function FacadeSunControl({
+  on,
+  onToggle,
+  progress,
+  seasonLabel,
+  dong,
+}: {
+  on: boolean;
+  onToggle: () => void;
+  progress: FacadeSunProgress | null;
+  seasonLabel: string;
+  dong: string | null;
+}) {
+  const busy = on && progress?.on && progress.done < progress.total;
+  const h1 = (v: number) => (Math.round(v * 10) / 10).toString();
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          role="switch"
+          aria-checked={on}
+          onClick={onToggle}
+          className={`flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-[12px] font-semibold transition active:scale-95 ${
+            on
+              ? "bg-[color:var(--lab-navy-950)] text-white"
+              : "border border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
+          }`}
+        >
+          외벽 일조 색칠
+        </button>
+        {on ? (
+          <span className="min-w-0 truncate text-[12px] tabular-nums text-[color:var(--lab-muted)]" aria-live="polite">
+            {busy ? `계산 중 ${progress!.done}/${progress!.total}동` : `${seasonLabel} · 3개 층마다 · 해 드는 쪽 외벽`}
+          </span>
+        ) : (
+          <span className="min-w-0 truncate text-[12px] text-[color:var(--lab-muted)]">모든 동 외벽을 층별 해 드는 시간으로</span>
+        )}
+      </div>
+      {busy ? (
+        <div className="h-1 overflow-hidden rounded-full bg-slate-100" aria-hidden>
+          <div
+            className="h-full rounded-full bg-[color:var(--lab-brand-primary)]"
+            style={{ width: `${Math.round((progress!.done / Math.max(1, progress!.total)) * 100)}%` }}
+          />
+        </div>
+      ) : null}
+      {on ? (
+        <div>
+          <div className="flex h-2.5 overflow-hidden rounded-full" aria-label="하루 해 드는 시간 색 범례">
+            {FACADE_SUN_COLORS.map((c) => (
+              <span key={c} className="h-full flex-1" style={{ background: c }} />
+            ))}
+          </div>
+          <div className="mt-0.5 flex justify-between text-[11px] tabular-nums text-[color:var(--lab-muted)]">
+            <span>0</span>
+            <span>2</span>
+            <span>4</span>
+            <span>6시간+</span>
+          </div>
+        </div>
+      ) : null}
+      {on && dong && progress?.selected?.length ? (
+        <div>
+          <p className="text-[12px] font-semibold text-[color:var(--lab-navy-950)]">
+            {dong} 정면 벽 · 층 구간별 하루 해 드는 시간
+          </p>
+          <ul className="mt-0.5 grid grid-cols-3 gap-1">
+            {[...progress.selected].reverse().map((b) => (
+              <li
+                key={b.from}
+                className="flex items-center gap-1 rounded-md border border-[color:var(--lab-border)] px-1.5 py-0.5 text-[11px] tabular-nums text-[color:var(--lab-navy-950)]"
+              >
+                <span className="h-2 w-2 shrink-0 rounded-sm" style={{ background: FACADE_SUN_COLORS[Math.min(6, Math.floor(b.main))] }} aria-hidden />
+                <span className="text-[color:var(--lab-muted)]">{b.from === b.to ? `${b.from}층` : `${b.from}~${b.to}층`}</span>
+                <span className="ml-auto font-semibold">{h1(b.main)}시간</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-0.5 text-[11px] leading-[15px] text-[color:var(--lab-muted)]">
+            해 드는 쪽 가장 긴 외벽 기준 · 다른 벽은 모형 색 참고 · 주변 건물·지형 그림자 반영
+          </p>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function schoolLevel(v: string | null): string {
   return v === "elementary"
     ? "초등학교"
@@ -1376,6 +1671,8 @@ function WalkPanel({
   onWheel,
   progress,
   onReplay,
+  follow,
+  onFollow,
   fromDong,
   terrainLabel,
 }: {
@@ -1388,6 +1685,8 @@ function WalkPanel({
   onWheel: (v: boolean) => void;
   progress: { sec: number; done: boolean } | null;
   onReplay: () => void;
+  follow: boolean;
+  onFollow: (v: boolean) => void;
   fromDong: string | null;
   terrainLabel: string | null;
 }) {
@@ -1442,7 +1741,7 @@ function WalkPanel({
                   type="button"
                   onClick={() => onPick(x.id)}
                   aria-pressed={on}
-                  className={`flex w-full flex-col items-start gap-0.5 rounded-lg px-1.5 py-1.5 text-left transition active:scale-[0.99] ${
+                  className={`flex w-full flex-col items-start gap-0.5 ${on && progress ? "rounded-t-lg" : "rounded-lg"} px-1.5 py-1.5 text-left transition active:scale-[0.99] ${
                     on ? "bg-[color:var(--lab-brand-subtle)]" : ""
                   }`}
                 >
@@ -1487,34 +1786,42 @@ function WalkPanel({
                         ) : null}
                         {x.gate ? <Chip tone="teal">{x.gate}</Chip> : null}
                       </span>
-                      {progress ? (
-                        <span className="flex items-center gap-1.5 font-semibold text-[color:var(--lab-navy-950)]">
-                          {progress.done ? "도착" : "걷는 중"} {mmss(progress.sec)}
-                          {progress.done ? (
-                            <span
-                              role="button"
-                              tabIndex={0}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onReplay();
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter" || e.key === " ") {
-                                  e.stopPropagation();
-                                  onReplay();
-                                }
-                              }}
-                              aria-label="다시 걷기"
-                              className="flex h-6 w-6 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-white"
-                            >
-                              <RotateCcw className="h-3.5 w-3.5" aria-hidden />
-                            </span>
-                          ) : null}
-                        </span>
-                      ) : null}
                     </span>
                   ) : null}
                 </button>
+                {on && progress ? (
+                  <div
+                    className="flex items-center gap-1.5 rounded-b-lg bg-[color:var(--lab-brand-subtle)] px-1.5 pb-1.5 text-[12px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]"
+                  >
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={follow}
+                      onClick={() => onFollow(!follow)}
+                      className={`flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-[12px] font-semibold transition active:scale-95 ${
+                        follow
+                          ? "bg-[color:var(--lab-navy-950)] text-white"
+                          : "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-950)]"
+                      }`}
+                    >
+                      <Footprints className="h-3.5 w-3.5" aria-hidden />
+                      따라가기
+                    </button>
+                    <span>
+                      {progress.done ? "도착" : "걷는 중"} {mmss(progress.sec)}
+                    </span>
+                    {progress.done ? (
+                      <button
+                        type="button"
+                        onClick={onReplay}
+                        aria-label="다시 걷기"
+                        className="flex h-7 w-7 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-white transition active:scale-95"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" aria-hidden />
+                      </button>
+                    ) : null}
+                  </div>
+                ) : null}
               </li>
             );
           })}

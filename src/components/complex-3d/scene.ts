@@ -14,8 +14,12 @@ import { Line2 } from "three/examples/jsm/lines/Line2.js";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 import type { Complex3d, Complex3dBuilding, FloorBand, Poi3d, Ring } from "@/lib/complex-3d/read";
 import type { TerrainGridPayload } from "@/lib/complex-3d/ground";
+import { facadeSunColor, firstPrismHit, makePrism, prismsInFront, sunBlocked, type Prism } from "@/components/complex-3d/facade-sun";
 
 export const FLOOR_M = 3;
+/** 평소 둘러보기에서 가장 가까이 다가갈 수 있는 거리 (m) — 걷기 따라가기 중에는 풀어 둔다 */
+const MIN_DIST = 40;
+const FOLLOW_MIN_DIST = 20;
 const TEAL = 0x0e9aa0;
 const TEAL_DARK = 0x087f83;
 const OWN = 0x9fd9d6; // 단지 동 — 주변 회색 건물과 구분되는 중간 톤 청록
@@ -91,14 +95,168 @@ export function sunPosition(lat: number, lng: number, date: Date, hourKst: numbe
   return { altitude: Math.PI / 2 - zen, azimuth: az };
 }
 
+export type WindowViewInfo = {
+  floor: number;
+  /** 창이 난 외벽의 향 ("남향" …) */
+  facing: string;
+  /** 지금 보는 방향 ("남쪽" …) */
+  lookDir: string;
+  /** 정면에서 돌아본 각도 (도, +면 오른쪽) */
+  yaw: number;
+  /** 보는 방향 ±4° 안 첫 건물까지 (m), 500m 안에 없으면 null */
+  frontM: number | null;
+  frontDong: string | null;
+  /** 첫 가림이 건물이 아니라 지형(언덕·산) */
+  frontHill: boolean;
+  /** 화면에 보이는 가로 폭(°) 중 200m 안에서 막힌 비율 */
+  blockedShare: number;
+  /** 가림 비율을 잰 가로 폭 (°) — 지금 화면에 보이는 가로 시야 */
+  spanDeg: number;
+  /** 눈높이 — 동 바닥에서 (m) */
+  eyeM: number;
+  /** 지형 격자가 거칠어 창 자리 땅이 동 바닥보다 높게 잡힘 (비탈) — 카메라·지형 가림을 그 땅 높이 기준으로 올려 잰다 */
+  roughGround: boolean;
+};
+
+export type FacadeSunProgress = {
+  on: boolean;
+  done: number;
+  total: number;
+  /** 고른 동 — 층 구간별 외벽 구간 중 가장 적게·많이 드는 시간 (아직 계산 전이면 null) */
+  selected: Array<{ from: number; to: number; main: number; min: number; max: number }> | null;
+};
+
+/** 외벽 일조 계산 결과 — 외벽 구간(segs) × 층 구간(bands), hours[i]는 segs[i]의 하루 해 드는 시간(시간) */
+type FacadeSunCells = {
+  /** 동 바닥 높이 (지형 가림을 잴 때 기준) */
+  base: number;
+  segs: Array<{ x0: number; z0: number; x1: number; z1: number; ox: number; oz: number }>;
+  bands: Array<{ from: number; to: number; y0: number; y1: number; ys: number; hours: number[] }>;
+};
+
+/** 7~18시 10분 간격(가운데 시각)의 해 방향 — 해가 없으면 null (일조 시간 계산과 같은 칸) */
+function sunDirs(center: { lat: number; lng: number }, date: Date): Array<THREE.Vector3 | null> {
+  const out: Array<THREE.Vector3 | null> = [];
+  for (let m = 7 * 60; m < 18 * 60; m += 10) {
+    const sp = sunPosition(center.lat, center.lng, date, (m + 5) / 60);
+    out.push(
+      sp.altitude <= 0.01
+        ? null
+        : new THREE.Vector3(Math.sin(sp.azimuth) * Math.cos(sp.altitude), Math.sin(sp.altitude), -Math.cos(sp.azimuth) * Math.cos(sp.altitude)),
+    );
+  }
+  return out;
+}
+
+/** 지형 가림은 이 거리(m)부터 본다 — 지형 격자(약 15m 칸) 두세 칸 안은 동 바닥 높이와 어긋나 믿지 않는다 */
+const TERRAIN_NEAR = 40;
+
+/** 창문 시점 — 좌우로 둘러볼 수 있는 범위(°)와 미리 재는 범위 */
+const WIN_YAW = 50;
+/** 가림 비율을 재는 가로 폭 상한 (°) — 넓은 가로 화면에서도 이만큼만 */
+const WIN_SPAN_MAX = 80;
+const WIN_RAY = WIN_YAW + WIN_SPAN_MAX / 2;
+
 type Local = { x: number; z: number };
 
 /** 빨리 감기 재생 길이 — 실제 걷는 시간의 약 1/80, 6~14초 */
 const walkPlayMs = (sec: number) => Math.max(6000, Math.min(14000, sec * 12));
 
-const WALKER_SVG =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-  '<circle cx="13" cy="4" r="2" fill="currentColor"/><path d="M11 21l2-6 3 3v3"/><path d="M9 10l3-2 3 3 3 1"/><path d="M12 8l-1 6-3 2"/></svg>';
+/** 걷는 사람 — 실제 크기(키 약 1.7m) 저폴리 모형. 머리·몸통·팔·다리, 팔다리는 어깨·엉덩이를 축으로 흔든다 */
+type WalkerRig = {
+  root: THREE.Group;
+  body: THREE.Group;
+  legL: THREE.Group;
+  legR: THREE.Group;
+  armL: THREE.Group;
+  armR: THREE.Group;
+  ring: THREE.Mesh;
+};
+
+let walkerParts: {
+  leg: THREE.BufferGeometry;
+  arm: THREE.BufferGeometry;
+  torso: THREE.BufferGeometry;
+  head: THREE.BufferGeometry;
+  ring: THREE.BufferGeometry;
+  shirt: THREE.Material;
+  pants: THREE.Material;
+  skin: THREE.Material;
+  ringMat: THREE.Material;
+} | null = null;
+
+function walkerKit() {
+  if (walkerParts) return walkerParts;
+  // 팔다리는 위 끝이 원점(관절)에 오게 내려 둔다
+  const leg = new THREE.BoxGeometry(0.17, 0.86, 0.2).translate(0, -0.43, 0);
+  const arm = new THREE.BoxGeometry(0.12, 0.62, 0.13).translate(0, -0.31, 0);
+  walkerParts = {
+    leg,
+    arm,
+    torso: new THREE.BoxGeometry(0.46, 0.62, 0.26),
+    head: new THREE.IcosahedronGeometry(0.14, 1),
+    ring: new THREE.RingGeometry(0.55, 0.85, 24).rotateX(-Math.PI / 2),
+    // transparent: 경로 선(투명 목록·깊이 검사 끔)보다 뒤에 그려 사람이 선 위에 보이게 (불투명도는 1 그대로)
+    shirt: new THREE.MeshLambertMaterial({ color: 0x2563eb, transparent: true }),
+    pants: new THREE.MeshLambertMaterial({ color: 0x1e293b, transparent: true }),
+    skin: new THREE.MeshLambertMaterial({ color: 0xf2c9a5, transparent: true }),
+    // 건물에 가려도 발밑 고리는 보이게 (위치 찾기용)
+    ringMat: new THREE.MeshBasicMaterial({ color: 0x1d4ed8, depthTest: false, transparent: true, opacity: 0.85 }),
+  };
+  return walkerParts;
+}
+
+function makeWalker(): WalkerRig {
+  const k = walkerKit();
+  const root = new THREE.Group();
+  const body = new THREE.Group();
+  root.add(body);
+  const limb = (geo: THREE.BufferGeometry, mat: THREE.Material, x: number, y: number) => {
+    const pivot = new THREE.Group();
+    pivot.position.set(x, y, 0);
+    const m = new THREE.Mesh(geo, mat);
+    m.castShadow = true;
+    m.renderOrder = 6; // 경로 선 위에 그린다
+    pivot.add(m);
+    body.add(pivot);
+    return pivot;
+  };
+  const legL = limb(k.leg, k.pants, -0.11, 0.88);
+  const legR = limb(k.leg, k.pants, 0.11, 0.88);
+  const armL = limb(k.arm, k.shirt, -0.3, 1.46);
+  const armR = limb(k.arm, k.shirt, 0.3, 1.46);
+  const torso = new THREE.Mesh(k.torso, k.shirt);
+  torso.position.y = 1.19;
+  torso.castShadow = true;
+  torso.renderOrder = 6;
+  const head = new THREE.Mesh(k.head, k.skin);
+  head.position.y = 1.64;
+  head.castShadow = true;
+  head.renderOrder = 6;
+  body.add(torso, head);
+  const ring = new THREE.Mesh(k.ring, k.ringMat);
+  ring.position.y = 0.08;
+  ring.renderOrder = 5;
+  root.add(ring);
+  return { root, body, legL, legR, armL, armR, ring };
+}
+
+/**
+ * 그룹 비우기 — 모양·재질을 GPU에서 내리고(keep에 든 공유 자원은 남김), CSS2D 이름표는 장면에서 빼도 화면에 남으니 요소도 지운다.
+ */
+function disposeGroup(g: THREE.Group, keep?: Set<unknown>) {
+  g.traverse((o) => {
+    if (o instanceof CSS2DObject) {
+      o.element.remove();
+      return;
+    }
+    const m = o as THREE.Mesh;
+    if (m.geometry && !keep?.has(m.geometry)) m.geometry.dispose();
+    const mat = m.material as THREE.Material | THREE.Material[] | undefined;
+    for (const x of Array.isArray(mat) ? mat : mat ? [mat] : []) if (!keep?.has(x)) x.dispose();
+  });
+  g.clear();
+}
 
 export class Complex3dScene {
   private renderer: THREE.WebGLRenderer;
@@ -118,6 +276,7 @@ export class Complex3dScene {
     view: new THREE.Group(),
     pois: new THREE.Group(),
     walk: new THREE.Group(),
+    facadeSun: new THREE.Group(),
   };
   private ownMeshes = new Map<string, THREE.Mesh>();
   private ownMaterial = new THREE.MeshStandardMaterial({ color: OWN, roughness: 0.85, metalness: 0 });
@@ -161,7 +320,7 @@ export class Complex3dScene {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.maxPolarAngle = Math.PI / 2 - 0.05;
-    this.controls.minDistance = 40;
+    this.controls.minDistance = MIN_DIST;
     this.controls.maxDistance = 6000;
 
     this.sun.castShadow = true;
@@ -187,11 +346,24 @@ export class Complex3dScene {
     this.scene.add(grid);
     this.grid = grid;
     for (const g of Object.values(this.groups)) this.scene.add(g);
+    // 모드별 그룹을 처음부터 숨겨 둔다 (페이지가 모드를 넘기기 전 첫 화면에 주변 핀이 잠깐 보이지 않게)
+    this.setMode(this.mode);
 
     this.renderer.domElement.addEventListener("pointerdown", this.onPointerDown);
     this.renderer.domElement.addEventListener("pointerup", this.onPointerUp);
+    this.renderer.domElement.addEventListener("pointermove", this.onPointerMove);
+    this.renderer.domElement.addEventListener("pointercancel", this.onPointerCancel);
     // 사용자가 직접 돌리면 진행 중인 이동은 멈춘다
-    this.controls.addEventListener("start", () => (this.anim = null));
+    this.controls.addEventListener("start", () => {
+      this.anim = null;
+      // 따라가기 중에 직접 돌리면 따라가기를 끈다
+      if (this.walkFollow) {
+        // 따라가던 거리(약 30m)에서 그대로 이어 돌리게 — 40m 밖으로 나가면 loop에서 다시 40m로
+        this.controls.minDistance = FOLLOW_MIN_DIST;
+        this.walkFollow = false;
+        this.onWalkFollow(false);
+      }
+    });
     this.setSun(new Date(), 14);
     this.loop();
   }
@@ -201,7 +373,7 @@ export class Complex3dScene {
   private mapTex: THREE.Texture | null = null;
   private mapSize = 0;
   /** 지형 — 단지 중심 기준 상대 높이(m), n×n, 북쪽 행부터 */
-  private terrain: { size: number; n: number; h: Float32Array; min: number } | null = null;
+  private terrain: { size: number; n: number; h: Float32Array; min: number; max: number } | null = null;
 
   /**
    * 바닥에 실제 지도 이미지를 깐다 — 단지 중심이 이미지 가운데, 한 변 sizeM 미터(웹 메르카토르라 가로·세로 축척 같음).
@@ -234,11 +406,13 @@ export class Complex3dScene {
     const raw = new Int16Array(bytes.buffer, 0, t.n * t.n);
     const h = new Float32Array(t.n * t.n);
     let min = Infinity;
+    let max = -Infinity;
     for (let i = 0; i < h.length; i++) {
       h[i] = raw[i]! / 10;
       min = Math.min(min, h[i]!);
+      max = Math.max(max, h[i]!);
     }
-    this.terrain = { size: t.sizeM, n: t.n, h, min };
+    this.terrain = { size: t.sizeM, n: t.n, h, min, max };
     if (!this.mapSize) this.mapSize = t.sizeM;
     this.buildGround();
     this.ground.position.y = Math.min(0, min) - 0.6;
@@ -320,6 +494,10 @@ export class Complex3dScene {
     if (this.lastPois) this.setPois(this.lastPois);
     if (this.walkDraw) this.showWalk(this.walkDraw, this.walkReduced, false);
     this.paint();
+    // 외벽 일조 — 땅 높이가 바뀌었으니 처음부터 다시
+    this.refreshFacadeSun();
+    // 창문 시점이면 땅 높이가 바뀐 동에 다시 선다
+    if (this.win) this.onWindowInfo(this.enterWindowView(this.win.id, this.win.floor, true)!);
   }
 
   private toLocal(lng: number, lat: number): Local {
@@ -349,10 +527,22 @@ export class Complex3dScene {
   setData(data: Complex3d, keepCamera = false) {
     this.data = data;
     this.mPerLng = 111_320 * Math.cos((data.center.lat * Math.PI) / 180);
-    for (const g of Object.values(this.groups)) g.clear();
+    // 다시 지을 때 (지형이 늦게 오면) 이전 모양·재질과 이름표 요소를 버린다 — 함께 쓰는 재질·사람 모형은 남긴다
+    const keep = new Set<unknown>([
+      this.ownMaterial,
+      this.hiMaterial,
+      this.dimMaterial,
+      this.facadeSunMat,
+      this.walkLineMat,
+      this.walkCaseMat,
+      ...(walkerParts ? Object.values(walkerParts) : []),
+    ]);
+    for (const g of Object.values(this.groups)) disposeGroup(g, keep);
+    this.walker = null;
     this.ownMeshes.clear();
     this.labelEls.clear();
     this.baseById.clear();
+    this.prisms = null;
     for (const b of data.buildings) this.baseById.set(b.id, this.baseOf(b.rings));
 
     // 우리 단지 동
@@ -521,10 +711,11 @@ export class Complex3dScene {
   setMode(mode: SceneMode) {
     this.mode = mode;
     this.groups.walk.visible = mode === "walk";
+    this.groups.facadeSun.visible = mode === "sun" && this.facadeSun.on;
     this.groups.floors.visible = mode === "floors";
     this.groups.types.visible = mode === "types";
     this.groups.own.visible = mode !== "floors" && mode !== "types";
-    this.groups.view.visible = mode === "view";
+    this.groups.view.visible = mode === "view" && !this.win;
     this.groups.pois.visible = mode === "around";
     this.groups.labels.visible = mode !== "around";
   }
@@ -532,7 +723,7 @@ export class Complex3dScene {
   /** 층별 시세 — 각 동을 저·중·고 구간으로 잘라 구간 평당가에 따라 색을 입힌다 */
   setFloorBands(bands: FloorBand[]) {
     this.lastBands = bands;
-    this.groups.floors.clear();
+    disposeGroup(this.groups.floors);
     if (!this.data) return;
     const prices = bands.map((b) => b.perPyeong).filter((v): v is number => v != null);
     const lo = Math.min(...prices);
@@ -564,7 +755,7 @@ export class Complex3dScene {
   /** 평형 — 각 동을 주력 평형 색으로 (colorOf: 평형 이름 → 색). 평형 정보가 없는 동은 회색 */
   setTypeColors(colorOf: (label: string) => string) {
     this.lastTypeColor = colorOf;
-    this.groups.types.clear();
+    disposeGroup(this.groups.types);
     if (!this.data) return;
     for (const b of this.data.buildings) {
       if (!b.rings) continue;
@@ -627,8 +818,8 @@ export class Complex3dScene {
       const hit = this.raycaster.intersectObjects(targets, false)[0];
       rays.push({ azimuth: i * 5, distance: hit ? Math.round(hit.distance) : null });
     }
-    // 부채꼴 그리기
-    this.groups.view.clear();
+    // 부채꼴 그리기 — 이전 부채꼴 72개의 모양·재질은 버린다 (층을 바꿀 때마다 다시 그린다)
+    disposeGroup(this.groups.view);
     for (const r of rays) {
       const d = r.distance ?? MAX;
       const a0 = ((r.azimuth - 2.5) * Math.PI) / 180;
@@ -727,7 +918,7 @@ export class Complex3dScene {
       }
       this.raycaster.set(origin, dir);
       this.raycaster.far = 1500;
-      slots.push(this.raycaster.intersectObjects(targets, false).length === 0);
+      slots.push(this.raycaster.intersectObjects(targets, false).length === 0 && !this.terrainBlocks(origin.x, origin.y, origin.z, dir, this.base(buildingId)));
     }
     const totalMin = slots.filter((x) => x === true).length * 10;
     let best = 0;
@@ -742,10 +933,294 @@ export class Complex3dScene {
     return { totalMin, best9to15Min: best, slots };
   }
 
+  /**
+   * 땅(언덕·산)이 햇빛을 막는지 — 해 쪽으로 8m마다 지형 높이와 광선 높이를 비교한다.
+   * 지형 격자는 약 15m 칸이라 동 바로 옆 땅 높이는 거칠다 (비탈에서는 동 바닥보다 10m 넘게 높게 나오기도 한다).
+   * 그래서 가까운 TERRAIN_NEAR m 안은 보지 않고(가까운 가림은 건물 광선이 맡는다), 출발 높이는 동 바닥(base) 기준 높이를
+   * 제자리 격자 땅에 얹어 잰다 (격자 땅이 바닥보다 높으면 그만큼 올림) — 모형에서 땅에 묻힌 낮은 층이 격자 오차 때문에
+   * 0시간이 되지 않고, 층마다 높이 차이는 그대로 남는다. 광선이 지형 최고점보다 높아지거나 격자 밖으로 나가면 그만둔다.
+   */
+  private terrainBlocks(ox: number, oy: number, oz: number, dir: { x: number; y: number; z: number }, base: number): boolean {
+    const t = this.terrain;
+    if (!t) return false;
+    const h = Math.hypot(dir.x, dir.z);
+    if (h < 1e-6) return false;
+    const ux = dir.x / h;
+    const uz = dir.z / h;
+    const slope = dir.y / h;
+    const half = t.size / 2;
+    const y0 = oy + Math.max(0, this.groundAt(ox, oz) - base);
+    for (let s = TERRAIN_NEAR; s < 1500; s += 8) {
+      const y = y0 + slope * s;
+      if (y > t.max) return false;
+      const x = ox + ux * s;
+      const z = oz + uz * s;
+      if (Math.abs(x) > half || Math.abs(z) > half) return false;
+      if (this.groundAt(x, z) > y) return true;
+    }
+    return false;
+  }
+
+  // ── 외벽 일조 색칠 ────────────────────────────────────────────────────────
+  /** 몇 동까지 계산했는지 (done === total이면 끝) */
+  onFacadeSunProgress: (p: FacadeSunProgress) => void = () => {};
+  private emitFacadeSun() {
+    const f = this.facadeSun;
+    this.onFacadeSunProgress({
+      on: f.on,
+      done: f.total - f.queue.length - (f.job ? 1 : 0),
+      total: f.total,
+      selected: this.selectedId ? this.facadeSunOf(this.selectedId) : null,
+    });
+  }
+  private prisms: Prism[] | null = null;
+  private facadeSun: {
+    on: boolean;
+    key: string;
+    date: Date | null;
+    /** 계절 → 동 → 계산 결과 */
+    cache: Map<string, Map<string, FacadeSunCells>>;
+    queue: string[];
+    total: number;
+    /** 하루 10분 간격 해 방향 (date가 바뀔 때만 다시) */
+    suns: Array<THREE.Vector3 | null>;
+    /** 계산 중인 동 — 외벽 구간(si)마다 나눠 한 화면에 조금씩 */
+    job: { id: string; cells: FacadeSunCells; si: number } | null;
+  } = { on: false, key: "", date: null, cache: new Map(), queue: [], total: 0, suns: [], job: null };
+
+  /** 단지 동·주변 건물을 기둥(외곽선 × 바닥~지붕)으로 — 햇빛 광선 검사용 */
+  private getPrisms(): Prism[] {
+    if (this.prisms) return this.prisms;
+    const out: Prism[] = [];
+    if (this.data) {
+      const loc = (rings: Ring[]) => rings.map((r) => r.map(([lng, lat]) => this.toLocal(lng, lat)));
+      for (const b of this.data.buildings) {
+        if (!b.rings) continue;
+        const y0 = this.base(b.id);
+        const p = makePrism(b.id, loc(b.rings), y0, y0 + buildingHeight(b).h);
+        if (p) out.push(p);
+      }
+      for (const n of this.data.neighbors) {
+        const y0 = this.baseOf(n.rings);
+        const p = makePrism(n.id, loc(n.rings), y0, y0 + buildingHeight(n).h);
+        if (p) out.push(p);
+      }
+    }
+    this.prisms = out;
+    return out;
+  }
+
+  /**
+   * 외벽 일조 색칠 켜기·끄기 — date의 하루(7~18시, 10분 간격) 해 드는 시간을 동마다 3개 층 구간 × 외벽 구간별로 계산해
+   * 벽에 색을 입힌다. 계산은 한 화면에 8ms씩 나눠서 (휴대폰에서도 끊기지 않게), 결과는 계절별로 기억한다.
+   */
+  setFacadeSun(on: boolean, date: Date | null, key: string) {
+    const f = this.facadeSun;
+    if (!on || !date || !this.data) {
+      const was = f.on;
+      f.on = false;
+      f.queue = [];
+      f.job = null;
+      this.groups.facadeSun.visible = false;
+      if (was) this.emitFacadeSun();
+      return;
+    }
+    if (f.on && f.key === key) return;
+    f.on = true;
+    f.key = key;
+    f.date = date;
+    f.suns = sunDirs(this.data.center, date);
+    f.job = null;
+    this.clearFacadeSunMeshes();
+    const cache = f.cache.get(key) ?? new Map<string, FacadeSunCells>();
+    f.cache.set(key, cache);
+    const t = this.controls.target;
+    const ids = this.data.buildings
+      .filter((b) => b.rings && (b.residential || b.dong))
+      .map((b) => {
+        const c = this.ringCenter(b.rings!);
+        return { id: b.id, d: b.id === this.selectedId ? -1 : Math.hypot(c.x - t.x, c.z - t.z) };
+      })
+      .sort((a, b) => a.d - b.d)
+      .map((x) => x.id);
+    f.queue = [];
+    for (const id of ids) {
+      const cells = cache.get(id);
+      if (cells) this.addFacadeSunMesh(id, cells);
+      else f.queue.push(id);
+    }
+    f.total = ids.length;
+    this.groups.facadeSun.visible = this.mode === "sun";
+    this.emitFacadeSun();
+  }
+
+  /** 지형이 늦게 와 건물 높이가 바뀌면 — 기억한 결과를 버리고 켜져 있으면 다시 */
+  private refreshFacadeSun() {
+    const f = this.facadeSun;
+    f.cache.clear();
+    this.clearFacadeSunMeshes();
+    if (!f.on) return;
+    f.on = false;
+    this.setFacadeSun(true, f.date, f.key);
+  }
+
+  private clearFacadeSunMeshes() {
+    for (const o of this.groups.facadeSun.children) (o as THREE.Mesh).geometry?.dispose();
+    this.groups.facadeSun.clear();
+  }
+
+  private facadeSunMat = new THREE.MeshBasicMaterial({
+    vertexColors: true,
+    side: THREE.DoubleSide,
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
+    polygonOffsetUnits: -2,
+  });
+
+  /**
+   * 한 화면에 쓰는 계산 시간 — 휴대폰(좁은 화면)은 4ms, 넓은 화면은 8ms. 한 동을 통째로 하지 않고 외벽 구간 하나씩
+   * (가장 무거운 동도 구간 하나는 1ms 안팎) 나눠, 예산을 넘기면 다음 화면으로 넘긴다.
+   */
+  private stepFacadeSun() {
+    const f = this.facadeSun;
+    if (!f.on || (!f.queue.length && !f.job) || this.mode !== "sun" || !f.date) return;
+    const t0 = performance.now();
+    const budget = this.host.clientWidth < 640 ? 4 : 8;
+    const cache = f.cache.get(f.key)!;
+    while (performance.now() - t0 < budget) {
+      if (!f.job) {
+        const id = f.queue.shift();
+        if (!id) break;
+        const cells = this.prepareFacadeSun(id);
+        if (!cells) {
+          // 칠할 외벽이 없는 동도 빈 결과로 기억해 다시 계산하지 않는다
+          cache.set(id, { base: 0, segs: [], bands: [] });
+          continue;
+        }
+        f.job = { id, cells, si: 0 };
+      }
+      const j = f.job;
+      this.computeFacadeSeg(j.cells, j.si, f.suns);
+      j.si++;
+      if (j.si >= j.cells.segs.length) {
+        cache.set(j.id, j.cells);
+        this.addFacadeSunMesh(j.id, j.cells);
+        f.job = null;
+      }
+    }
+    this.emitFacadeSun();
+  }
+
+  /**
+   * 한 동 — 바깥쪽이 정면(해 드는 쪽)을 향한 외벽 변을 약 15m 구간으로 나눠(동마다 최대 12구간) 구간 가운데 벽 밖 0.6m,
+   * 3개 층마다 가운데 층 창 높이(바닥 + 1.2m)에서 10분마다 해 쪽으로 광선을 쏜다. 해가 그 벽 뒤쪽이면 들지 않는 것으로 본다.
+   * 여기서는 구간·층 구간만 잡고, 시간 계산은 computeFacadeSeg가 구간마다.
+   */
+  private prepareFacadeSun(id: string): FacadeSunCells | null {
+    const fa = this.facadeOf(id);
+    const fb = this.floorBase(id, 1);
+    if (!fa || !fb) return null;
+    const edges = fa.edges.filter((e) => e.dot > 0.3 && e.len >= 3).sort((a, b) => b.len - a.len);
+    const segs: FacadeSunCells["segs"] = [];
+    for (const e of edges) {
+      const k = Math.max(1, Math.min(4, Math.round(e.len / 15)));
+      for (let i = 0; i < k && segs.length < 12; i++) {
+        const t0 = i / k;
+        const t1 = (i + 1) / k;
+        segs.push({
+          x0: e.ax + (e.bx - e.ax) * t0,
+          z0: e.az + (e.bz - e.az) * t0,
+          x1: e.ax + (e.bx - e.ax) * t1,
+          z1: e.az + (e.bz - e.az) * t1,
+          ox: e.ox,
+          oz: e.oz,
+        });
+      }
+    }
+    if (!segs.length) return null;
+    const bands: FacadeSunCells["bands"] = [];
+    for (let f0 = 1; f0 <= fb.floors; f0 += 3) {
+      const f1 = Math.min(fb.floors, f0 + 2);
+      const mid = Math.round((f0 + f1) / 2);
+      bands.push({
+        from: f0,
+        to: f1,
+        y0: fb.y + (f0 - 1) * fb.perFloor,
+        y1: fb.y + f1 * fb.perFloor,
+        ys: fb.y + (mid - 1) * fb.perFloor + Math.min(1.2, fb.perFloor * 0.4),
+        hours: [],
+      });
+    }
+    return { base: this.base(id), segs, bands };
+  }
+
+  /** 외벽 구간 하나(si)의 층 구간별 하루 해 드는 시간 */
+  private computeFacadeSeg(cells: FacadeSunCells, si: number, suns: Array<THREE.Vector3 | null>) {
+    const sg = cells.segs[si]!;
+    const sx = (sg.x0 + sg.x1) / 2 + sg.ox * 0.6;
+    const sz = (sg.z0 + sg.z1) / 2 + sg.oz * 0.6;
+    const front = prismsInFront(this.getPrisms(), sx, sz, sg.ox, sg.oz);
+    for (const band of cells.bands) {
+      let lit = 0;
+      for (const d of suns) {
+        if (!d || d.x * sg.ox + d.z * sg.oz <= 0) continue;
+        if (sunBlocked(sx, band.ys, sz, d.x, d.y, d.z, front)) continue;
+        if (this.terrainBlocks(sx, band.ys, sz, d, cells.base)) continue;
+        lit++;
+      }
+      band.hours[si] = (lit * 10) / 60;
+    }
+  }
+
+  private addFacadeSunMesh(id: string, cells: FacadeSunCells) {
+    if (!cells.segs.length) return;
+    const pos: number[] = [];
+    const col: number[] = [];
+    const c = new THREE.Color();
+    const off = 0.15;
+    cells.segs.forEach((sg, si) => {
+      const ax = sg.x0 + sg.ox * off;
+      const az = sg.z0 + sg.oz * off;
+      const bx = sg.x1 + sg.ox * off;
+      const bz = sg.z1 + sg.oz * off;
+      for (const band of cells.bands) {
+        c.set(facadeSunColor(band.hours[si] ?? 0));
+        // 구간 사이가 보이게 위아래 0.15m씩 틈
+        const y0 = band.y0 + 0.15;
+        const y1 = band.y1 - 0.15;
+        pos.push(ax, y0, az, bx, y0, bz, bx, y1, bz, ax, y0, az, bx, y1, bz, ax, y1, az);
+        for (let k = 0; k < 6; k++) col.push(c.r, c.g, c.b);
+      }
+    });
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    geo.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+    const mesh = new THREE.Mesh(geo, this.facadeSunMat);
+    mesh.userData.id = id;
+    this.groups.facadeSun.add(mesh);
+  }
+
+  /** 고른 동의 외벽 일조 — 층 구간별 정면 가장 긴 벽(구간 평균)과 모든 외벽 구간 중 최소·최대 (없으면 null) */
+  facadeSunOf(id: string): FacadeSunProgress["selected"] {
+    const f = this.facadeSun;
+    const cells = f.on ? f.cache.get(f.key)?.get(id) : null;
+    if (!cells?.segs.length) return null;
+    // segs는 긴 변부터 — 첫 변에서 나온 구간들(같은 법선)이 정면 가장 긴 벽
+    const s0 = cells.segs[0]!;
+    const main = cells.segs.map((g, i) => (g.ox === s0.ox && g.oz === s0.oz ? i : -1)).filter((i) => i >= 0);
+    return cells.bands.map((b) => ({
+      from: b.from,
+      to: b.to,
+      main: main.reduce((a, i) => a + b.hours[i]!, 0) / main.length,
+      min: Math.min(...b.hours),
+      max: Math.max(...b.hours),
+    }));
+  }
+
   /** 주변 학교·역 핀 */
   setPois(pois: Poi3d[]) {
     this.lastPois = pois;
-    this.groups.pois.clear();
+    disposeGroup(this.groups.pois);
     if (!this.data) return;
     for (const p of pois) {
       const l = this.toLocal(p.lng, p.lat);
@@ -769,6 +1244,7 @@ export class Complex3dScene {
   select(id: string | null) {
     this.selectedId = id;
     this.paint();
+    if (this.facadeSun.on) this.emitFacadeSun();
   }
 
   private highlight: Set<string> | null = null;
@@ -790,7 +1266,7 @@ export class Complex3dScene {
   private markSelected() {
     for (const [id, l] of this.labelEls) l.el.classList.toggle("complex3d-label--on", id === this.selectedId);
     const l = this.selectedId ? this.labelEls.get(this.selectedId) : null;
-    if (!l) {
+    if (!l || this.win) {
       if (this.marker) this.marker.visible = false;
       return;
     }
@@ -834,6 +1310,7 @@ export class Complex3dScene {
       edges.dispose();
       this.selectEdgeMaterial.resolution.set(this.host.clientWidth, this.host.clientHeight);
       group.add(new LineSegments2(geo, this.selectEdgeMaterial));
+      group.visible = !this.win;
       this.scene.add(group);
       this.selOutline = group;
     }
@@ -890,6 +1367,291 @@ export class Complex3dScene {
     return { facing, front, near: this.nearestDistance(id) };
   }
 
+  /**
+   * 동 정면 — 정면 방향(긴 축에 수직, 남쪽 쪽: 향 계산과 같음)과, 외곽선 변 중 바깥쪽이 정면을 향한 변들.
+   * main: 정면을 향한 변 중 가장 긴 변 (창문 시점을 이 변 가운데에 둔다).
+   */
+  private facadeOf(id: string): {
+    nx: number;
+    nz: number;
+    bearing: number;
+    facing: string;
+    edges: Array<{ ax: number; az: number; bx: number; bz: number; ox: number; oz: number; len: number; dot: number }>;
+    main: { ax: number; az: number; bx: number; bz: number; ox: number; oz: number; len: number; dot: number };
+  } | null {
+    const b = this.data?.buildings.find((x) => x.id === id);
+    const ring = b?.rings?.[0];
+    if (!ring || ring.length < 4) return null;
+    const pts = ring.map(([lng, lat]) => this.toLocal(lng, lat));
+    const mx = pts.reduce((a, q) => a + q.x, 0) / pts.length;
+    const mz = pts.reduce((a, q) => a + q.z, 0) / pts.length;
+    let sxx = 0, szz = 0, sxz = 0;
+    for (const q of pts) {
+      sxx += (q.x - mx) ** 2;
+      szz += (q.z - mz) ** 2;
+      sxz += (q.x - mx) * (q.z - mz);
+    }
+    const ang = 0.5 * Math.atan2(2 * sxz, sxx - szz);
+    let nx = -Math.sin(ang);
+    let nz = Math.cos(ang);
+    if (nz < 0) {
+      nx = -nx;
+      nz = -nz;
+    }
+    // 외곽선 방향(시계/반시계)으로 각 변의 바깥쪽 법선
+    let area = 0;
+    for (let i = 0; i < pts.length - 1; i++) area += pts[i]!.x * pts[i + 1]!.z - pts[i + 1]!.x * pts[i]!.z;
+    const sign = area >= 0 ? 1 : -1;
+    const edges = [];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i]!;
+      const c = pts[i + 1]!;
+      const len = Math.hypot(c.x - a.x, c.z - a.z);
+      if (len < 0.3) continue;
+      const ox = (sign * (c.z - a.z)) / len;
+      const oz = (-sign * (c.x - a.x)) / len;
+      edges.push({ ax: a.x, az: a.z, bx: c.x, bz: c.z, ox, oz, len, dot: ox * nx + oz * nz });
+    }
+    const front = edges.filter((e) => e.dot > 0.7);
+    const main = (front.length ? front : edges).reduce((best, e) => (e.len * Math.max(0.1, e.dot) > best.len * Math.max(0.1, best.dot) ? e : best));
+    if (!main) return null;
+    const bearing = ((Math.atan2(nx, -nz) * 180) / Math.PI + 360) % 360;
+    return { nx, nz, bearing, facing: `${FACING[Math.round(bearing / 45) % 8]}향`, edges, main };
+  }
+
+  /** 층의 바닥 높이(장면 y)와 한 층 높이 — 건물 높이를 층수로 나눈 값 (층별가 색칠과 같은 모형) */
+  private floorBase(id: string, floor: number): { y: number; perFloor: number; floors: number; h: number } | null {
+    const b = this.data?.buildings.find((x) => x.id === id);
+    if (!b) return null;
+    const { h } = buildingHeight(b);
+    const floors = b.floors ?? Math.max(1, Math.round(h / FLOOR_M));
+    const perFloor = h / floors;
+    const f = Math.max(1, Math.min(floors, Math.round(floor)));
+    return { y: this.base(id) + (f - 1) * perFloor, perFloor, floors, h };
+  }
+
+  // ── 우리 집 창문 시점 ─────────────────────────────────────────────────────
+  /** 창문 시점 정보가 바뀔 때 (둘러보면 방향·가림이 바뀐다) */
+  onWindowInfo: (info: WindowViewInfo) => void = () => {};
+  private win: {
+    id: string;
+    floor: number;
+    eye: THREE.Vector3;
+    /** 정면 방위 (북=0°, 시계방향, 도) */
+    bearing0: number;
+    /** 둘러본 만큼 (도, ±WIN_YAW) */
+    yaw: number;
+    pitch: number;
+    facing: string;
+    rays: Array<{ off: number; d: number | null; dong: string | null; hill: boolean }>;
+    roughGround: boolean;
+    /** 창 높이 — 동 바닥에서 (m) */
+    eyeM: number;
+    saved: { pos: THREE.Vector3; target: THREE.Vector3; fov: number; near: number };
+    anim: { p0: THREE.Vector3; l0: THREE.Vector3; fov0: number; start: number; ms: number } | null;
+    lastEmit: number;
+  } | null = null;
+
+  get inWindowView() {
+    return !!this.win;
+  }
+
+  /**
+   * 창문 시점 세로 시야각 — 가로로 약 60°가 보이게 하되 세로는 50~80°로 (세로 휴대폰에서는 가로가 약 38°까지 좁아진다,
+   * 더 넓히면 화면 가장자리가 심하게 늘어나 보인다). 가림 비율은 실제 화면 가로 폭(spanDeg)만큼만 잰다.
+   */
+  private windowFov(): number {
+    const hHalf = (30 * Math.PI) / 180;
+    const v = (2 * Math.atan(Math.tan(hHalf) / Math.max(0.2, this.camera.aspect)) * 180) / Math.PI;
+    return Math.max(50, Math.min(80, v));
+  }
+
+  /** 창문 시점 화면의 가로 시야 (°, WIN_SPAN_MAX 이하) */
+  private windowSpan(): number {
+    const v = (this.windowFov() * Math.PI) / 180;
+    const hDeg = (2 * Math.atan(Math.tan(v / 2) * this.camera.aspect) * 180) / Math.PI;
+    return Math.min(WIN_SPAN_MAX, Math.round(hDeg));
+  }
+
+  /**
+   * 고른 동 floor층 창가에 선다 — 정면(동 정보의 향)을 향한 가장 긴 외벽 가운데, 그 층 바닥 + 1.5m 눈높이, 벽 밖 0.6m.
+   * 정면 ±WIN_RAY°를 2°마다 수평으로 쏴 첫 가림까지 거리를 재 둔다 (둘러볼 때 다시 쏘지 않는다). 건물은 외곽선 기둥으로 잰다.
+   */
+  enterWindowView(id: string, floor: number, reduced: boolean): WindowViewInfo | null {
+    const fa = this.facadeOf(id);
+    const fb = this.floorBase(id, floor);
+    if (!fa || !fb || !this.data) return null;
+    const m = fa.main;
+    const px = (m.ax + m.bx) / 2 + m.ox * 0.6;
+    const pz = (m.az + m.bz) / 2 + m.oz * 0.6;
+    // 창 높이는 그 층 그대로 (건물 가림은 이 높이에서). 비탈에서는 지형 격자(약 15m 칸)가 창 자리 땅을 동 바닥보다 높게
+    // 잡기도 해 — 그러면 카메라와 지형 가림은 일조 계산과 같은 기준으로, 동 바닥 기준 높이를 제자리 격자 땅에 얹는다
+    // (낮은 층이 땅속에서 보지 않고, 층마다 높이 차이는 그대로).
+    const eyeY = Math.min(fb.y + 1.5, this.base(id) + fb.h - 0.5);
+    const g0 = this.groundAt(px, pz);
+    const lift = this.terrain ? Math.max(0, g0 - this.base(id)) : 0;
+    const roughGround = lift > 1;
+    const eye = new THREE.Vector3(px, eyeY + lift, pz);
+    // 정면 = 동 정보의 향과 같은 방향 (긴 축에 수직, 남쪽 쪽) — 창 자리는 그쪽을 향한 가장 긴 외벽 가운데
+    const bearing0 = fa.bearing;
+    const all = this.getPrisms();
+    const n0x = Math.sin((bearing0 * Math.PI) / 180);
+    const n0z = -Math.cos((bearing0 * Math.PI) / 180);
+    // 정면 쪽 반평면(±90°, WIN_RAY와 같음) 500m 안 기둥만
+    const near = prismsInFront(all, px, pz, n0x, n0z, 500);
+    // 지형 가림 — 일조와 같은 기준: 가까운 TERRAIN_NEAR m는 격자가 거칠어 빼고, 눈높이는 동 바닥 기준 높이를 제자리 격자 땅에 얹어
+    const t = this.terrain;
+    const hillY = eye.y;
+    const checkHill = !!t && hillY < t.max;
+    const rays: Array<{ off: number; d: number | null; dong: string | null; hill: boolean }> = [];
+    for (let off = -WIN_RAY; off <= WIN_RAY; off += 2) {
+      const a = ((bearing0 + off) * Math.PI) / 180;
+      const sx = Math.sin(a);
+      const sz = -Math.cos(a);
+      const hit = firstPrismHit(px, eyeY, pz, sx, sz, near, 500);
+      let hillAt: number | null = null;
+      if (checkHill) {
+        // 지형 격자 끝까지 (건물은 500m까지만 본다)
+        const far = hit ? hit.d : t!.size / 2;
+        for (let s = TERRAIN_NEAR; s < far; s += s < 200 ? 4 : 8) {
+          if (this.groundAt(px + sx * s, pz + sz * s) > hillY) {
+            hillAt = s;
+            break;
+          }
+        }
+      }
+      rays.push(
+        hillAt != null
+          ? { off, d: hillAt, dong: null, hill: true }
+          : {
+              off,
+              d: hit ? Math.round(hit.d) : null,
+              dong: hit && hit.id !== id ? (this.data.buildings.find((x) => x.id === hit.id)?.dong ?? null) : null,
+              hill: false,
+            },
+      );
+    }
+    const prev = this.win;
+    const saved = prev?.saved ?? {
+      pos: this.camera.position.clone(),
+      target: this.controls.target.clone(),
+      fov: this.camera.fov,
+      near: this.camera.near,
+    };
+    this.anim = null;
+    this.controls.enabled = false;
+    this.insetTarget = 0;
+    this.labels.domElement.style.display = "none";
+    if (this.marker) this.marker.visible = false;
+    if (this.selOutline) this.selOutline.visible = false;
+    this.groups.view.visible = false;
+    this.camera.near = 0.3;
+    const look0 = prev
+      ? this.camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(60).add(this.camera.position)
+      : this.controls.target.clone();
+    this.win = {
+      id,
+      floor,
+      eye,
+      bearing0,
+      yaw: prev?.id === id ? prev.yaw : 0,
+      pitch: prev?.id === id ? prev.pitch : 0,
+      facing: fa.facing,
+      rays,
+      roughGround,
+      eyeM: eyeY - this.base(id),
+      saved,
+      anim: reduced ? null : { p0: this.camera.position.clone(), l0: look0, fov0: this.camera.fov, start: performance.now(), ms: prev ? 350 : 900 },
+      lastEmit: 0,
+    };
+    if (reduced) {
+      this.camera.fov = this.windowFov();
+      this.camera.updateProjectionMatrix();
+    }
+    return this.windowInfo();
+  }
+
+  /** 지금 화면에 보이는 가로 폭 안에서 200m 안에 막힌 비율, 정면(±4°) 첫 건물까지 거리 */
+  private windowInfo(): WindowViewInfo {
+    const w = this.win!;
+    const bearing = (w.bearing0 + w.yaw + 360) % 360;
+    const span = this.windowSpan();
+    const within = w.rays.filter((r) => Math.abs(r.off - w.yaw) <= span / 2);
+    const blocked = within.filter((r) => r.d != null && r.d < 200).length / Math.max(1, within.length);
+    const front = w.rays
+      .filter((r) => Math.abs(r.off - w.yaw) <= 4 && r.d != null)
+      .sort((a, b) => a.d! - b.d!)[0];
+    return {
+      floor: w.floor,
+      facing: w.facing,
+      lookDir: `${FACING[Math.round(bearing / 45) % 8]}쪽`,
+      yaw: Math.round(w.yaw),
+      frontM: front?.d ?? null,
+      frontDong: front?.dong ?? null,
+      frontHill: !!front?.hill,
+      blockedShare: blocked,
+      spanDeg: span,
+      eyeM: Math.round(w.eyeM * 10) / 10,
+      roughGround: w.roughGround,
+    };
+  }
+
+  /** 둘러보기 — 정면에서 좌우 WIN_YAW°, 위아래 20° 안 */
+  lookWindow(dYaw: number, dPitch = 0, throttle = false) {
+    const w = this.win;
+    if (!w) return;
+    w.yaw = Math.max(-WIN_YAW, Math.min(WIN_YAW, w.yaw + dYaw));
+    w.pitch = Math.max(-20, Math.min(20, w.pitch + dPitch));
+    const now = performance.now();
+    if (!throttle || now - w.lastEmit > 80) {
+      w.lastEmit = now;
+      this.onWindowInfo(this.windowInfo());
+    }
+  }
+
+  /** 창문 시점에서 나와 들어오기 전 시점으로 */
+  exitWindowView(reduced: boolean) {
+    const w = this.win;
+    if (!w) return;
+    this.win = null;
+    this.camera.fov = w.saved.fov;
+    this.camera.near = w.saved.near;
+    this.camera.updateProjectionMatrix();
+    this.controls.enabled = true;
+    this.labels.domElement.style.display = "";
+    if (this.selOutline) this.selOutline.visible = true;
+    this.markSelected();
+    this.setMode(this.mode);
+    this.controls.target.copy(w.eye.clone().add(this.windowDir(w)));
+    if (reduced) {
+      this.camera.position.copy(w.saved.pos);
+      this.controls.target.copy(w.saved.target);
+    } else this.flyTo(w.saved.pos, w.saved.target, 700);
+  }
+
+  private windowDir(w: NonNullable<typeof this.win>): THREE.Vector3 {
+    const a = ((w.bearing0 + w.yaw) * Math.PI) / 180;
+    const p = (w.pitch * Math.PI) / 180;
+    return new THREE.Vector3(Math.sin(a) * Math.cos(p), Math.sin(p), -Math.cos(a) * Math.cos(p));
+  }
+
+  private stepWindow() {
+    const w = this.win!;
+    const look = w.eye.clone().add(this.windowDir(w).multiplyScalar(60));
+    if (w.anim) {
+      const k = Math.min(1, (performance.now() - w.anim.start) / w.anim.ms);
+      const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      this.camera.position.lerpVectors(w.anim.p0, w.eye, e);
+      this.camera.fov = w.anim.fov0 + (this.windowFov() - w.anim.fov0) * e;
+      this.camera.updateProjectionMatrix();
+      this.camera.lookAt(new THREE.Vector3().lerpVectors(w.anim.l0, look, e));
+      if (k >= 1) w.anim = null;
+      return;
+    }
+    this.camera.position.copy(w.eye);
+    this.camera.lookAt(look);
+  }
+
   /** 두 동 외곽선 사이 최소 거리 (m, 평면) */
   nearestDistance(id: string): { dong: string | null; meters: number } | null {
     if (!this.data) return null;
@@ -923,10 +1685,11 @@ export class Complex3dScene {
    * 걷기 그룹 비우기 — 사람 표시·도착 핀은 CSS2D(HTML) 요소라 장면에서 빼도 화면에 남는다. 요소도 같이 지운다.
    */
   private clearWalkGroup() {
-    this.groups.walk.traverse((o) => {
-      if (o instanceof CSS2DObject) o.element.remove();
-    });
-    this.groups.walk.clear();
+    // 경로 선 재질(walkLineMat·walkCaseMat)과 걷는 사람 모형(walkerKit)은 함께 쓰니 남긴다
+    const k = walkerParts;
+    const keep = new Set<unknown>([this.walkLineMat, this.walkCaseMat]);
+    if (k) for (const v of Object.values(k)) keep.add(v);
+    disposeGroup(this.groups.walk, keep);
     this.walker = null;
   }
 
@@ -934,11 +1697,17 @@ export class Complex3dScene {
   private walkReduced = false;
   private walkPath: { pts: THREE.Vector3[]; cum: number[]; total: number } | null = null;
   private walkAnim: { start: number; ms: number } | null = null;
-  private walker: THREE.Object3D | null = null;
+  private walker: WalkerRig | null = null;
+  private walkerYaw = 0;
+  private walkPhase = 0;
+  private walkFollow = false;
+  private walkFollowReduced = false;
+  /** 사용자가 직접 돌려 따라가기가 꺼졌을 때 */
+  onWalkFollow: (on: boolean) => void = () => {};
   private walkLastEmit = 0;
   // 경로는 건물·지형에 가려도 이어져 보이게 (깊이 검사 끔, 맨 나중에 그림)
-  private walkLineMat = new LineMaterial({ color: 0x2563eb, linewidth: 6, depthTest: false, transparent: true });
-  private walkCaseMat = new LineMaterial({ color: 0xffffff, linewidth: 10, depthTest: false, transparent: true });
+  private walkLineMat = new LineMaterial({ color: 0x2563eb, linewidth: 6, depthTest: false, depthWrite: false, transparent: true });
+  private walkCaseMat = new LineMaterial({ color: 0xffffff, linewidth: 10, depthTest: false, depthWrite: false, transparent: true });
 
   /** 경로를 땅 위에 굵은 선으로 깔고, 사람 표시를 빨리 감기로 걷게 한다 (reduced면 움직이지 않고 도착점에) */
   showWalk(d: WalkRouteDraw, reduced: boolean, frame = true) {
@@ -950,8 +1719,8 @@ export class Complex3dScene {
     // 4m 간격으로 다시 찍어 땅을 따라가게
     const raw = d.points.map(([lng, lat]) => this.toLocal(lng, lat));
     if (raw.length < 2) return;
-    // 지형 삼각형과 쌍선형 표본이 조금 달라 선이 땅에 묻히지 않게 넉넉히 띄운다
-    const lift = 2.6;
+    // 선·표시는 깊이 검사를 끄고 그려 땅에 묻히지 않는다 — 조금만 띄워 걷는 사람 발밑과 어긋나 보이지 않게
+    const lift = 0.6;
     const pts: THREE.Vector3[] = [];
     const cum: number[] = [];
     let acc = 0;
@@ -1019,24 +1788,24 @@ export class Complex3dScene {
     pin.position.set(tl.x, gy + 28, tl.z);
     this.groups.walk.add(pin);
 
-    // 걷는 사람
-    const wel = document.createElement("div");
-    wel.className = "complex3d-walker";
-    wel.innerHTML = WALKER_SVG;
-    const walker = new THREE.Group();
-    const ball = new THREE.Mesh(new THREE.SphereGeometry(2.2, 16, 12), new THREE.MeshBasicMaterial({ color: 0x1d4ed8 }));
-    walker.add(ball, new CSS2DObject(wel));
-    this.groups.walk.add(walker);
-    this.walker = walker;
+    // 걷는 사람 — 경로 방향을 보고 선다 (경로 선은 땅에서 lift만큼 띄웠지만 사람은 땅에 발을 딛는다)
+    const rig = makeWalker();
+    this.groups.walk.add(rig.root);
+    this.walker = rig;
+    this.walkPhase = 0;
+    const at = reduced ? pts.length - 1 : 0;
+    const from = pts[Math.max(0, at - 1)]!;
+    const to = pts[Math.max(1, at)]!;
+    this.walkerYaw = Math.atan2(to.x - from.x, to.z - from.z);
+    this.placeWalker(pts[at]!, this.walkerYaw, 0);
     if (reduced) {
-      walker.position.copy(pts[pts.length - 1]!);
       this.onWalkProgress(d.totalSec, true);
     } else {
-      walker.position.copy(pts[0]!);
       this.walkAnim = { start: performance.now(), ms: walkPlayMs(d.totalSec) };
       this.onWalkProgress(0, false);
     }
-    if (frame) this.fitWalk();
+    if (this.walkFollow) this.followWalker(true);
+    else if (frame) this.fitWalk();
   }
 
   replayWalk() {
@@ -1081,10 +1850,34 @@ export class Complex3dScene {
     this.flyTo(new THREE.Vector3(target.x, target.y + dist * Math.cos(polar), target.z + dist * Math.sin(polar)), target, 600);
   }
 
-  private stepWalk() {
-    const a = this.walkAnim;
+  /** 사람을 땅 위 p(경로 점)에 세운다 — 팔다리 흔들기는 phase(라디안), 0이면 서 있는 자세 */
+  private placeWalker(p: THREE.Vector3, yaw: number, swing: number) {
+    const w = this.walker;
+    if (!w) return;
+    w.root.position.set(p.x, this.groundAt(p.x, p.z) + 0.15, p.z);
+    w.root.rotation.y = yaw;
+    const a = Math.sin(this.walkPhase) * swing;
+    w.legL.rotation.x = a * 0.6;
+    w.legR.rotation.x = -a * 0.6;
+    w.armL.rotation.x = -a * 0.5;
+    w.armR.rotation.x = a * 0.5;
+    w.body.position.y = Math.abs(Math.cos(this.walkPhase)) * 0.05 * swing;
+  }
+
+  private lastFrameAt = 0;
+
+  private stepWalk(dt: number) {
+    const w = this.walker;
     const path = this.walkPath;
-    if (!a || !path || !this.walker || !this.walkDraw) return;
+    if (!w || !path || !this.walkDraw) return;
+    // 멀리서 보면 사람을 키운다 (가까이 따라가면 실제 크기)
+    const camDist = this.camera.position.distanceTo(w.root.position);
+    w.root.scale.setScalar(Math.max(1, Math.min(9, camDist / 55)));
+    const a = this.walkAnim;
+    if (!a) {
+      if (this.walkFollow) this.followWalker(false, dt);
+      return;
+    }
     const k = Math.min(1, (performance.now() - a.start) / a.ms);
     const d = k * path.total;
     let i = 1;
@@ -1092,10 +1885,22 @@ export class Complex3dScene {
     const c0 = path.cum[i - 1]!;
     const c1 = path.cum[i]!;
     const t = c1 > c0 ? (d - c0) / (c1 - c0) : 1;
-    this.walker.position.lerpVectors(path.pts[i - 1]!, path.pts[i]!, Math.max(0, Math.min(1, t)));
+    const p0 = path.pts[i - 1]!;
+    const p1 = path.pts[i]!;
+    const p = new THREE.Vector3().lerpVectors(p0, p1, Math.max(0, Math.min(1, t)));
+    // 가는 방향으로 부드럽게 돌아선다 (4m 점 사이 꺾임이 튀지 않게)
+    const target = Math.atan2(p1.x - p0.x, p1.z - p0.z);
+    let dy = target - this.walkerYaw;
+    dy = Math.atan2(Math.sin(dy), Math.cos(dy));
+    this.walkerYaw += dy * Math.min(1, dt * 8);
+    this.walkPhase += dt * 11;
+    this.placeWalker(p, this.walkerYaw, k >= 1 ? 0 : 1);
+    if (this.walkFollow) this.followWalker(false, dt);
     const now = performance.now();
     if (k >= 1) {
       this.walkAnim = null;
+      this.walkPhase = 0;
+      this.placeWalker(p, this.walkerYaw, 0);
       this.onWalkProgress(this.walkDraw.totalSec, true);
     } else if (now - this.walkLastEmit > 120) {
       this.walkLastEmit = now;
@@ -1103,11 +1908,88 @@ export class Complex3dScene {
     }
   }
 
+  /**
+   * 따라가기 — 사람 뒤 22m, 11m 위에서 사람 앞 8m를 본다. 따라가는 동안에는 OrbitControls를 돌리지 않는다
+   * (최소 거리 40m에 끌려가지 않게). 사용자가 직접 돌리면 따라가기가 꺼지고, 그때 거리에서 이어서 돌릴 수 있게
+   * 최소 거리는 잠시 낮춰 두었다가 다시 40m 밖으로 나가면 돌려 놓는다.
+   */
+  setWalkFollow(on: boolean, reduced: boolean) {
+    if (on === this.walkFollow) return;
+    this.walkFollow = on;
+    this.walkFollowReduced = reduced;
+    if (on) this.controls.minDistance = FOLLOW_MIN_DIST;
+    if (on) this.followWalker(true);
+    else if (this.walkPath && !this.win) this.fitWalk();
+  }
+
+  /** 카메라가 보는 방향 — 사람이 도는 것보다 천천히 따라 돌아 어지럽지 않게 */
+  private followYaw = 0;
+
+  private followWalker(snap: boolean, dt = 0) {
+    const w = this.walker;
+    if (!w) return;
+    if (snap) this.followYaw = this.walkerYaw;
+    else {
+      const dy = Math.atan2(Math.sin(this.walkerYaw - this.followYaw), Math.cos(this.walkerYaw - this.followYaw));
+      this.followYaw += this.walkFollowReduced ? dy : dy * Math.min(1, dt * 2.5);
+    }
+    const fwd = new THREE.Vector3(Math.sin(this.followYaw), 0, Math.cos(this.followYaw));
+    const p = w.root.position;
+    const pos = p.clone().addScaledVector(fwd, -22).add(new THREE.Vector3(0, 11, 0));
+    // 비탈에서 카메라가 땅에 묻히지 않게
+    pos.y = Math.max(pos.y, this.groundAt(pos.x, pos.z) + 4);
+    const target = p.clone().addScaledVector(fwd, 8).add(new THREE.Vector3(0, 1.5, 0));
+    if (snap && !this.walkFollowReduced && dt === 0) {
+      this.flyTo(pos, target, 600);
+      return;
+    }
+    // 처음 다가가는 중이면 끝 지점을 계속 사람 뒤로 옮긴다 — 빨리 감기라 사람이 빨라 위치는 늦추지 않는다
+    if (this.anim) {
+      this.anim.p1 = pos;
+      this.anim.t1 = target;
+      return;
+    }
+    this.camera.position.copy(pos);
+    this.controls.target.copy(target);
+  }
+
   private down: { x: number; y: number } | null = null;
+  private dragAt: { x: number; y: number; id: number } | null = null;
   private onPointerDown = (e: PointerEvent) => {
     this.down = { x: e.clientX, y: e.clientY };
+    if (this.win) {
+      this.dragAt = { x: e.clientX, y: e.clientY, id: e.pointerId };
+      // 마우스를 패널 위에서 놓아도 pointerup이 캔버스로 오게
+      try {
+        this.renderer.domElement.setPointerCapture(e.pointerId);
+      } catch {
+        /* 이미 끝난 포인터 */
+      }
+    }
+  };
+  /** 창문 시점 — 끌면 고개를 돌린다 (화면 너비만큼 끌면 약 60°) */
+  private onPointerMove = (e: PointerEvent) => {
+    const d = this.dragAt;
+    if (!this.win || !d || d.id !== e.pointerId) return;
+    // 버튼을 놓은 채 움직이는 마우스 (놓은 이벤트를 놓쳤을 때) — 끌기 끝
+    if (e.pointerType === "mouse" && (e.buttons & 1) === 0) {
+      this.dragAt = null;
+      return;
+    }
+    const k = 60 / Math.max(240, this.host.clientWidth);
+    this.lookWindow(-(e.clientX - d.x) * k, (e.clientY - d.y) * k, true);
+    this.dragAt = { x: e.clientX, y: e.clientY, id: e.pointerId };
+  };
+  private onPointerCancel = () => {
+    this.dragAt = null;
   };
   private onPointerUp = (e: PointerEvent) => {
+    if (this.win) {
+      if (this.renderer.domElement.hasPointerCapture?.(e.pointerId)) this.renderer.domElement.releasePointerCapture(e.pointerId);
+      this.dragAt = null;
+      if (this.win) this.onWindowInfo(this.windowInfo());
+      return;
+    }
     if (!this.down || Math.hypot(e.clientX - this.down.x, e.clientY - this.down.y) > 6) return;
     const rect = this.renderer.domElement.getBoundingClientRect();
     const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
@@ -1153,9 +2035,12 @@ export class Complex3dScene {
     this.walkLineMat.resolution.set(w, h);
     this.walkCaseMat.resolution.set(w, h);
     this.applyInset();
+    if (this.win && !this.win.anim) this.camera.fov = this.windowFov();
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
     this.labels.setSize(w, h);
+    // 화면 비율이 바뀌면 보이는 가로 폭도 바뀐다
+    if (this.win) this.onWindowInfo(this.windowInfo());
   }
 
   private loop = () => {
@@ -1174,16 +2059,31 @@ export class Complex3dScene {
       if (Math.abs(this.insetTarget - this.inset) <= 0.5) this.inset = this.insetTarget;
       this.applyInset();
     }
-    this.stepWalk();
-    this.controls.update();
+    const now = performance.now();
+    const dt = this.lastFrameAt ? Math.min(0.1, (now - this.lastFrameAt) / 1000) : 0;
+    this.lastFrameAt = now;
+    this.stepWalk(dt);
+    this.stepFacadeSun();
+    if (this.win) this.stepWindow();
+    else if (this.walkFollow && this.walker) {
+      // 따라가기 — 위치는 followWalker가 정하고 여기서는 바라보기만 (controls.update는 최소 거리로 끌어당긴다)
+      this.camera.lookAt(this.controls.target);
+    } else {
+      if (this.controls.minDistance < MIN_DIST && this.camera.position.distanceTo(this.controls.target) >= MIN_DIST) {
+        this.controls.minDistance = MIN_DIST;
+      }
+      this.controls.update();
+    }
     // 멀리서 보면 동 이름표를 작게 (겹침 줄이기)
     const far = this.camera.position.distanceTo(this.controls.target) > this.bounds.radius * 2.6;
     if (far !== this.labelsFar) {
       this.labelsFar = far;
       this.labels.domElement.classList.toggle("complex3d-far", far);
     }
-    const heading = Math.round((this.controls.getAzimuthalAngle() * 180) / Math.PI);
-    if (heading !== this.lastHeading) {
+    // 나침반 — controls.update를 건너뛰는 따라가기 중에도 맞게 카메라 위치에서 직접 (OrbitControls 방위각과 같은 식)
+    const off = this.camera.position.clone().sub(this.controls.target);
+    const heading = Math.round((Math.atan2(off.x, off.z) * 180) / Math.PI);
+    if (!this.win && heading !== this.lastHeading) {
       this.lastHeading = heading;
       this.onHeading(heading);
     }
@@ -1196,6 +2096,8 @@ export class Complex3dScene {
     cancelAnimationFrame(this.raf);
     this.renderer.domElement.removeEventListener("pointerdown", this.onPointerDown);
     this.renderer.domElement.removeEventListener("pointerup", this.onPointerUp);
+    this.renderer.domElement.removeEventListener("pointermove", this.onPointerMove);
+    this.renderer.domElement.removeEventListener("pointercancel", this.onPointerCancel);
     this.controls.dispose();
     this.scene.traverse((o) => {
       const m = o as THREE.Mesh;
