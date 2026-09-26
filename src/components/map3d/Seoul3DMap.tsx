@@ -32,7 +32,7 @@ import {
   SATELLITE_ATTRIBUTION,
   SCHOOL_ZONE_ATTRIBUTION,
 } from "@/components/map3d/Map3dAttribution";
-import { MARKER_METRICS, markerValue, shortEok, shortPerPyeong, type MarkerMetric } from "@/components/map/complex-marker";
+import { CROWNS, MARKER_METRICS, markerValue, shortEok, shortPerPyeong, type MarkerMetric } from "@/components/map/complex-marker";
 import type { MapComplex, MapDealKind } from "@/lib/map/map-complexes";
 import { activeCount, areaQuery, matches, type MapConditions } from "@/lib/map/map-filters";
 import type { Complex3d, Ring } from "@/lib/complex-3d/read";
@@ -1353,6 +1353,19 @@ export default function Seoul3DMap({
             <div className="flex items-center gap-2">
               <p className="min-w-0 flex-1 truncate leading-5">
                 <span className="text-[15px] font-bold text-[color:var(--lab-teal-700)]">{displayAptName(selected.aptName)}</span>
+                {/* 구 안 순위 — 2D 카드와 같게 */}
+                {selected.guRank ? (
+                  <span
+                    className="ml-1.5 rounded px-1 text-[11px] font-semibold leading-4"
+                    style={{
+                      color: CROWNS[selected.guRank].stroke,
+                      background: `color-mix(in srgb, ${CROWNS[selected.guRank].fill} 35%, white)`,
+                    }}
+                  >
+                    {selected.guName ? `${selected.guName} ` : ""}
+                    {selected.guRank}위
+                  </span>
+                ) : null}
                 <span className="ml-1.5 text-[12px] text-[color:var(--lab-muted)]">
                   {[
                     selected.dong,
