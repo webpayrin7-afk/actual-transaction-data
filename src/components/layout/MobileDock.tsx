@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { HOME_QUICK_NAV } from "@/lib/nav/home-quick-nav";
-import { isMapHomePath } from "@/lib/map/map-dock";
+import { isMapHomePath, useMapCardOpen } from "@/lib/map/map-dock";
 
 /** Space the page must leave at the bottom so the last content/footer isn't under the dock. */
 export const MOBILE_DOCK_SPACER = "h-[calc(80px+env(safe-area-inset-bottom))] sm:hidden";
@@ -15,7 +15,7 @@ const DELTA = 6;
 /** 지도에서 접은 상태 기억 (브라우저) */
 const MAP_FOLD_KEY = "ziplab:map-dock-folded:v1";
 /** 지도 위 조작(카드·버튼)이 비워 둘 아래 높이 — 펼침: 독(56)+아래 4+틈 8, 접음: 손잡이 */
-const MAP_DOCK_SPACE = { open: "68px", folded: "48px" };
+const MAP_DOCK_SPACE = { open: "68px", folded: "48px", card: "12px" };
 /** 이만큼 아래·위로 쓸면 접기·펴기 */
 const SWIPE_PX = 24;
 
@@ -44,15 +44,21 @@ export function MobileDock() {
     }
   }, []);
   const mapFolded = onMap && folded;
+  // 단지 카드가 떠 있으면 독을 숨기고 카드가 맨 아래로 (지도만)
+  const cardOpen = useMapCardOpen();
+  const mapCard = onMap && cardOpen;
   // 지도 위 카드·버튼이 독 높이를 따라가게 (--map-dock-space)
   useEffect(() => {
     if (!onMap) return;
     const root = document.documentElement;
-    root.style.setProperty("--map-dock-space", mapFolded ? MAP_DOCK_SPACE.folded : MAP_DOCK_SPACE.open);
+    root.style.setProperty(
+      "--map-dock-space",
+      mapCard ? MAP_DOCK_SPACE.card : mapFolded ? MAP_DOCK_SPACE.folded : MAP_DOCK_SPACE.open,
+    );
     return () => {
       root.style.removeProperty("--map-dock-space");
     };
-  }, [onMap, mapFolded]);
+  }, [onMap, mapFolded, mapCard]);
   // 쓸어 접고 펴기 — 독(펼침)을 아래로, 접힌 알약을 위로
   const swipeY = useRef<number | null>(null);
   const onTouchStart = (e: React.TouchEvent) => {
@@ -115,6 +121,8 @@ export function MobileDock() {
 
   // 3D 단지 탐색은 화면 전체를 쓴다 (하단 조작 패널과 겹치지 않게)
   if (pathname.startsWith("/complex-3d")) return null;
+
+  if (mapCard) return null;
 
   if (mapFolded) {
     // 접힘 — 메뉴 아이콘만 작게 모은 알약 (눌러 펴기 · 위로 쓸어 펴기). 메뉴가 있다는 걸 잊지 않게 아이콘은 남긴다

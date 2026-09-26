@@ -43,6 +43,7 @@ import { formatDealDate, formatEok } from "@/lib/utils/format";
 import { LabIndeterminateBar } from "@/components/ui/LabLoading";
 import type { Map3dView } from "@/components/map3d/Seoul3DMap";
 import { MapViewSwitch } from "@/components/map/MapViewSwitch";
+import { setMapCardOpen } from "@/lib/map/map-dock";
 import { ComplexCardMore } from "@/components/map/ComplexCardMore";
 import { MapBriefingSheet, type BriefingTarget, type BriefingView } from "@/components/map/MapBriefingSheet";
 import { Map3dInvite, mark3dInviteDone, read3dInviteDone } from "@/components/map/Map3dInvite";
@@ -850,6 +851,12 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
   }, [view3d, cam3d, view2d]);
   // 고른 단지가 있으면(카드가 불러오는 중이어도) 숨김 — 2D·3D 전환 때 잠깐 떴다 사라지지 않게
   const briefingHidden = view3d ? card3d || sel3d != null : Boolean(selectedId) || Boolean(zone);
+  // 단지·정비구역 카드가 떠 있는 동안 하단 메뉴를 숨긴다 (카드가 맨 아래로)
+  const cardOpen = view3d ? card3d : Boolean(selected) || Boolean(zone);
+  useEffect(() => {
+    setMapCardOpen(cardOpen);
+  }, [cardOpen]);
+  useEffect(() => () => setMapCardOpen(false), []);
   const showInvite = inviteDone === false && !view3d && center != null && inSeoul(center);
 
   return (
