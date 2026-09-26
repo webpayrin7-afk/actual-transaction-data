@@ -120,7 +120,8 @@ export async function readAttendanceZonePayloadFromDb(
     designatedSchools: designated.map(toProductSchool),
     jointSchools: jointSchools.map(toProductSchool),
     jointZoneName: jointNoSchool && !jointSchools.length ? jointNoSchool.name : null,
-    note: `${month ? `통학구역 기준일 ${month} · ` : ""}${ELEM_ZONE_NOTE}`,
+    // 단지 안에서 통학구역이 갈리면(동별 판정) 배정 학교가 동마다 다를 수 있다
+    note: `${single.length > 1 ? "동에 따라 배정 학교가 달라요 · " : ""}${month ? `통학구역 기준일 ${month} · ` : ""}${ELEM_ZONE_NOTE}`,
     attributionLabel: ELEM_ZONE_SOURCE_LABEL,
   };
   return { elementary, elementaryStatus: "CONFIRMED" };

@@ -24,6 +24,8 @@ export type ElemZone = {
   zoneId: string;
   name: string;
   kind: "single" | "joint";
+  /** 단지 동 넓이 중 이 구역에 든 비율 (동별 판정). 한 점 판정이면 null */
+  share: number | null;
   schools: ElemZoneSchool[];
 };
 
@@ -63,11 +65,9 @@ export async function readComplexElemZones(
 ): Promise<ComplexElemZones | null> {
   const id = complexId.trim();
   if (!id) return null;
-  let rows;
-  try {
-    rows = (
-      await db.execute({
-        sql: `SELECT z.zone_id, z.zone_name, z.zone_kind, z.base_date, z.bbox${opts.geometry ? ", z.geojson" : ""},
+  const read = (withShare: boolean) =>
+    db.execute({
+      sql: `SELECT z.zone_id, z.zone_name, z.zone_kind, z.base_date, z.bbox${opts.geometry ? ", z.geojson" : ""}${withShare ? ", c.share" : ""},
                      s.facility_school_id, s.school_name, s.school_code,
                      m.establishment_type, m.road_address
                 FROM complex_elem_school_zones c
@@ -75,10 +75,12 @@ export async function readComplexElemZones(
                 LEFT JOIN elem_school_zone_schools s ON s.zone_id = z.zone_id
                 LEFT JOIN school_master m ON m.school_code = s.school_code
                WHERE c.complex_id = ?
-               ORDER BY CASE z.zone_kind WHEN 'single' THEN 0 ELSE 1 END, z.zone_id, s.school_name`,
-        args: [id],
-      })
-    ).rows;
+               ORDER BY CASE z.zone_kind WHEN 'single' THEN 0 ELSE 1 END, ${withShare ? "c.share DESC, " : ""}z.zone_id, s.school_name`,
+      args: [id],
+    });
+  let rows;
+  try {
+    rows = (await read(true).catch(() => read(false))).rows;
   } catch {
     return null; // 테이블이 아직 없는 환경
   }
@@ -96,6 +98,7 @@ export async function readComplexElemZones(
         zoneId,
         name: String(r.zone_name),
         kind: String(r.zone_kind) === "joint" ? "joint" : "single",
+        share: r.share != null && Number.isFinite(Number(r.share)) ? Number(r.share) : null,
         schools: [],
       };
       byZone.set(zoneId, z);

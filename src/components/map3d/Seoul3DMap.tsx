@@ -22,6 +22,7 @@ import { Protocol } from "pmtiles";
 import { ChevronDown, Compass, Satellite, X } from "lucide-react";
 import { LabIndeterminateBar } from "@/components/ui/LabLoading";
 import { ComplexCardMore } from "@/components/map/ComplexCardMore";
+import { fitComplexCamera } from "@/components/map3d/fit-camera";
 import {
   MAP3D_ATTRIBUTION,
   Map3dAttribution,
@@ -82,7 +83,6 @@ const SATELLITE_PREF = "ziplab:map3d-satellite:v1";
 const FOCUS_PITCH = 58;
 /** 점을 지붕보다 조금 더 위에 (m) */
 const ROOF_GAP_M = 8;
-const FOCUS_MIN_ZOOM = 16;
 const FOCUS_MAX_ZOOM = 18.5;
 /** 고른 단지 도형 기억 (다시 골랐을 때 바로) — 많이 쌓지 않는다 */
 const SHAPE_CACHE_MAX = 16;
@@ -1063,53 +1063,31 @@ export default function Seoul3DMap({
       if (ac.signal.aborted || skipFrame) return;
       const site = s.status === "fulfilled" ? s.value : null;
       const shape = sh.status === "fulfilled" ? sh.value : null;
-      const bb = site?.bbox ?? shapeBounds(shape);
+      // 담을 범위 — 단지 경계와 동 범위를 합친 것 (경계가 없으면 동 범위)
+      const sb = shapeBounds(shape);
+      const bb: [number, number, number, number] | null =
+        site?.bbox && sb
+          ? [Math.min(site.bbox[0], sb[0]), Math.min(site.bbox[1], sb[1]), Math.max(site.bbox[2], sb[2]), Math.max(site.bbox[3], sb[3])]
+          : (site?.bbox ?? sb);
       if (!bb) return;
       const box = map.getContainer();
       const w = box.clientWidth;
-      const h = box.clientHeight;
       // 가려지는 곳 — 위: 필터 줄 + 지표 알약(약 96px), 아래: 작은 단지 카드(모바일은 독까지)
       const mobile = w < 640;
-      const top = 100;
-      const bottom = mobile ? 208 : 144;
-      const side = 16;
-      // 보이는 곳의 약 70%를 단지가 채우게 — 남는 곳의 15%씩 안쪽 여백
-      const insetX = Math.round(Math.max(0, w - side * 2) * 0.15);
-      const insetY = Math.round(Math.max(0, h - top - bottom) * 0.15);
-      const cam = map.cameraForBounds(
-        [
-          [bb[0], bb[1]],
-          [bb[2], bb[3]],
-        ],
-        {
-          padding: {
-            top: top + insetY,
-            bottom: Math.min(bottom + insetY, Math.max(0, h - top - insetY - 40)),
-            left: side + insetX,
-            right: side + insetX,
-          },
-          bearing: map.getBearing(),
-        },
-      );
-      if (!cam?.center || cam.zoom == null) return;
-      // 높은 건물은 위가 잘리지 않게 — 기울이면 땅 깊이는 cos 만큼 줄고 건물은 sin 만큼 서니,
-      // 둘을 합친 세로 길이가 위에서 내려다본 땅 깊이보다 길 때만 그만큼 멀리 (아주 높으면 덜 기울여)
-      const maxH = Math.max(
-        0,
-        ...(shape?.buildings ?? []).map((b) => b.heightM ?? (b.floors != null ? b.floors * 3 : 0)),
-      );
-      const depthM = Math.max(40, (bb[3] - bb[1]) * 111_320);
-      const pitch = maxH > 90 ? 50 : FOCUS_PITCH;
-      const rad = (pitch * Math.PI) / 180;
-      const zoomOut = Math.max(0, Math.log2((depthM * Math.cos(rad) + maxH * Math.sin(rad)) / depthM));
-      const minZoom = zoomOut > 0 ? 15 : FOCUS_MIN_ZOOM;
-      const opts = {
-        center: cam.center,
-        // 작은 단지가 너무 크게, 큰 단지(헬리오시티 등)가 너무 멀게 되지 않게
-        zoom: Math.min(Math.max(cam.zoom - zoomOut, minZoom), FOCUS_MAX_ZOOM),
+      const safe = { top: 104, bottom: mobile ? 212 : 148, left: 16, right: 16 };
+      const maxH = Math.max(0, ...(shape?.buildings ?? []).map((b) => buildingHeight(b)));
+      // 아주 높은 탑상형은 덜 기울여 (위가 덜 길어지게)
+      const pitch = maxH > 120 ? 50 : FOCUS_PITCH;
+      // 기울기·원근·높이까지 넣어 보이는 곳의 약 80%를 채우게 (fit-camera.ts)
+      const fit = fitComplexCamera(map, bb, maxH, safe, {
         pitch,
         bearing: map.getBearing(),
-      };
+        fill: 0.8,
+        minZoom: 14.5,
+        maxZoom: FOCUS_MAX_ZOOM,
+      });
+      if (!fit) return;
+      const opts = { center: fit.center, zoom: fit.zoom, pitch, bearing: map.getBearing() };
       if (reducedMotion()) map.jumpTo(opts);
       else map.flyTo({ ...opts, duration: 1100, essential: false });
     });
