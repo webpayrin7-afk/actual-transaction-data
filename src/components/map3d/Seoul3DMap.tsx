@@ -342,6 +342,8 @@ export default function Seoul3DMap({
   focus = null,
   onCardChange,
   initialSelectedId = null,
+  frameInitialSelected = false,
+  onSelectedChange,
   sessionPath,
   labelMetric = "price",
   onLabelMetricChange,
@@ -358,6 +360,10 @@ export default function Seoul3DMap({
   onCardChange?: (shown: boolean) => void;
   /** 뒤로 와서 되살릴 때 고른 단지 (카메라는 initial 그대로 — 다시 담지 않는다) */
   initialSelectedId?: string | null;
+  /** 2D에서 고른 단지를 들고 올 때 — 되살림과 달리 그 단지를 새로 담는다 */
+  frameInitialSelected?: boolean;
+  /** 고른 단지가 바뀔 때마다 — 2D로 돌아갈 때 그대로 고른 채로 */
+  onSelectedChange?: (id: string | null) => void;
   /** 이 지도 입구(/, /map) — 카메라·고른 단지를 sessionStorage 에 둔다 */
   sessionPath?: string;
   /** 이름표 값 — 2D 마커 표시와 같은 값(같은 설정을 나눠 쓴다) */
@@ -379,7 +385,7 @@ export default function Seoul3DMap({
   const [truncated, setTruncated] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId);
   /** 되살린 단지는 카메라를 다시 담지 않는다 (저장된 카메라 그대로) */
-  const skipFrameRef = useRef<string | null>(initialSelectedId);
+  const skipFrameRef = useRef<string | null>(frameInitialSelected ? null : initialSelectedId);
   const selectedIdRef = useRef<string | null>(initialSelectedId);
   /** 지표 · 색 범례 팝오버 */
   const [legendOpen, setLegendOpen] = useState(false);
@@ -935,6 +941,9 @@ export default function Seoul3DMap({
   useEffect(() => {
     onCardChange?.(cardShown);
   }, [cardShown, onCardChange]);
+  useEffect(() => {
+    onSelectedChange?.(selectedId);
+  }, [selectedId, onSelectedChange]);
   const dealLabel = DEAL_LABEL[deal];
   const steps = metric === "perPyeong" ? PER_PYEONG_STEPS : CHANGE_STEPS;
 

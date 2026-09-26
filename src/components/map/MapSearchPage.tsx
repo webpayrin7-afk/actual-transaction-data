@@ -229,10 +229,16 @@ function MapSearchPageInner() {
     const v = readLastView();
     return { lat: v.lat, lng: v.lng, zoom: Math.max(v.zoom, COMPLEX_ZOOM) - 1 };
   });
-  /** 되살린 3D 고른 단지 (처음 한 번) */
-  const [restored3dId] = useState<string | null>(() =>
-    searchParams.get("view") === "3d" ? (read3dSession(pathname)?.selectedId ?? null) : null,
-  );
+  /** 3D 지도를 열 때 고른 단지 — 뒤로 와서 되살린 것(카메라 그대로) 또는 2D에서 고른 것(새로 담기) */
+  const [initial3dSel, setInitial3dSel] = useState<{ id: string | null; frame: boolean }>(() => ({
+    id: searchParams.get("view") === "3d" ? (read3dSession(pathname)?.selectedId ?? null) : null,
+    frame: false,
+  }));
+  /** 3D 지도에서 지금 고른 단지 — 2D로 돌아가도 고른 채로 */
+  const sel3dRef = useRef<string | null>(null);
+  const onSelected3d = useCallback((id: string | null) => {
+    sel3dRef.current = id;
+  }, []);
   /** 2D 단지 카드 '더보기' — 연 단지에만 (다른 단지를 고르면 접힘) */
   const [cardMoreId, setCardMoreId] = useState<string | null>(null);
   /** 3D 지도가 지금 보는 곳 — 2D로 돌아갈 때 그 자리로 */
@@ -268,6 +274,8 @@ function MapSearchPageInner() {
     } catch {
       /* 2D 지도 상태를 못 읽으면 저장된 위치 */
     }
+    // 2D에서 고른 단지는 3D에서도 고른 채로 (그 단지를 비스듬히 담는다)
+    setInitial3dSel({ id: selectedId, frame: true });
     setSelectedId(null);
     setCam3d(null);
     // 네이버 줌(256px 타일)과 MapLibre 줌(512px)은 1 차이 — 같은 축척으로 연다
@@ -281,6 +289,8 @@ function MapSearchPageInner() {
     setCard3d(false);
     setCam3d(null);
     setView2d({ lat: v.lat, lng: v.lng, zoom: Math.round(v.zoom + 1) });
+    // 3D에서 고른 단지는 2D에서도 고른 채로
+    setSelectedId(sel3dRef.current);
     const maps = window.naver?.maps;
     try {
       if (maps && mapRef.current) {
@@ -1321,7 +1331,9 @@ function MapSearchPageInner() {
           viewRef={view3dRef}
           focus={focus3d}
           onCardChange={setCard3d}
-          initialSelectedId={restored3dId}
+          initialSelectedId={initial3dSel.id}
+          frameInitialSelected={initial3dSel.frame}
+          onSelectedChange={onSelected3d}
           labelMetric={metric}
           onLabelMetricChange={chooseMetric}
           sessionPath={pathname}
