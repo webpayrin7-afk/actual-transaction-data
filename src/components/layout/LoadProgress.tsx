@@ -15,7 +15,10 @@ import { LabTopProgress } from "@/components/ui/LabLoading";
 type LoadProgressContextValue = {
   /** Non-empty status text under the bar; null = bar only / hidden text */
   label: string | null;
-  /** Whether any progress source is active */
+  /**
+   * 페이지 이동("nav") 중인지 — 맨 위 막대는 이것만 본다.
+   * 페이지 안 데이터 로딩은 섹션마다 자기 자리에서 로딩을 보이므로(한 번에 표시 하나) 막대를 띄우지 않는다.
+   */
   active: boolean;
   /** Pass null/empty label for bar-only. */
   show: (label: string | null, source?: string) => void;
@@ -23,24 +26,13 @@ type LoadProgressContextValue = {
 };
 
 const DEFAULT_SOURCE = "default";
+/** 맨 위 막대를 띄우는 유일한 출처 — 페이지 이동(링크 누름 → 주소 바뀜, 경로 Suspense 대기) */
+export const NAV_PROGRESS_SOURCE = "nav";
 
 const LoadProgressContext = createContext<LoadProgressContextValue | null>(
   null,
 );
 
-function resolveLabel(bySource: Record<string, string | null>): string | null {
-  const order = ["query", "default", "nav"] as const;
-  for (const key of order) {
-    if (key in bySource) {
-      const value = bySource[key];
-      return value && value.length > 0 ? value : null;
-    }
-  }
-  const keys = Object.keys(bySource);
-  if (keys.length === 0) return null;
-  const value = bySource[keys[keys.length - 1]];
-  return value && value.length > 0 ? value : null;
-}
 
 export function LoadProgressProvider({
   children,
@@ -67,8 +59,9 @@ export function LoadProgressProvider({
     });
   }, []);
 
-  const active = Object.keys(bySource).length > 0;
-  const label = useMemo(() => resolveLabel(bySource), [bySource]);
+  const active = NAV_PROGRESS_SOURCE in bySource;
+  const navLabel = bySource[NAV_PROGRESS_SOURCE];
+  const label = navLabel && navLabel.length > 0 ? navLabel : null;
 
   const value = useMemo(
     () => ({ label, active, show, hide }),
@@ -96,7 +89,8 @@ export function useLoadProgress() {
 }
 
 /**
- * Header progress while `active` (e.g. first query load).
+ * 맨 위 막대를 `active` 동안 켠다 — 페이지 이동 대기(경로 Suspense 자리 등)에만 쓴다.
+ * 페이지 안 데이터 로딩에는 쓰지 않는다: 섹션 틀을 먼저 그리고 섹션 안에서 LabSectionLoading/LabDataLoading을 보인다.
  * Message changes only update the label — they must not hide/remount the bar.
  * Pass an empty message for a bar-only indicator (no status text).
  * Uses layout effect so the bar appears before paint on page entry.
@@ -104,7 +98,7 @@ export function useLoadProgress() {
 export function useLoadProgressWhen(
   active: boolean,
   message: string,
-  source = "query",
+  source = NAV_PROGRESS_SOURCE,
 ) {
   const { show, hide } = useLoadProgress();
 
@@ -127,7 +121,7 @@ export function SiteHeaderLoadProgress() {
 
 /**
  * 화면 맨 위 진행 막대 — 모든 페이지(상단바 없는 상세 페이지 포함).
- * 첫 데이터 로딩(useLoadProgressWhen)과 페이지 이동(내부 링크 누름 → 주소 바뀜) 동안 보인다.
+ * 페이지 이동(내부 링크 누름 → 주소 바뀜) 동안만 보인다. 페이지 안 데이터 로딩은 각 섹션이 제자리에서 보인다.
  */
 export function GlobalLoadProgress() {
   const { label, active, show, hide } = useLoadProgress();
@@ -148,7 +142,7 @@ export function GlobalLoadProgress() {
       }
       if (url.origin !== location.origin) return;
       if (url.pathname === location.pathname && url.search === location.search) return;
-      show(null, "nav");
+      show(null, NAV_PROGRESS_SOURCE);
     };
     document.addEventListener("click", onClick, true);
     return () => document.removeEventListener("click", onClick, true);
@@ -156,11 +150,11 @@ export function GlobalLoadProgress() {
 
   // 주소가 바뀌면 이동 끝 (혹시 못 끝나도 10초 뒤엔 닫는다)
   useEffect(() => {
-    hide("nav");
+    hide(NAV_PROGRESS_SOURCE);
   }, [pathname, search, hide]);
   useEffect(() => {
     if (!active) return;
-    const t = window.setTimeout(() => hide("nav"), 10_000);
+    const t = window.setTimeout(() => hide(NAV_PROGRESS_SOURCE), 10_000);
     return () => window.clearTimeout(t);
   }, [active, hide]);
 

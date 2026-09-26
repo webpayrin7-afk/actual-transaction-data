@@ -16,6 +16,7 @@ import type {
   LivingCensusFacilityKey,
   LivingCensusRadius,
 } from "@/lib/complex-detail/living-census";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 
 /** Census key → pilot facility key (icon + category color only; counts are the census's own). */
 const FACILITIES: Array<{
@@ -122,7 +123,7 @@ export function ComplexLivingCensus({ complexId }: { complexId: string | null })
   });
 
   if (!complexId) return <ComplexCommercePreparing />;
-  if (query.isLoading) return <div className="lab-skeleton h-40" />;
+  if (query.isLoading) return <LabDataLoading label="상권 불러오는 중" minHeight={160} />;
   const census = query.data?.census;
   if (!census) return <ComplexCommercePreparing />;
 

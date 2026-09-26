@@ -8,6 +8,7 @@ import { LabSection as Section } from "@/components/ui/LabSection";
 import { LabTag } from "@/components/ui/LabTag";
 import { getLabDef } from "@/lib/lab/definitions";
 import type { LabExperimentResult, LabHomeResponse } from "@/lib/lab/types";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 
 export async function fetchLab(): Promise<LabHomeResponse> {
   const res = await fetch("/api/lab");
@@ -64,7 +65,7 @@ export function LabSection() {
         </p>
       }
     >
-      {query.isLoading ? <div className="lab-skeleton" aria-label="실험실 불러오는 중" /> : null}
+      {query.isLoading ? <LabDataLoading label="실험실 불러오는 중" minHeight={200} /> : null}
 
       {today && todayDef ? (
         <Link

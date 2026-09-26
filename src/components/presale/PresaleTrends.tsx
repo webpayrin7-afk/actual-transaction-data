@@ -24,6 +24,7 @@ import {
   signedPct,
   toneOf,
 } from "@/components/stats/trends-chart-kit";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 
 async function fetchTrends(): Promise<Trends> {
   const res = await fetch("/api/applyhome/trends");
@@ -339,7 +340,7 @@ export function PresaleMetroTable() {
       tip={<p>{TIP_BASIS} 1순위 경쟁률이 높은 시·도부터 보여줍니다. 평당 분양가는 공급면적 기준 중위값입니다.</p>}
     >
       {!q.data ? (
-        <div className="lab-skeleton" />
+        <LabDataLoading label="청약 성적 불러오는 중" minHeight={240} />
       ) : (
         <>
           <ul className={LAB_LIST}>

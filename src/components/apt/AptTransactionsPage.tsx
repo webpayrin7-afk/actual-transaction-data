@@ -6,12 +6,12 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, ChevronsUpDown, LoaderCircle } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
-import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { LabStatTiles, type LabStatTile } from "@/components/ui/LabStatTiles";
 import { LAB_SUBSECTION_RULE, LabSection } from "@/components/ui/LabSection";
 import { LabTextLink } from "@/components/ui/LabListRow";
 import { LAB_MORE_BUTTON } from "@/components/ui/LabMoreButton";
 import { DETAIL_PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { LabSectionLoading } from "@/components/ui/LabLoading";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
 import {
   GroupedTransactionList,
@@ -232,11 +232,6 @@ export function AptTransactionsPage({
     }
   }
 
-  useLoadProgressWhen(
-    query.isLoading && offset === 0 && items.length === 0,
-    query.isLoading ? "거래내역 불러오는 중…" : "",
-  );
-
   const meta = listMeta && listMeta.metaIncluded !== false ? listMeta : data;
   const resolvedAreaKey = meta?.areaKey || areaKey;
 
@@ -294,10 +289,19 @@ export function AptTransactionsPage({
   const hasMore = items.length < total;
   const loadingMore = query.isFetching && offset > 0;
 
+  // 첫 로딩: 머리(단지명)와 거래 내역 틀을 먼저 그리고 틀 안에서 로딩
   if (query.isLoading && items.length === 0 && !meta) {
     return (
-      <div className={DETAIL_PAGE_SHELL}>
-        <div className="lab-skeleton h-48" />
+      <div className={DETAIL_PAGE_SHELL} aria-busy="true">
+        <header className="-mt-1 sm:-mt-1.5">
+          <PageHeader
+            leading={<BackLink fallback={detailHref} compact hideLabel />}
+            title={aptName}
+            titleClassName="detail-page-title"
+            showDivider={false}
+          />
+        </header>
+        <LabSectionLoading title="거래 내역" minHeight={560} />
       </div>
     );
   }

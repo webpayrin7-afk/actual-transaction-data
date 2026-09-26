@@ -6,7 +6,6 @@ import { AlertCircle } from "lucide-react";
 import { FilterBar } from "@/components/FilterBar";
 import { Pagination } from "@/components/Pagination";
 import { TransactionTable } from "@/components/TransactionTable";
-import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
 import { PAGE_SIZE, type RegionDef } from "@/lib/constants/regions";
 import { recentYearMonths } from "@/lib/utils/format";
@@ -64,7 +63,6 @@ export function RegionTransactionSearch({
   });
   const data = query.data;
   const resolvedYearMonth = data?.yearMonth ?? searchYearMonth;
-  useLoadProgressWhen(query.isLoading && !data, "거래 내역 불러오는 중…");
 
   const resetPage = () => setPage(1);
 

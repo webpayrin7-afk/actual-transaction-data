@@ -27,7 +27,7 @@ export type LazySection<P> = ComponentType<P> & {
 /** 섹션 코드를 받는 동안 — 섹션 제목과 "○○ 불러오는 중" */
 function SectionChunkLoading() {
   const boundary = useSectionBoundary();
-  return <LabSectionLoading title={boundary?.title} minHeight={200} />;
+  return <LabSectionLoading title={boundary?.title} minHeight={boundary?.placeholderMinHeight ?? 200} />;
 }
 
 /**

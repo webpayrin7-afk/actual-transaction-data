@@ -23,6 +23,7 @@ import {
   type PriceMovesSort,
 } from "@/lib/market/price-moves";
 import { formatEok } from "@/lib/utils/format";
+import { LabSectionLoading } from "@/components/ui/LabLoading";
 
 type Kind = "singoga" | "drop";
 const PAGE = 20;
@@ -312,7 +313,7 @@ export function PriceMovesPage() {
       </div>
 
       {query.isLoading ? (
-        <div className="lab-skeleton" aria-label="불러오는 중" />
+        <LabSectionLoading label="거래 불러오는 중" minHeight={480} />
       ) : null}
       {query.isError ? (
         <div className="flex flex-col gap-3">

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { PageLoadingFrame } from "@/components/layout/PageLoadingFrame";
 import { MarketTrendsPage } from "@/components/stats/MarketTrendsPage";
 
 export const metadata: Metadata = {
@@ -13,9 +14,16 @@ export default function Page() {
     <main className="flex-1">
       <Suspense
         fallback={
-          <div className="mx-auto max-w-7xl px-4 py-10" aria-hidden>
-            <div className="lab-skeleton" />
-          </div>
+          <PageLoadingFrame
+            title="시장 흐름"
+            backHref="/market"
+            sections={[
+              { title: "가격 흐름", minHeight: 420 },
+              { title: "실거래 가격", minHeight: 420 },
+              { title: "가격대 구성", minHeight: 360 },
+              { title: "거래량 흐름", minHeight: 360 },
+            ]}
+          />
         }
       >
         <MarketTrendsPage />

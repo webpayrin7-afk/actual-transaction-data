@@ -9,6 +9,7 @@ import { LAB_LIST, LabListRow, LabTextLink } from "@/components/ui/LabListRow";
 import { LabStatTiles } from "@/components/ui/LabStatTiles";
 import { LabTag } from "@/components/ui/LabTag";
 import { kindLabel, md, priceRange, shortMan, ymDot } from "@/components/presale/ApplyhomeSections";
+import { LabSectionLoading } from "@/components/ui/LabLoading";
 
 async function fetchDetail(id: string): Promise<ApplyhomeDetail> {
   const res = await fetch(`/api/applyhome/${encodeURIComponent(id)}`);
@@ -69,7 +70,10 @@ export function PresaleDetail({ id }: { id: string }) {
       </div>
 
       {query.isLoading || !d || !n ? (
-        <div className="lab-skeleton" />
+        <>
+          <LabSectionLoading title="청약 요약" minHeight={320} />
+          <LabSectionLoading title="주택형별 분양가 · 경쟁률" label="주택형 불러오는 중" minHeight={360} />
+        </>
       ) : (
         <>
           <LabSection title="청약 요약">

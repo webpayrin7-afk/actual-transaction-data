@@ -8,6 +8,7 @@ import { LAB_LIST } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { LabTabs, labTabPanelId } from "@/components/ui/LabTabs";
 import type { HeadlineItem, HeadlinesResponse, HeadlineTopic } from "@/lib/market/naver-news";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 
 async function fetchHeadlines(): Promise<HeadlinesResponse> {
   const res = await fetch("/api/market-headlines");
@@ -97,7 +98,7 @@ export function MarketHeadlines({ id }: { id?: string }) {
         </p>
       }
     >
-      {query.isLoading ? <div className="lab-skeleton" aria-label="뉴스 불러오는 중" /> : null}
+      {query.isLoading ? <LabDataLoading label="뉴스 불러오는 중" minHeight={240} /> : null}
       {data ? (
         <>
           {tabs.length > 2 ? (

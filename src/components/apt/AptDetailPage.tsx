@@ -57,7 +57,6 @@ import {
   DETAIL_PAGE_SHELL,
   PageHeader,
 } from "@/components/layout/PageHeader";
-import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
 import { LabSectionLoading } from "@/components/ui/LabLoading";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { Complex3dEntryCard } from "@/components/complex-3d/Complex3dEntry";
@@ -173,14 +172,76 @@ async function fetchAptDetail(
 }
 
 /**
- * 시세가 오기 전 첫 화면 자리 — 서버 스트리밍 대기(page.tsx Suspense)와 시세 첫 로딩이 같은 모양.
- * 회색 상자 대신 섹션 로딩 + 화면 맨 위 진행 막대.
+ * 섹션 틀 — 제목과 대략의 높이(모바일 기준, 다 불러온 뒤 높이보다 조금 작게).
+ * 시세가 오기 전 첫 화면, 아직 마운트 전인 아래 섹션 자리, 섹션 코드를 받는 동안 모두 이 틀을 먼저 그리고
+ * 틀 안에서 로딩을 보인다 — 빈 화면이나 페이지 전체 로딩 대신, 섹션이 자리 잡은 채로 하나씩 채워진다.
  */
-export function AptDetailSkeleton() {
-  useLoadProgressWhen(true, "시세 불러오는 중…", "apt-shell");
+const APT_SECTION_FRAMES = {
+  market: { id: "section-market", title: "실거래 현황", minHeight: 1200 },
+  tradeInsight: { id: "section-trade-insight", title: "거래 분석", minHeight: 640 },
+  typeDong: { id: "section-type-dong", title: "타입·동 정보", minHeight: 520 },
+  unitMix: { id: "section-unit-mix", title: "평형 구성", minHeight: 420 },
+  regionRank: { id: "section-region-rank", title: "지역 내 비교", minHeight: 540 },
+  comparison: { id: "section-comparison", title: "단지 비교", minHeight: 340 },
+  nearbyLife: { id: "section-nearby-life", title: "주변 생활", minHeight: 520 },
+  nearbySales: { id: "section-nearby-sales", title: "주변 공급", minHeight: 200 },
+  calculator: { id: "section-calculator", title: "세금·대출 계산", minHeight: 600 },
+  management: { id: "section-management", title: "관리비", minHeight: 600 },
+} as const;
+
+/** 화면 순서대로 */
+const APT_SECTION_FRAME_ORDER = [
+  APT_SECTION_FRAMES.market,
+  APT_SECTION_FRAMES.tradeInsight,
+  APT_SECTION_FRAMES.typeDong,
+  APT_SECTION_FRAMES.unitMix,
+  APT_SECTION_FRAMES.regionRank,
+  APT_SECTION_FRAMES.comparison,
+  APT_SECTION_FRAMES.nearbyLife,
+  APT_SECTION_FRAMES.nearbySales,
+  APT_SECTION_FRAMES.calculator,
+  APT_SECTION_FRAMES.management,
+];
+
+/** 머리(단지 요약 줄·면적 선택) 자리 높이 — 불러온 뒤 높이와 비슷하게 비워 둔다 */
+const HERO_PLACEHOLDER_MIN_HEIGHT = 120;
+
+/**
+ * 시세가 오기 전 첫 화면 — 서버 스트리밍 대기(page.tsx Suspense)와 시세 첫 로딩이 같은 모양.
+ * 페이지 틀(단지명 머리 + 모든 섹션 카드)을 바로 그리고, 섹션마다 안에서 "○○ 불러오는 중"을 보인다.
+ * 단지명·지역은 주소에서 바로 알 수 있으므로 기다리지 않는다.
+ */
+export function AptDetailSkeleton({
+  aptName,
+  regionSlug,
+  gu,
+}: {
+  aptName?: string;
+  regionSlug?: string;
+  gu?: string;
+}) {
+  const location = gu?.trim() || (regionSlug ? getRegion(regionSlug)?.name : undefined) || undefined;
   return (
-    <div className={DETAIL_PAGE_SHELL}>
-      <LabSectionLoading title="실거래 현황" label="시세 불러오는 중" minHeight={280} />
+    <div className={DETAIL_PAGE_SHELL} aria-busy="true">
+      <header className="-mt-1 sm:-mt-1.5">
+        <PageHeader
+          leading={<BackLink fallback="/complexes" compact hideLabel />}
+          title={aptName || "단지 상세"}
+          titleSuffix={location}
+          titleClassName="detail-page-title"
+          showDivider={false}
+        >
+          <div aria-hidden style={{ minHeight: HERO_PLACEHOLDER_MIN_HEIGHT }} />
+        </PageHeader>
+      </header>
+      {APT_SECTION_FRAME_ORDER.map((frame) => (
+        <LabSectionLoading
+          key={frame.id}
+          title={frame.title}
+          label={frame === APT_SECTION_FRAMES.market ? "시세 불러오는 중" : undefined}
+          minHeight={frame.minHeight}
+        />
+      ))}
     </div>
   );
 }
@@ -369,8 +430,6 @@ export function AptDetailPage({
     data?.regionName,
     gu,
   ]);
-
-  useLoadProgressWhen(detailQuery.isLoading && !data, "시세 불러오는 중…");
 
   const hasData = !!data;
   useEffect(() => {
@@ -602,7 +661,6 @@ export function AptDetailPage({
     return `/apt/${aptName}/transactions?${qs.toString()}`;
   }, [aptName, regionSlug, gu, areaKey, dealFilter]);
 
-
   const setRecentYears = (years: number) => {
     if (chartMonths.length === 0) return;
     const preset =
@@ -687,9 +745,8 @@ export function AptDetailPage({
     />
   );
 
-
   if (detailQuery.isLoading && !data) {
-    return <AptDetailSkeleton />;
+    return <AptDetailSkeleton aptName={aptName} regionSlug={regionSlug} gu={gu} />;
   }
 
   if ((detailQuery.isError && !data) || !data) {
@@ -828,8 +885,8 @@ export function AptDetailPage({
 
       {/* 시세 = 요약(면적 기준) → 추이(차트) → 거래내역. 한 주제 한 섹션 (policy §12.1). */}
       <LabSection
-        id="section-market"
-        title="실거래 현황"
+        id={APT_SECTION_FRAMES.market.id}
+        title={APT_SECTION_FRAMES.market.title}
         meta={
           areaKey === "all" || !selectedArea
             ? "전체 면적 기준"
@@ -1004,7 +1061,12 @@ export function AptDetailPage({
         </div>
       </LabSection>
 
-      <LabSectionBoundary id="section-trade-insight" mountWhenNear title="거래 분석">
+      <LabSectionBoundary
+          id={APT_SECTION_FRAMES.tradeInsight.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.tradeInsight.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.tradeInsight.minHeight}
+        >
         <ComplexTradeInsightSection
           items={areaFiltered}
           maxFloor={complexDetail?.building?.maxFloor ?? null}
@@ -1017,12 +1079,22 @@ export function AptDetailPage({
       </LabSectionBoundary>
 
       {identity?.complexId ? (
-        <LabSectionBoundary id="section-type-dong" mountWhenNear title="타입·동 정보">
+        <LabSectionBoundary
+          id={APT_SECTION_FRAMES.typeDong.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.typeDong.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.typeDong.minHeight}
+        >
           <ComplexTypeDongSection complexId={identity.complexId} selectedArea={selectedArea} items={data.items} />
         </LabSectionBoundary>
       ) : null}
 
-      <LabSectionBoundary id="section-unit-mix" mountWhenNear title="평형 구성">
+      <LabSectionBoundary
+          id={APT_SECTION_FRAMES.unitMix.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.unitMix.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.unitMix.minHeight}
+        >
         <ComplexUnitMixSection
           unitMix={complexDetail?.unitMix}
           areas={areasWithSupply}
@@ -1032,7 +1104,12 @@ export function AptDetailPage({
         />
       </LabSectionBoundary>
 
-      <LabSectionBoundary id="section-region-rank" mountWhenNear title="지역 비교">
+      <LabSectionBoundary
+          id={APT_SECTION_FRAMES.regionRank.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.regionRank.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.regionRank.minHeight}
+        >
       <ComplexRegionRankSection
           complexId={identity?.complexId ?? null}
           aptName={data.aptName}
@@ -1046,7 +1123,12 @@ export function AptDetailPage({
       </LabSectionBoundary>
 
       {data ? (
-        <LabSectionBoundary id="section-comparison" mountWhenNear title="단지 비교">
+        <LabSectionBoundary
+          id={APT_SECTION_FRAMES.comparison.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.comparison.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.comparison.minHeight}
+        >
       <ComplexCompareSection
             aptName={aptName}
             regionSlug={regionSlug}
@@ -1060,7 +1142,12 @@ export function AptDetailPage({
         </LabSectionBoundary>
       ) : null}
 
-      <LabSectionBoundary id="section-nearby-life" mountWhenNear title="주변 생활">
+      <LabSectionBoundary
+          id={APT_SECTION_FRAMES.nearbyLife.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.nearbyLife.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.nearbyLife.minHeight}
+        >
       <ComplexNearbyLifeSection
           aptName={aptName}
           identity={identity ?? null}
@@ -1075,7 +1162,12 @@ export function AptDetailPage({
         />
       </LabSectionBoundary>
 
-      <LabSectionBoundary id="section-nearby-sales" mountWhenNear title="주변 공급">
+      <LabSectionBoundary
+          id={APT_SECTION_FRAMES.nearbySales.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.nearbySales.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.nearbySales.minHeight}
+        >
       <ComplexNearbySalesSection
           aptName={aptName}
           sigungu={nearbySigungu}
@@ -1084,7 +1176,12 @@ export function AptDetailPage({
       </LabSectionBoundary>
 
       {/* 세금·대출 계산 — 관리비 바로 위 (집값·대출·관리비를 이어서 보게) */}
-      <LabSectionBoundary id="section-calculator" mountWhenNear title="세금·대출 계산">
+      <LabSectionBoundary
+          id={APT_SECTION_FRAMES.calculator.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.calculator.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.calculator.minHeight}
+        >
       <ComplexPurchaseCalculatorSection
           complexId={identity?.complexId ?? null}
           complexName={data.aptName}
@@ -1111,7 +1208,12 @@ export function AptDetailPage({
       </LabSectionBoundary>
 
       {complexDetail?.management ? (
-        <LabSectionBoundary id="section-management" mountWhenNear title="관리비">
+        <LabSectionBoundary
+          id={APT_SECTION_FRAMES.management.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.management.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.management.minHeight}
+        >
       <ComplexMgmtFeeCard
             management={complexDetail.management}
             selectedPyeongLabel={
@@ -1139,7 +1241,12 @@ export function AptDetailPage({
           />
         </LabSectionBoundary>
       ) : complexDetail ? (
-        <LabSectionBoundary id="section-management" mountWhenNear title="관리비">
+        <LabSectionBoundary
+          id={APT_SECTION_FRAMES.management.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.management.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.management.minHeight}
+        >
           <ComplexMgmtFeeEmpty householdCount={complexDetail.basic?.householdCount ?? null} />
         </LabSectionBoundary>
       ) : null}

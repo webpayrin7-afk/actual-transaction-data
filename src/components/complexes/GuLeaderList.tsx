@@ -9,6 +9,7 @@ import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { LabChoiceChips } from "@/components/ui/LabChoiceChips";
 import { METRO_LABELS } from "@/lib/constants/regions";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 
 /** 구별 종합 랭킹이 발행된 시·도 (강원·전북·광주·전남은 단지 목록 정비 전이라 아직 없음) */
 const METROS = [
@@ -70,7 +71,7 @@ export function GuLeaderList() {
     >
       <LabChoiceChips ariaLabel="대장 단지 지역" options={METRO_OPTIONS} value={metro} onChange={setMetro} />
       {query.isLoading ? (
-        <div className="lab-skeleton" />
+        <LabDataLoading label="대장 단지 불러오는 중" minHeight={280} />
       ) : items.length === 0 ? (
         <p className="detail-body">이 지역은 아직 랭킹 대상 단지가 없습니다.</p>
       ) : (
