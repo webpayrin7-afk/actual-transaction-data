@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { LabLoadingDots } from "@/components/ui/LabLoading";
 
 export type LabStatTone = "up" | "down" | "neutral";
 
@@ -47,7 +48,7 @@ export function LabStatTiles({
       {items.map((t) => {
         const tone = TONE_CLASS[t.tone ?? "neutral"];
         const value = loading ? (
-          <span className="inline-block h-5 w-12 animate-pulse rounded bg-slate-100 align-middle" />
+          <LabLoadingDots className="align-middle" />
         ) : (
           <>
             {t.value}

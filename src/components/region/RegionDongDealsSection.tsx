@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import { LabSection } from "@/components/ui/LabSection";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
@@ -74,11 +75,7 @@ export function RegionDongDealsSection({
       {failed ? (
         <p className="detail-body">최근 거래를 불러오지 못했습니다.</p>
       ) : loading ? (
-        <div className="space-y-2">
-          {Array.from({ length: LAB_LIST_PREVIEW }).map((_, i) => (
-            <div key={i} className="h-12 animate-pulse rounded-lg bg-slate-100" />
-          ))}
-        </div>
+        <LabDataLoading label="거래 불러오는 중" minHeight={272} />
       ) : deals.length === 0 ? (
         <p className="detail-body">
           최근 1년 동안 {tab === "trade" ? "매매" : "전월세"} 거래가 없습니다.

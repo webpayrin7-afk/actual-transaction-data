@@ -18,7 +18,7 @@ import {
   CHART_TRADE,
   CHART_VOLUME,
   ChartLegend,
-  ChartSkeleton,
+  ChartLoading,
   ChartTooltipBox,
   niceTicks,
   signedPct,
@@ -187,7 +187,7 @@ export function PresaleVolumeChart() {
   return (
     <LabSection title="분기별 분양 물량" meta="1순위 마감 분기" tip={<p>{TIP_BASIS} 마지막 분기는 진행 중이라 적게 보일 수 있습니다.</p>}>
       {!rows.length ? (
-        <ChartSkeleton />
+        <ChartLoading label="분양 물량 불러오는 중" />
       ) : (
         <>
           <QuarterChart
@@ -233,7 +233,7 @@ export function PresalePriceChart() {
       }
     >
       {!rows.length ? (
-        <ChartSkeleton />
+        <ChartLoading label="분양가 불러오는 중" />
       ) : (
         <>
           {last ? (
@@ -292,7 +292,7 @@ export function PresaleRateChart() {
       }
     >
       {!rows.length ? (
-        <ChartSkeleton />
+        <ChartLoading label="경쟁률 불러오는 중" />
       ) : (
         <>
           <QuarterChart

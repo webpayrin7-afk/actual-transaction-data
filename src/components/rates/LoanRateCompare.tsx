@@ -1,6 +1,7 @@
 "use client";
 
 import { BackLink } from "@/components/layout/BackLink";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import { RankCircle } from "@/components/ui/RankCircle";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -108,6 +109,74 @@ export function LoanRateCompare() {
     return `${first.periodStart} ~ ${first.periodEnd}`;
   }, [query.data?.items]);
 
+  // 표 머리(정렬 단추)는 데이터와 무관 — 불러오는 동안에도 그대로 그린다
+  const tableHead = (
+    <thead className="border-b border-[color:var(--lab-border)] bg-white text-[13px] leading-5 text-[color:var(--lab-muted)]">
+      <tr>
+        <th className="px-4 py-3">
+          <SortButton
+            label="기관"
+            active={sortKey === "orgName"}
+            asc={sortAsc}
+            onClick={() => toggleSort("orgName")}
+          />
+        </th>
+        <th className="px-4 py-3">구분</th>
+        <th className="px-4 py-3 text-right">
+          <span className="inline-flex w-full justify-end">
+            <SortButton
+              label="취급건수"
+              active={sortKey === "loanCount"}
+              asc={sortAsc}
+              onClick={() => toggleSort("loanCount")}
+            />
+          </span>
+        </th>
+        <th className="px-4 py-3 text-right">
+          <span className="inline-flex w-full justify-end">
+            <SortButton
+              label="최저(%)"
+              active={sortKey === "minRate"}
+              asc={sortAsc}
+              onClick={() => toggleSort("minRate")}
+            />
+          </span>
+        </th>
+        <th className="px-4 py-3 text-right">
+          <span className="inline-flex w-full justify-end">
+            <SortButton
+              label="최고(%)"
+              active={sortKey === "maxRate"}
+              asc={sortAsc}
+              onClick={() => toggleSort("maxRate")}
+            />
+          </span>
+        </th>
+        <th className="px-4 py-3 text-right">
+          <span className="inline-flex w-full justify-end">
+            <SortButton
+              label="평균(%)"
+              active={sortKey === "avgRate"}
+              asc={sortAsc}
+              onClick={() => toggleSort("avgRate")}
+            />
+          </span>
+        </th>
+        <th className="px-4 py-3 text-right">
+          <span className="inline-flex w-full justify-end">
+            <SortButton
+              label="보전평균(%)"
+              active={sortKey === "avgSubsidyRate"}
+              asc={sortAsc}
+              onClick={() => toggleSort("avgSubsidyRate")}
+            />
+          </span>
+        </th>
+        <th className="px-4 py-3 text-right">계산</th>
+      </tr>
+    </thead>
+  );
+
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
@@ -162,10 +231,18 @@ export function LoanRateCompare() {
       </div>
 
       {query.isLoading ? (
-        <div
-          className="h-40 animate-pulse lab-skeleton"
-          aria-hidden
-        />
+        <div className="overflow-x-auto rounded-[var(--lab-radius-md)] border border-[color:var(--lab-border)] bg-white">
+          <table className="min-w-full text-left text-sm">
+            {tableHead}
+            <tbody>
+              <tr>
+                <td colSpan={8}>
+                  <LabDataLoading label="금리 불러오는 중" minHeight={240} />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       ) : null}
 
       {query.isError ? (
@@ -201,70 +278,7 @@ export function LoanRateCompare() {
 
           <div className="overflow-x-auto rounded-[var(--lab-radius-md)] border border-[color:var(--lab-border)] bg-white">
             <table className="min-w-full text-left text-sm">
-              <thead className="border-b border-[color:var(--lab-border)] bg-white text-[13px] leading-5 text-[color:var(--lab-muted)]">
-                <tr>
-                  <th className="px-4 py-3">
-                    <SortButton
-                      label="기관"
-                      active={sortKey === "orgName"}
-                      asc={sortAsc}
-                      onClick={() => toggleSort("orgName")}
-                    />
-                  </th>
-                  <th className="px-4 py-3">구분</th>
-                  <th className="px-4 py-3 text-right">
-                    <span className="inline-flex w-full justify-end">
-                      <SortButton
-                        label="취급건수"
-                        active={sortKey === "loanCount"}
-                        asc={sortAsc}
-                        onClick={() => toggleSort("loanCount")}
-                      />
-                    </span>
-                  </th>
-                  <th className="px-4 py-3 text-right">
-                    <span className="inline-flex w-full justify-end">
-                      <SortButton
-                        label="최저(%)"
-                        active={sortKey === "minRate"}
-                        asc={sortAsc}
-                        onClick={() => toggleSort("minRate")}
-                      />
-                    </span>
-                  </th>
-                  <th className="px-4 py-3 text-right">
-                    <span className="inline-flex w-full justify-end">
-                      <SortButton
-                        label="최고(%)"
-                        active={sortKey === "maxRate"}
-                        asc={sortAsc}
-                        onClick={() => toggleSort("maxRate")}
-                      />
-                    </span>
-                  </th>
-                  <th className="px-4 py-3 text-right">
-                    <span className="inline-flex w-full justify-end">
-                      <SortButton
-                        label="평균(%)"
-                        active={sortKey === "avgRate"}
-                        asc={sortAsc}
-                        onClick={() => toggleSort("avgRate")}
-                      />
-                    </span>
-                  </th>
-                  <th className="px-4 py-3 text-right">
-                    <span className="inline-flex w-full justify-end">
-                      <SortButton
-                        label="보전평균(%)"
-                        active={sortKey === "avgSubsidyRate"}
-                        asc={sortAsc}
-                        onClick={() => toggleSort("avgSubsidyRate")}
-                      />
-                    </span>
-                  </th>
-                  <th className="px-4 py-3 text-right">계산</th>
-                </tr>
-              </thead>
+              {tableHead}
               <tbody>
                 {rows.length === 0 ? (
                   <tr>

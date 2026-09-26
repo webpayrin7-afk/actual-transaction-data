@@ -5,6 +5,7 @@ import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { LabStatTiles, type LabStatTile } from "@/components/ui/LabStatTiles";
 import { LabTag } from "@/components/ui/LabTag";
@@ -143,8 +144,10 @@ export function RegionDongPricesSection({
           </p>
         }
       />
-      {compare && !query.isLoading ? (
-        current ? (
+      {compare ? (
+        query.isLoading ? (
+          <LabStatTiles items={tiles} columns={3} loading />
+        ) : current ? (
           <LabStatTiles items={tiles} columns={3} />
         ) : (
           <p className="detail-body">
@@ -163,11 +166,7 @@ export function RegionDongPricesSection({
         }}
       />
       {query.isLoading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-12 animate-pulse rounded-lg bg-slate-100" />
-          ))}
-        </div>
+        <LabDataLoading label="시세 불러오는 중" minHeight={216} />
       ) : (
         <>
           {guPrice != null ? (

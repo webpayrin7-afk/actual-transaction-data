@@ -13,7 +13,7 @@ import {
   type DealStatsPayload,
 } from "@/lib/market/deal-stats";
 import type { TrendPeriod } from "@/lib/market/trends-regions";
-import { ChartSkeleton, SectionError, sliceByPeriod, ymDot } from "@/components/stats/trends-chart-kit";
+import { ChartLoading, SectionError, sliceByPeriod, ymDot } from "@/components/stats/trends-chart-kit";
 
 const KINDS = [
   { id: "trade", label: "매매" },
@@ -108,7 +108,7 @@ export function TrendsDealMixSection({
         <>
           <LabTabs variant="secondary" items={KINDS} value={kind} onChange={setKind} ariaLabel="가격대 거래 종류" />
           {loading ? (
-            <ChartSkeleton />
+            <ChartLoading label="가격대 거래 불러오는 중" />
           ) : years.length === 0 ? (
             <p className="lab-state">{data?.note ?? "표시할 실거래가 없습니다."}</p>
           ) : (

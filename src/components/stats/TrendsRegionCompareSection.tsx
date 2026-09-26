@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { RankCircle } from "@/components/ui/RankCircle";
 import { useQuery } from "@tanstack/react-query";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import { LabSection } from "@/components/ui/LabSection";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
@@ -127,7 +128,7 @@ export function TrendsRegionCompareSection({
       {query.isError ? (
         <SectionError onRetry={() => query.refetch()} />
       ) : query.isLoading ? (
-        <div className="h-[280px] animate-pulse rounded-lg bg-slate-100" aria-hidden />
+        <LabDataLoading label="지역 순위 불러오는 중" minHeight={280} />
       ) : sorted.length === 0 ? (
         <p className="lab-state">비교할 지역이 없습니다.</p>
       ) : (

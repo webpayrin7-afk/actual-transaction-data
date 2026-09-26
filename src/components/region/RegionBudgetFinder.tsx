@@ -4,6 +4,7 @@ import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSectio
 import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { LAB_LIST, LabListRow, LabTextLink } from "@/components/ui/LabListRow";
 import { rankingComplexHref } from "@/lib/region-ranking/public";
@@ -96,11 +97,7 @@ export function RegionBudgetFinderSection({
         />
       ) : null}
       {query.isLoading && !data ? (
-        <div className="space-y-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-12 animate-pulse rounded-lg bg-slate-100" />
-          ))}
-        </div>
+        <LabDataLoading label="단지 불러오는 중" minHeight={216} />
       ) : current ? (
         current.published === false ? (
           <p className="detail-body">{current.label} 예산 찾기는 준비 중입니다.</p>

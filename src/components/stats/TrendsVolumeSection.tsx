@@ -23,7 +23,7 @@ import {
   CHART_TRADE,
   CHART_VOLUME,
   ChartLegend,
-  ChartSkeleton,
+  ChartLoading,
   ChartTooltipBox,
   SectionError,
   niceTicks,
@@ -198,7 +198,7 @@ export function TrendsVolumeSection({
             <LabSubsectionHeader title="월별 매매 거래량" meta="건" />
             <div className="mt-3">
               {loading ? (
-                <ChartSkeleton />
+                <ChartLoading label="거래량 불러오는 중" />
               ) : (
                 <>
                   <div className={CHART_BOX}>

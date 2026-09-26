@@ -14,6 +14,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { LabDataLoading, LabLoadingDots } from "@/components/ui/LabLoading";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { LabStatTiles } from "@/components/ui/LabStatTiles";
@@ -358,7 +359,9 @@ export function RegionPriceTrendChart({
       <div className="pt-1" aria-live="polite">
         <p className="detail-label">시세 평당가</p>
         {query.isLoading ? (
-          <div className="mt-2 h-8 w-40 animate-pulse rounded bg-slate-100" />
+          <p className="detail-hero-value mt-0.5">
+            <LabLoadingDots />
+          </p>
         ) : (
           <p className="detail-hero-value mt-0.5 whitespace-nowrap">
             {value != null ? `${Math.round(value).toLocaleString("ko-KR")}만원/평` : "—"}
@@ -378,10 +381,11 @@ export function RegionPriceTrendChart({
       <LabStatTiles
         columns={4}
         layout="inline"
+        loading={query.isLoading}
         items={changeTiles.map((t) => ({
           key: t.key,
           label: t.label,
-          value: query.isLoading ? "…" : pctText2(t.pct),
+          value: pctText2(t.pct),
           tone: t.pct == null || t.pct === 0 ? "neutral" : t.pct > 0 ? "up" : "down",
           srValue: t.pct == null || t.pct === 0 ? undefined : t.pct > 0 ? " 상승" : " 하락",
         }))}
@@ -415,7 +419,7 @@ export function RegionPriceTrendChart({
       </div>
 
       {query.isLoading ? (
-        <div className="h-[220px] animate-pulse rounded-lg bg-slate-100" />
+        <LabDataLoading label="시세 불러오는 중" minHeight={220} />
       ) : rows.length < 2 ? (
         <p className="detail-body">그래프를 그릴 거래가 부족합니다.</p>
       ) : prices.length < 2 ? (
@@ -528,7 +532,7 @@ export function RegionPriceTrendChart({
                 tradeCount={current.tradeCount}
               />
             ) : detailQuery.isLoading ? (
-              <div className="h-24 animate-pulse rounded-lg bg-slate-100" />
+              <LabDataLoading label="거래 구성 불러오는 중" />
             ) : (
               <p className="detail-meta">
                 {ymKorean(current.yearMonth)} · 매매{" "}

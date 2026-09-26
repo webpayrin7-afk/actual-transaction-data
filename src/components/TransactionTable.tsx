@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import {
   dealTypeLabel,
@@ -71,14 +72,31 @@ function MobileRow({ tx, regionSlug }: { tx: Transaction; regionSlug?: string })
 const TH = "detail-meta px-3 py-2.5 font-medium whitespace-nowrap";
 const TD = "px-3 py-2.5 whitespace-nowrap";
 
+/** 표 머리 — 데이터와 무관해 불러오는 동안에도 그대로 그린다. */
+const TABLE_HEAD = (
+  <thead className="border-b border-[color:var(--lab-border)]">
+    <tr>
+      <th className={TH}>계약일자</th>
+      <th className={TH}>유형</th>
+      <th className={TH}>단지명</th>
+      <th className={TH}>구</th>
+      <th className={TH}>법정동</th>
+      <th className={`${TH} text-right`}>전용면적</th>
+      <th className={`${TH} text-right`}>거래금액</th>
+      <th className={`${TH} text-right`}>층</th>
+    </tr>
+  </thead>
+);
+
 export function TransactionTable({ items, isLoading, regionSlug }: TransactionTableProps) {
   if (isLoading) {
     return (
-      <div className="space-y-2" aria-busy="true">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-12 animate-pulse rounded-lg bg-slate-100" />
-        ))}
-      </div>
+      <>
+        <div className="hidden overflow-x-auto md:block">
+          <table className="min-w-full text-left text-[14px] leading-5">{TABLE_HEAD}</table>
+        </div>
+        <LabDataLoading label="거래 불러오는 중" minHeight={264} />
+      </>
     );
   }
 
@@ -101,18 +119,7 @@ export function TransactionTable({ items, isLoading, regionSlug }: TransactionTa
 
       <div className="hidden overflow-x-auto md:block">
         <table className="min-w-full text-left text-[14px] leading-5">
-          <thead className="border-b border-[color:var(--lab-border)]">
-            <tr>
-              <th className={TH}>계약일자</th>
-              <th className={TH}>유형</th>
-              <th className={TH}>단지명</th>
-              <th className={TH}>구</th>
-              <th className={TH}>법정동</th>
-              <th className={`${TH} text-right`}>전용면적</th>
-              <th className={`${TH} text-right`}>거래금액</th>
-              <th className={`${TH} text-right`}>층</th>
-            </tr>
-          </thead>
+          {TABLE_HEAD}
           <tbody className="divide-y divide-[color:var(--lab-border)] tabular-nums">
             {items.map((tx) => {
               const href = regionSlug ? aptDetailHref(tx.aptName, regionSlug, tx.gu) : null;
