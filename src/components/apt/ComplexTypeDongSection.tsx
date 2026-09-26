@@ -316,9 +316,10 @@ export function ComplexTypeDongSection({
             })()
           ) : null}
         </div>
-      ) : (
+      ) : all.some((t) => t.dongs.length > 0) ? (
+        // 다른 타입은 동 정보가 있는데 이 타입만 없을 때만 알린다 — 단지 전체에 동 정보가 없으면(한 동짜리 등) 조용히 둔다
         <p className="detail-meta">이 타입의 동별 정보는 아직 없어요.</p>
-      )}
+      ) : null}
     </LabSection>
   );
 }
