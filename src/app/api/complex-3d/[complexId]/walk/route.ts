@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db/client";
 import { applyWalker, type WalkPayload } from "@/lib/complex-3d/walk";
-import { isWalkerId } from "@/lib/complex-3d/walker-profiles";
+import { isWalkerId, walkerAvoidsSteps } from "@/lib/complex-3d/walker-profiles";
 import { getWalkPayload } from "@/lib/complex-3d/walk-store";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +10,7 @@ export const maxDuration = 60;
 /**
  * 걷기 경로 — 단지(동) → 가까운 역 출구·초·중학교·버스정류장. OSM 길 + 지형 경사 + 횡단 대기.
  * `?from=<building_id>` 출발 동 (없으면 단지 가운데 동), `?mode=wheel` 계단 피하기(유모차·휠체어),
- * `?walker=male|female|child|elder` 걷는 사람 속도 (없으면 기본 4.5km/h — 저장된 결과 그대로). 시간 바꾸기도 서버에서.
+ * `?walker=male|female|child|elder|wheel` 걷는 사람 속도(wheel은 계단 피하는 길까지) (없으면 기본 4.5km/h — 저장된 결과 그대로). 시간 바꾸기도 서버에서.
  * 저장된 결과·보행망(complex_walk_routes / complex_walk_osm)을 먼저 쓰고, 없을 때만 Overpass 거울 서버를 짧게 부른다.
  * 계산은 모두 서버에서 — 브라우저에는 결과 경로만.
  */
@@ -22,9 +22,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (!/^cx_[0-9a-f]{16}$/.test(complexId)) return NextResponse.json({ error: "단지 번호가 올바르지 않습니다." }, { status: 400 });
   const fromRaw = request.nextUrl.searchParams.get("from");
   const from = fromRaw && /^[\w:.-]{1,80}$/.test(fromRaw) ? fromRaw : null;
-  const mode = request.nextUrl.searchParams.get("mode") === "wheel" ? "wheel" : "walk";
   const walkerRaw = request.nextUrl.searchParams.get("walker");
   const walker = isWalkerId(walkerRaw) ? walkerRaw : null;
+  // 유모차·휠체어는 늘 계단 피하는 길 (예전 ?mode=wheel 요청도 그대로 받는다)
+  const mode =
+    request.nextUrl.searchParams.get("mode") === "wheel" || (walker && walkerAvoidsSteps(walker)) ? "wheel" : "walk";
   const db = getDb();
   if (!db) return NextResponse.json({ error: "DB가 설정되지 않았습니다." }, { status: 503 });
 

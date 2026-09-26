@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import {
@@ -22,8 +22,10 @@ import {
   isWalkerId,
   WALKER_IDS,
   WALKER_LABEL,
+  walkerAvoidsSteps,
   type WalkerId,
 } from "@/lib/complex-3d/walker-profiles";
+import { Map3dAttribution, type AttributionLine } from "@/components/map3d/Map3dAttribution";
 import { has3dModel } from "@/lib/complex-3d/gate";
 import { BackLink } from "@/components/layout/BackLink";
 import { InfoTip } from "@/components/ui/InfoTip";
@@ -117,6 +119,10 @@ const CHIP_ON =
 const CHIP_OFF =
   "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-950)]";
 const WALKER_KEY = "ziplab.complex3d.walker";
+/** 걷기 길(보행망·계단·횡단보도) 출처 */
+const WALK_ATTRIBUTION: AttributionLine[] = [
+  { text: "보행 경로 © OpenStreetMap contributors (ODbL)", href: "https://www.openstreetmap.org/copyright" },
+];
 
 /** 3D 단지 탐색 — 화면 전체가 모형, 위·오른쪽·아래에 떠 있는 조작 */
 export function Complex3dPage({ complexId }: { complexId: string }) {
@@ -175,7 +181,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
       /* 저장 못 해도 이번 화면에서는 그대로 */
     }
   };
-  const [wheel, setWheel] = useState(false);
+  // 유모차·휠체어는 걷는 사람 중 하나 — 고르면 계단 피하는 길(서버 mode=wheel)
+  const wheel = walkerAvoidsSteps(walker);
   const [walkProgress, setWalkProgress] = useState<{ sec: number; done: boolean } | null>(null);
   // 걷기 — 사람 뒤에서 따라가는 카메라
   const [walkFollow, setWalkFollow] = useState(false);
@@ -1007,6 +1014,19 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         </div>
       ) : null}
 
+      {/* 걷기 길 출처 — 오른쪽 컨트롤 아래 ⓘ (처음 잠깐 펼쳤다가 접힌다, 서울 3D 지도와 같은 부품) */}
+      {ready && !inWindow && mode === "walk" && walk ? (
+        <Map3dAttribution
+          id="walk-attribution-full"
+          className="z-10"
+          style={{ top: "calc(env(safe-area-inset-top) + 236px)" }}
+          align="right"
+          openDir="down"
+          short={walk.attribution}
+          lines={WALK_ATTRIBUTION}
+        />
+      ) : null}
+
       {/* 정보 패널 — 동·타입 필터를 고른 상태에서 모드별 정보를 한곳에 */}
       {windowInfo && sel ? (
         <WindowOverlay
@@ -1296,8 +1316,6 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                 onEnd={endWalk}
                 walker={walker}
                 onWalker={setWalker}
-                wheel={wheel}
-                onWheel={setWheel}
                 progress={walkProgress}
                 onReplay={() => sceneRef.current?.replayWalk()}
                 follow={walkFollow}
@@ -1817,8 +1835,6 @@ function WalkPanel({
   onEnd,
   walker,
   onWalker,
-  wheel,
-  onWheel,
   progress,
   onReplay,
   follow,
@@ -1834,8 +1850,6 @@ function WalkPanel({
   onEnd: () => void;
   walker: WalkerId;
   onWalker: (v: WalkerId) => void;
-  wheel: boolean;
-  onWheel: (v: boolean) => void;
   progress: { sec: number; done: boolean } | null;
   onReplay: () => void;
   follow: boolean;
@@ -1873,34 +1887,8 @@ function WalkPanel({
           </button>
         ) : null}
       </div>
-      {/* 걷는 사람 — 시간(서버 계산)과 모형 모습이 같이 바뀐다 */}
-      <div
-        role="radiogroup"
-        aria-label="걷는 사람"
-        className="-mx-0.5 flex gap-1 overflow-x-auto px-0.5 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {WALKER_IDS.map((id) => (
-          <button
-            key={id}
-            type="button"
-            role="radio"
-            aria-checked={walker === id}
-            onClick={() => onWalker(id)}
-            className={`${chip} ${walker === id ? CHIP_ON : CHIP_OFF}`}
-          >
-            {WALKER_LABEL[id]}
-          </button>
-        ))}
-        <button
-          type="button"
-          role="switch"
-          aria-checked={wheel}
-          onClick={() => onWheel(!wheel)}
-          className={`${chip} ${wheel ? CHIP_ON : CHIP_OFF}`}
-        >
-          유모차·휠체어
-        </button>
-      </div>
+      {/* 걷는 사람 — 한 줄에서 하나만. 시간(서버 계산)과 모형 모습이 같이 바뀐다 */}
+      <WalkerChips walker={walker} onWalker={onWalker} chip={chip} />
       {loading ? (
         <p className="py-2 text-[13px] text-[color:var(--lab-muted)]">
           걷는 길을 찾는 중…
@@ -1983,15 +1971,30 @@ function WalkPanel({
                 </button>
                 {on && progress ? (
                   <div className="flex items-center gap-1.5 px-1.5 pb-1.5 text-[12px] font-semibold tabular-nums text-[color:var(--lab-teal-700)]">
+                    {/* 따라가는 동안은 채운 모양 대신 "따라가는 중…" 글자로 상태를 알린다 (다시 누르면 멈춤) */}
                     <button
                       type="button"
-                      role="switch"
-                      aria-checked={follow}
+                      aria-pressed={follow}
+                      aria-label={follow ? "따라가는 중 — 누르면 멈춤" : "따라가기"}
                       onClick={() => onFollow(!follow)}
-                      className={`${chip} ${follow ? CHIP_ON : CHIP_OFF}`}
+                      className={`${chip} border border-[color:var(--lab-border)] bg-white ${
+                        follow ? "text-[color:var(--lab-teal-700)]" : "text-[color:var(--lab-navy-950)]"
+                      }`}
+                      data-walk-follow={follow ? "on" : "off"}
                     >
                       <Footprints className="h-3.5 w-3.5" aria-hidden />
-                      따라가기
+                      {follow ? (
+                        <>
+                          따라가는 중
+                          <span className="lab-ellipsis" aria-hidden>
+                            <span>.</span>
+                            <span>.</span>
+                            <span>.</span>
+                          </span>
+                        </>
+                      ) : (
+                        "따라가기"
+                      )}
                     </button>
                     <span>
                       {progress.done ? "도착" : "걷는 중"} {mmss(progress.sec)}
@@ -2015,11 +2018,91 @@ function WalkPanel({
       ) : null}
       {walk ? (
         <p className="text-[11px] leading-[15px] text-[color:var(--lab-muted)]">
-          {walk.attribution} · {WALKER_LABEL[walk.walker?.id ?? walker]} 평지 시속{" "}
+          {WALKER_LABEL[walk.walker?.id ?? walker]} 평지 시속{" "}
           {walk.walker ? (walk.walker.mps * 3.6).toFixed(1) : "4.5"}km·경사 반영
           {terrainLabel ? ` · 지형 ${terrainLabel}` : ""} · 역 안 승강장까지 시간 제외
         </p>
       ) : null}
+    </div>
+  );
+}
+
+/**
+ * 걷는 사람 칩 한 줄 (성인 남성 · 성인 여성 · 어린이 · 어르신 · 유모차·휠체어) — 하나만 고른다.
+ * 폭이 모자라면 옆으로 밀고, 더 있는 쪽 끝은 흐리게 보여 준다. 고른 칩은 처음에 보이는 곳으로.
+ */
+function WalkerChips({
+  walker,
+  onWalker,
+  chip,
+}: {
+  walker: WalkerId;
+  onWalker: (v: WalkerId) => void;
+  chip: string;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [edge, setEdge] = useState({ left: false, right: false });
+  const measure = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const left = el.scrollLeft > 2;
+    const right = el.scrollLeft + el.clientWidth < el.scrollWidth - 2;
+    setEdge((e) => (e.left === left && e.right === right ? e : { left, right }));
+  }, []);
+  // 처음 한 번만 고른 칩이 보이게 옮기고, 폭이 바뀌면 흐린 끝을 다시 잰다
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const on = el.querySelector<HTMLElement>('[aria-checked="true"]');
+    if (on && (on.offsetLeft + on.offsetWidth > el.clientWidth || on.offsetLeft < el.scrollLeft)) {
+      el.scrollLeft = on.offsetLeft - 8;
+    }
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [measure]);
+  const fade = 20;
+  const mask =
+    edge.left || edge.right
+      ? `linear-gradient(to right, ${edge.left ? `transparent, #000 ${fade}px` : "#000"}, ${
+          edge.right ? `#000 calc(100% - ${fade}px), transparent` : "#000"
+        })`
+      : undefined;
+  const pick = (id: WalkerId) => onWalker(id);
+  return (
+    <div
+      ref={ref}
+      role="radiogroup"
+      aria-label="걷는 사람"
+      onScroll={measure}
+      data-walker-chips
+      className="-mx-0.5 flex gap-1 overflow-x-auto px-0.5 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      style={mask ? { maskImage: mask, WebkitMaskImage: mask } : undefined}
+    >
+      {WALKER_IDS.map((id, i) => (
+        <button
+          key={id}
+          type="button"
+          role="radio"
+          aria-checked={walker === id}
+          tabIndex={walker === id ? 0 : -1}
+          onClick={() => pick(id)}
+          onKeyDown={(e) => {
+            const d = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
+            if (!d) return;
+            e.preventDefault();
+            const next = WALKER_IDS[(i + d + WALKER_IDS.length) % WALKER_IDS.length]!;
+            pick(next);
+            const btn = ref.current?.querySelectorAll<HTMLElement>('[role="radio"]')[WALKER_IDS.indexOf(next)];
+            btn?.focus();
+            btn?.scrollIntoView({ block: "nearest", inline: "nearest" });
+          }}
+          className={`${chip} ${walker === id ? CHIP_ON : CHIP_OFF}`}
+        >
+          {WALKER_LABEL[id]}
+        </button>
+      ))}
     </div>
   );
 }
