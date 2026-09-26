@@ -48,6 +48,18 @@ function loadEnv() {
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Turso 일시 오류(fetch failed 등) 재시도. 쓰기는 ON CONFLICT DO NOTHING 이라 다시 보내도 안전. */
+async function retry<T>(fn: () => Promise<T>, tries = 5): Promise<T> {
+  for (let i = 1; ; i += 1) {
+    try {
+      return await fn();
+    } catch (e) {
+      if (i >= tries) throw e;
+      await sleep(2000 * i);
+    }
+  }
+}
 const cents = (n: number) => (Number.isFinite(n) && n > 0 ? Math.round((n + 1e-9) * 100) : -1);
 const round2 = (n: number) => Math.round((n + 1e-9) * 100) / 100;
 
@@ -384,13 +396,13 @@ async function main() {
   loadEnv();
   if (!process.env.MOLIT_API_KEY) throw new Error("MOLIT_API_KEY missing");
   const db = createClient({ url: process.env.TURSO_DATABASE_URL!, authToken: process.env.TURSO_AUTH_TOKEN });
-  const targets = await pickTargets(db);
+  const targets = await retry(() => pickTargets(db));
   const outcomes: Outcome[] = [];
   let processed = 0;
   for (const complexId of targets) {
     if (AUTO && processed >= AUTO) break;
     if (quotaHit || apiCalls >= MAX_API) break;
-    const [meta, typesRes, bRes, linkRes] = await db.batch(
+    const [meta, typesRes, bRes, linkRes] = await retry(() => db.batch(
       [
         {
           sql: `SELECT m.apt_name, c.parcel_key FROM apt_complex_master m
@@ -408,7 +420,7 @@ async function main() {
         { sql: `SELECT COUNT(*) n FROM unit_type_building_links WHERE complex_id = ?`, args: [complexId] },
       ],
       "read",
-    );
+    ));
     const name = String(meta.rows[0]?.apt_name ?? "");
     if (Number(linkRes.rows[0]?.n ?? 0) > 0) {
       outcomes.push({ complexId, name, status: "SKIP_HAS_LINKS" });
@@ -483,7 +495,7 @@ async function main() {
       ],
     }));
     for (let i = 0; i < stmts.length; i += 100) {
-      const res = await db.batch(stmts.slice(i, i + 100), "write");
+      const res = await retry(() => db.batch(stmts.slice(i, i + 100), "write"));
       inserted += res.reduce((s, r) => s + r.rowsAffected, 0);
     }
   }
