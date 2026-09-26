@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { HOME_QUICK_NAV } from "@/lib/nav/home-quick-nav";
@@ -12,6 +13,11 @@ export const MOBILE_DOCK_SPACER = "h-[calc(80px+env(safe-area-inset-bottom))] sm
 /** Scroll distance before the dock may hide, and the minimum delta that counts as a direction. */
 const HIDE_AFTER_Y = 80;
 const DELTA = 6;
+/** 지도에서 접은 상태 기억 (브라우저) */
+const MAP_FOLD_KEY = "ziplab:map-dock-folded:v1";
+/** 지도 위 조작(카드·버튼)이 비워 둘 아래 높이 — 펼침: 독(56)+아래 4+틈 8, 접음: 손잡이 */
+const MAP_DOCK_SPACE = { open: "68px", folded: "30px" };
+
 /** After scrolling stops for this long, a hidden dock comes back. */
 const IDLE_SHOW_MS = 1000;
 
@@ -26,6 +32,35 @@ export function MobileDock() {
   const pathname = usePathname();
   const [scrollHidden, setHidden] = useState(false);
   const onMap = isMapHomePath(pathname);
+  // 지도에서는 접었다 펼 수 있다 (기본 펼침)
+  const [folded, setFolded] = useState(false);
+  useEffect(() => {
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (window.localStorage.getItem(MAP_FOLD_KEY) === "1") setFolded(true);
+    } catch {
+      /* 저장소를 못 쓰면 펼침 */
+    }
+  }, []);
+  const mapFolded = onMap && folded;
+  // 지도 위 카드·버튼이 독 높이를 따라가게 (--map-dock-space)
+  useEffect(() => {
+    if (!onMap) return;
+    const root = document.documentElement;
+    root.style.setProperty("--map-dock-space", mapFolded ? MAP_DOCK_SPACE.folded : MAP_DOCK_SPACE.open);
+    return () => {
+      root.style.removeProperty("--map-dock-space");
+    };
+  }, [onMap, mapFolded]);
+  const toggleFold = () =>
+    setFolded((v) => {
+      try {
+        window.localStorage.setItem(MAP_FOLD_KEY, v ? "0" : "1");
+      } catch {
+        /* 기억 못 해도 전환은 된다 */
+      }
+      return !v;
+    });
   // 지도는 스크롤이 없어 늘 보인다
   const hidden = !onMap && scrollHidden;
   const lastY = useRef(0);
@@ -66,6 +101,21 @@ export function MobileDock() {
 
   // 3D 단지 탐색은 화면 전체를 쓴다 (하단 조작 패널과 겹치지 않게)
   if (pathname.startsWith("/complex-3d")) return null;
+
+  if (mapFolded) {
+    return (
+      <button
+        type="button"
+        onClick={toggleFold}
+        aria-label="하단 메뉴 펼치기"
+        aria-expanded={false}
+        className="fixed bottom-[calc(env(safe-area-inset-bottom)+4px)] left-1/2 z-40 inline-flex h-6 -translate-x-1/2 items-center gap-1 rounded-full border border-[color:var(--lab-border)] bg-white/95 px-3 text-[12px] font-semibold text-[color:var(--lab-navy-950)] shadow-sm backdrop-blur before:absolute before:-inset-2 before:content-[''] sm:hidden"
+      >
+        <ChevronUp className="h-3.5 w-3.5" aria-hidden />
+        메뉴
+      </button>
+    );
+  }
 
   return (
     <nav
@@ -110,6 +160,17 @@ export function MobileDock() {
           );
         })}
       </ul>
+      {onMap ? (
+        <button
+          type="button"
+          onClick={toggleFold}
+          aria-label="하단 메뉴 접기"
+          aria-expanded
+          className="absolute -top-3 right-3 inline-flex h-6 w-9 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-muted)] shadow-sm before:absolute before:-inset-2 before:content-['']"
+        >
+          <ChevronDown className="h-4 w-4" aria-hidden />
+        </button>
+      ) : null}
     </nav>
   );
 }

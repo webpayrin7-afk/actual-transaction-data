@@ -101,8 +101,8 @@ const FRAME_TOP_FALLBACK = 64;
 
 /** MapLibre 컨트롤 — 모바일 아래 탭 막대 위로(카드가 뜨면 독이 숨고 카드 위로), 손가락 크기(44px) */
 const CONTROL_CSS = `
-.seoul3d .maplibregl-ctrl-bottom-right{bottom:calc(env(safe-area-inset-bottom) + 76px + var(--map-sheet-peek, 0px))}
-@media (max-width:639.98px){.seoul3d[data-card] .maplibregl-ctrl-bottom-right{bottom:calc(env(safe-area-inset-bottom) + 188px)}}
+.seoul3d .maplibregl-ctrl-bottom-right{bottom:calc(env(safe-area-inset-bottom) + var(--map-dock-space,68px) + 8px + var(--map-sheet-peek, 0px))}
+@media (max-width:639.98px){.seoul3d[data-card] .maplibregl-ctrl-bottom-right{bottom:calc(env(safe-area-inset-bottom) + var(--map-dock-space,68px) + 120px)}}
 @media (min-width:640px){.seoul3d .maplibregl-ctrl-bottom-right{bottom:0}}
 .seoul3d .maplibregl-ctrl-group button{width:40px;height:40px}
 `;
@@ -111,6 +111,12 @@ const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: 
 /** 고른 단지의 초등학교 통학구역 — 대지·건물(청록)과 겹치지 않는 호박색, 옅게 */
 const SCHOOL_ZONE_COLOR = "#d97706";
 type SchoolZoneGeo = { geometry: GeoJSON.FeatureCollection };
+
+/** 하단 메뉴가 차지하는 아래 높이 (px) — MobileDock 이 --map-dock-space 로 알려 준다 (접으면 줄어든다) */
+function dockSpace(): number {
+  const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--map-dock-space"));
+  return Number.isFinite(v) ? v : 68;
+}
 
 function reducedMotion(): boolean {
   try {
@@ -962,7 +968,7 @@ export default function Seoul3DMap({
       const row = document.querySelector("[data-map-controls]")?.getBoundingClientRect();
       const rowBottom = row ? row.bottom - box.getBoundingClientRect().top : 0;
       const top = rowBottom > 0 && rowBottom < box.clientHeight / 2 ? Math.round(rowBottom) + 12 : FRAME_TOP_FALLBACK;
-      const safe = { top, bottom: mobile ? 220 : 148, left: 16, right: 16 };
+      const safe = { top, bottom: mobile ? 152 + dockSpace() : 148, left: 16, right: 16 };
       const maxH = Math.max(0, ...(shape?.buildings ?? []).map((b) => buildingHeight(b)));
       // 아주 높은 탑상형은 덜 기울여 (위가 덜 길어지게)
       const pitch = maxH > 120 ? 50 : FOCUS_PITCH;
@@ -1176,7 +1182,7 @@ export default function Seoul3DMap({
       {controlsSlot ? createPortal(pills, controlsSlot) : null}
       <div
         className={`pointer-events-none absolute inset-x-0 top-0 flex flex-col items-start gap-1.5 px-3 sm:px-4 ${
-          controlsSlot ? "pt-[calc(env(safe-area-inset-top)+60px)] sm:pt-[64px]" : "pt-[54px] sm:pt-[60px]"
+          controlsSlot ? "pt-[calc(env(safe-area-inset-top)+102px)] sm:pt-[106px]" : "pt-[54px] sm:pt-[60px]"
         }`}
       >
         <div className="flex max-w-full items-center gap-1.5">
@@ -1209,7 +1215,7 @@ export default function Seoul3DMap({
         type="button"
         onClick={resetView}
         aria-label="보기 초기화 — 북쪽 위, 기본 기울기"
-        className="absolute left-3 bottom-[calc(env(safe-area-inset-bottom)+132px+var(--map-sheet-peek,0px))] inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)] shadow-sm sm:left-4 sm:bottom-[calc(env(safe-area-inset-bottom)+48px)]"
+        className="absolute left-3 bottom-[calc(env(safe-area-inset-bottom)+var(--map-dock-space,68px)+64px+var(--map-sheet-peek,0px))] inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)] shadow-sm sm:left-4 sm:bottom-[calc(env(safe-area-inset-bottom)+48px)]"
         style={selected ? { visibility: "hidden" } : undefined}
       >
         <Compass className="h-5 w-5" style={{ transform: `rotate(${-bearing}deg)` }} aria-hidden />
@@ -1222,7 +1228,7 @@ export default function Seoul3DMap({
           onClick={toggleSatellite}
           aria-pressed={satellite}
           aria-label={satellite ? "위성영상 끄기" : "위성영상으로 보기"}
-          className={`absolute left-3 bottom-[calc(env(safe-area-inset-bottom)+184px+var(--map-sheet-peek,0px))] inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-sm sm:left-4 sm:bottom-[calc(env(safe-area-inset-bottom)+100px)] ${
+          className={`absolute left-3 bottom-[calc(env(safe-area-inset-bottom)+var(--map-dock-space,68px)+116px+var(--map-sheet-peek,0px))] inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-sm sm:left-4 sm:bottom-[calc(env(safe-area-inset-bottom)+100px)] ${
             satellite
               ? "border-[color:var(--lab-teal-700)] bg-[color:var(--lab-teal-700)] text-white"
               : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)]"
@@ -1242,14 +1248,14 @@ export default function Seoul3DMap({
         ]}
         className={
           selected
-            ? "z-10 bottom-[calc(env(safe-area-inset-bottom)+190px)] sm:bottom-[140px]"
-            : "bottom-[calc(env(safe-area-inset-bottom)+80px+var(--map-sheet-peek,0px))] sm:bottom-1.5"
+            ? "z-10 bottom-[calc(env(safe-area-inset-bottom)+var(--map-dock-space,68px)+122px)] sm:bottom-[140px]"
+            : "bottom-[calc(env(safe-area-inset-bottom)+var(--map-dock-space,68px)+12px+var(--map-sheet-peek,0px))] sm:bottom-1.5"
         }
       />
 
       {/* 아래: 고른 단지 카드 — 작게(약 108px): 이름·위치 / 최근 거래·지표 / 단지 상세 · 3D 탐색 */}
       {selected ? (
-        <div className="absolute inset-x-0 bottom-0 z-10 px-3 pb-[calc(env(safe-area-inset-bottom)+68px)] sm:p-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 z-10 px-3 pb-[calc(env(safe-area-inset-bottom)+var(--map-dock-space,68px))] sm:p-4 sm:pb-4">
           <div
             className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] px-3.5 pb-2.5 pt-2.5 shadow-lg"
             data-map3d-card

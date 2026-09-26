@@ -329,7 +329,7 @@ export function MapBriefingSheet({
 
   return (
     <div
-      className={`pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+76px)] z-30 flex justify-center px-3 sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-[60px] sm:px-0 ${
+      className={`pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+var(--map-dock-space,68px)+8px)] z-30 flex justify-center px-3 sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-[60px] sm:px-0 ${
         hidden ? "hidden" : ""
       }`}
       data-map-briefing={expanded ? "expanded" : "peek"}

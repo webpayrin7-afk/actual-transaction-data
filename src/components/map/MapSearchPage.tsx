@@ -859,10 +859,8 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
         줄은 3D 화면(z-20)·하단 독(z-40) 위(z-50) — 2D·3D에서 같은 자리. 팝오버는 fixed 라 스크롤 줄에 잘리지 않는다.
       */}
       <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-2 pt-[calc(env(safe-area-inset-top)+8px)] sm:pt-3">
-        <div
-          className="pointer-events-auto relative z-50 flex items-center gap-1.5 pl-3 pr-2 sm:pl-4 sm:pr-0"
-          data-map-controls
-        >
+        <div className="pointer-events-auto relative z-50 flex flex-col gap-1" data-map-controls>
+        <div className="flex items-center gap-1.5 pl-3 pr-2 sm:pl-4 sm:pr-0">
           {/* 브랜드 — 집 모양만 (상단바 로고 대신, 모바일만) */}
           <span
             className="inline-flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[color:var(--lab-border)] bg-white shadow-sm sm:hidden"
@@ -886,7 +884,6 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
                 else if (view3d) close3d(view3dRef.current?.() ?? view3d);
               }}
             />
-            <span className="h-6 w-px shrink-0 bg-[color:var(--lab-navy-950)]/25" aria-hidden />
             <div className="inline-flex h-9 shrink-0 rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] p-0.5 shadow-sm" role="group" aria-label="거래 유형">
               {(["trade", "jeonse"] as const).map((d) => (
                 <button
@@ -931,42 +928,6 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
                 </span>
               ) : null}
             </button>
-            {!view3d && level === "complex" ? (
-              // 마커에 보일 값 — 조건(필터)이 아니라 보기 방식 (3D는 이 자리에 범례 알약)
-              <button
-                type="button"
-                aria-haspopup="dialog"
-                aria-label={`마커 표시: ${MARKER_METRICS.find((m) => m.id === metric)!.label}`}
-                onClick={() => setMetricOpen(true)}
-                className="relative inline-flex h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] pl-2.5 pr-2 text-[14px] font-semibold leading-5 text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']"
-              >
-                <MapPin className="h-4 w-4" aria-hidden />
-                마커: {MARKER_METRICS.find((m) => m.id === metric)!.label}
-                <ChevronDown className="h-4 w-4 opacity-60" aria-hidden />
-              </button>
-            ) : null}
-            {/* 3D 지도의 지표(범례) 알약 · 구 이동 — Seoul3DMap 이 여기에 그린다 (portal) */}
-            <span ref={setSlot3d} className="contents" />
-            {!view3d && (level === "complex" || level === "dong") ? (
-              <button
-                type="button"
-                aria-pressed={redevOn}
-                onClick={() => {
-                  setRedevOn((v) => !v);
-                  setZoneId(null);
-                  zoneKeyRef.current = "";
-                  if (redevOn) setZones([]);
-                }}
-                className={`relative inline-flex h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border pl-2.5 pr-3 text-[14px] font-semibold leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
-                  redevOn
-                    ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
-                    : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)]"
-                }`}
-              >
-                <Construction className="h-4 w-4" aria-hidden />
-                정비구역
-              </button>
-            ) : null}
             {CHIP_ORDER.map((key) => {
               const def = key === "heating" ? null : chipDefs.find((d) => d.id === key)!;
               const on = def ? !isFullRange(def, conditions.ranges[def.id]) : conditions.heating.length > 0;
@@ -998,6 +959,46 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
               );
             })}
           </div>
+        </div>
+        {/* 둘째 줄 — 보기 방식: 마커 값(2D) · 3D 지표 범례와 구 이동(Seoul3DMap이 portal) · 정비구역 */}
+        <div className="flex items-center gap-1.5 overflow-x-auto px-3 py-0.5 sm:px-4 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none" }}>
+              {!view3d && level === "complex" ? (
+                // 마커에 보일 값 — 조건(필터)이 아니라 보기 방식 (3D는 이 자리에 범례 알약)
+                <button
+                  type="button"
+                  aria-haspopup="dialog"
+                  aria-label={`마커 표시: ${MARKER_METRICS.find((m) => m.id === metric)!.label}`}
+                  onClick={() => setMetricOpen(true)}
+                  className="relative inline-flex h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] pl-2.5 pr-2 text-[14px] font-semibold leading-5 text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']"
+                >
+                  <MapPin className="h-4 w-4" aria-hidden />
+                  마커: {MARKER_METRICS.find((m) => m.id === metric)!.label}
+                  <ChevronDown className="h-4 w-4 opacity-60" aria-hidden />
+                </button>
+              ) : null}
+              {/* 3D 지도의 지표(범례) 알약 · 구 이동 — Seoul3DMap 이 여기에 그린다 (portal) */}
+              <span ref={setSlot3d} className="contents" />
+              {!view3d && (level === "complex" || level === "dong") ? (
+                <button
+                  type="button"
+                  aria-pressed={redevOn}
+                  onClick={() => {
+                    setRedevOn((v) => !v);
+                    setZoneId(null);
+                    zoneKeyRef.current = "";
+                    if (redevOn) setZones([]);
+                  }}
+                  className={`relative inline-flex h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border pl-2.5 pr-3 text-[14px] font-semibold leading-5 shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
+                    redevOn
+                      ? "border-[color:var(--lab-brand-primary)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
+                      : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)]"
+                  }`}
+                >
+                  <Construction className="h-4 w-4" aria-hidden />
+                  정비구역
+                </button>
+              ) : null}
+        </div>
         </div>
         <div className="flex flex-col items-start gap-2 px-3 sm:px-4">
           {redevOn && (level === "complex" || level === "dong") ? (
@@ -1045,10 +1046,10 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
         type="button"
         onClick={locate}
         aria-label="내 위치로 이동"
-        className="absolute right-3 bottom-[calc(env(safe-area-inset-bottom)+84px+var(--map-sheet-peek,0px))] inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)] shadow-sm sm:right-4 sm:bottom-[calc(env(safe-area-inset-bottom)+16px)]"
+        className="absolute right-3 bottom-[calc(env(safe-area-inset-bottom)+var(--map-dock-space,68px)+16px+var(--map-sheet-peek,0px))] inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)] shadow-sm sm:right-4 sm:bottom-[calc(env(safe-area-inset-bottom)+16px)]"
         style={
           selected
-            ? { bottom: `calc(env(safe-area-inset-bottom) + ${cardMore ? 244 : 188}px)`, visibility: cardMore ? "hidden" : undefined }
+            ? { bottom: `calc(env(safe-area-inset-bottom) + var(--map-dock-space,68px) + ${cardMore ? 176 : 120}px)`, visibility: cardMore ? "hidden" : undefined }
             : undefined
         }
       >
@@ -1057,7 +1058,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
 
       {/* 하단 가운데: 화면 가운데 구·동 상세로 이동 */}
       {centerLink && !selected ? (
-        <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+84px+var(--map-sheet-peek,0px))] flex justify-center px-16 sm:bottom-[calc(env(safe-area-inset-bottom)+16px)]">
+        <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+var(--map-dock-space,68px)+16px+var(--map-sheet-peek,0px))] flex justify-center px-16 sm:bottom-[calc(env(safe-area-inset-bottom)+16px)]">
           <Link
             href={centerLink.href}
             className="pointer-events-auto inline-flex h-11 min-w-0 items-center gap-0.5 rounded-full bg-[color:var(--lab-navy-950)] pl-4 pr-2.5 text-[14px] font-semibold leading-5 text-white shadow-lg"
@@ -1070,7 +1071,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
 
       {/* 하단: 선택 단지 카드 — 작게(약 108px): 이름·위치 / 최근 거래·12개월 / 단지 상세 · 3D. 나머지 값은 '더보기' */}
       {selected ? (
-        <div className="absolute inset-x-0 bottom-0 px-3 pb-[calc(env(safe-area-inset-bottom)+68px)] sm:p-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 px-3 pb-[calc(env(safe-area-inset-bottom)+var(--map-dock-space,68px))] sm:p-4 sm:pb-4">
           <div
             className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] px-3.5 pb-2.5 pt-2.5 shadow-lg"
             data-map2d-card
@@ -1183,7 +1184,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
       ) : null}
 
       {zone && !selected ? (
-        <div className="absolute inset-x-0 bottom-0 px-4 pb-[calc(env(safe-area-inset-bottom)+68px)] sm:p-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 px-4 pb-[calc(env(safe-area-inset-bottom)+var(--map-dock-space,68px))] sm:p-4 sm:pb-4">
           <div className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] p-4 shadow-lg">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">

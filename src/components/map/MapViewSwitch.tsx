@@ -9,7 +9,7 @@ export type MapViewMode = "2d" | "3d";
 export function MapViewSwitch({ mode, onChange }: { mode: MapViewMode; onChange: (mode: MapViewMode) => void }) {
   return (
     <div
-      className="inline-flex h-9 w-[82px] shrink-0 rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] p-0.5 shadow-sm"
+      className="inline-flex h-9 shrink-0 rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] p-0.5 shadow-sm"
       role="group"
       aria-label="지도 보기 방식"
     >
@@ -27,7 +27,7 @@ export function MapViewSwitch({ mode, onChange }: { mode: MapViewMode; onChange:
           onClick={() => {
             if (mode !== id) onChange(id);
           }}
-          className={`relative w-[38px] rounded-full text-[14px] leading-5 transition-colors before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
+          className={`relative rounded-full px-3.5 text-[14px] leading-5 transition-colors before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] ${
             mode === id
               ? "bg-[color:var(--lab-navy-950)] font-semibold text-white"
               : "font-medium text-[color:var(--lab-navy-950)]"
