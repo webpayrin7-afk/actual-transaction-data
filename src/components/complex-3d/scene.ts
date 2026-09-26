@@ -16,6 +16,7 @@ import type { Complex3d, Complex3dBuilding, FloorBand, Poi3d, Ring } from "@/lib
 import type { TerrainGridPayload } from "@/lib/complex-3d/ground";
 import { WALKER_LOOK, type WalkerId, type WalkerLook } from "@/lib/complex-3d/walker-profiles";
 import { facadeSunColor, firstPrismHit, makePrism, prismsInFront, sunBlocked, type Prism } from "@/components/complex-3d/facade-sun";
+import { FacadeKit, approvalYear, bayOf, dongPaintText, eraOf, facadeUv, floorHeightOf, mergeWithGroups } from "@/components/complex-3d/facade-texture";
 
 export const FLOOR_M = 3;
 /** 평소 둘러보기에서 가장 가까이 다가갈 수 있는 거리 (m) — 걷기 따라가기 중에는 풀어 둔다 */
@@ -480,6 +481,10 @@ export class Complex3dScene {
   };
   private ownMeshes = new Map<string, THREE.Mesh>();
   private ownMaterial = new THREE.MeshStandardMaterial({ color: OWN, roughness: 0.85, metalness: 0 });
+  /** 외벽 무늬 (캔버스로 그린 창·층 띠) — 동마다 [지붕, 벽] 재질, 옆벽 동 번호 판 */
+  private facade: FacadeKit;
+  private ownLook = new Map<string, THREE.Material[]>();
+  private ownDecals = new Map<string, THREE.Mesh[]>();
   private raycaster = new THREE.Raycaster();
   private data: Complex3d | null = null;
   private mPerLat = 111_320;
@@ -508,6 +513,7 @@ export class Complex3dScene {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.setClearColor(0xf4f7f9);
+    this.facade = new FacadeKit(Math.min(4, this.renderer.capabilities.getMaxAnisotropy()));
     // 먼 곳은 하늘색으로 흐리게 — 넓은 바닥의 가장자리가 끊겨 보이지 않게
     this.scene.fog = new THREE.Fog(0xf4f7f9, FOG_NEAR, FOG_FAR);
     host.appendChild(this.renderer.domElement);
@@ -733,23 +739,83 @@ export class Complex3dScene {
     return { x: (lng - c.lng) * this.mPerLng, z: -(lat - c.lat) * this.mPerLat };
   }
 
-  private extrude(rings: Ring[], from: number, to: number): THREE.BufferGeometry | null {
+  /**
+   * 외곽선을 세운다. facade를 주면 벽 UV를 미터 기준(창 칸 × 층)으로 잡고 지붕(그룹 0)·벽(그룹 1)을 나눠 둔다 — 재질 [지붕, 벽].
+   */
+  private extrude(rings: Ring[], from: number, to: number, facade?: { floorH: number; bay: number }): THREE.BufferGeometry | null {
     const geos: THREE.BufferGeometry[] = [];
     for (const ring of rings) {
       if (ring.length < 4) continue;
-      const shape = new THREE.Shape(
-        ring.map(([lng, lat]) => {
-          const p = this.toLocal(lng, lat);
-          return new THREE.Vector2(p.x, -p.z);
-        }),
-      );
-      const g = new THREE.ExtrudeGeometry(shape, { depth: Math.max(0.5, to - from), bevelEnabled: false });
+      const pts = ring.map(([lng, lat]) => {
+        const p = this.toLocal(lng, lat);
+        return new THREE.Vector2(p.x, -p.z);
+      });
+      const shape = new THREE.Shape(pts);
+      let maxEdge = 0;
+      if (facade) for (let i = 1; i < pts.length; i++) maxEdge = Math.max(maxEdge, pts[i]!.distanceTo(pts[i - 1]!));
+      const g = new THREE.ExtrudeGeometry(shape, {
+        depth: Math.max(0.5, to - from),
+        bevelEnabled: false,
+        ...(facade ? { UVGenerator: facadeUv(facade.floorH, facade.bay, maxEdge) } : {}),
+      });
       g.rotateX(-Math.PI / 2);
       g.translate(0, from, 0);
       geos.push(g);
     }
     if (!geos.length) return null;
+    if (facade) return mergeWithGroups(geos);
     return geos.length === 1 ? geos[0]! : mergeGeometries(geos);
+  }
+
+  /**
+   * 옆벽(짧은 끝면) 꼭대기 가까이에 동 번호 판 — 실제 아파트처럼. 옆벽이 없는 탑상형은 남쪽을 가장 많이 보는 벽 하나에.
+   */
+  private addDongPaint(b: Complex3dBuilding, y0: number, h: number, floorH: number) {
+    const text = dongPaintText(b.dong);
+    const ring = b.rings?.[0];
+    if (!text || !ring || h < 9) return;
+    const pts = ring.map(([lng, lat]) => this.toLocal(lng, lat));
+    const cx = pts.reduce((a, q) => a + q.x, 0) / pts.length;
+    const cz = pts.reduce((a, q) => a + q.z, 0) / pts.length;
+    const walls: Array<{ len: number; mx: number; mz: number; nx: number; nz: number }> = [];
+    for (let i = 1; i < pts.length; i++) {
+      const p = pts[i - 1]!;
+      const q = pts[i]!;
+      const len = Math.hypot(q.x - p.x, q.z - p.z);
+      if (len < 1e-3) continue;
+      let nx = -(q.z - p.z) / len;
+      let nz = (q.x - p.x) / len;
+      const mx = (p.x + q.x) / 2;
+      const mz = (p.z + q.z) / 2;
+      if (nx * (mx - cx) + nz * (mz - cz) < 0) {
+        nx = -nx;
+        nz = -nz;
+      }
+      walls.push({ len, mx, mz, nx, nz });
+    }
+    const maxLen = Math.max(0, ...walls.map((w) => w.len));
+    const usable = walls.filter((w) => w.len >= 6);
+    let picks = usable
+      .filter((w) => w.len < maxLen * 0.5 && w.len <= 20)
+      .sort((a, c) => c.len - a.len)
+      .slice(0, 2);
+    if (!picks.length) picks = usable.sort((a, c) => c.nz - a.nz).slice(0, 1);
+    if (!picks.length) return;
+    const mat = this.facade.label(text);
+    const out: THREE.Mesh[] = [];
+    for (const w of picks) {
+      // 글자 높이 약 3~6m (실제 아파트처럼 두 층 남짓) — 판은 2:1 (텍스처 128×64, 글자는 판 높이의 약 60%)
+      const glyph = Math.min(6, Math.max(3, h * 0.1));
+      const ww = Math.min(w.len * 0.9, (glyph / 0.6) * 2);
+      const planeH = ww / 2;
+      const plane = new THREE.Mesh(new THREE.PlaneGeometry(ww, planeH), mat);
+      plane.rotation.y = Math.atan2(w.nx, w.nz);
+      plane.position.set(w.mx + w.nx * 0.08, y0 + h - Math.max(1.2, floorH * 0.6) - planeH / 2, w.mz + w.nz * 0.08);
+      plane.renderOrder = 1;
+      this.groups.own.add(plane);
+      out.push(plane);
+    }
+    this.ownDecals.set(b.id, out);
   }
 
   setData(data: Complex3d, keepCamera = false) {
@@ -764,10 +830,13 @@ export class Complex3dScene {
       this.walkLineMat,
       this.walkCaseMat,
       ...walkerShared(),
+      ...this.facade.shared(),
     ]);
     for (const g of Object.values(this.groups)) disposeGroup(g, keep);
     this.walker = null;
     this.ownMeshes.clear();
+    this.ownLook.clear();
+    this.ownDecals.clear();
     this.labelEls.clear();
     this.baseById.clear();
     this.prisms = null;
@@ -776,14 +845,25 @@ export class Complex3dScene {
     // 우리 단지 동
     const edgeMat = new THREE.LineBasicMaterial({ color: OWN_EDGE, transparent: true, opacity: 0.55 });
     let maxH = 20;
+    // 사용승인 연도를 모르는 동은 단지 안 다른 동의 가운데 연도로 (시대별 외벽 모양)
+    const years = data.buildings
+      .map((b) => approvalYear(b.approvalDate))
+      .filter((y): y is number => y != null)
+      .sort((a, c) => a - c);
+    const complexYear = years.length ? years[Math.floor(years.length / 2)]! : null;
     for (const b of data.buildings) {
       if (!b.rings) continue;
       const { h } = buildingHeight(b);
       maxH = Math.max(maxH, h);
       const y0 = this.base(b.id);
-      const geo = this.extrude(b.rings, y0, y0 + h);
+      const era = eraOf(approvalYear(b.approvalDate) ?? complexYear);
+      const floorH = floorHeightOf(h, b.floors);
+      const geo = this.extrude(b.rings, y0, y0 + h, { floorH, bay: bayOf(era) });
       if (!geo) continue;
-      const mesh = new THREE.Mesh(geo, this.ownMaterial);
+      const look = this.facade.own(era, b.residential || !!b.dong, OWN);
+      this.ownLook.set(b.id, look);
+      this.addDongPaint(b, y0, h, floorH);
+      const mesh = new THREE.Mesh(geo, look);
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       mesh.userData.id = b.id;
@@ -808,16 +888,14 @@ export class Complex3dScene {
     for (const n of data.neighbors) {
       const { h } = buildingHeight(n);
       const y0 = this.baseOf(n.rings);
-      const g = this.extrude(n.rings, y0, y0 + h);
-      if (g) neighborGeos.push(g.index ? g.toNonIndexed() : g);
+      // 주변 건물도 층 띠·창 무늬 (대비 낮은 64px 한 장, 동 번호 없음)
+      const g = this.extrude(n.rings, y0, y0 + h, { floorH: floorHeightOf(h, n.floors), bay: 3 });
+      if (g) neighborGeos.push(g);
     }
     if (neighborGeos.length) {
-      const merged = mergeGeometries(neighborGeos);
+      const merged = mergeWithGroups(neighborGeos);
       if (merged) {
-        const mesh = new THREE.Mesh(
-          merged,
-          new THREE.MeshStandardMaterial({ color: NEIGHBOR, roughness: 0.95, transparent: true, opacity: 0.9 }),
-        );
+        const mesh = new THREE.Mesh(merged, this.facade.neighbor(NEIGHBOR));
         mesh.castShadow = true;
         mesh.receiveShadow = true;
         this.groups.neighbors.add(mesh);
@@ -1588,13 +1666,11 @@ export class Complex3dScene {
     // 고른 동은 칠은 그대로(타입 색 또는 기본색 — 흐리게 된 동이면 기본색으로) 두고 얇은 진한 남색 테두리로만 표시 (기본 동 테두리는 연한 청록)
     for (const [id, mesh] of this.ownMeshes) {
       const typed = !!this.highlight?.has(id);
-      mesh.material = !this.highlight
-        ? this.ownMaterial
-        : typed
-          ? this.hiMaterial
-          : id === this.selectedId
-            ? this.ownMaterial
-            : this.dimMaterial;
+      const look = this.ownLook.get(id) ?? this.ownMaterial;
+      mesh.material = !this.highlight ? look : typed ? this.hiMaterial : id === this.selectedId ? look : this.dimMaterial;
+      // 흐리게 된 동은 동 번호도 감춘다
+      const dimmed = mesh.material === this.dimMaterial;
+      for (const d of this.ownDecals.get(id) ?? []) d.visible = !dimmed;
     }
     if (this.selOutline) {
       this.scene.remove(this.selOutline);
@@ -2492,6 +2568,7 @@ export class Complex3dScene {
       if (Array.isArray(mat)) mat.forEach((x) => x.dispose());
       else mat?.dispose?.();
     });
+    this.facade.dispose();
     this.renderer.dispose();
     this.renderer.domElement.remove();
     this.labels.domElement.remove();
