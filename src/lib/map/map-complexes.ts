@@ -104,6 +104,8 @@ export const MAP_COMPLEX_LITE_KEYS = [
   "perPyeongMan",
   "change1yPct",
   "buildYear",
+  // 3D 이름표 값을 2D 마커 표시(전세가율)와 같게
+  "jeonseRatioPct",
 ] as const satisfies ReadonlyArray<keyof MapComplex>;
 export type MapComplexLite = Pick<MapComplex, (typeof MAP_COMPLEX_LITE_KEYS)[number]>;
 

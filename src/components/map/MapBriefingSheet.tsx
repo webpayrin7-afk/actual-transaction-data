@@ -1,0 +1,387 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useId, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChevronRight, ChevronUp, MapPin } from "lucide-react";
+import { LabDataLoading, LabLoadingDots } from "@/components/ui/LabLoading";
+import { LabTabs, labTabPanelId } from "@/components/ui/LabTabs";
+import type { MarketDealItem, MarketHomeResponse, MarketVolumeItem } from "@/lib/market/home";
+import { fetchMarketHome, MARKET_HOME_QUERY_KEY, MARKET_HOME_STALE_MS } from "@/lib/market/home-client";
+import type { MapLocateResult } from "@/lib/map/locate";
+import { seoulToday } from "@/lib/market/time";
+import { formatArea, formatEok } from "@/lib/utils/format";
+
+/**
+ * 지도 첫 화면 '오늘의 시장 브리핑' — 접힌 한 줄(신고가 · 하락 · 거래 급증)과, 끌어 올리거나 누르면 펼쳐지는 짧은 목록.
+ * 데이터는 /market 과 같은 /api/market-home (같은 React Query 키) — 새 집계·대량 조회 없음, 목록마다 5개만 그린다.
+ * 항목을 누르면 그 단지(못 찾으면 동·구) 위치만 /api/map/locate 로 한 곳씩 찾아 지도를 옮기고 시트를 접는다.
+ *
+ * 모바일: 아래 독(탭 막대) 바로 위 떠 있는 시트, 접힘 88px · 펼침 화면 높이의 55%.
+ * 데스크톱(≥ sm): 오른쪽 위 패널 (누르면 아래로 펼침).
+ */
+
+export const BRIEFING_PEEK_PX = 88;
+/** 목록마다 최대 개수 — 전체는 /market */
+const LIST_MAX = 5;
+const EXPANDED_RATIO = 0.55;
+
+type BriefTab = "singoga" | "drop" | "surge";
+type BriefItem = {
+  key: string;
+  name: string;
+  gu: string;
+  dong: string;
+  meta: string;
+  value: string;
+  sub: string | null;
+  tone: "up" | "down" | null;
+  href: string;
+};
+
+export type BriefingTarget = MapLocateResult & { name: string; href: string };
+
+function dealItem(item: MarketDealItem): BriefItem {
+  const pct = item.changePct;
+  return {
+    key: `${item.kind}-${item.id}`,
+    name: item.aptName,
+    gu: item.gu,
+    dong: item.dong,
+    meta: `${item.gu} ${item.dong} · ${formatArea(item.exclusiveArea)}`,
+    value: formatEok(item.dealAmount),
+    sub: pct != null ? `${pct > 0 ? "+" : ""}${pct}%` : null,
+    tone: pct == null || pct === 0 ? null : pct > 0 ? "up" : "down",
+    href: item.href,
+  };
+}
+
+function surgeItem(item: MarketVolumeItem): BriefItem {
+  return {
+    key: `surge-${item.aptName}|${item.gu}|${item.dong}`,
+    name: item.aptName,
+    gu: item.gu,
+    dong: item.dong,
+    meta: `${item.gu} ${item.dong} · 최근 30일 ${item.recentCount}건`,
+    value: `+${item.increaseCount}건`,
+    sub: item.growthPct != null ? `+${item.growthPct}%` : null,
+    tone: "up",
+    href: item.href,
+  };
+}
+
+function monthDay(iso: string): string {
+  return `${Number(iso.slice(5, 7))}월 ${Number(iso.slice(8, 10))}일`;
+}
+
+const TONE_COLOR = { up: "var(--lab-change-up)", down: "var(--lab-change-down)" } as const;
+
+function PeekLine({ data }: { data: MarketHomeResponse }) {
+  const k = data.kpis;
+  const surge = k.volumeSurgeCount ?? 0;
+  const day = data.discoveryDate && data.discoveryDate !== seoulToday() ? monthDay(data.discoveryDate) : "오늘";
+  if (!k.singogaCount && !k.dropCount && !surge) {
+    return <>{day === "오늘" ? "오늘은 아직 새 신고가·하락 거래가 없어요" : `${day} 새 신고가·하락 거래 없음`}</>;
+  }
+  return (
+    <>
+      {day} 신고가{" "}
+      <span className="tabular-nums" style={k.singogaCount ? { color: TONE_COLOR.up } : undefined}>
+        {k.singogaCount.toLocaleString("ko-KR")}
+      </span>
+      <span className="px-1 text-[color:var(--lab-muted)]" aria-hidden>
+        ·
+      </span>
+      하락{" "}
+      <span className="tabular-nums" style={k.dropCount ? { color: TONE_COLOR.down } : undefined}>
+        {k.dropCount.toLocaleString("ko-KR")}
+      </span>
+      <span className="px-1 text-[color:var(--lab-muted)]" aria-hidden>
+        ·
+      </span>
+      거래 급증 <span className="tabular-nums text-[color:var(--lab-teal-700)]">{surge.toLocaleString("ko-KR")}곳</span>
+    </>
+  );
+}
+
+export function MapBriefingSheet({
+  hidden = false,
+  onTarget,
+}: {
+  /** 단지 카드가 떠 있을 때 등 — 시트를 숨긴다 (상태는 그대로) */
+  hidden?: boolean;
+  /** 항목 위치를 찾았을 때 — 지도를 옮긴다 */
+  onTarget: (t: BriefingTarget) => void;
+}) {
+  const query = useQuery({
+    queryKey: MARKET_HOME_QUERY_KEY,
+    queryFn: fetchMarketHome,
+    staleTime: MARKET_HOME_STALE_MS,
+  });
+  const qc = useQueryClient();
+  const data = query.data;
+  const [expanded, setExpanded] = useState(false);
+  const [tab, setTab] = useState<BriefTab>("singoga");
+  const [busyKey, setBusyKey] = useState<string | null>(null);
+  const [failKey, setFailKey] = useState<string | null>(null);
+  /** 끄는 중 높이(px) — null 이면 접힘/펼침 높이 */
+  const [dragH, setDragH] = useState<number | null>(null);
+  const drag = useRef<{ y: number; h: number; max: number; moved: boolean; id: number } | null>(null);
+  /** 끌기로 끝난 누름은 탭(열고 닫기)으로 치지 않는다 */
+  const suppressClick = useRef(false);
+  const panelId = useId();
+  const tabPrefix = "map-briefing";
+
+  // 펼친 채 Esc — 접는다
+  useEffect(() => {
+    if (!expanded) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setExpanded(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [expanded]);
+
+  const lists: Record<BriefTab, BriefItem[]> = {
+    singoga: (data?.singoga ?? []).slice(0, LIST_MAX).map(dealItem),
+    drop: (data?.drops ?? []).slice(0, LIST_MAX).map(dealItem),
+    surge: (data?.volumeSurges ?? []).slice(0, LIST_MAX).map(surgeItem),
+  };
+  const tabs: { id: BriefTab; label: string; count?: string }[] = [
+    { id: "singoga", label: "신고가", count: data ? String(data.kpis.singogaCount) : undefined },
+    { id: "drop", label: "하락", count: data ? String(data.kpis.dropCount) : undefined },
+    { id: "surge", label: "거래 급증", count: data ? String(data.kpis.volumeSurgeCount ?? 0) : undefined },
+  ];
+  const items = lists[tab];
+
+  const pick = async (item: BriefItem) => {
+    if (busyKey) return;
+    setBusyKey(item.key);
+    setFailKey(null);
+    try {
+      const hit = await qc.fetchQuery({
+        queryKey: ["map-locate", item.name, item.gu, item.dong, item.href],
+        staleTime: Infinity,
+        queryFn: async (): Promise<MapLocateResult | null> => {
+          const qs = new URLSearchParams({ name: item.name, gu: item.gu, dong: item.dong });
+          // 단지 링크의 지역 — 같은 구 이름이 여러 시에 있을 때 가른다
+          const region = new URL(item.href, "http://x").searchParams.get("region");
+          if (region) qs.set("region", region);
+          const res = await fetch(`/api/map/locate?${qs}`);
+          if (res.status === 404) return null;
+          if (!res.ok) throw new Error("locate failed");
+          const body = (await res.json()) as MapLocateResult & { status: string };
+          return body.status === "ok" ? body : null;
+        },
+      });
+      if (!hit) {
+        setFailKey(item.key);
+        return;
+      }
+      setExpanded(false);
+      onTarget({ ...hit, name: item.name, href: item.href });
+    } catch {
+      setFailKey(item.key);
+    } finally {
+      setBusyKey(null);
+    }
+  };
+
+  /* ── 끌어서 열고 닫기 (모바일) ── */
+  const onPointerDown = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    const sheet = e.currentTarget.parentElement;
+    const max = Math.round(window.innerHeight * EXPANDED_RATIO);
+    drag.current = { y: e.clientY, h: sheet?.getBoundingClientRect().height ?? BRIEFING_PEEK_PX, max, moved: false, id: e.pointerId };
+  };
+  const onPointerMove = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    const d = drag.current;
+    if (!d || d.id !== e.pointerId) return;
+    const dy = e.clientY - d.y;
+    if (!d.moved) {
+      if (Math.abs(dy) < 6) return;
+      d.moved = true;
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
+    }
+    setDragH(Math.max(BRIEFING_PEEK_PX, Math.min(d.max, d.h - dy)));
+  };
+  const endDrag = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    const d = drag.current;
+    drag.current = null;
+    if (!d || !d.moved) return;
+    suppressClick.current = true;
+    const h = Math.max(BRIEFING_PEEK_PX, Math.min(d.max, d.h - (e.clientY - d.y)));
+    // 방향 우선 — 조금만 끌어도 끈 쪽으로
+    const moved = h - d.h;
+    setExpanded(Math.abs(moved) > 24 ? moved > 0 : h > (BRIEFING_PEEK_PX + d.max) / 2);
+    setDragH(null);
+  };
+
+  const height = dragH != null ? `${dragH}px` : expanded ? `${EXPANDED_RATIO * 100}dvh` : `${BRIEFING_PEEK_PX}px`;
+  const animate = dragH == null;
+
+  return (
+    <div
+      className={`pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+76px)] z-30 flex justify-center px-3 sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-[60px] sm:px-0 ${
+        hidden ? "hidden" : ""
+      }`}
+      data-map-briefing={expanded ? "expanded" : "peek"}
+    >
+      <section
+        aria-label="오늘의 시장 브리핑"
+        className={`pointer-events-auto flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] shadow-[0_8px_24px_rgb(15_23_42/0.16)] sm:w-[340px] sm:!h-auto ${
+          animate ? "transition-[height] duration-200 ease-out motion-reduce:transition-none" : ""
+        }`}
+        style={{ height }}
+      >
+        <button
+          type="button"
+          aria-expanded={expanded}
+          aria-controls={panelId}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={() => {
+            drag.current = null;
+            setDragH(null);
+          }}
+          onClick={() => {
+            if (suppressClick.current) {
+              suppressClick.current = false;
+              return;
+            }
+            setExpanded((v) => !v);
+          }}
+          className="flex h-[88px] w-full shrink-0 touch-none select-none flex-col items-stretch px-4 pb-2.5 pt-2 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)] sm:h-auto sm:touch-auto sm:pt-3"
+        >
+          <span className="mx-auto mb-1.5 h-1 w-9 shrink-0 rounded-full bg-[color:var(--lab-navy-950)]/20 sm:hidden" aria-hidden />
+          <span className="flex items-center gap-1.5 text-[12px] font-semibold leading-4 text-[color:var(--lab-teal-700)]">
+            <span className="relative inline-flex h-2 w-2" aria-hidden>
+              <span className="absolute inset-0 rounded-full bg-[color:var(--lab-brand-primary)]" />
+            </span>
+            오늘의 시장 브리핑
+            {data?.lastUpdatedLabel ? (
+              <span className="font-medium text-[color:var(--lab-muted)]">· {data.lastUpdatedLabel}</span>
+            ) : null}
+          </span>
+          <span className="mt-1 flex min-h-7 items-center gap-2">
+            <span className="min-w-0 flex-1 truncate text-[16px] font-bold leading-6 tracking-tight text-[color:var(--lab-navy-950)]">
+              {data ? (
+                <PeekLine data={data} />
+              ) : query.isError ? (
+                <span className="text-[14px] font-medium text-[color:var(--lab-muted)]">시장 브리핑을 불러오지 못했어요</span>
+              ) : (
+                <span className="inline-flex items-center gap-2 text-[14px] font-medium text-[color:var(--lab-muted)]">
+                  <LabLoadingDots />
+                  오늘의 시장 불러오는 중…
+                </span>
+              )}
+            </span>
+            <ChevronUp
+              className={`h-5 w-5 shrink-0 text-[color:var(--lab-muted)] transition-transform motion-reduce:transition-none ${
+                expanded ? "rotate-180 sm:rotate-0" : "sm:rotate-180"
+              }`}
+              aria-hidden
+            />
+          </span>
+        </button>
+
+        <div
+          id={panelId}
+          hidden={!expanded && dragH == null}
+          className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain px-4 pb-3 sm:max-h-[55dvh] sm:flex-none"
+        >
+          {query.isError ? (
+            <div className="flex flex-col gap-2 py-2">
+              <p className="lab-state lab-state-error">시장 데이터를 불러오지 못했습니다.</p>
+              <button type="button" className="lab-button lab-button-secondary w-full" onClick={() => void query.refetch()}>
+                다시 시도
+              </button>
+            </div>
+          ) : !data ? (
+            <LabDataLoading label="오늘의 시장 불러오는 중" minHeight={160} />
+          ) : (
+            <>
+              <LabTabs
+                variant="secondary"
+                ariaLabel="브리핑 구분"
+                idPrefix={tabPrefix}
+                items={tabs}
+                value={tab}
+                onChange={(t) => {
+                  setTab(t);
+                  setFailKey(null);
+                }}
+              />
+              <div id={labTabPanelId(tabPrefix, tab)} role="tabpanel">
+                {items.length === 0 ? (
+                  <p className="lab-state">
+                    {tab === "singoga"
+                      ? "오늘 확인된 신고가가 없습니다."
+                      : tab === "drop"
+                        ? "오늘 확인된 하락 거래가 없습니다."
+                        : "거래가 급증한 단지가 없습니다."}
+                  </p>
+                ) : (
+                  <ul className="flex flex-col divide-y divide-[color:var(--lab-border)]">
+                    {items.map((item) => (
+                      <li key={item.key}>
+                        <button
+                          type="button"
+                          onClick={() => void pick(item)}
+                          aria-busy={busyKey === item.key}
+                          className="flex min-h-12 w-full items-center gap-3 py-2 text-left hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--lab-teal-600)]"
+                        >
+                          <MapPin className="h-4 w-4 shrink-0 text-[color:var(--lab-teal-700)]" aria-hidden />
+                          <span className="min-w-0 flex-1">
+                            <span className="detail-data-value-emphasis block truncate">{item.name}</span>
+                            <span className="detail-meta block truncate">{item.meta}</span>
+                          </span>
+                          <span className="shrink-0 text-right">
+                            {busyKey === item.key ? (
+                              <LabLoadingDots />
+                            ) : (
+                              <>
+                                <span className="block text-[15px] font-bold leading-5 tabular-nums text-[color:var(--lab-navy-950)]">
+                                  {item.value}
+                                </span>
+                                {item.sub ? (
+                                  <span
+                                    className="block text-[12px] font-semibold leading-4 tabular-nums"
+                                    style={item.tone ? { color: TONE_COLOR[item.tone] } : undefined}
+                                  >
+                                    {item.sub}
+                                  </span>
+                                ) : null}
+                              </>
+                            )}
+                          </span>
+                        </button>
+                        {failKey === item.key ? (
+                          <p className="detail-meta pb-2 pl-7" role="status">
+                            지도에서 위치를 찾지 못했어요 ·{" "}
+                            <Link href={item.href} className="font-semibold text-[color:var(--lab-teal-700)] underline">
+                              단지 상세 보기
+                            </Link>
+                          </p>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <Link href="/market" className="lab-button lab-button-secondary mt-1 w-full">
+                시장에서 더 보기
+                <ChevronRight className="ml-0.5 h-4 w-4" aria-hidden />
+              </Link>
+            </>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
