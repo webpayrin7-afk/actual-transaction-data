@@ -994,6 +994,7 @@ export function AptDetailPage({
             }
             aptName={data.aptName}
             complexId={identity?.complexId ?? null}
+            unitMixRows={complexDetail?.unitMix?.rows ?? null}
           />
         </LabSectionBoundary>
       ) : complexDetail ? (
