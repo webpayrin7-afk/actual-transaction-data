@@ -57,7 +57,7 @@ import {
   DETAIL_PAGE_SHELL,
   PageHeader,
 } from "@/components/layout/PageHeader";
-import { LabSectionLoading } from "@/components/ui/LabLoading";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { Complex3dEntryCard } from "@/components/complex-3d/Complex3dEntry";
 import { ComplexRedevSection } from "@/components/apt/ComplexRedevSection";
@@ -173,8 +173,7 @@ async function fetchAptDetail(
 
 /**
  * 섹션 틀 — 제목과 대략의 높이(모바일 기준, 다 불러온 뒤 높이보다 조금 작게).
- * 시세가 오기 전 첫 화면, 아직 마운트 전인 아래 섹션 자리, 섹션 코드를 받는 동안 모두 이 틀을 먼저 그리고
- * 틀 안에서 로딩을 보인다 — 빈 화면이나 페이지 전체 로딩 대신, 섹션이 자리 잡은 채로 하나씩 채워진다.
+ * 아직 마운트 전인 아래 섹션 자리·섹션 코드를 받는 동안 이 틀을 먼저 그리고 틀 안에서 로딩을 보인다.
  */
 const APT_SECTION_FRAMES = {
   market: { id: "section-market", title: "실거래 현황", minHeight: 1200 },
@@ -189,26 +188,9 @@ const APT_SECTION_FRAMES = {
   management: { id: "section-management", title: "관리비", minHeight: 600 },
 } as const;
 
-/** 화면 순서대로 */
-const APT_SECTION_FRAME_ORDER = [
-  APT_SECTION_FRAMES.market,
-  APT_SECTION_FRAMES.tradeInsight,
-  APT_SECTION_FRAMES.typeDong,
-  APT_SECTION_FRAMES.unitMix,
-  APT_SECTION_FRAMES.regionRank,
-  APT_SECTION_FRAMES.comparison,
-  APT_SECTION_FRAMES.nearbyLife,
-  APT_SECTION_FRAMES.nearbySales,
-  APT_SECTION_FRAMES.calculator,
-  APT_SECTION_FRAMES.management,
-];
-
-/** 머리(단지 요약 줄·면적 선택) 자리 높이 — 불러온 뒤 높이와 비슷하게 비워 둔다 */
-const HERO_PLACEHOLDER_MIN_HEIGHT = 120;
-
 /**
  * 시세가 오기 전 첫 화면 — 서버 스트리밍 대기(page.tsx Suspense)와 시세 첫 로딩이 같은 모양.
- * 페이지 틀(단지명 머리 + 모든 섹션 카드)을 바로 그리고, 섹션마다 안에서 "○○ 불러오는 중"을 보인다.
+ * 단지명 머리를 바로 그리고, 그 아래 로딩 하나만 보인다 (빈 섹션 틀을 늘어놓지 않는다).
  * 단지명·지역은 주소에서 바로 알 수 있으므로 기다리지 않는다.
  */
 export function AptDetailSkeleton({
@@ -230,18 +212,10 @@ export function AptDetailSkeleton({
           titleSuffix={location}
           titleClassName="detail-page-title"
           showDivider={false}
-        >
-          <div aria-hidden style={{ minHeight: HERO_PLACEHOLDER_MIN_HEIGHT }} />
-        </PageHeader>
-      </header>
-      {APT_SECTION_FRAME_ORDER.map((frame) => (
-        <LabSectionLoading
-          key={frame.id}
-          title={frame.title}
-          label={frame === APT_SECTION_FRAMES.market ? "시세 불러오는 중" : undefined}
-          minHeight={frame.minHeight}
         />
-      ))}
+      </header>
+      {/* 첫 화면은 단지 이름 + 로딩 하나만 — 빈 섹션 틀을 늘어놓으면 오히려 비어 보인다 (섹션 틀은 시세가 온 뒤 아래 섹션에서) */}
+      <LabDataLoading label="단지 정보 불러오는 중" minHeight={220} />
     </div>
   );
 }
