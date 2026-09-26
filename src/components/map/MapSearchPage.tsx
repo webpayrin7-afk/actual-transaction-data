@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Box, Check, ChevronDown, ChevronRight, Construction, MapPin, LocateFixed, SlidersHorizontal, X } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Construction, MapPin, LocateFixed, SlidersHorizontal, X } from "lucide-react";
 import { LabBottomSheet } from "@/components/ui/LabBottomSheet";
 import { MapConditionSheet, conditionSummary, type ConditionKey } from "@/components/map/MapConditionSheet";
 import {
@@ -41,6 +41,7 @@ import { REDEV_STAGES, type RedevZoneShape } from "@/lib/redev/read";
 import { formatDealDate, formatEok } from "@/lib/utils/format";
 import { LabIndeterminateBar } from "@/components/ui/LabLoading";
 import type { Map3dView } from "@/components/map3d/Seoul3DMap";
+import { MapViewSwitch } from "@/components/map/MapViewSwitch";
 
 /** 서울 3D 지도 — MapLibre(약 1MB)는 3D를 열 때만 받는다 (2D 번들에 넣지 않음). */
 const Seoul3DMap = dynamic(() => import("@/components/map3d/Seoul3DMap"), {
@@ -181,6 +182,8 @@ export function MapSearchPage() {
   const [metricOpen, setMetricOpen] = useState(false);
   /** 3D 지도로 볼 때 시작 위치 (null = 2D) */
   const [view3d, setView3d] = useState<Map3dView | null>(null);
+  /** 3D 지도가 지금 보는 곳 — 2D로 돌아갈 때 그 자리로 */
+  const view3dRef = useRef<(() => Map3dView) | null>(null);
   const open3d = () => {
     // 2D 지도가 못 떴어도(인증 실패 등) 3D는 연다 — 마지막으로 본 곳에서
     let v = readLastView();
@@ -669,8 +672,21 @@ export function MapSearchPage() {
 
       {/* 상단: 거래유형 · 조건 · 레시피 + 상태 */}
       <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-2 pt-2 sm:pt-3">
+        {/*
+          맨 위 줄은 3D 화면(z-20) 위에도 그대로 보인다(z-30) — 2D | 3D 전환이 두 화면에서 같은 자리에 있고,
+          거래유형·조건 칩도 3D 단지에 똑같이 걸린다. 전환은 왼쪽에 고정, 뒤의 칩만 옆으로 밀린다.
+        */}
+        <div className="pointer-events-auto relative z-30 flex items-center gap-1.5 pl-3 sm:pl-4">
+          <MapViewSwitch
+            mode={view3d ? "3d" : "2d"}
+            onChange={(m) => {
+              if (m === "3d") open3d();
+              else if (view3d) close3d(view3dRef.current?.() ?? view3d);
+            }}
+          />
+          <span className="h-6 w-px shrink-0 bg-[color:var(--lab-navy-950)]/25" aria-hidden />
         <div
-          className="pointer-events-auto flex items-center gap-1.5 overflow-x-auto overflow-y-hidden overscroll-x-contain px-3 py-1 sm:px-4"
+          className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto overflow-y-hidden overscroll-x-contain py-1 pl-0.5 pr-3 sm:pr-4"
           style={{ scrollbarWidth: "none" }}
           role="toolbar"
           aria-label="지도 조건"
@@ -750,6 +766,7 @@ export function MapSearchPage() {
             );
           })}
         </div>
+        </div>
         <div className="flex flex-col items-start gap-2 px-3 sm:px-4">
           <div className="flex items-center gap-2">
           {level === "complex" ? (
@@ -785,17 +802,6 @@ export function MapSearchPage() {
               정비구역
             </button>
           ) : null}
-            {/* 서울 3D 지도 — 누를 때만 MapLibre·건물 타일을 불러온다 */}
-            <button
-              type="button"
-              aria-pressed={view3d != null}
-              aria-label="3D로 보기"
-              onClick={open3d}
-              className="pointer-events-auto relative -mt-0.5 inline-flex h-8 items-center gap-1 whitespace-nowrap rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] pl-2.5 pr-3 text-[13px] font-semibold leading-5 text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-['']"
-            >
-              <Box className="h-4 w-4" aria-hidden />
-              3D
-            </button>
           </div>
           {redevOn && (level === "complex" || level === "dong") ? (
             <p className="pointer-events-auto flex flex-wrap items-center gap-x-2.5 rounded-lg bg-[color:var(--lab-surface)]/95 px-2.5 py-1 text-[13px] leading-5 text-[color:var(--lab-muted)] shadow-sm">
@@ -1112,13 +1118,8 @@ export function MapSearchPage() {
         </p>
       </LabBottomSheet>
 
-      {view3d ? (
-        <Seoul3DMap
-          initial={view3d}
-          conditions={conditions}
-          onClose={close3d}
-        />
-      ) : null}
+      {/* 서울 3D 지도 — 3D를 누를 때만 MapLibre·건물 타일을 불러온다. 맨 위 줄(전환·거래유형·조건)은 이 위에 그대로 */}
+      {view3d ? <Seoul3DMap initial={view3d} conditions={conditions} viewRef={view3dRef} /> : null}
 
       <MapConditionSheet
         open={sheetOpen}
