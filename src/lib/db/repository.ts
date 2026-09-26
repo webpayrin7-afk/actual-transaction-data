@@ -431,13 +431,15 @@ export async function queryAptTransactions(params: {
       : "";
 
   // exact apt_name_norm = ? → idx_tx_lawd_apt_ym 사용.
+  // +deal_type: dealKinds 가 하나면 IN 이 등치로 바뀌어 플래너가 idx_tx_type_deal_date(deal_type, deal_date)로
+  // 전국 매매/전월세를 훑는다(헬리오시티 매매만 ~290s). + 로 그 인덱스 후보에서 빼 단지 인덱스로 고정.
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
                  deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong
           FROM transactions
           WHERE lawd_cd IN (${lawdPlaceholders})
             ${ymClause}
-            AND deal_type IN (${kindPlaceholders})
+            AND +deal_type IN (${kindPlaceholders})
             AND apt_name_norm = ?
           ORDER BY deal_date DESC`,
     args: [
