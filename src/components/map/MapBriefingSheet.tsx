@@ -221,7 +221,13 @@ export function MapBriefingSheet({
     setDragH(null);
   };
 
-  const height = dragH != null ? `${dragH}px` : expanded ? `${EXPANDED_RATIO * 100}dvh` : `${BRIEFING_PEEK_PX}px`;
+  // 펼치면 내용 높이만큼만 (최대 화면의 55%) — 목록이 짧을 때 아래 빈 여백이 생기지 않게
+  const sheetStyle =
+    dragH != null
+      ? { height: `${dragH}px` }
+      : expanded
+        ? { height: "auto", maxHeight: `${EXPANDED_RATIO * 100}dvh` }
+        : { height: `${BRIEFING_PEEK_PX}px` };
   const animate = dragH == null;
 
   return (
@@ -236,7 +242,7 @@ export function MapBriefingSheet({
         className={`pointer-events-auto flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] shadow-[0_8px_24px_rgb(15_23_42/0.16)] sm:w-[340px] sm:!h-auto ${
           animate ? "transition-[height] duration-200 ease-out motion-reduce:transition-none" : ""
         }`}
-        style={{ height }}
+        style={sheetStyle}
       >
         <button
           type="button"
@@ -294,6 +300,7 @@ export function MapBriefingSheet({
           id={panelId}
           hidden={!expanded && dragH == null}
           className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain px-4 pb-3 sm:max-h-[55dvh] sm:flex-none"
+          style={expanded && dragH == null ? { maxHeight: `calc(${EXPANDED_RATIO * 100}dvh - ${BRIEFING_PEEK_PX}px)` } : undefined}
         >
           {query.isError ? (
             <div className="flex flex-col gap-2 py-2">
