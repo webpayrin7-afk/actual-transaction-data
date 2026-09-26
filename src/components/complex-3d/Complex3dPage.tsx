@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 import type { Complex3d } from "@/lib/complex-3d/read";
-import { groundSizeM, type TerrainGridPayload } from "@/lib/complex-3d/ground";
+import { groundSizeM, WALK_VERSION, type TerrainGridPayload } from "@/lib/complex-3d/ground";
 import type { WalkDestination, WalkPayload } from "@/lib/complex-3d/walk";
 import { has3dModel } from "@/lib/complex-3d/gate";
 import { BackLink } from "@/components/layout/BackLink";
@@ -54,10 +54,10 @@ async function fetchTerrain(id: string): Promise<TerrainGridPayload | null> {
 }
 
 async function fetchWalk(id: string, from: string | null, wheel: boolean): Promise<WalkPayload> {
-  const q = new URLSearchParams();
+  const q = new URLSearchParams({ v: String(WALK_VERSION) });
   if (from) q.set("from", from);
   if (wheel) q.set("mode", "wheel");
-  const res = await fetch(`/api/complex-3d/${encodeURIComponent(id)}/walk${q.size ? `?${q}` : ""}`);
+  const res = await fetch(`/api/complex-3d/${encodeURIComponent(id)}/walk?${q}`);
   if (!res.ok) {
     const body = (await res.json().catch(() => null)) as { error?: string } | null;
     throw new Error(body?.error ?? "걷기 경로를 불러오지 못했어요.");

@@ -12,9 +12,10 @@ import { readComplex3d } from "@/lib/complex-3d/read";
 import { railStationsBoxStatement, rankNearbyRailStations } from "@/lib/transit/rail-stations";
 import { computeWalkRoutes, fetchOverpass, WALK_HW, type OsmEl, type Tags, type WalkInput, type WalkPayload } from "@/lib/complex-3d/walk";
 import type { Bbox } from "@/lib/complex-3d/terrain";
+import { WALK_VERSION } from "@/lib/complex-3d/ground";
 
-/** 경로 계산 규칙이 바뀌면 올린다 — 저장된 결과를 무시하고 다시 계산 */
-export const WALK_ROUTES_VERSION = 4;
+/** 경로 계산 규칙 버전 — 다르면 저장된 결과를 무시하고 다시 계산 */
+export const WALK_ROUTES_VERSION = WALK_VERSION;
 /** 저장본 형식 */
 const OSM_FORMAT = 1;
 
