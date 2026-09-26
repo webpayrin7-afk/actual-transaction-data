@@ -33,18 +33,20 @@ type Row = { complex_id: string; lat: number; lng: number; top_m: number; buildi
 function center(rings: Array<Array<[number, number]>>): [number, number] | null {
   let sx = 0, sy = 0, sw = 0;
   for (const ring of rings) {
+    // 경위도를 그대로 곱하면(127×37) 작은 넓이가 반올림에 묻혀 가운데가 수십 m 튄다 — 첫 점 기준으로 옮겨 계산
+    const [ox, oy] = ring[0]!;
     let a = 0, cx = 0, cy = 0;
     for (let i = 0; i < ring.length; i++) {
       // 닫는 변까지 (외곽선이 첫 점으로 닫혀 있지 않아도 — 닫혀 있으면 마지막 변은 길이 0)
-      const [x0, y0] = ring[i]!;
-      const [x1, y1] = ring[(i + 1) % ring.length]!;
+      const x0 = ring[i]![0] - ox, y0 = ring[i]![1] - oy;
+      const x1 = ring[(i + 1) % ring.length]![0] - ox, y1 = ring[(i + 1) % ring.length]![1] - oy;
       const k = x0 * y1 - x1 * y0;
       a += k; cx += (x0 + x1) * k; cy += (y0 + y1) * k;
     }
     if (Math.abs(a) < 1e-14) continue;
     // 외곽선 방향(시계·반시계)이 섞여도 되게 — 넓이는 절댓값으로 가중
     const sg = Math.sign(a);
-    sx += (cx / 3) * sg; sy += (cy / 3) * sg; sw += Math.abs(a);
+    sx += (cx / 3) * sg + ox * Math.abs(a); sy += (cy / 3) * sg + oy * Math.abs(a); sw += Math.abs(a);
   }
   return sw ? [sx / sw, sy / sw] : null;
 }

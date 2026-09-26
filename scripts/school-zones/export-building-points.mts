@@ -21,16 +21,18 @@ type Out = { complex_id: string; sd: string; lat: number; lng: number; src: stri
 
 /** 외곽선 넓이(㎡)·가운데 — 방향(시계·반시계) 상관없이 */
 function part(ring: Array<[number, number]>): [number, number, number] | null {
+  // 경위도를 그대로 곱하면(127×37) 작은 넓이가 반올림에 묻혀 가운데가 수십 m 튄다 — 첫 점 기준으로 옮겨 계산
+  const [ox, oy] = ring[0]!;
   let a = 0, cx = 0, cy = 0;
   for (let i = 0; i < ring.length; i++) {
       // 닫는 변까지 (외곽선이 첫 점으로 닫혀 있지 않아도 — 닫혀 있으면 마지막 변은 길이 0)
-    const [x0, y0] = ring[i]!;
-    const [x1, y1] = ring[(i + 1) % ring.length]!;
+    const x0 = ring[i]![0] - ox, y0 = ring[i]![1] - oy;
+    const x1 = ring[(i + 1) % ring.length]![0] - ox, y1 = ring[(i + 1) % ring.length]![1] - oy;
     const k = x0 * y1 - x1 * y0;
     a += k; cx += (x0 + x1) * k; cy += (y0 + y1) * k;
   }
   if (Math.abs(a) < 1e-14) return null;
-  const lng = cx / (3 * a), lat = cy / (3 * a);
+  const lng = cx / (3 * a) + ox, lat = cy / (3 * a) + oy;
   const m2 = (Math.abs(a) / 2) * 111_320 * 111_320 * Math.cos((lat * Math.PI) / 180);
   return [+lng.toFixed(7), +lat.toFixed(7), Math.round(m2)];
 }

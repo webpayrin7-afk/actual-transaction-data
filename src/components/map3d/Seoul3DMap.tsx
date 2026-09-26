@@ -205,10 +205,14 @@ function massCenter(shape: Complex3d | null, site: SiteBoundary | null): [number
     let a = 0;
     let cx = 0;
     let cy = 0;
+    // 경위도를 그대로 곱하면(127×37) 작은 넓이가 반올림에 묻혀 가운데가 수십 m 튄다 — 첫 점 기준으로 옮겨 계산
+    const [ox, oy] = ring[0]!;
     for (let i = 0; i < ring.length; i++) {
       // 닫는 변까지 (외곽선이 첫 점으로 닫혀 있지 않아도 — 닫혀 있으면 마지막 변은 길이 0)
-      const [x0, y0] = ring[i]!;
-      const [x1, y1] = ring[(i + 1) % ring.length]!;
+      const x0 = ring[i]![0] - ox;
+      const y0 = ring[i]![1] - oy;
+      const x1 = ring[(i + 1) % ring.length]![0] - ox;
+      const y1 = ring[(i + 1) % ring.length]![1] - oy;
       const k = x0 * y1 - x1 * y0;
       a += k;
       cx += (x0 + x1) * k;
@@ -217,8 +221,8 @@ function massCenter(shape: Complex3d | null, site: SiteBoundary | null): [number
     if (Math.abs(a) < 1e-14) continue;
     // 외곽선 방향(시계·반시계)이 섞여도 되게 — 넓이는 절댓값으로 가중
     const sg = Math.sign(a);
-    sx += (cx / 3) * sg;
-    sy += (cy / 3) * sg;
+    sx += (cx / 3) * sg + ox * Math.abs(a);
+    sy += (cy / 3) * sg + oy * Math.abs(a);
     sw += Math.abs(a);
   }
   if (sw !== 0) return [sx / sw, sy / sw];
@@ -410,7 +414,7 @@ export default function Seoul3DMap({
   /** 2D에서 고른 단지를 들고 올 때 — 되살림과 달리 그 단지를 새로 담는다 */
   frameInitialSelected?: boolean;
   /** 고른 단지가 바뀔 때마다 — 2D로 돌아갈 때 그대로 고른 채로 */
-  onSelectedChange?: (id: string | null) => void;
+  onSelectedChange?: (id: string | null, at?: { lat: number; lng: number } | null) => void;
   /** 이 지도 입구(/, /map) — 카메라·고른 단지를 sessionStorage 에 둔다 */
   sessionPath?: string;
   /** 이름표 값 — 2D 마커 표시와 같은 값(같은 설정을 나눠 쓴다) */
@@ -1035,9 +1039,12 @@ export default function Seoul3DMap({
   useEffect(() => {
     onCardChange?.(cardShown);
   }, [cardShown, onCardChange]);
+  // 2D로 돌아갈 때 그 단지를 가운데로 — 2D와 같은 좌표(단지 좌표)를 같이 알린다
+  const selLat = selected?.lat ?? null;
+  const selLng = selected?.lng ?? null;
   useEffect(() => {
-    onSelectedChange?.(selectedId);
-  }, [selectedId, onSelectedChange]);
+    onSelectedChange?.(selectedId, selLat != null && selLng != null ? { lat: selLat, lng: selLng } : null);
+  }, [selectedId, selLat, selLng, onSelectedChange]);
   const dealLabel = DEAL_LABEL[deal];
   const steps = metric === "perPyeong" ? PER_PYEONG_STEPS : CHANGE_STEPS;
 
@@ -1290,7 +1297,7 @@ export default function Seoul3DMap({
 
       {/* 아래: 고른 단지 카드 — 작게(약 108px): 이름·위치 / 최근 거래·지표 / 단지 상세 · 3D 탐색 */}
       {selected ? (
-        <div className="absolute inset-x-0 bottom-0 z-10 px-3 pb-[calc(env(safe-area-inset-bottom)+var(--map-dock-space,68px))] sm:p-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 z-10 px-4 pb-[calc(env(safe-area-inset-bottom)+var(--map-dock-space,68px))] sm:p-4 sm:pb-4">
           <div
             className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] px-3.5 pb-2.5 pt-2.5 shadow-lg"
             data-map3d-card
@@ -1376,7 +1383,7 @@ export default function Seoul3DMap({
                 aria-expanded={cardMore}
                 aria-controls="map3d-card-more"
                 onClick={() => setCardMoreId(cardMore ? null : selected.complexId)}
-                className="inline-flex h-9 shrink-0 items-center gap-0.5 rounded-lg px-2 text-[13px] font-semibold text-[color:var(--lab-teal-700)]"
+                className="inline-flex h-9 w-[68px] shrink-0 items-center justify-center gap-0.5 rounded-lg text-[13px] font-semibold text-[color:var(--lab-teal-700)]"
               >
                 {cardMore ? "접기" : "더보기"}
                 <ChevronDown

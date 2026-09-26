@@ -236,10 +236,13 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
   }));
   /** 3D 지도에서 지금 고른 단지 — 2D로 돌아가도 고른 채로 */
   const sel3dRef = useRef<string | null>(null);
+  /** 3D에서 고른 단지 자리 — 2D로 돌아가면 그 단지를 가운데로 */
+  const sel3dAtRef = useRef<{ lat: number; lng: number } | null>(null);
   /** 3D에서 고른 단지 (카드가 아직 안 떴어도) — 전환 중 브리핑 시트가 잠깐 떴다 사라지지 않게 */
   const [sel3d, setSel3d] = useState<string | null>(null);
-  const onSelected3d = useCallback((id: string | null) => {
+  const onSelected3d = useCallback((id: string | null, at?: { lat: number; lng: number } | null) => {
     sel3dRef.current = id;
+    sel3dAtRef.current = id ? (at ?? null) : null;
     setSel3d(id);
   }, []);
   /** 2D 단지 카드 '더보기' — 연 단지에만 (다른 단지를 고르면 접힘) */
@@ -294,14 +297,18 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
     setFocus3d(null);
     setCard3d(false);
     setCam3d(null);
-    setView2d({ lat: v.lat, lng: v.lng, zoom: Math.round(v.zoom + 1) });
+    // 3D에서 고른 단지가 있으면 그 단지를 가운데로(단지가 보이는 거리 이상으로), 없으면 3D가 보던 곳
+    const at = sel3dRef.current ? sel3dAtRef.current : null;
+    const c = at ?? { lat: v.lat, lng: v.lng };
+    const z = at ? Math.max(Math.round(v.zoom + 1), 16) : Math.round(v.zoom + 1);
+    setView2d({ lat: c.lat, lng: c.lng, zoom: z });
     // 3D에서 고른 단지는 2D에서도 고른 채로
     setSelectedId(sel3dRef.current);
     const maps = window.naver?.maps;
     try {
       if (maps && mapRef.current) {
-        mapRef.current.setCenter(new maps.LatLng(v.lat, v.lng));
-        mapRef.current.setZoom?.(Math.round(v.zoom + 1));
+        mapRef.current.setCenter(new maps.LatLng(c.lat, c.lng));
+        mapRef.current.setZoom?.(z);
       }
     } catch {
       /* 2D 지도가 준비되지 않았으면 그대로 */
@@ -1075,7 +1082,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
 
       {/* 하단: 선택 단지 카드 — 작게(약 108px): 이름·위치 / 최근 거래·12개월 / 단지 상세 · 3D. 나머지 값은 '더보기' */}
       {selected ? (
-        <div className="absolute inset-x-0 bottom-0 px-3 pb-[calc(env(safe-area-inset-bottom)+var(--map-dock-space,68px))] sm:p-4 sm:pb-4">
+        <div className="absolute inset-x-0 bottom-0 px-4 pb-[calc(env(safe-area-inset-bottom)+var(--map-dock-space,68px))] sm:p-4 sm:pb-4">
           <div
             className="mx-auto w-full max-w-md rounded-2xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] px-3.5 pb-2.5 pt-2.5 shadow-lg"
             data-map2d-card
@@ -1170,7 +1177,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
                 aria-expanded={cardMore}
                 aria-controls="map2d-card-more"
                 onClick={() => setCardMore((v) => !v)}
-                className="inline-flex h-9 shrink-0 items-center gap-0.5 rounded-lg px-2 text-[13px] font-semibold text-[color:var(--lab-teal-700)]"
+                className="inline-flex h-9 w-[68px] shrink-0 items-center justify-center gap-0.5 rounded-lg text-[13px] font-semibold text-[color:var(--lab-teal-700)]"
               >
                 {cardMore ? "접기" : "더보기"}
                 <ChevronDown
