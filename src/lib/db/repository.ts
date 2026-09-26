@@ -13,6 +13,12 @@ import {
   hasDiscoveryAtColumn,
   isoOrNull,
 } from "@/lib/db/discovery-axis";
+import {
+  APT_TX_ORDER_BY,
+  APT_TX_SELECT_COLUMNS,
+  mapAptTxRow,
+  readAptTxSnapshot,
+} from "@/lib/db/apt-tx-snapshot";
 
 export function normalizeAptName(name: string): string {
   return name.replace(/\s+/g, "").toLowerCase();
@@ -425,21 +431,34 @@ export async function queryAptTransactions(params: {
   const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
   const kindPlaceholders = dealKinds.map(() => "?").join(",");
   const yearMonths = params.yearMonths ?? [];
+  // 전체 이력 + 단일 lawd → 단지 스냅샷(1왕복) 먼저. 최신이 아니거나 없으면(트리거·표 없음 포함) null → 아래 라이브 쿼리.
+  // 스냅샷은 trade·rent 전부를 라이브와 같은 순서로 담고 있어 dealKinds 는 디코드 뒤 거른다.
+  if (yearMonths.length === 0 && params.lawdCodes.length === 1) {
+    const snap = await readAptTxSnapshot(db, params.lawdCodes[0], aptKey);
+    if (snap) {
+      const kinds = new Set<string>(dealKinds);
+      return kinds.has("trade") && kinds.has("rent")
+        ? snap
+        : snap.filter((tx) => kinds.has(tx.dealType));
+    }
+  }
+
   const ymClause =
     yearMonths.length > 0
       ? `AND year_month IN (${yearMonths.map(() => "?").join(",")})`
       : "";
 
   // exact apt_name_norm = ? → idx_tx_lawd_apt_ym 사용.
+  // +deal_type: dealKinds 가 하나면 IN 이 등치로 바뀌어 플래너가 idx_tx_type_deal_date(deal_type, deal_date)로
+  // 전국 매매/전월세를 훑는다(헬리오시티 매매만 ~290s). + 로 그 인덱스 후보에서 빼 단지 인덱스로 고정.
   const result = await db.execute({
-    sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong
+    sql: `SELECT ${APT_TX_SELECT_COLUMNS}
           FROM transactions
           WHERE lawd_cd IN (${lawdPlaceholders})
             ${ymClause}
-            AND deal_type IN (${kindPlaceholders})
+            AND +deal_type IN (${kindPlaceholders})
             AND apt_name_norm = ?
-          ORDER BY deal_date DESC`,
+          ORDER BY ${APT_TX_ORDER_BY}`,
     args: [
       ...params.lawdCodes,
       ...yearMonths,
@@ -448,23 +467,9 @@ export async function queryAptTransactions(params: {
     ],
   });
 
-  return result.rows.map((row) => ({
-    id: String(row.id),
-    dealType: row.deal_type as DealType,
-    dealDate: String(row.deal_date),
-    aptName: String(row.apt_name),
-    gu: String(row.gu ?? ""),
-    dong: String(row.dong ?? ""),
-    exclusiveArea: Number(row.exclusive_area) || 0,
-    dealAmount: Number(row.deal_amount) || 0,
-    monthlyRent: Number(row.monthly_rent) || 0,
-    floor: Number(row.floor) || 0,
-    buildYear: row.build_year == null ? null : Number(row.build_year),
-    jibun: String(row.jibun ?? ""),
-    dealingGbn: String(row.dealing_gbn ?? ""),
-    rgstDate: row.rgst_date == null || String(row.rgst_date).trim() === "" ? null : String(row.rgst_date),
-    aptDong: row.apt_dong == null || String(row.apt_dong).trim() === "" ? null : String(row.apt_dong).trim(),
-  }));
+  return result.rows.map((row) =>
+    mapAptTxRow(row as unknown as Record<string, unknown>),
+  );
 }
 
 export type AptArchiveAreaFilter =
