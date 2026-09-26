@@ -9,6 +9,22 @@ const nextConfig: NextConfig = {
     "*.trycloudflare.com",
     "trycloudflare.com",
   ],
+  // AI 학습용 수집 거부 표시 — TDM 권리 유보(W3C TDMRep)와 noai 로봇 태그. 데이터 API는 색인도 막는다.
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "tdm-reservation", value: "1" },
+          { key: "X-Robots-Tag", value: "noai, noimageai" },
+        ],
+      },
+      {
+        source: "/api/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noai, noimageai" }],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
