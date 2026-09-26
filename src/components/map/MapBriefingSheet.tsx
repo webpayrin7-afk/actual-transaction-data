@@ -104,39 +104,70 @@ const TONE_COLOR = { up: "var(--lab-change-up)", down: "var(--lab-change-down)" 
 
 type ScopeCounts = { singoga: number; drop: number; surge: number };
 
-/** 요약 줄 — 지역 이름 + 색 칩 세 개 (신고가 빨강 · 하락 파랑 · 거래 급증 청록). 0이면 칩을 옅게 */
-function PeekLine({ scope, counts }: { scope: BriefScope; counts: ScopeCounts }) {
-  const where = scope.label;
-  if (!counts.singoga && !counts.drop && !counts.surge) {
+const HEADLINE_MS = 4500;
+type Headline = { tag: string; color: string; item: BriefItem };
+
+/**
+ * 접힌 브리핑의 헤드라인 — 오늘의 대표 소식(신고가 1위 · 하락 1위 · 거래 급증 1위)을 한 줄씩 돌려 보여준다.
+ * "단지 이름 · 값 · 변동"이 보여야 무슨 일이 있었는지 한눈에 들어온다. 움직임 줄이기면 첫 소식만 고정.
+ */
+function PeekHeadline({ scope, lists }: { scope: BriefScope; lists: Record<BriefTab, BriefItem[]> }) {
+  const heads: Headline[] = [
+    lists.singoga[0] && { tag: "신고가", color: TONE_COLOR.up, item: lists.singoga[0] },
+    lists.drop[0] && { tag: "하락", color: TONE_COLOR.down, item: lists.drop[0] },
+    lists.surge[0] && { tag: "거래 급증", color: "var(--lab-teal-700)", item: lists.surge[0] },
+  ].filter(Boolean) as Headline[];
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    if (heads.length < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = window.setInterval(() => setI((v) => v + 1), HEADLINE_MS);
+    return () => window.clearInterval(t);
+  }, [heads.length]);
+  if (!heads.length) {
     return (
-      <span className="text-[15px] font-semibold text-[color:var(--lab-navy-950)]">
-        {`${where}${topicJosa(where)} 오늘 조용해요`}
+      <span className="block truncate text-[15px] font-semibold text-[color:var(--lab-navy-950)]">
+        {`${scope.label}${topicJosa(scope.label)} 오늘 조용해요`}
         <span className="ml-1.5 text-[13px] font-medium text-[color:var(--lab-muted)]">새 신고가·하락 없음</span>
       </span>
     );
   }
-  const chip = (label: string, n: number, tone: string, unit = "") => (
-    <span
-      className="inline-flex shrink-0 items-baseline gap-1 rounded-full px-2 py-0.5 text-[12px] font-semibold leading-5"
-      style={
-        n
-          ? { color: tone, background: `color-mix(in srgb, ${tone} 12%, white)` }
-          : { color: "var(--lab-muted)", background: "var(--lab-surface-subtle)" }
-      }
-    >
-      {label}
-      <span className="text-[14px] font-bold tabular-nums">
-        {n.toLocaleString("ko-KR")}
-        {unit}
+  const h = heads[i % heads.length]!;
+  return (
+    <span key={h.item.key} className="lab-headline-in flex min-w-0 items-center gap-2">
+      <span
+        className="shrink-0 rounded-md px-1.5 text-[12px] font-bold leading-5"
+        style={{ color: h.color, background: `color-mix(in srgb, ${h.color} 12%, white)` }}
+      >
+        {h.tag}
       </span>
+      <span className="min-w-0 flex-1 truncate text-[15px] font-bold text-[color:var(--lab-navy-950)]">
+        {h.item.name}
+        <span className="ml-1 text-[12px] font-medium text-[color:var(--lab-muted)]">{h.item.gu}</span>
+      </span>
+      <span className="shrink-0 text-[15px] font-bold tabular-nums" style={{ color: h.color }}>
+        {h.item.value}
+      </span>
+      {h.item.sub ? (
+        <span className="shrink-0 text-[12px] font-semibold tabular-nums" style={{ color: h.color }}>
+          {h.item.sub}
+        </span>
+      ) : null}
     </span>
   );
+}
+
+/** 제목 줄 오른쪽 — 오늘 건수 요약 (작게) */
+function PeekCounts({ counts }: { counts: ScopeCounts }) {
+  const n = (v: number, color: string) => (
+    <b className="tabular-nums" style={v ? { color } : undefined}>
+      {v}
+    </b>
+  );
   return (
-    <span className="flex min-w-0 items-center gap-1.5">
-      <span className="shrink-0 text-[15px] font-bold text-[color:var(--lab-navy-950)]">{where}</span>
-      {chip("신고가", counts.singoga, TONE_COLOR.up)}
-      {chip("하락", counts.drop, TONE_COLOR.down)}
-      {chip("거래 급증", counts.surge, "var(--lab-teal-700)", "곳")}
+    <span className="ml-auto shrink-0 text-[11px] font-medium text-[color:var(--lab-muted)]">
+      신고가 {n(counts.singoga, TONE_COLOR.up)} · 하락 {n(counts.drop, TONE_COLOR.down)} · 급증{" "}
+      {n(counts.surge, "var(--lab-teal-700)")}
     </span>
   );
 }
@@ -380,14 +411,17 @@ export function MapBriefingSheet({
                 {briefDate(data?.discoveryDate)}
               </span>
             ) : null}
-            {data?.lastUpdatedLabel ? (
-              <span className="text-[11px] font-medium text-[color:var(--lab-muted)]">{data.lastUpdatedLabel.split(" ").pop()} 기준</span>
+            {data && counts && !regionPending ? (
+              <>
+                <span className="text-[12px] font-semibold text-[color:var(--lab-navy-950)]">{scope.label}</span>
+                <PeekCounts counts={counts} />
+              </>
             ) : null}
           </span>
           <span className="mt-1.5 flex min-h-7 items-center gap-1 sm:gap-2">
             <span className="min-w-0 flex-1 overflow-hidden">
               {data && counts && !regionPending ? (
-                <PeekLine scope={scope} counts={counts} />
+                <PeekHeadline scope={scope} lists={lists} />
               ) : query.isError ? (
                 <span className="text-[14px] font-medium text-[color:var(--lab-muted)]">시장 브리핑을 불러오지 못했어요</span>
               ) : (
