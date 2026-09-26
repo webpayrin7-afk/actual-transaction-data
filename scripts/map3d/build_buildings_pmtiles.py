@@ -168,6 +168,7 @@ if SPBD:
     fc = json.loads(SPBD.read_text(encoding="utf-8"))
     s_polys: list = []
     s_h: list[int] = []
+    s_a: list[int] = []  # 공동주택=1 — properties.a (없으면 1: v2 DB SPBD는 모두 단지 동)
     for ft in fc["features"]:
         rings = [np.array([merc_norm(float(p[0]), float(p[1])) for p in rg]) for rg in ft["geometry"]["coordinates"] if len(rg) >= 4]
         cand = sorted((shapely.Polygon(rg) for rg in rings), key=lambda g: -g.area)
@@ -185,27 +186,50 @@ if SPBD:
                 if isinstance(part, shapely.Polygon) and not part.is_empty and part.area > 0:
                     s_polys.append(part)
                     s_h.append(int(ft["properties"]["h"]))
+                    s_a.append(1 if int(ft["properties"].get("a", 1) or 0) else 0)
     S = np.array(s_polys, dtype=object)
     tree = shapely.STRtree(S)
     ai, si = tree.query(geoms, predicate="intersects")  # (AL_D010 번호, SPBD 번호) 쌍
     inter = shapely.area(shapely.intersection(geoms[ai], S[si]))
     smaller = np.minimum(shapely.area(geoms[ai]), shapely.area(S[si]))
     ratio = np.divide(inter, smaller, out=np.zeros_like(inter), where=smaller > 0)
+    pair = ratio >= OVERLAP
+    SH = np.array(s_h, dtype=np.int32)
+    # 10층(33m) 이상 AL_D010은 겹치는 SPBD 중 80% 이상 높이가 있을 때만 뺀다 — SPBD 1층 자리값·어긋난 낮은 도형이
+    # 고층을 지우지 않게. 지켜진 고층과 30% 겹치는 낮은 SPBD는 대신 뺀다.
+    best = np.zeros(len(geoms), dtype=np.int32)
+    np.maximum.at(best, ai[pair], SH[si[pair]])
+    has = np.zeros(len(geoms), dtype=bool)
+    has[ai[pair]] = True
+    protect = has & (H >= 33) & (best < 0.8 * H)
+    s_drop = np.zeros(len(S), dtype=bool)
+    s_drop[si[pair & protect[ai]]] = True
     drop = np.zeros(len(geoms), dtype=bool)
-    drop[ai[ratio >= OVERLAP]] = True
+    drop[ai[pair & ~s_drop[si]]] = True
+    drop &= ~protect
+    # 같은 건물의 옛 AL_D010 도형이 공동주택이면 SPBD도 공동주택 (SPBD엔 용도가 없다)
+    SA = np.array(s_a, dtype=np.int8)
+    s_area = shapely.area(S[si])
+    hit = pair & (inter >= OVERLAP * s_area)  # SPBD 쪽에서도 30% 이상 = 같은 건물
+    SA[si[hit & (A[ai] == 1)]] = 1
     keep = ~drop
+    s_keep = ~s_drop
     merge_stats = {
         "al_d010_total": int(len(geoms)),
         "al_d010_dropped": int(drop.sum()),
         "al_d010_kept": int(keep.sum()),
         "spbd_features": len(fc["features"]),
-        "spbd_polygons_added": int(len(S)),
+        "spbd_polygons_added": int(s_keep.sum()),
         "overlap_threshold": OVERLAP,
+        "tall_dropped": int((drop & (H >= 33)).sum()),
+        "tall_protected": int(protect.sum()),
+        "spbd_dropped_under_tall": int(s_drop.sum()),
+        "spbd_residential": int(SA[s_keep].sum()),
     }
     log(f"SPBD merge: {merge_stats}")
-    geoms = np.concatenate([geoms[keep], S])
-    H = np.concatenate([H[keep], np.array(s_h, dtype=np.int32)])
-    A = np.concatenate([A[keep], np.ones(len(S), dtype=np.int8)])
+    geoms = np.concatenate([geoms[keep], S[s_keep]])
+    H = np.concatenate([H[keep], SH[s_keep]])
+    A = np.concatenate([A[keep], SA[s_keep]])
 # 바닥 면적(대략, m²): 정규 좌표 면적 × (지구둘레)² × cos²(위도)
 lat0 = math.radians(37.55)
 AREA_M2 = shapely.area(geoms) * (2 * HALF) ** 2 * math.cos(lat0) ** 2
