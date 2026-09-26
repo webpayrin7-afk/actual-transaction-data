@@ -15,7 +15,8 @@
  *       그 도로명주소 안에서 같은 동 표기가 f 하나뿐일 때 — 다른 이름이 붙은 건물은 지번·도로명주소로 붙이지 않는다,
  *     - 동 표기가 같고 ("101동"/"제101동"/"101" → 101; 숫자가 아니면 정규화한 표기 전체가 같아야 함 — "A동" = "A동"),
  *     - f 대표점이 단지 좌표(지도 기준점 우선)에서 1km 안 (read.ts A_LINK_MAX_M),
- *     - 층수 둘 다 있으면 2층 넘게 다르지 않고,
+ *     - 층수 둘 다 있으면 2층 넘게 다르지 않고 (SPBD 지상층수 1은 고층 동(대장 3층 이상)에서는 자리값이라 확인에 안 쓰고 null로 넣는다),
+ *     - (이름 규칙) 1km 안 다른 단지(모양이 이미 붙은 단지 포함)에 같은 이름·동 표기의 동이 없고,
  *     - f 하나에 b 하나, b 하나에 f 하나일 때만.
  *   이미 모양이 붙은 동(같은 시군구·같은 번호의 GIS 행이 단지 1km 안)은 건드리지 않는다. 같은 번호 GIS 행이 1km 안에 있으면
  *   (모양이 비어 있어도) 건너뛴다 — 읽기 쪽 번호 연결이 두 행 중 하나를 고르게 되므로.
@@ -40,7 +41,7 @@ import { config } from "dotenv";
 config({ path: ".env.local", quiet: true });
 
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { getDb } from "../../src/lib/db/client";
 
@@ -271,7 +272,8 @@ async function fetchComplex(key: string, cid: string, lat: number, lng: number):
   const first = await vworldPage(key, box, 1);
   all.push(...first.features);
   for (let p = 2; p <= first.totalPages; p++) all.push(...(await vworldPage(key, box, p)).features);
-  writeFileSync(path, JSON.stringify(all));
+  writeFileSync(`${path}.tmp`, JSON.stringify(all));
+  renameSync(`${path}.tmp`, path); // 중간에 끊겨도 반쪽 캐시가 남지 않게
   return all;
 }
 
@@ -441,6 +443,36 @@ async function main() {
       if (k) cxParcels.get(String(x.complex_id))?.add(k);
     }
   }
+  // 이름 규칙 모호함 검사용: 모든 단지 좌표 격자 (약 0.01도)
+  const grid = new Map<string, string[]>();
+  for (const [cid, m] of cxById) {
+    const k = `${Math.floor(Number(m.lat) * 100)}|${Math.floor(Number(m.lng) * 100)}`;
+    (grid.get(k) ?? grid.set(k, []).get(k)!).push(cid);
+  }
+  const nearComplexes = (lat: number, lng: number): string[] => {
+    const out: string[] = [];
+    const gy = Math.floor(lat * 100);
+    const gx = Math.floor(lng * 100);
+    for (let dy = -1; dy <= 1; dy++)
+      for (let dx = -2; dx <= 2; dx++)
+        for (const cid of grid.get(`${gy + dy}|${gx + dx}`) ?? []) {
+          const m = cxById.get(cid)!;
+          if (haversine(Number(m.lat), Number(m.lng), lat, lng) <= LINK_MAX_M) out.push(cid);
+        }
+    return out;
+  };
+  /** 같은 이름·동 표기의 동이 다른 단지(모양이 이미 붙은 단지 포함)에도 있으면 이름 규칙으로 붙이지 않는다 */
+  const nameDongElsewhere = (f: Feature, prefixes: string[], dk: string, self: string): boolean =>
+    nearComplexes(f.lat, f.lng).some((cid) => {
+      if (cid === self) return false;
+      const m = cxById.get(cid)!;
+      const cxNames = [norm(m.apt_name), norm(m.apt_name_norm)];
+      return (cbByCx.get(cid) ?? []).some((b) => {
+        if (dongKey(b.dong_label) !== dk) return false;
+        const names = new Set([...cxNames, norm(b.building_name)].filter(Boolean));
+        return prefixes.every((p) => names.has(p));
+      });
+    });
   let geocoded = 0;
   const parcelOf = async (f: Feature): Promise<string | null> => {
     if (f.bd_mgt_sn in parcelCache) return parcelCache[f.bd_mgt_sn]!;
@@ -504,10 +536,16 @@ async function main() {
         unnamed.push({ f, dk, d, sameDong });
         continue;
       }
-      for (const b of sameDong) {
+      const hits = sameDong.filter((b) => {
         const names = new Set([...cxNames, norm(b.building_name)].filter(Boolean));
-        if (prefixes.every((p) => names.has(p))) push(f, b, d, "name");
+        return prefixes.every((p) => names.has(p));
+      });
+      if (!hits.length) continue;
+      if (nameDongElsewhere(f, prefixes, dk, t.cid)) {
+        skip("spbd_name_dong_also_in_other_complex");
+        continue;
       }
+      for (const b of hits) push(f, b, d, "name");
     }
     // (2) 이름 없는 건물 — 이 단지에 붙은 건물과 같은 도로명주소(그 안에서 동 표기 유일), 아니면 지번이 단지 대표 지번과 같을 때
     const viaRoad = (u: (typeof unnamed)[number]) =>
@@ -519,7 +557,13 @@ async function main() {
     }
     const cps = cxParcels.get(t.cid)!;
     const rest2: typeof unnamed = [];
+    const matched = new Set(cand.filter((c) => c.complex_id === t.cid).map((c) => c.building_id));
     for (const u of rest) {
+      // 같은 동 표기의 동이 이미 이름/도로명주소로 짝이 있으면 역지오코딩하지 않는다 (호출 절약 — 이름 없는 건물은 보조 규칙)
+      if (u.sameDong.every((b) => matched.has(String(b.building_id)))) {
+        skip("unnamed_spbd_dong_already_matched");
+        continue;
+      }
       const pk = cps.size ? await parcelOf(u.f) : null;
       if (pk && cps.has(pk)) for (const b of u.sameDong) push(u.f, b, u.d, "parcel");
       else rest2.push(u);
@@ -554,6 +598,12 @@ async function main() {
     if (perBuilding.get(c.building_id)! > 1) {
       skip("building_matched_by_2+_spbd");
       continue;
+    }
+    if (c.floors_spbd === 1 && c.floors_ledger && c.floors_ledger >= 3) {
+      // 도로명주소 건물의 지상층수 1은 고층 동에 흔한 자리값 — 층수로 확인하지 못한 것으로 두고(행에는 null) 이름·동 일치로만 붙인다
+      c.feature = { ...c.feature, gro_flo_co: null };
+      c.floors_spbd = null;
+      skip("info_spbd_floor_placeholder_1_ignored");
     }
     if (c.floors_spbd && c.floors_ledger && Math.abs(c.floors_spbd - c.floors_ledger) > FLOOR_TOL) {
       skip("floor_count_differs");
