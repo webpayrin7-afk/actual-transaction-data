@@ -880,6 +880,40 @@ export class Complex3dScene {
     this.groups.view.visible = mode === "view" && !this.win;
     this.groups.pois.visible = mode === "around";
     this.groups.labels.visible = mode !== "around";
+    this.applyWalkXray();
+  }
+
+  /**
+   * 걷기 모드에서는 건물을 반투명하게 — 경로·걷는 사람이 건물 뒤로 가도 가려지지 않게.
+   * 재질마다 원래 값을 기억해 두었다가 다른 모드에서 되돌린다 (재질을 여러 동이 함께 써도 안전).
+   */
+  private applyWalkXray() {
+    const on = this.mode === "walk";
+    const seen = new Set<THREE.Material>();
+    for (const g of [this.groups.own, this.groups.neighbors]) {
+      g.traverse((o) => {
+        const mesh = o as THREE.Mesh;
+        if (!mesh.isMesh) return;
+        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        for (const m of mats) {
+          if (!m || seen.has(m)) continue;
+          seen.add(m);
+          const ud = m.userData as { xray?: { transparent: boolean; opacity: number; depthWrite: boolean } };
+          if (on) {
+            if (!ud.xray) ud.xray = { transparent: m.transparent, opacity: m.opacity, depthWrite: m.depthWrite };
+            m.transparent = true;
+            m.opacity = Math.min(ud.xray.opacity, 0.38);
+            m.depthWrite = false;
+          } else if (ud.xray) {
+            m.transparent = ud.xray.transparent;
+            m.opacity = ud.xray.opacity;
+            m.depthWrite = ud.xray.depthWrite;
+            delete ud.xray;
+          }
+          m.needsUpdate = true;
+        }
+      });
+    }
   }
 
   /** 층별 시세 — 각 동을 저·중·고 구간으로 잘라 구간 평당가에 따라 색을 입힌다 */
@@ -1476,6 +1510,7 @@ export class Complex3dScene {
       this.scene.add(group);
       this.selOutline = group;
     }
+    this.applyWalkXray();
   }
   private selectEdgeMaterial = new LineMaterial({ color: 0x0f172a, linewidth: 2.5 });
 
