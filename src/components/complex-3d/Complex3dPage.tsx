@@ -25,7 +25,8 @@ import {
   walkerAvoidsSteps,
   type WalkerId,
 } from "@/lib/complex-3d/walker-profiles";
-import { Map3dAttribution, type AttributionLine } from "@/components/map3d/Map3dAttribution";
+import { Map3dAttribution, SATELLITE_ATTRIBUTION, type AttributionLine } from "@/components/map3d/Map3dAttribution";
+import { satelliteGround } from "@/lib/complex-3d/satellite-ground";
 import { has3dModel } from "@/lib/complex-3d/gate";
 import { BackLink } from "@/components/layout/BackLink";
 import { InfoTip } from "@/components/ui/InfoTip";
@@ -125,10 +126,12 @@ const WALK_ATTRIBUTION: AttributionLine[] = [
 ];
 
 /** 3D 단지 탐색 — 화면 전체가 모형, 위·오른쪽·아래에 떠 있는 조작 */
-export function Complex3dPage({ complexId }: { complexId: string }) {
+export function Complex3dPage({ complexId, satelliteKey = null }: { complexId: string; satelliteKey?: string | null }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<Complex3dScene | null>(null);
   const [ready, setReady] = useState(false);
+  /** 바닥이 위성영상으로 바뀌었나 (출처 표시) */
+  const [satOn, setSatOn] = useState(false);
   const [mode, setMode] = useState<SceneMode>("base");
   const [selected, setSelected] = useState<string | null>(null);
   const [season, setSeason] = useState<Season>("winter");
@@ -330,6 +333,8 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     if (!d || !hasShape || !hostRef.current) return;
     let scene: Complex3dScene | null = null;
     let cancelled = false;
+    const satAbort = new AbortController();
+    let satUrl: string | null = null;
     const host = hostRef.current;
     import("@/components/complex-3d/scene")
       .then(({ Complex3dScene }) => {
@@ -346,6 +351,15 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
           `/api/complex-3d/${d.complexId}/ground?v=2`,
           groundSizeM(d.center.lat),
         );
+        // 위성영상 바닥 — 받아지면 NAVER 지도 바닥을 바꾼다 (못 받으면 지도 그대로)
+        if (satelliteKey) {
+          void satelliteGround(d.center, groundSizeM(d.center.lat), satelliteKey, satAbort.signal).then((url) => {
+            if (!url || cancelled || !scene) return;
+            satUrl = url;
+            scene.setGroundMap(url, groundSizeM(d.center.lat));
+            setSatOn(true);
+          });
+        }
         scene.setFloorBands(d.floorBands);
         scene.setPois(d.pois);
         const s = scene;
@@ -371,6 +385,9 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     window.addEventListener("resize", onResize);
     return () => {
       cancelled = true;
+      satAbort.abort();
+      if (satUrl) URL.revokeObjectURL(satUrl);
+      setSatOn(false);
       window.removeEventListener("resize", onResize);
       scene?.dispose();
       sceneRef.current = null;
@@ -378,7 +395,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
       setTerrainOn(false);
       setWindowInfo(null);
     };
-  }, [d, hasShape]);
+  }, [d, hasShape, satelliteKey]);
 
   // 지형 — 늦게 와도 장면이 동·주변 건물을 땅 높이에 다시 올린다 (못 받으면 평지 그대로)
   const terrainQuery = useQuery({
@@ -1015,15 +1032,15 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
       ) : null}
 
       {/* 걷기 길 출처 — 오른쪽 컨트롤 아래 ⓘ (처음 잠깐 펼쳤다가 접힌다, 서울 3D 지도와 같은 부품) */}
-      {ready && !inWindow && mode === "walk" && walk ? (
+      {ready && !inWindow && ((mode === "walk" && walk) || satOn) ? (
         <Map3dAttribution
           id="walk-attribution-full"
           className="z-10"
           style={{ top: "calc(env(safe-area-inset-top) + 236px)" }}
           align="right"
           openDir="down"
-          short={walk.attribution}
-          lines={WALK_ATTRIBUTION}
+          short={mode === "walk" && walk ? walk.attribution : "위성영상 © 브이월드"}
+          lines={[...(mode === "walk" && walk ? WALK_ATTRIBUTION : []), ...(satOn ? [SATELLITE_ATTRIBUTION] : [])]}
         />
       ) : null}
 

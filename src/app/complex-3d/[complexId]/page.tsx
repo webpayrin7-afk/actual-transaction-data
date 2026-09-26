@@ -10,7 +10,8 @@ export default async function Page({ params }: { params: Promise<{ complexId: st
   const { complexId } = await params;
   return (
     <main className="flex-1">
-      <Complex3dPage complexId={complexId} />
+      {/* 바닥 위성영상 — 브이월드 브라우저용 키(도메인에 묶임) */}
+      <Complex3dPage complexId={complexId} satelliteKey={process.env.VWORLD_WEB_KEY?.trim() || null} />
     </main>
   );
 }
