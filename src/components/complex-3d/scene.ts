@@ -778,10 +778,13 @@ export class Complex3dScene {
     const hfov = 2 * Math.atan(Math.tan(vfov / 2) * this.camera.aspect);
     const polar = (48 * Math.PI) / 180;
     const azimuth = (15 * Math.PI) / 180;
-    // 가로는 단지 폭, 세로는 기울어진 깊이 + 건물 높이가 화면에 들어오게 (여백 약 8%)
-    const needW = halfW / Math.tan(hfov / 2);
-    const needH = (halfD * Math.cos(polar) + maxH * Math.sin(polar) * 0.5) / Math.tan(vfov / 2);
-    const dist = Math.min(this.controls.maxDistance, Math.max(120, Math.max(needW, needH) * 1.08));
+    // 가로는 단지 폭, 세로는 기울어진 깊이 + 건물 높이가 화면에 들어오게 (여백 약 20%).
+    // 동이 몇 개뿐인 작은 단지도 주변이 보이게 반경 최소 110m로 잡는다 (너무 확대되지 않게)
+    const hw = Math.max(halfW, 110);
+    const hd = Math.max(halfD, 110);
+    const needW = hw / Math.tan(hfov / 2);
+    const needH = (hd * Math.cos(polar) + maxH * Math.sin(polar) * 0.5) / Math.tan(vfov / 2);
+    const dist = Math.min(this.controls.maxDistance, Math.max(260, Math.max(needW, needH) * 1.2));
     const target = new THREE.Vector3(cx, this.groundAt(cx, cz) + maxH * 0.25, cz);
     const position = new THREE.Vector3(
       target.x + dist * Math.sin(polar) * Math.sin(azimuth),
