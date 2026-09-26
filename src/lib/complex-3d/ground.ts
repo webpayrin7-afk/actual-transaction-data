@@ -7,6 +7,9 @@ export function groundSizeM(lat: number): number {
   return 512 * mpp;
 }
 
+/** 걷기 경로 계산 규칙 버전 — 저장 결과(complex_walk_routes)와 화면 요청 주소(?v=)에 같이 쓴다. 규칙이 바뀌면 올린다 (CDN·브라우저 캐시도 새로) */
+export const WALK_VERSION = 4;
+
 /** 지형 격자 응답 — heights는 base64 Int16 (단지 중심 높이 기준 상대값, 0.1m 단위), 북쪽 행부터·서쪽 열부터 */
 export type TerrainGridPayload = {
   source: string;
