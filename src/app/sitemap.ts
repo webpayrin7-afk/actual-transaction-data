@@ -6,6 +6,7 @@ const BASE_URL =
 
 const STATIC_PATHS = [
   "/",
+  "/market",
   "/complexes",
   "/regions",
   "/stats",

@@ -24,21 +24,22 @@ export type HomeQuickNavItem = {
  * Mobile home quick actions.
  */
 export const HOME_QUICK_NAV: HomeQuickNavItem[] = [
-  {
-    id: "market",
-    label: "시장",
-    shortLabel: "시장",
-    href: "/",
-    icon: TrendingUp,
-    match: (pathname) => pathname === "/" || pathname.startsWith("/stats"),
-  },
+  // 지도가 첫 화면(/) — 집랩의 핵심. 시장 홈은 /market
   {
     id: "map",
     label: "지도로 찾기",
     shortLabel: "지도",
-    href: "/map",
+    href: "/",
     icon: Map,
-    match: (pathname) => pathname.startsWith("/map"),
+    match: (pathname) => pathname === "/" || pathname.startsWith("/map"),
+  },
+  {
+    id: "market",
+    label: "시장",
+    shortLabel: "시장",
+    href: "/market",
+    icon: TrendingUp,
+    match: (pathname) => pathname.startsWith("/market") || pathname.startsWith("/stats"),
   },
   {
     id: "regions",

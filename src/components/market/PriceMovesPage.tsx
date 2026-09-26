@@ -236,7 +236,7 @@ export function PriceMovesPage() {
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
-        leading={<BackLink fallback="/" compact hideLabel />}
+        leading={<BackLink fallback="/market" compact hideLabel />}
         title="신고가 · 하락 거래"
         showDivider={false}
         titleTip={

@@ -138,7 +138,7 @@ export function MarketTrendsPage() {
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
-        leading={<BackLink fallback="/" compact hideLabel />}
+        leading={<BackLink fallback="/market" compact hideLabel />}
         title="시장 흐름"
         titleClassName="detail-page-title"
         showDivider={false}
@@ -241,7 +241,7 @@ export function MarketTrendsPage() {
       </div>
 
       <div className="flex flex-wrap gap-x-4">
-        <LabTextLink href="/">오늘의 시장</LabTextLink>
+        <LabTextLink href="/market">오늘의 시장</LabTextLink>
         <LabTextLink href="/regions">지역 조회</LabTextLink>
       </div>
     </div>

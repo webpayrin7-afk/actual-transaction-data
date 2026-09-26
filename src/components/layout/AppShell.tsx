@@ -12,9 +12,15 @@ import { BrandLogo } from "@/components/layout/BrandLogo";
 const NAV = [
   {
     href: "/",
+    label: "지도로 찾기",
+    icon: Map,
+    match: (p: string) => p === "/" || p.startsWith("/map"),
+  },
+  {
+    href: "/market",
     label: "시장",
     icon: BarChart3,
-    match: (p: string) => p === "/" || p.startsWith("/stats"),
+    match: (p: string) => p.startsWith("/market") || p.startsWith("/stats"),
   },
   {
     href: "/regions",
@@ -28,12 +34,6 @@ const NAV = [
     icon: Building2,
     match: (p: string) =>
       p.startsWith("/complexes") || p.startsWith("/apt/"),
-  },
-  {
-    href: "/map",
-    label: "지도로 찾기",
-    icon: Map,
-    match: (p: string) => p.startsWith("/map"),
   },
 ] as const;
 
@@ -62,7 +62,7 @@ export function isImmersivePath(pathname: string): boolean {
 }
 
 /** 메인 메뉴(하단 독) 화면만 상단바·사이드바를 둔다. 나머지는 단지 상세처럼 자기 제목줄(← 뒤로)로. */
-const MAIN_MENU_PATHS = new Set(["/", "/map", "/regions", "/complexes", "/presale"]);
+const MAIN_MENU_PATHS = new Set(["/", "/map", "/market", "/regions", "/complexes", "/presale"]);
 export function isMainMenuPath(pathname: string): boolean {
   return MAIN_MENU_PATHS.has(pathname.replace(/\/+$/, "") || "/");
 }
