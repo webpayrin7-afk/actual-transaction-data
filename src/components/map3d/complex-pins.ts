@@ -1,5 +1,6 @@
 /**
- * 3D 지도 단지 핀 — MapLibre 캔버스 위 HTML 층 (점 + 이름표 + 고른 단지 화살표).
+ * 3D 지도 단지 핀 — MapLibre 캔버스 위 HTML 층 (점 + 2D와 같은 마커 카드 + 고른 단지 화살표).
+ * 카드 마크업은 2D 마커와 같다 (complex-marker.ts markerCardHtml) — 꼬리 끝이 지붕 위 점을 가리킨다.
  *
  * 왜 HTML인가: MapLibre 점·글자 층은 땅 위에만 놓여, 지붕 위에 띄우려면 땅 위 점을 옮겨야 했고(움직임이 멈출 때만)
  * 돌리거나 기울이는 동안 점이 늦게 따라오다 튀었다. 여기서는 매 프레임 지붕 위(높이 top + 여유) 점의 화면 자리를 구해
@@ -7,19 +8,17 @@
  *
  * - 매 프레임(카메라가 움직인 프레임만): 화면 자리 계산 · transform 쓰기 · 화면 밖이면 숨김 — 레이아웃 읽기 없음.
  * - 움직임이 멈출 때(moveend)·데이터가 바뀔 때: 우선순위(고른 단지 → 화면 안 → 세대수 큰 순)로 겹침 정리 —
- *   점이 거의 포개지면 낮은 쪽 핀을 빼고, 이름표가 겹치면 낮은 쪽 이름표만 뺀다. 핀은 최대 MAX_PINS 개만 DOM에 붙인다.
+ *   점이 거의 포개지면 낮은 쪽 핀을 빼고, 카드가 겹치면 낮은 쪽을 한 단계씩 줄인다
+ *   (전체 카드 → 이름만 카드 → 점만). 핀은 최대 MAX_PINS 개만 DOM에 붙인다.
  * - 핀 DOM은 단지 id로 기억해 다시 쓴다 (빠진 핀은 떼어 두기만).
  */
 import type { Map as MlMap } from "maplibre-gl";
-import { crownHtml } from "@/components/map/complex-marker";
+import { markerCardHtml, markerCardSize, type MarkerCard } from "@/components/map/complex-marker";
 
 export type PinDatum = {
   id: string;
-  /** 이름표 첫 줄 (줄인 이름) */
-  name: string;
-  /** 이름표 둘째 줄 — 없으면 "" */
-  value: string;
-  valueColor: string;
+  /** 마커 카드 (2D 마커와 같은 모양) — 고름·화살표는 핀이 정한다 */
+  card: Omit<MarkerCard, "selected" | "arrow">;
   dotColor: string;
   /** 세대수 — 겹칠 때 큰 단지를 남긴다 */
   hh: number;
@@ -29,30 +28,31 @@ export type PinDatum = {
   top: number | null;
   /** 버튼 읽기 이름 "{이름} {값}" */
   aria: string;
-  /** 구 안 순위 왕관 (2D 마커와 같음) — 1·2·3위만 */
-  crown?: 1 | 2 | 3 | null;
 };
 
 type Tier = "off" | "dot" | "name" | "value";
+/** 핀 모양 — 점만 · 이름만 카드 · 전체 카드(평형 탭 + 이름 + 값) */
+type Mode = "dot" | "name" | "full";
 
 type Pin = {
   d: PinDatum;
   el: HTMLButtonElement;
-  nameEl: HTMLSpanElement;
-  valEl: HTMLSpanElement;
-  arrow: HTMLSpanElement | null;
+  label: HTMLSpanElement;
+  dot: HTMLSpanElement;
   sig: string;
+  /** 마지막으로 그린 카드 (sig|모양|고름) — 같으면 다시 그리지 않는다 */
+  drawn: string;
+  mode: Mode;
   sel: boolean;
-  noLabel: boolean;
   z: number;
   attached: boolean;
   /** 마지막으로 쓴 자리 · 보임 (같으면 다시 쓰지 않는다) */
   x: number;
   y: number;
   shown: boolean;
-  /** 이름표 글자 폭(px) — sig 가 바뀔 때만 다시 잰다 */
-  wName: number;
-  wVal: number;
+  /** 점이 다른 단지 점과 포개질 때 비켜 놓는 화면 거리(px) */
+  ox: number;
+  oy: number;
 };
 
 type Rect = { x0: number; y0: number; x1: number; y1: number };
@@ -61,48 +61,34 @@ type Rect = { x0: number; y0: number; x1: number; y1: number };
 const MAX_PINS = 120;
 /** 점을 지붕보다 조금 더 위에 (m) */
 const ROOF_GAP_M = 8;
-/** 화면 밖 여유(px) — 이만큼 밖까지는 그려 둔다 (이름표가 화면 끝에 걸쳐도 보이게) */
+/** 화면 밖 여유(px) — 이만큼 밖까지는 그려 둔다 (카드가 화면 끝에 걸쳐도 보이게) */
 const VIEW_MARGIN = 80;
 const RAD = Math.PI / 180;
 const M_PER_DEG = 111_320;
-
-/** 이름표 크기 (CSS와 맞춘다) — 글자 줄 높이 15/14px, 위아래 3px + 테두리, 좌우 7px + 테두리 */
-const LINE1 = 15;
-const LINE2 = 14;
-const PAD_X = 7 * 2 + 2.5;
-const PAD_Y = 3 * 2 + 2.5;
-/** 점 위 이름표 사이 (px) */
-const LABEL_GAP = 4;
+/** 점 위 카드 꼬리 끝 사이 (px) — 고른 단지는 점이 4px 커서 +2 */
+const LABEL_GAP = 1;
 
 export const PINS_CSS = `
 .cx-pins{position:absolute;inset:0;font-family:var(--font-sans,system-ui),sans-serif;pointer-events:none;overflow:hidden;isolation:isolate;--cx-d:10px}
 .cx-pin{position:absolute;left:0;top:0;width:0;height:0;padding:0;font:inherit;margin:0;border:0;background:none;pointer-events:auto;cursor:pointer;will-change:transform;-webkit-tap-highlight-color:transparent;outline:none}
 .cx-dot{position:absolute;left:0;top:0;box-sizing:border-box;width:var(--cx-d);height:var(--cx-d);transform:translate(-50%,-50%);border-radius:50%;border:2px solid #fff;box-shadow:0 1px 2px rgb(15 23 42/.35)}
 .cx-dot::before{content:"";position:absolute;inset:-8px;border-radius:50%}
-.cx-label{position:absolute;left:0;bottom:calc(var(--cx-d)/2 + ${LABEL_GAP}px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;white-space:nowrap;box-sizing:border-box;padding:3px 7px;border:1.25px solid #0f766e;border-radius:9px;background:#fff;color:#0f172a;font-weight:700;font-size:12px;line-height:${LINE1}px;text-align:center;box-shadow:0 1px 3px rgb(15 23 42/.18)}
-.cx-val{font-size:11px;line-height:${LINE2}px}
-.cx-val:empty{display:none}
-.cx-crown{position:absolute;left:-10px;top:-12px;transform:rotate(-14deg);pointer-events:none}
-.cx-crown:empty{display:none}
+.cx-label{position:absolute;left:0;bottom:calc(var(--cx-d)/2 + ${LABEL_GAP}px);transform:translateX(-50%);display:block;white-space:nowrap}
 .cx-nolabel .cx-label{display:none}
-.cx-pins[data-tier=dot] .cx-pin:not(.cx-sel) .cx-label{display:none}
-.cx-pins[data-tier=name] .cx-pin:not(.cx-sel) .cx-val{display:none}
 .cx-sel .cx-dot{width:calc(var(--cx-d) + 4px);height:calc(var(--cx-d) + 4px);box-shadow:0 0 0 1px #fff,0 0 0 3.5px #0f172a}
-.cx-sel .cx-label{bottom:calc(var(--cx-d)/2 + ${LABEL_GAP + 4}px);background:#0f766e;border-color:#0b4f4a;color:#fff}
-.cx-sel .cx-val{color:#fff!important}
+.cx-sel .cx-label{bottom:calc(var(--cx-d)/2 + ${LABEL_GAP + 2}px)}
 .cx-pins[data-has-sel] .cx-pin:not(.cx-sel){opacity:.75}
 .cx-pins[data-has-sel] .cx-pin:not(.cx-sel) .cx-dot{opacity:.45}
-.cx-pins[data-has-sel] .cx-pin:not(.cx-sel) .cx-label{box-shadow:none}
+.cx-pins[data-has-sel] .cx-pin:not(.cx-sel) .cx-label>span{filter:none!important}
 .cx-sel{z-index:2}
-.cx-arrow{position:absolute;left:50%;bottom:100%;margin-bottom:2px;width:18px;height:18px;margin-left:-9px;animation:cx-bounce 1s ease-in-out infinite;filter:drop-shadow(0 1px 1px rgb(15 23 42/.35))}
-.cx-arrow svg{display:block}
-@keyframes cx-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-@media (prefers-reduced-motion:reduce){.cx-arrow{animation:none}}
-.cx-pin:focus-visible .cx-label,.cx-pin:focus-visible.cx-nolabel .cx-dot{outline:2px solid #0f172a;outline-offset:2px}
+.cx-pin:focus-visible .cx-label,.cx-pin:focus-visible.cx-nolabel .cx-dot{outline:2px solid #0f172a;outline-offset:2px;border-radius:7px}
 `;
 
-const ARROW_SVG =
-  '<svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true"><path d="M3 5.5h12L9 14z" fill="#0f766e" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>';
+/** 모양별 카드 — 이름만 카드는 평형·값 없이 이름을 큰 줄로 (왕관은 둔다) */
+function cardOf(d: PinDatum, mode: Mode, sel: boolean): MarkerCard {
+  if (mode === "full") return { ...d.card, selected: sel, arrow: sel };
+  return { name: d.card.name, pyeong: "", value: "", crown: d.card.crown, selected: sel, arrow: sel };
+}
 
 function lerp(z: number, z0: number, v0: number, z1: number, v1: number): number {
   const t = Math.min(1, Math.max(0, (z - z0) / (z1 - z0)));
@@ -135,9 +121,6 @@ export class ComplexPins {
   private raf = 0;
   private dirty = false;
   private down: { x: number; y: number } | null = null;
-  private ctx: CanvasRenderingContext2D | null = null;
-  private font = "sans-serif";
-  private readonly arrowTpl: HTMLSpanElement;
 
   constructor(
     map: MlMap,
@@ -152,16 +135,6 @@ export class ComplexPins {
     this.root.dataset.tier = "off";
     // 캔버스 컨테이너 안에 둔다 — 핀 위에서 시작한 끌기·휠도 지도가 받는다 (컨트롤보다는 아래)
     map.getCanvasContainer().appendChild(this.root);
-    this.arrowTpl = document.createElement("span");
-    this.arrowTpl.className = "cx-arrow";
-    this.arrowTpl.setAttribute("aria-hidden", "true");
-    this.arrowTpl.innerHTML = ARROW_SVG;
-    try {
-      this.font = getComputedStyle(this.root).fontFamily || this.font;
-      this.ctx = document.createElement("canvas").getContext("2d");
-    } catch {
-      this.ctx = null;
-    }
     this.readSize();
     this.root.addEventListener("pointerdown", this.onDown);
     this.root.addEventListener("click", this.onClick);
@@ -311,75 +284,75 @@ export class ComplexPins {
         p.el.style.visibility = on ? "" : "hidden";
       }
       if (!on || !s) continue;
-      if (s.x === p.x && s.y === p.y) continue;
-      p.x = s.x;
-      p.y = s.y;
-      p.el.style.transform = `translate3d(${s.x}px,${s.y}px,0)`;
+      // 점이 포개진 단지는 옆으로 비켜 둔 만큼 (px, 멈출 때 정함)
+      const x = s.x + p.ox;
+      const y = s.y + p.oy;
+      if (x === p.x && y === p.y) continue;
+      p.x = x;
+      p.y = y;
+      p.el.style.transform = `translate3d(${x}px,${y}px,0)`;
     }
   }
 
   // ---- 겹침 정리 (멈출 때만) ----
-
-  private measure(text: string, px: number): number {
-    if (!text) return 0;
-    const ctx = this.ctx;
-    if (!ctx) return text.length * px * 0.9;
-    ctx.font = `700 ${px}px ${this.font}`;
-    return ctx.measureText(text).width;
-  }
 
   private pinFor(d: PinDatum): Pin {
     let p = this.pins.get(d.id);
     if (!p) {
       const el = document.createElement("button");
       el.type = "button";
-      el.className = "cx-pin";
+      el.className = "cx-pin cx-nolabel";
       el.dataset.id = d.id;
       const label = document.createElement("span");
       label.className = "cx-label";
-      const nameEl = document.createElement("span");
-      const valEl = document.createElement("span");
-      valEl.className = "cx-val";
-      const crownEl = document.createElement("span");
-      crownEl.className = "cx-crown";
-      label.append(nameEl, valEl, crownEl);
       const dot = document.createElement("span");
       dot.className = "cx-dot";
       el.append(label, dot);
       p = {
         d,
         el,
-        nameEl,
-        valEl,
-        arrow: null,
+        label,
+        dot,
         sig: "",
+        drawn: "",
+        mode: "dot",
         sel: false,
-        noLabel: false,
         z: 0,
         attached: false,
         x: NaN,
         y: NaN,
         shown: true,
-        wName: 0,
-        wVal: 0,
+        ox: 0,
+        oy: 0,
       };
       this.pins.set(d.id, p);
     }
     p.d = d;
-    const sig = `${d.name}|${d.value}|${d.valueColor}|${d.dotColor}|${d.aria}|${d.crown ?? ""}`;
+    const c = d.card;
+    const sig = `${c.name}|${c.pyeong}|${c.value}|${c.valueColor ?? ""}|${c.crown ?? ""}|${c.move ?? ""}|${d.dotColor}|${d.aria}`;
     if (sig !== p.sig) {
       p.sig = sig;
-      const crownEl = p.nameEl.parentElement?.querySelector<HTMLSpanElement>(".cx-crown");
-      if (crownEl) crownEl.innerHTML = d.crown ? crownHtml(d.crown) : "";
-      p.nameEl.textContent = d.name;
-      p.valEl.textContent = d.value;
-      p.valEl.style.color = d.valueColor;
-      (p.el.lastChild as HTMLSpanElement).style.background = d.dotColor;
+      p.dot.style.background = d.dotColor;
       p.el.setAttribute("aria-label", d.aria);
-      p.wName = this.measure(d.name, 12);
-      p.wVal = this.measure(d.value, 11);
     }
     return p;
+  }
+
+  /** 모양·고름이 바뀌었을 때만 카드 마크업을 다시 쓴다 */
+  private draw(p: Pin, mode: Mode, sel: boolean) {
+    if (sel !== p.sel) {
+      p.sel = sel;
+      p.el.classList.toggle("cx-sel", sel);
+    }
+    if (mode !== p.mode) {
+      p.el.classList.toggle("cx-nolabel", mode === "dot");
+      p.mode = mode;
+    }
+    if (mode === "dot") return;
+    const key = `${p.sig}|${mode}|${sel}`;
+    if (key === p.drawn) return;
+    p.drawn = key;
+    p.label.innerHTML = markerCardHtml(cardOf(p.d, mode, sel));
   }
 
   private layout() {
@@ -415,43 +388,57 @@ export class ComplexPins {
     const dots: Array<{ x: number; y: number }> = [];
     const labels: Rect[] = [];
     const next: Pin[] = [];
-    // 점이 이만큼 가까우면 거의 포개진 것 — 낮은 쪽 핀을 뺀다
+    // 점이 이만큼 가까우면 거의 포개진 것 — 화면 안 단지는 옆으로 비켜 두고(빼지 않는다), 화면 둘레 단지만 뺀다
     const minDot = dotD * 0.8;
+    const step = dotD + 3;
+    const NUDGES: Array<[number, number]> = [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [1, 1],
+      [-1, 1],
+      [2, 0],
+      [-2, 0],
+      [0, 2],
+    ];
+    const hitDot = (x: number, y: number) => dots.some((q) => Math.abs(q.x - x) < minDot && Math.abs(q.y - y) < minDot);
     let dropped = 0;
-    for (const c of cands) {
+    for (const cand of cands) {
       if (next.length >= MAX_PINS) {
-        // 한도 넘는 핀(세대수 작은 쪽, 화면 둘레 먼저)은 그리지 않는다
+        // 한도 넘는 핀(세대수 작은 쪽, 화면 둘레 먼저 — 정렬 순서)은 그리지 않는다
         dropped++;
         continue;
       }
-      if (!c.sel && dots.some((q) => Math.abs(q.x - c.x) < minDot && Math.abs(q.y - c.y) < minDot)) continue;
+      let ox = 0;
+      let oy = 0;
+      if (!cand.sel && hitDot(cand.x, cand.y)) {
+        if (!cand.inView) continue;
+        const free = NUDGES.find(([dx, dy]) => !hitDot(cand.x + dx * step, cand.y + dy * step)) ?? NUDGES[0]!;
+        ox = free[0] * step;
+        oy = free[1] * step;
+      }
+      const c = { ...cand, x: cand.x + ox, y: cand.y + oy };
       dots.push({ x: c.x, y: c.y });
       const p = this.pinFor(c.d);
-      let noLabel = tier === "dot" && !c.sel;
-      if (!noLabel) {
-        const two = (c.sel || tier === "value") && c.d.value !== "";
-        const w = Math.max(p.wName, two ? p.wVal : 0) + PAD_X;
-        const h = (two ? LINE1 + LINE2 : LINE1) + PAD_Y;
-        const bottom = c.y - dotD / 2 - LABEL_GAP - (c.sel ? 4 : 0);
+      if (ox !== p.ox || oy !== p.oy) {
+        p.ox = ox;
+        p.oy = oy;
+        p.x = NaN;
+      }
+      // 겹치면 한 단계씩 줄인다: 전체 카드 → 이름만 카드 → 점만. 고른 단지는 늘 전체 카드.
+      const tries: Mode[] = c.sel ? ["full"] : tier === "value" ? ["full", "name"] : tier === "name" ? ["name"] : [];
+      let mode: Mode = "dot";
+      const bottom = c.y - dotD / 2 - LABEL_GAP - (c.sel ? 2 : 0);
+      for (const t of tries) {
+        const { w, h } = markerCardSize(cardOf(c.d, t, c.sel));
         const r: Rect = { x0: c.x - w / 2 - 2, y0: bottom - h - 2, x1: c.x + w / 2 + 2, y1: bottom + 2 };
-        if (!c.sel && labels.some((q) => overlaps(q, r))) noLabel = true;
-        else labels.push(r);
-      }
-      if (noLabel !== p.noLabel) {
-        p.noLabel = noLabel;
-        p.el.classList.toggle("cx-nolabel", noLabel);
-      }
-      if (c.sel !== p.sel) {
-        p.sel = c.sel;
-        p.el.classList.toggle("cx-sel", c.sel);
-        if (c.sel && !p.arrow) {
-          p.arrow = this.arrowTpl.cloneNode(true) as HTMLSpanElement;
-          p.el.firstChild!.appendChild(p.arrow);
-        } else if (!c.sel && p.arrow) {
-          p.arrow.remove();
-          p.arrow = null;
+        if (c.sel || !labels.some((q) => overlaps(q, r))) {
+          labels.push(r);
+          mode = t;
+          break;
         }
       }
+      this.draw(p, mode, c.sel);
       next.push(p);
     }
     this.root.dataset.dropped = String(dropped);
