@@ -53,9 +53,13 @@ async function main() {
 
   const del = [...have.keys()].filter((k) => !next.has(k));
   const ins = [...next.values()].filter((l) => !have.has(`${l.complex_id}|${l.zone_id}`));
+  // 고치기는 구역이 둘 이상인 단지만 (비율로 순서를 정해야 하는 경우) — 한 구역뿐인 단지는 그대로 둬 쓰기를 줄인다
+  const perComplex = new Map<string, number>();
+  for (const l of next.values()) perComplex.set(l.complex_id, (perComplex.get(l.complex_id) ?? 0) + 1);
   const upd = [...next.values()].filter((l) => {
     const h = have.get(`${l.complex_id}|${l.zone_id}`);
-    return h && (Math.abs(h.lat - l.lat) > 1e-7 || Math.abs(h.lng - l.lng) > 1e-7 || h.src !== l.src || h.share !== (l.share ?? null));
+    if (!h || (perComplex.get(l.complex_id) ?? 0) < 2) return false;
+    return Math.abs(h.lat - l.lat) > 1e-7 || Math.abs(h.lng - l.lng) > 1e-7 || h.src !== l.src || h.share !== (l.share ?? null);
   });
   // 배정 구역이 실제로 바뀐 단지 (좌표만 바뀐 건 빼고)
   const changed = new Set([...del.map((k) => k.split("|")[0]!), ...ins.map((l) => l.complex_id)]);
