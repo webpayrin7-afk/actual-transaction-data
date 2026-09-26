@@ -20,6 +20,21 @@ node scripts/map3d/verify-pmtiles.mjs public/map3d/seoul-buildings.pmtiles   # �
 - 2026-09-09 원천 기준: 건물 695,763개, 타일 984개, **25.7MB** (z12 0.3 · z13 1.7 · z14 10.8 · z15 12.9MB, gzip),
   가장 큰 타일 196KB(z14). 약 7~9분.
 
+### v2 — 최근 준공 단지 더하기 (도로명주소 건물 SPBD)
+
+AL_D010에는 최근 준공 단지(헬리오시티·래미안웰스트림·올림픽파크포레온 등)가 없고, 철거된 옛 건물(원베일리 자리의 반포경남)이
+남아 있다. DB `gis_buildings`의 `change_type='SPBD'`(브이월드 도로명주소 건물, `scripts/building-3d/fill-gis-from-vworld-spbd.mts`로
+단지 동에 붙인 것) 중 서울(`lawd_cd` 11*)을 더하고, 그 도형과 (작은 쪽 면적의) 30% 이상 겹치는 AL_D010 건물은 뺀다.
+
+```bash
+npx tsx scripts/map3d/export_spbd_buildings.mts C:/data/map3d/seoul-spbd.geojson          # DB 읽기만
+python scripts/map3d/build_buildings_pmtiles.py C:/data/gis/AL_D010_11_20260909.zip C:/data/map3d/seoul-buildings-v2.pmtiles --spbd C:/data/map3d/seoul-spbd.geojson
+npx tsx scripts/map3d/verify-complexes.mts C:/data/map3d/seoul-buildings-v2.pmtiles 헬리오시티 래미안웰스트림   # 동마다 타일에 있는지
+```
+
+- SPBD 높이: 단지 동 대장 `height_m` → 층수(SPBD·대장 중 큰 값)×3m → 3.5m. `a`=1(모두 단지 동).
+- 2026-09-26: AL_D010 695,763 중 5,129 뺌, SPBD 4,270건(폴리곤 4,271) 더함.
+
 ## 2. 올리기 (Vercel Blob)
 
 파일이 커서 git에는 넣지 않는다(`/public/map3d/*.pmtiles`는 .gitignore). 개발 서버는 `public/map3d/`에서 읽는다.

@@ -36,6 +36,9 @@ if len(args) < 2:
 SRC = Path(args[0])
 OUT = Path(args[1])
 LIMIT = int(args[args.index("--limit") + 1]) if "--limit" in args else 0  # 시험용: 앞 N건만
+# 도로명주소 건물(DB gis_buildings change_type='SPBD') GeoJSON — scripts/map3d/export_spbd_buildings.mts로 만든다
+SPBD = Path(args[args.index("--spbd") + 1]) if "--spbd" in args else None
+OVERLAP = 0.3  # AL_D010 건물이 SPBD 건물과 (작은 쪽 면적의) 30% 이상 겹치면 뺀다 — 철거된 옛 건물·같은 건물 중복
 OUT.parent.mkdir(parents=True, exist_ok=True)
 
 EXTENT = 4096
@@ -159,6 +162,50 @@ finally:
 geoms = np.array(polys, dtype=object)
 H = np.array(heights, dtype=np.int32)
 A = np.array(apts, dtype=np.int8)
+merge_stats: dict = {}
+if SPBD:
+    # SPBD 도형(경위도 고리들) → 정규 좌표 폴리곤. 첫 고리 안에 들어가는 고리는 구멍, 아니면 따로 바깥 고리.
+    fc = json.loads(SPBD.read_text(encoding="utf-8"))
+    s_polys: list = []
+    s_h: list[int] = []
+    for ft in fc["features"]:
+        rings = [np.array([merc_norm(float(p[0]), float(p[1])) for p in rg]) for rg in ft["geometry"]["coordinates"] if len(rg) >= 4]
+        cand = sorted((shapely.Polygon(rg) for rg in rings), key=lambda g: -g.area)
+        shells: list = []
+        for g in cand:
+            if not g.is_valid:
+                g = shapely.make_valid(g)
+            host = next((k for k, s in enumerate(shells) if s.contains(g.representative_point())), None)
+            if host is None:
+                shells.append(g)
+            else:
+                shells[host] = shapely.make_valid(shells[host].difference(g))
+        for s in shells:
+            for part in shapely.get_parts(s):
+                if isinstance(part, shapely.Polygon) and not part.is_empty and part.area > 0:
+                    s_polys.append(part)
+                    s_h.append(int(ft["properties"]["h"]))
+    S = np.array(s_polys, dtype=object)
+    tree = shapely.STRtree(S)
+    ai, si = tree.query(geoms, predicate="intersects")  # (AL_D010 번호, SPBD 번호) 쌍
+    inter = shapely.area(shapely.intersection(geoms[ai], S[si]))
+    smaller = np.minimum(shapely.area(geoms[ai]), shapely.area(S[si]))
+    ratio = np.divide(inter, smaller, out=np.zeros_like(inter), where=smaller > 0)
+    drop = np.zeros(len(geoms), dtype=bool)
+    drop[ai[ratio >= OVERLAP]] = True
+    keep = ~drop
+    merge_stats = {
+        "al_d010_total": int(len(geoms)),
+        "al_d010_dropped": int(drop.sum()),
+        "al_d010_kept": int(keep.sum()),
+        "spbd_features": len(fc["features"]),
+        "spbd_polygons_added": int(len(S)),
+        "overlap_threshold": OVERLAP,
+    }
+    log(f"SPBD merge: {merge_stats}")
+    geoms = np.concatenate([geoms[keep], S])
+    H = np.concatenate([H[keep], np.array(s_h, dtype=np.int32)])
+    A = np.concatenate([A[keep], np.ones(len(S), dtype=np.int8)])
 # 바닥 면적(대략, m²): 정규 좌표 면적 × (지구둘레)² × cos²(위도)
 lat0 = math.radians(37.55)
 AREA_M2 = shapely.area(geoms) * (2 * HALF) ** 2 * math.cos(lat0) ** 2
@@ -435,8 +482,8 @@ metadata = json.dumps(
     {
         "name": "ziplab-seoul-buildings",
         "format": "pbf",
-        "attribution": "건물: 국토교통부 GIS건물통합정보",
-        "source": SRC.name,
+        "attribution": "건물: 국토교통부 GIS건물통합정보" + (", 행정안전부 도로명주소 건물(브이월드)" if SPBD else ""),
+        "source": SRC.name + (f" + {SPBD.name}" if SPBD else ""),
         "vector_layers": [
             {"id": LAYER, "fields": {"h": "Number", "a": "Number"}, "minzoom": ZOOMS[0], "maxzoom": ZOOMS[-1]}
         ],
@@ -473,6 +520,7 @@ summary = {
     "out": str(OUT),
     "bytes": OUT.stat().st_size,
     "buildings": int(len(H)),
+    "merge": merge_stats,
     "tiles": len(ids),
     "tile_contents": contents,
     "tiles_by_zoom": tile_counts,
