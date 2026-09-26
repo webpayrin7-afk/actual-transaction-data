@@ -10,7 +10,10 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
+import { Line2 } from "three/examples/jsm/lines/Line2.js";
+import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 import type { Complex3d, Complex3dBuilding, FloorBand, Poi3d, Ring } from "@/lib/complex-3d/read";
+import type { TerrainGridPayload } from "@/lib/complex-3d/ground";
 
 export const FLOOR_M = 3;
 const TEAL = 0x0e9aa0;
@@ -19,7 +22,16 @@ const OWN = 0x9fd9d6; // 단지 동 — 주변 회색 건물과 구분되는 중
 const OWN_EDGE = 0x0e9aa0;
 const NEIGHBOR = 0xe6e9ee;
 
-export type SceneMode = "base" | "floors" | "types" | "sun" | "view" | "around";
+export type SceneMode = "base" | "floors" | "types" | "sun" | "view" | "around" | "walk";
+
+/** 걷기 경로 하나 (API 응답 중 그리는 데 필요한 것만) */
+export type WalkRouteDraw = {
+  points: Array<[number, number]>;
+  marks: Array<{ lng: number; lat: number; kind: string; major?: boolean; signal?: boolean }>;
+  target: { lng: number; lat: number };
+  name: string;
+  totalSec: number;
+};
 
 /** 동의 주력 평형 (세대가 가장 많은 평형) */
 export function dominantUnit(b: Complex3dBuilding): { label: string; share: number } | null {
@@ -81,6 +93,13 @@ export function sunPosition(lat: number, lng: number, date: Date, hourKst: numbe
 
 type Local = { x: number; z: number };
 
+/** 빨리 감기 재생 길이 — 실제 걷는 시간의 약 1/80, 6~14초 */
+const walkPlayMs = (sec: number) => Math.max(6000, Math.min(14000, sec * 12));
+
+const WALKER_SVG =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<circle cx="13" cy="4" r="2" fill="currentColor"/><path d="M11 21l2-6 3 3v3"/><path d="M9 10l3-2 3 3 3 1"/><path d="M12 8l-1 6-3 2"/></svg>';
+
 export class Complex3dScene {
   private renderer: THREE.WebGLRenderer;
   private labels: CSS2DRenderer;
@@ -98,6 +117,7 @@ export class Complex3dScene {
     labels: new THREE.Group(),
     view: new THREE.Group(),
     pois: new THREE.Group(),
+    walk: new THREE.Group(),
   };
   private ownMeshes = new Map<string, THREE.Mesh>();
   private ownMaterial = new THREE.MeshStandardMaterial({ color: OWN, roughness: 0.85, metalness: 0 });
@@ -178,30 +198,128 @@ export class Complex3dScene {
 
   private grid: THREE.GridHelper | null = null;
   private mapPlane: THREE.Mesh | null = null;
+  private mapTex: THREE.Texture | null = null;
+  private mapSize = 0;
+  /** 지형 — 단지 중심 기준 상대 높이(m), n×n, 북쪽 행부터 */
+  private terrain: { size: number; n: number; h: Float32Array; min: number } | null = null;
 
   /**
    * 바닥에 실제 지도 이미지를 깐다 — 단지 중심이 이미지 가운데, 한 변 sizeM 미터(웹 메르카토르라 가로·세로 축척 같음).
-   * 지도가 뜨면 격자는 숨긴다. 그림자는 지도 위에 그대로 떨어진다.
+   * 지도가 뜨면 격자는 숨긴다. 그림자는 지도 위에 그대로 떨어진다. 지형이 있으면 지도가 지형을 따라 휜다.
    */
   setGroundMap(url: string, sizeM: number) {
+    this.mapSize = sizeM;
     new THREE.TextureLoader().load(url, (tex) => {
+      if (this.disposed) return;
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.anisotropy = Math.min(8, this.renderer.capabilities.getMaxAnisotropy());
-      if (this.mapPlane) {
-        this.scene.remove(this.mapPlane);
-        (this.mapPlane.material as THREE.Material).dispose();
-      }
-      const plane = new THREE.Mesh(
-        new THREE.PlaneGeometry(sizeM, sizeM),
-        new THREE.MeshLambertMaterial({ map: tex }),
-      );
-      plane.rotation.x = -Math.PI / 2;
-      plane.position.y = 0.05;
-      plane.receiveShadow = true;
-      this.scene.add(plane);
-      this.mapPlane = plane;
+      this.mapTex?.dispose();
+      this.mapTex = tex;
+      this.buildGround();
       if (this.grid) this.grid.visible = false;
     });
+  }
+
+  /** 지형 격자를 받는다 — 바닥을 휘고, 동·주변 건물을 땅 높이에 올려 다시 짓는다 */
+  /** 지형을 입혀 다시 지은 뒤 */
+  onTerrain: () => void = () => {};
+  private terrainSrc: TerrainGridPayload | null = null;
+
+  setTerrain(t: TerrainGridPayload) {
+    if (this.terrainSrc === t) return;
+    this.terrainSrc = t;
+    const bin = atob(t.heights);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const raw = new Int16Array(bytes.buffer, 0, t.n * t.n);
+    const h = new Float32Array(t.n * t.n);
+    let min = Infinity;
+    for (let i = 0; i < h.length; i++) {
+      h[i] = raw[i]! / 10;
+      min = Math.min(min, h[i]!);
+    }
+    this.terrain = { size: t.sizeM, n: t.n, h, min };
+    if (!this.mapSize) this.mapSize = t.sizeM;
+    this.buildGround();
+    this.ground.position.y = Math.min(0, min) - 0.6;
+    if (this.grid) this.grid.visible = false;
+    if (this.data) this.rebuild();
+    this.onTerrain();
+  }
+
+  /** 땅 높이 (지형 없으면 0) — 로컬 x(동), z(남) */
+  groundAt(x: number, z: number): number {
+    const t = this.terrain;
+    if (!t) return 0;
+    const f = (v: number) => Math.max(0, Math.min(t.n - 1.001, ((v + t.size / 2) / t.size) * (t.n - 1)));
+    const fx = f(x);
+    const fz = f(z);
+    const ix = Math.floor(fx);
+    const iz = Math.floor(fz);
+    const ax = fx - ix;
+    const az = fz - iz;
+    const v = (c: number, r: number) => t.h[r * t.n + c]!;
+    return v(ix, iz) * (1 - ax) * (1 - az) + v(ix + 1, iz) * ax * (1 - az) + v(ix, iz + 1) * (1 - ax) * az + v(ix + 1, iz + 1) * ax * az;
+  }
+
+  private buildGround() {
+    const size = this.mapSize || this.terrain?.size || 0;
+    if (!size || (!this.mapTex && !this.terrain)) return;
+    if (this.mapPlane) {
+      this.scene.remove(this.mapPlane);
+      this.mapPlane.geometry.dispose();
+      (this.mapPlane.material as THREE.Material).dispose();
+    }
+    const t = this.terrain;
+    const seg = t ? t.n - 1 : 1;
+    const geo = new THREE.PlaneGeometry(size, size, seg, seg);
+    geo.rotateX(-Math.PI / 2); // 0번 행 = 북쪽(z = -size/2)
+    if (t) {
+      const pos = geo.attributes.position!;
+      for (let i = 0; i < pos.count; i++) pos.setY(i, this.groundAt(pos.getX(i), pos.getZ(i)));
+      geo.computeVertexNormals();
+    }
+    const plane = new THREE.Mesh(
+      geo,
+      new THREE.MeshLambertMaterial(this.mapTex ? { map: this.mapTex } : { color: 0xf1f4f6 }),
+    );
+    plane.position.y = 0.05;
+    plane.receiveShadow = true;
+    this.scene.add(plane);
+    this.mapPlane = plane;
+  }
+
+  /** 외곽선 아래 가장 낮은 땅 높이 — 비탈에서도 건물이 뜨지 않게 (높은 쪽은 땅에 묻힌다) */
+  private baseOf(rings: Ring[] | null): number {
+    if (!this.terrain || !rings?.length) return 0;
+    let min = Infinity;
+    for (const [lng, lat] of rings[0] ?? []) {
+      const p = this.toLocal(lng, lat);
+      min = Math.min(min, this.groundAt(p.x, p.z));
+    }
+    const c = this.ringCenter(rings);
+    min = Math.min(min, this.groundAt(c.x, c.z));
+    return Number.isFinite(min) ? min : 0;
+  }
+  private baseById = new Map<string, number>();
+  private base(id: string): number {
+    return this.baseById.get(id) ?? 0;
+  }
+
+  private lastBands: FloorBand[] | null = null;
+  private lastTypeColor: ((label: string) => string) | null = null;
+  private lastPois: Poi3d[] | null = null;
+
+  /** 지형이 늦게 도착했을 때 — 카메라는 그대로 두고 모두 다시 짓는다 */
+  private rebuild() {
+    if (!this.data) return;
+    this.setData(this.data, true);
+    this.setMode(this.mode);
+    if (this.lastBands) this.setFloorBands(this.lastBands);
+    if (this.lastTypeColor) this.setTypeColors(this.lastTypeColor);
+    if (this.lastPois) this.setPois(this.lastPois);
+    if (this.walkDraw) this.showWalk(this.walkDraw, this.walkReduced, false);
+    this.paint();
   }
 
   private toLocal(lng: number, lat: number): Local {
@@ -228,12 +346,14 @@ export class Complex3dScene {
     return geos.length === 1 ? geos[0]! : mergeGeometries(geos);
   }
 
-  setData(data: Complex3d) {
+  setData(data: Complex3d, keepCamera = false) {
     this.data = data;
     this.mPerLng = 111_320 * Math.cos((data.center.lat * Math.PI) / 180);
     for (const g of Object.values(this.groups)) g.clear();
     this.ownMeshes.clear();
     this.labelEls.clear();
+    this.baseById.clear();
+    for (const b of data.buildings) this.baseById.set(b.id, this.baseOf(b.rings));
 
     // 우리 단지 동
     const edgeMat = new THREE.LineBasicMaterial({ color: OWN_EDGE, transparent: true, opacity: 0.55 });
@@ -242,7 +362,8 @@ export class Complex3dScene {
       if (!b.rings) continue;
       const { h } = buildingHeight(b);
       maxH = Math.max(maxH, h);
-      const geo = this.extrude(b.rings, 0, h);
+      const y0 = this.base(b.id);
+      const geo = this.extrude(b.rings, y0, y0 + h);
       if (!geo) continue;
       const mesh = new THREE.Mesh(geo, this.ownMaterial);
       mesh.castShadow = true;
@@ -258,9 +379,9 @@ export class Complex3dScene {
         el.className = "complex3d-label";
         const c = this.ringCenter(b.rings);
         const obj = new CSS2DObject(el);
-        obj.position.set(c.x, h + 4, c.z);
+        obj.position.set(c.x, y0 + h + 4, c.z);
         this.groups.labels.add(obj);
-        this.labelEls.set(b.id, { el, x: c.x, y: h + 4, z: c.z });
+        this.labelEls.set(b.id, { el, x: c.x, y: y0 + h + 4, z: c.z });
       }
     }
 
@@ -268,7 +389,8 @@ export class Complex3dScene {
     const neighborGeos: THREE.BufferGeometry[] = [];
     for (const n of data.neighbors) {
       const { h } = buildingHeight(n);
-      const g = this.extrude(n.rings, 0, h);
+      const y0 = this.baseOf(n.rings);
+      const g = this.extrude(n.rings, y0, y0 + h);
       if (g) neighborGeos.push(g.index ? g.toNonIndexed() : g);
     }
     if (neighborGeos.length) {
@@ -301,6 +423,7 @@ export class Complex3dScene {
     const halfW = Math.max(40, (maxX - minX) / 2);
     const halfD = Math.max(40, (maxZ - minZ) / 2);
     this.bounds = { radius: Math.hypot(halfW, halfD), maxH, cx: (minX + maxX) / 2, cz: (minZ + maxZ) / 2, halfW, halfD };
+    if (keepCamera) return;
     const home = this.homeView();
     this.controls.target.copy(home.target);
     this.camera.position.copy(home.position);
@@ -318,7 +441,7 @@ export class Complex3dScene {
     const needW = halfW / Math.tan(hfov / 2);
     const needH = (halfD * Math.cos(polar) + maxH * Math.sin(polar) * 0.5) / Math.tan(vfov / 2);
     const dist = Math.min(this.controls.maxDistance, Math.max(120, Math.max(needW, needH) * 1.08));
-    const target = new THREE.Vector3(cx, maxH * 0.25, cz);
+    const target = new THREE.Vector3(cx, this.groundAt(cx, cz) + maxH * 0.25, cz);
     const position = new THREE.Vector3(
       target.x + dist * Math.sin(polar) * Math.sin(azimuth),
       target.y + dist * Math.cos(polar),
@@ -350,8 +473,9 @@ export class Complex3dScene {
     const vfov = (this.camera.fov * Math.PI) / 180;
     const hfov = 2 * Math.atan(Math.tan(vfov / 2) * this.camera.aspect);
     const dist = Math.min(this.controls.maxDistance, Math.max(halfW / Math.tan(hfov / 2), halfD / Math.tan(vfov / 2)) * 1.1);
-    const target = new THREE.Vector3(cx, 0, cz);
-    this.flyTo(new THREE.Vector3(cx, dist, cz + 0.01), target);
+    const gy = this.groundAt(cx, cz);
+    const target = new THREE.Vector3(cx, gy, cz);
+    this.flyTo(new THREE.Vector3(cx, gy + dist, cz + 0.01), target);
   }
 
   /** 지금 기울기·거리 그대로 북쪽이 화면 위로 */
@@ -369,7 +493,7 @@ export class Complex3dScene {
     const c = this.ringCenter(b.rings);
     const { h } = buildingHeight(b);
     // 동 꼭대기보다 위를 보며(바닥이 화면 아래쪽으로 더 내려가게), 지금 방위는 유지하고 위에서 비스듬히(천정에서 50°) — 옆 동까지 조금 보이게 여유 있게
-    const target = new THREE.Vector3(c.x, h * 1.1 + 8, c.z);
+    const target = new THREE.Vector3(c.x, this.base(id) + h * 1.1 + 8, c.z);
     const off = this.camera.position.clone().sub(this.controls.target);
     const az = Math.atan2(off.x, off.z);
     const polar = (50 * Math.PI) / 180;
@@ -396,6 +520,7 @@ export class Complex3dScene {
   /** 모드 바꾸기 — 층별 시세 색칠·조망 부채꼴·주변 핀은 각 모드에서만 보인다 */
   setMode(mode: SceneMode) {
     this.mode = mode;
+    this.groups.walk.visible = mode === "walk";
     this.groups.floors.visible = mode === "floors";
     this.groups.types.visible = mode === "types";
     this.groups.own.visible = mode !== "floors" && mode !== "types";
@@ -406,6 +531,7 @@ export class Complex3dScene {
 
   /** 층별 시세 — 각 동을 저·중·고 구간으로 잘라 구간 평당가에 따라 색을 입힌다 */
   setFloorBands(bands: FloorBand[]) {
+    this.lastBands = bands;
     this.groups.floors.clear();
     if (!this.data) return;
     const prices = bands.map((b) => b.perPyeong).filter((v): v is number => v != null);
@@ -423,8 +549,8 @@ export class Complex3dScene {
       const perFloor = h / floors;
       for (const band of bands) {
         if (band.fromFloor > floors) continue;
-        const from = (band.fromFloor - 1) * perFloor;
-        const to = Math.min(band.toFloor, floors) * perFloor;
+        const from = this.base(b.id) + (band.fromFloor - 1) * perFloor;
+        const to = this.base(b.id) + Math.min(band.toFloor, floors) * perFloor;
         const geo = this.extrude(b.rings, from, to);
         if (!geo) continue;
         const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: color(band.perPyeong), roughness: 0.8 }));
@@ -437,12 +563,13 @@ export class Complex3dScene {
 
   /** 평형 — 각 동을 주력 평형 색으로 (colorOf: 평형 이름 → 색). 평형 정보가 없는 동은 회색 */
   setTypeColors(colorOf: (label: string) => string) {
+    this.lastTypeColor = colorOf;
     this.groups.types.clear();
     if (!this.data) return;
     for (const b of this.data.buildings) {
       if (!b.rings) continue;
       const { h } = buildingHeight(b);
-      const geo = this.extrude(b.rings, 0, h);
+      const geo = this.extrude(b.rings, this.base(b.id), this.base(b.id) + h);
       if (!geo) continue;
       const dom = dominantUnit(b);
       const mesh = new THREE.Mesh(
@@ -477,7 +604,7 @@ export class Complex3dScene {
     if (!b?.rings) return null;
     const { h } = buildingHeight(b);
     const floors = b.floors ?? Math.max(1, Math.round(h / FLOOR_M));
-    const eyeY = Math.min(h - 1, ((floor - 0.5) * h) / floors) + 1.2;
+    const eyeY = this.base(buildingId) + Math.min(h - 1, ((floor - 0.5) * h) / floors) + 1.2;
     const c = this.ringCenter(b.rings);
     const targets: THREE.Object3D[] = [...this.groups.neighbors.children];
     for (const [id, mesh] of this.ownMeshes) if (id !== buildingId) targets.push(mesh);
@@ -549,6 +676,7 @@ export class Complex3dScene {
     const visible = Math.max(0.35, 1 - this.insetTarget / Math.max(1, this.host.clientHeight));
     const dist = Math.min(this.controls.maxDistance, (Math.max(hw / Math.tan(hfov / 2), (hd * Math.cos(polar)) / (Math.tan(vfov / 2) * visible)) * 1.25));
     const target = new THREE.Vector3((minX + maxX) / 2, 0, (minZ + maxZ) / 2);
+    target.y = this.groundAt(target.x, target.z);
     this.flyTo(new THREE.Vector3(target.x, target.y + dist * Math.cos(polar), target.z + dist * Math.sin(polar)), target, 550);
   }
 
@@ -580,7 +708,7 @@ export class Complex3dScene {
     const face = Math.max(...pts.map((q) => (q.x - mx) * nx + (q.z - mz) * nz));
     const { h } = buildingHeight(b);
     const floors = b.floors ?? Math.max(1, Math.round(h / FLOOR_M));
-    const y = Math.min(h - 0.5, ((Math.min(floor, floors) - 0.5) * h) / floors);
+    const y = this.base(buildingId) + Math.min(h - 0.5, ((Math.min(floor, floors) - 0.5) * h) / floors);
     const origin = new THREE.Vector3(mx + nx * (face + 0.6), y, mz + nz * (face + 0.6));
     const targets: THREE.Object3D[] = [...this.groups.neighbors.children];
     for (const [id, mesh] of this.ownMeshes) if (id !== buildingId) targets.push(mesh);
@@ -616,6 +744,7 @@ export class Complex3dScene {
 
   /** 주변 학교·역 핀 */
   setPois(pois: Poi3d[]) {
+    this.lastPois = pois;
     this.groups.pois.clear();
     if (!this.data) return;
     for (const p of pois) {
@@ -625,13 +754,14 @@ export class Complex3dScene {
         new THREE.CylinderGeometry(0.8, 0.8, 30, 8),
         new THREE.MeshBasicMaterial({ color: p.kind === "station" ? 0x2563eb : 0xd97706 }),
       );
-      pole.position.set(l.x, 15, l.z);
+      const gy = this.groundAt(l.x, l.z);
+      pole.position.set(l.x, gy + 15, l.z);
       this.groups.pois.add(pole);
       const el = document.createElement("div");
       el.className = `complex3d-pin complex3d-pin--${p.kind}`;
       el.textContent = `${p.name} · ${p.distanceM.toLocaleString("ko-KR")}m`;
       const obj = new CSS2DObject(el);
-      obj.position.set(l.x, 34, l.z);
+      obj.position.set(l.x, gy + 34, l.z);
       this.groups.pois.add(obj);
     }
   }
@@ -747,7 +877,7 @@ export class Complex3dScene {
     let hit: THREE.Intersection | undefined;
     for (let i = 0; i < 7; i++) {
       const t = lo + ((hi - lo) * (i + 0.5)) / 7;
-      const origin = new THREE.Vector3(mx + nx * (face + 0.5) + ux * t, 3, mz + nz * (face + 0.5) + uz * t);
+      const origin = new THREE.Vector3(mx + nx * (face + 0.5) + ux * t, this.base(id) + 3, mz + nz * (face + 0.5) + uz * t);
       this.raycaster.set(origin, new THREE.Vector3(nx, 0, nz));
       this.raycaster.far = 400;
       const h = this.raycaster.intersectObjects(others, false)[0];
@@ -783,6 +913,182 @@ export class Complex3dScene {
       if (!best || d < best.meters) best = { dong: other.dong, meters: Math.round(d) };
     }
     return best;
+  }
+
+
+  // ── 걷기 경로 ──────────────────────────────────────────────────────────────
+  /** 걸은 시간(초)·끝났는지 — 빨리 감기로 움직이는 사람 표시에 맞춰 */
+  onWalkProgress: (sec: number, done: boolean) => void = () => {};
+  private walkDraw: WalkRouteDraw | null = null;
+  private walkReduced = false;
+  private walkPath: { pts: THREE.Vector3[]; cum: number[]; total: number } | null = null;
+  private walkAnim: { start: number; ms: number } | null = null;
+  private walker: THREE.Object3D | null = null;
+  private walkLastEmit = 0;
+  private walkLineMat = new LineMaterial({ color: 0x2563eb, linewidth: 6 });
+  private walkCaseMat = new LineMaterial({ color: 0xffffff, linewidth: 10 });
+
+  /** 경로를 땅 위에 굵은 선으로 깔고, 사람 표시를 빨리 감기로 걷게 한다 (reduced면 움직이지 않고 도착점에) */
+  showWalk(d: WalkRouteDraw, reduced: boolean, frame = true) {
+    if (!this.data) return;
+    this.walkDraw = d;
+    this.walkReduced = reduced;
+    this.groups.walk.clear();
+    this.walkAnim = null;
+    // 4m 간격으로 다시 찍어 땅을 따라가게
+    const raw = d.points.map(([lng, lat]) => this.toLocal(lng, lat));
+    if (raw.length < 2) return;
+    // 지형 삼각형과 쌍선형 표본이 조금 달라 선이 땅에 묻히지 않게 넉넉히 띄운다
+    const lift = 2.6;
+    const pts: THREE.Vector3[] = [];
+    const cum: number[] = [];
+    let acc = 0;
+    const push = (x: number, z: number) => {
+      const prev = pts[pts.length - 1];
+      if (prev) acc += Math.hypot(x - prev.x, z - prev.z);
+      pts.push(new THREE.Vector3(x, this.groundAt(x, z) + lift, z));
+      cum.push(acc);
+    };
+    push(raw[0]!.x, raw[0]!.z);
+    for (let i = 1; i < raw.length; i++) {
+      const a = raw[i - 1]!;
+      const b = raw[i]!;
+      const k = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.z - a.z) / 4));
+      for (let s = 1; s <= k; s++) push(a.x + ((b.x - a.x) * s) / k, a.z + ((b.z - a.z) * s) / k);
+    }
+    this.walkPath = { pts, cum, total: acc };
+    const flat = pts.flatMap((p) => [p.x, p.y, p.z]);
+    const w = this.host.clientWidth;
+    const h = this.host.clientHeight;
+    this.walkLineMat.resolution.set(w, h);
+    this.walkCaseMat.resolution.set(w, h);
+    const casing = new Line2(new LineGeometry().setPositions(flat), this.walkCaseMat);
+    casing.renderOrder = 2;
+    const line = new Line2(new LineGeometry().setPositions(flat), this.walkLineMat);
+    line.renderOrder = 3;
+    this.groups.walk.add(casing, line);
+
+    // 횡단·출입구·계단 표시 (작은 원판)
+    const disc = (x: number, z: number, color: number, r = 2.6) => {
+      const m = new THREE.Mesh(
+        new THREE.CircleGeometry(r, 20).rotateX(-Math.PI / 2),
+        new THREE.MeshBasicMaterial({ color, depthTest: false, transparent: true }),
+      );
+      m.position.set(x, this.groundAt(x, z) + lift + 0.3, z);
+      m.renderOrder = 4;
+      this.groups.walk.add(m);
+    };
+    for (const mk of d.marks) {
+      const l = this.toLocal(mk.lng, mk.lat);
+      const color =
+        mk.kind === "crossing"
+          ? mk.major
+            ? 0xef4444
+            : 0xf59e0b
+          : mk.kind === "gate"
+            ? 0x0e9aa0
+            : mk.kind === "steps"
+              ? 0x7c3aed
+              : 0x64748b;
+      disc(l.x, l.z, color);
+    }
+    disc(pts[0]!.x, pts[0]!.z, 0x0f172a, 3);
+
+    // 도착 핀
+    const tl = this.toLocal(d.target.lng, d.target.lat);
+    const gy = this.groundAt(tl.x, tl.z);
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 24, 8), new THREE.MeshBasicMaterial({ color: 0x1d4ed8 }));
+    pole.position.set(tl.x, gy + 12, tl.z);
+    this.groups.walk.add(pole);
+    const el = document.createElement("div");
+    el.className = "complex3d-pin complex3d-pin--station";
+    el.textContent = d.name;
+    const pin = new CSS2DObject(el);
+    pin.position.set(tl.x, gy + 28, tl.z);
+    this.groups.walk.add(pin);
+
+    // 걷는 사람
+    const wel = document.createElement("div");
+    wel.className = "complex3d-walker";
+    wel.innerHTML = WALKER_SVG;
+    const walker = new THREE.Group();
+    const ball = new THREE.Mesh(new THREE.SphereGeometry(2.2, 16, 12), new THREE.MeshBasicMaterial({ color: 0x1d4ed8 }));
+    walker.add(ball, new CSS2DObject(wel));
+    this.groups.walk.add(walker);
+    this.walker = walker;
+    if (reduced) {
+      walker.position.copy(pts[pts.length - 1]!);
+      this.onWalkProgress(d.totalSec, true);
+    } else {
+      walker.position.copy(pts[0]!);
+      this.walkAnim = { start: performance.now(), ms: walkPlayMs(d.totalSec) };
+      this.onWalkProgress(0, false);
+    }
+    if (frame) this.fitWalk();
+  }
+
+  replayWalk() {
+    if (!this.walkPath || !this.walkDraw || this.walkReduced) return;
+    this.walkAnim = { start: performance.now(), ms: walkPlayMs(this.walkDraw.totalSec) };
+  }
+
+  clearWalk() {
+    this.groups.walk.clear();
+    this.walkDraw = null;
+    this.walkPath = null;
+    this.walkAnim = null;
+    this.walker = null;
+  }
+
+  /** 경로 전체가 보이게 — 위에서 비스듬히, 아래 패널이 가리는 만큼 멀리서 */
+  fitWalk() {
+    const path = this.walkPath;
+    if (!path) return;
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minZ = Infinity;
+    let maxZ = -Infinity;
+    for (const p of path.pts) {
+      minX = Math.min(minX, p.x);
+      maxX = Math.max(maxX, p.x);
+      minZ = Math.min(minZ, p.z);
+      maxZ = Math.max(maxZ, p.z);
+    }
+    const hw = (maxX - minX) / 2 + 40;
+    const hd = (maxZ - minZ) / 2 + 40;
+    const vfov = (this.camera.fov * Math.PI) / 180;
+    const hfov = 2 * Math.atan(Math.tan(vfov / 2) * this.camera.aspect);
+    const polar = (38 * Math.PI) / 180;
+    const visible = Math.max(0.35, 1 - this.insetTarget / Math.max(1, this.host.clientHeight));
+    const dist = Math.min(
+      this.controls.maxDistance,
+      Math.max(160, Math.max(hw / Math.tan(hfov / 2), (hd * Math.cos(polar)) / (Math.tan(vfov / 2) * visible)) * 1.15),
+    );
+    const target = new THREE.Vector3((minX + maxX) / 2, 0, (minZ + maxZ) / 2);
+    target.y = this.groundAt(target.x, target.z);
+    this.flyTo(new THREE.Vector3(target.x, target.y + dist * Math.cos(polar), target.z + dist * Math.sin(polar)), target, 600);
+  }
+
+  private stepWalk() {
+    const a = this.walkAnim;
+    const path = this.walkPath;
+    if (!a || !path || !this.walker || !this.walkDraw) return;
+    const k = Math.min(1, (performance.now() - a.start) / a.ms);
+    const d = k * path.total;
+    let i = 1;
+    while (i < path.cum.length - 1 && path.cum[i]! < d) i++;
+    const c0 = path.cum[i - 1]!;
+    const c1 = path.cum[i]!;
+    const t = c1 > c0 ? (d - c0) / (c1 - c0) : 1;
+    this.walker.position.lerpVectors(path.pts[i - 1]!, path.pts[i]!, Math.max(0, Math.min(1, t)));
+    const now = performance.now();
+    if (k >= 1) {
+      this.walkAnim = null;
+      this.onWalkProgress(this.walkDraw.totalSec, true);
+    } else if (now - this.walkLastEmit > 120) {
+      this.walkLastEmit = now;
+      this.onWalkProgress(k * this.walkDraw.totalSec, false);
+    }
   }
 
   private down: { x: number; y: number } | null = null;
@@ -832,6 +1138,8 @@ export class Complex3dScene {
     const h = this.host.clientHeight;
     this.camera.aspect = w / h;
     this.selectEdgeMaterial.resolution.set(w, h);
+    this.walkLineMat.resolution.set(w, h);
+    this.walkCaseMat.resolution.set(w, h);
     this.applyInset();
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
@@ -854,6 +1162,7 @@ export class Complex3dScene {
       if (Math.abs(this.insetTarget - this.inset) <= 0.5) this.inset = this.insetTarget;
       this.applyInset();
     }
+    this.stepWalk();
     this.controls.update();
     // 멀리서 보면 동 이름표를 작게 (겹침 줄이기)
     const far = this.camera.position.distanceTo(this.controls.target) > this.bounds.radius * 2.6;
