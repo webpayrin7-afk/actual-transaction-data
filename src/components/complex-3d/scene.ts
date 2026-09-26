@@ -26,10 +26,10 @@ const WALK_XRAY_NEIGHBOR = 0.38;
 /** 카메라가 보는 곳은 단지에서 이만큼까지 */
 const PAN_LIMIT_M = 1600;
 /** 가장 멀리 (m) */
-const MAX_DIST = 2200;
+const MAX_DIST = 3000;
 /** 안개 — 이 거리부터 흐려져 이 거리에서 하늘색 */
-const FOG_NEAR = 1800;
-const FOG_FAR = 3600;
+const FOG_NEAR = 2600;
+const FOG_FAR = 5200;
 const FOLLOW_MIN_DIST = 20;
 const TEAL = 0x0e9aa0;
 const TEAL_DARK = 0x087f83;
@@ -917,7 +917,7 @@ export class Complex3dScene {
 
   /**
    * 동 하나로 다가가기 — 그 동이 가장 잘 보이는 자리에서: 앞면(긴 축에 수직, 남쪽 쪽) 정면에서
-   * 조금 비스듬히(천정에서 62°), 동 높이가 화면에 알맞게 차도록. 지금 보는 방향은 따르지 않는다. (reduced면 바로)
+   * 비스듬히(천정에서 55°), 동 높이가 보이는 곳의 약 40%를 차도록 (옆 동·둘레도 보이게). 지금 보는 방향은 따르지 않는다. (reduced면 바로)
    */
   focus(id: string, reduced = false) {
     const b = this.data?.buildings.find((x) => x.id === id);
@@ -943,15 +943,15 @@ export class Complex3dScene {
     const along = Math.max(...pts.map((q) => Math.abs((q.x - mx) * Math.cos(ang) + (q.z - mz) * Math.sin(ang)))) * 2;
     const { h } = buildingHeight(b);
     const target = new THREE.Vector3(mx, this.base(id) + h * 0.55, mz);
-    const polar = (62 * Math.PI) / 180;
+    const polar = (55 * Math.PI) / 180;
     const az = Math.atan2(nx, nz);
     const visible = Math.max(0.35, 1 - this.insetTarget / Math.max(1, this.host.clientHeight));
     const vfov = (this.camera.fov * Math.PI) / 180;
     const hfov = 2 * Math.atan(Math.tan(vfov / 2) * this.camera.aspect);
-    // 높이는 보이는 세로의 약 60%, 폭은 가로의 약 70%를 채우게
-    const needH = (h * 0.5) / (Math.tan(vfov / 2) * 0.6 * visible);
-    const needW = (along * 0.5) / (Math.tan(hfov / 2) * 0.7);
-    const dist = Math.min(this.controls.maxDistance, Math.max(90, needH, needW));
+    // 높이는 보이는 세로의 약 40%, 폭은 가로의 약 50%를 채우게
+    const needH = (h * 0.5) / (Math.tan(vfov / 2) * 0.4 * visible);
+    const needW = (along * 0.5) / (Math.tan(hfov / 2) * 0.5);
+    const dist = Math.min(this.controls.maxDistance, Math.max(160, needH, needW));
     const dir = new THREE.Vector3(Math.sin(polar) * Math.sin(az), Math.cos(polar), Math.sin(polar) * Math.cos(az));
     this.flyTo(target.clone().add(dir.multiplyScalar(dist)), target, reduced ? 0 : 450);
   }
@@ -2151,33 +2151,59 @@ export class Complex3dScene {
     this.controls.minDistance = MIN_DIST;
   }
 
-  /** 경로 전체가 보이게 — 위에서 비스듬히, 아래 패널이 가리는 만큼 멀리서 */
+  /**
+   * 경로 전체(출발·도착)가 보이게 — 폰은 세로가 길어, 경로의 긴 방향이 화면 세로(깊이)로 오게 카메라를 돌린다.
+   * 카메라는 출발 쪽 뒤에서 도착 쪽을 보고, 위에서 비스듬히(천정에서 45°), 아래 패널이 가리는 만큼 멀리서.
+   */
   fitWalk() {
     const path = this.walkPath;
-    if (!path) return;
-    let minX = Infinity;
-    let maxX = -Infinity;
-    let minZ = Infinity;
-    let maxZ = -Infinity;
-    for (const p of path.pts) {
-      minX = Math.min(minX, p.x);
-      maxX = Math.max(maxX, p.x);
-      minZ = Math.min(minZ, p.z);
-      maxZ = Math.max(maxZ, p.z);
+    if (!path || path.pts.length < 2) return;
+    const pts = path.pts;
+    const mx = pts.reduce((a, q) => a + q.x, 0) / pts.length;
+    const mz = pts.reduce((a, q) => a + q.z, 0) / pts.length;
+    let sxx = 0, szz = 0, sxz = 0;
+    for (const q of pts) {
+      sxx += (q.x - mx) ** 2;
+      szz += (q.z - mz) ** 2;
+      sxz += (q.x - mx) * (q.z - mz);
     }
-    const hw = (maxX - minX) / 2 + 40;
-    const hd = (maxZ - minZ) / 2 + 40;
+    const ang = 0.5 * Math.atan2(2 * sxz, sxx - szz);
+    // 긴 축 단위 벡터 — 출발에서 도착 쪽으로
+    let ux = Math.cos(ang);
+    let uz = Math.sin(ang);
+    const first = pts[0]!;
+    const last = pts[pts.length - 1]!;
+    if ((last.x - first.x) * ux + (last.z - first.z) * uz < 0) {
+      ux = -ux;
+      uz = -uz;
+    }
+    // 긴 축(깊이)·가로 방향 범위
+    let minA = Infinity, maxA = -Infinity, minC = Infinity, maxC = -Infinity;
+    for (const q of pts) {
+      const al = (q.x - mx) * ux + (q.z - mz) * uz;
+      const cr = -(q.x - mx) * uz + (q.z - mz) * ux;
+      minA = Math.min(minA, al);
+      maxA = Math.max(maxA, al);
+      minC = Math.min(minC, cr);
+      maxC = Math.max(maxC, cr);
+    }
+    const halfL = (maxA - minA) / 2 + 40;
+    const halfW = (maxC - minC) / 2 + 40;
+    const midA = (minA + maxA) / 2;
+    const midC = (minC + maxC) / 2;
+    const target = new THREE.Vector3(mx + ux * midA - uz * midC, 0, mz + uz * midA + ux * midC);
+    target.y = this.groundAt(target.x, target.z);
     const vfov = (this.camera.fov * Math.PI) / 180;
     const hfov = 2 * Math.atan(Math.tan(vfov / 2) * this.camera.aspect);
-    const polar = (38 * Math.PI) / 180;
+    const polar = (45 * Math.PI) / 180;
     const visible = Math.max(0.35, 1 - this.insetTarget / Math.max(1, this.host.clientHeight));
     const dist = Math.min(
       this.controls.maxDistance,
-      Math.max(160, Math.max(hw / Math.tan(hfov / 2), (hd * Math.cos(polar)) / (Math.tan(vfov / 2) * visible)) * 1.15),
+      Math.max(160, Math.max(halfW / Math.tan(hfov / 2), (halfL * Math.cos(polar)) / (Math.tan(vfov / 2) * visible)) * 1.15),
     );
-    const target = new THREE.Vector3((minX + maxX) / 2, 0, (minZ + maxZ) / 2);
-    target.y = this.groundAt(target.x, target.z);
-    this.flyTo(new THREE.Vector3(target.x, target.y + dist * Math.cos(polar), target.z + dist * Math.sin(polar)), target, 600);
+    // 카메라는 출발 쪽 뒤(도착 반대 방향)에서
+    const back = new THREE.Vector3(-ux * Math.sin(polar), Math.cos(polar), -uz * Math.sin(polar));
+    this.flyTo(target.clone().add(back.multiplyScalar(dist)), target, 600);
   }
 
   /** 사람을 땅 위 p(경로 점)에 세운다 — 팔다리 흔들기는 phase(라디안), 0이면 서 있는 자세 */
