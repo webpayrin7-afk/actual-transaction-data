@@ -90,9 +90,11 @@ export type WalkPayload = {
  *  - 어르신 1.0: 경찰청 「교통신호기 설치·관리 매뉴얼」 보행 신호 시간 산정 보행속도 1.0 m/s (노인·어린이 보호구역은 0.8 m/s),
  *    Knoblauch et al. 1996 (TRR 1538) 고령 보행자 하위 15% 약 0.97 m/s 와 맞다.
  *  - 어린이(초등) 1.1: 보호구역 설계 속도(0.8)와 성인 사이 — 초등 저·고학년 편한 걸음 평균 범위.
+ *  - 유모차·휠체어 1.1: 추정값(확인 필요) — 유모차를 미는 성인·수동 휠체어의 평지 편한 속도로 흔히 보고되는 약 1.0~1.3 m/s
+ *    범위의 가운데 쪽으로 잡았다. 한국 자료(국토교통부 보행 설계 기준 등)로 확인되면 바꾼다. 길은 계단을 피하는 mode=wheel.
  * 기울기(Tobler)·계단 배율·신호 대기는 그대로 — 평지 속도만 달라서 걷는 시간이 속도 비율만큼 늘거나 준다.
  */
-export const WALKER_MPS: Record<WalkerId, number> = { male: 1.35, female: 1.27, child: 1.1, elder: 1.0 };
+export const WALKER_MPS: Record<WalkerId, number> = { male: 1.35, female: 1.27, child: 1.1, elder: 1.0, wheel: 1.1 };
 
 /**
  * 저장된 기본 결과(평지 1.25 m/s)를 걷는 사람 속도로 바꾼다 — 보행망을 다시 계산하지 않는다.

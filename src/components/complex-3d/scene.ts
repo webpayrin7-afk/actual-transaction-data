@@ -340,6 +340,36 @@ function makeWalker(look: WalkerLook, elder: boolean): WalkerRig {
   const AL = arm(-1);
   const AR = arm(1);
 
+  // 유모차 — 간단한 바구니·차양·손잡이·바퀴 (몸과 같은 비율, 몸 흔들림은 따라가지 않게 root에)
+  if (look.stroller) {
+    const cart = new THREE.Group();
+    cart.scale.setScalar(s);
+    root.add(cart);
+    const frame = walkerMat(0x4b5563);
+    const cloth = walkerMat(0x7fa8d8);
+    const basket = mesh(new THREE.BoxGeometry(0.42, 0.3, 0.62), cloth, true);
+    basket.position.set(0, 0.52, 0.72);
+    cart.add(basket);
+    const hood = mesh(new THREE.SphereGeometry(0.26, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2).scale(0.85, 0.9, 1), cloth, true);
+    hood.position.set(0, 0.66, 0.56);
+    hood.rotation.x = -0.35;
+    cart.add(hood);
+    const bar = mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.48, 8).rotateZ(Math.PI / 2), frame);
+    bar.position.set(0, 0.98, 0.3);
+    cart.add(bar);
+    for (const side of [-1, 1]) {
+      const rod = mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.62, 6), frame);
+      rod.position.set(side * 0.21, 0.72, 0.42);
+      rod.rotation.x = -0.72;
+      cart.add(rod);
+      for (const z of [0.5, 0.95]) {
+        const wheel = mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.04, 12).rotateZ(Math.PI / 2), frame);
+        wheel.position.set(side * 0.2, 0.1, z);
+        cart.add(wheel);
+      }
+    }
+  }
+
   const ring = mesh(k.ring, k.ringMat);
   ring.position.y = 0.08;
   ring.renderOrder = 5;
@@ -382,14 +412,23 @@ function poseWalker(w: WalkerRig, phase: number, swing: number) {
   w.kneeR.rotation.x = kr;
   w.ankleL.rotation.x = -kl * 0.35 + A * sin * 0.3;
   w.ankleR.rotation.x = -kr * 0.35 - A * sin * 0.3;
-  const Aa = 0.5 * w.look.swing * swing;
-  w.shoulderL.rotation.x = Aa * sin;
-  w.shoulderR.rotation.x = -Aa * sin;
-  w.elbowL.rotation.x = -(0.22 + 0.3 * swing * Math.max(0, -sin));
-  w.elbowR.rotation.x = -(0.22 + 0.3 * swing * Math.max(0, sin));
+  if (w.look.stroller) {
+    // 두 손으로 유모차 손잡이를 잡고 민다 — 팔은 앞으로 고정, 몸은 비틀지 않는다
+    w.shoulderL.rotation.x = -0.62;
+    w.shoulderR.rotation.x = -0.62;
+    w.elbowL.rotation.x = -0.28;
+    w.elbowR.rotation.x = -0.28;
+    w.torso.rotation.y = 0;
+  } else {
+    const Aa = 0.5 * w.look.swing * swing;
+    w.shoulderL.rotation.x = Aa * sin;
+    w.shoulderR.rotation.x = -Aa * sin;
+    w.elbowL.rotation.x = -(0.22 + 0.3 * swing * Math.max(0, -sin));
+    w.elbowR.rotation.x = -(0.22 + 0.3 * swing * Math.max(0, sin));
+    w.torso.rotation.y = 0.08 * swing * sin;
+  }
   w.body.position.y = 0.035 * swing * (Math.abs(cos) - 0.6);
   w.body.rotation.z = 0.035 * swing * sin;
-  w.torso.rotation.y = 0.08 * swing * sin;
 }
 
 /**

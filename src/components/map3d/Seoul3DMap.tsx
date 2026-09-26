@@ -483,7 +483,7 @@ export default function Seoul3DMap({
           minZoom: 10,
           maxZoom: 18.5,
           maxPitch: 70,
-          // 출처는 왼쪽 아래 작은 한 줄로 따로 (Map3dAttribution — 늘 보이고, 누르면 전체)
+          // 출처는 왼쪽 아래 ⓘ로 따로 (Map3dAttribution — 처음 잠깐 펼쳤다가 접힘, 누르면 전체)
           attributionControl: false,
           locale: LOCALE_KO,
           localIdeographFontFamily: "'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif",
@@ -1010,7 +1010,7 @@ export default function Seoul3DMap({
         <Compass className="h-5 w-5" style={{ transform: `rotate(${-bearing}deg)` }} aria-hidden />
       </button>
 
-      {/* 왼쪽 아래 출처 한 줄 — 독·시트 위, 단지 카드가 뜨면 카드 위로 */}
+      {/* 왼쪽 아래 출처 ⓘ — 독·시트 위, 단지 카드가 뜨면 카드 위로 */}
       <Map3dAttribution
         className={
           selected
