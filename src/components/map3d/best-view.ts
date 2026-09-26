@@ -5,17 +5,17 @@ import type { Map as MlMap } from "maplibre-gl";
  *
  * 방향마다(15°씩) 카메라가 놓일 쪽(보는 방향의 반대)의 건물 타일을 보고, 단지 가운데(높이의 절반)에서
  * 카메라로 올라가는 시선(기울기에 따른 오르막)보다 높이 솟은 만큼을 더해 '가림 점수'로 삼는다.
- * 여기에 '보기 좋음'을 더한다 — 동의 긴 면(앞·뒷면)이 보이게(좁은 옆면만 보이는 방향은 벌점),
- * 그중 남쪽에서 보는 쪽(아파트 앞면이 보통 남향)을 조금 더. 15°마다 돌려 본다.
+ * 여기에 '앞에서 보기'를 더한다 — 동의 긴 축에 수직인 두 면 중 남쪽을 더 향한 면(아파트 앞면)을 정면에서
+ * 보는 방향을 기준으로, 거기서 돌수록 벌점. 앞이 트여 있으면 앞에서, 앞이 가리면 조금 돌아서 본다. 15°마다 돌려 본다.
  * 어느 쪽이든 많이 가리면 더 내려다보게(기울기를 줄여) 한다.
  */
 
 const SECTOR_DEG = 28;
 const REACH_M = 450;
-/** 긴 면 대신 옆면을 볼 때 벌점 (가림 점수 단위: m) */
-const SIDE_PENALTY = 40;
-/** 북쪽에서(뒷면을) 볼 때 벌점 */
-const BACK_PENALTY = 12;
+/** 앞면 정면에서 90° 돌 때 벌점 (가림 점수 단위: m) — 앞이 크게 가려야 돌아간다 */
+const FRONT_PENALTY = 60;
+/** 동 축을 모를 때: 남쪽에서 보는 쪽에서 180° 돌 때 벌점 */
+const SOUTH_PENALTY = 24;
 const STEP_DEG = 15;
 
 export type BestView = { bearing: number; pitch: number; score: number };
@@ -76,13 +76,19 @@ export function chooseBestView(
     return s;
   };
 
+  // 앞면 정면 보기 방향 — 긴 축에 수직인 두 면 중 남쪽을 더 향한 면. 카메라는 그 면 앞에서 면을 본다
+  // (면이 향한 방위 n → 보는 방향 bearing = n + 180). 축을 모르면 남쪽에서 북쪽 보기(0°)
+  let front = 0;
+  if (opts.axisDeg != null) {
+    const n1 = (opts.axisDeg + 90) % 360;
+    const n2 = (opts.axisDeg + 270) % 360;
+    const south = (n: number) => -Math.cos((n * Math.PI) / 180); // 남(180°)이면 1
+    const n = south(n1) >= south(n2) ? n1 : n2;
+    front = (n + 180) % 360;
+  }
   const look = (b: number) => {
-    const r = (b * Math.PI) / 180;
-    // 긴 면 보기: 보는 방향이 동의 긴 축과 수직일수록 좋다 (축을 모르면 벌점 없음)
-    const side = opts.axisDeg == null ? 0 : 1 - Math.abs(Math.sin(r - (opts.axisDeg * Math.PI) / 180));
-    // 앞면(남향) 보기: 북쪽을 바라볼수록(카메라가 남쪽) 좋다
-    const back = (1 - Math.cos(r)) / 2;
-    return side * SIDE_PENALTY + back * BACK_PENALTY;
+    const diff = Math.abs(((b - front + 540) % 360) - 180); // 0~180
+    return opts.axisDeg != null ? (diff / 90) * FRONT_PENALTY : (diff / 180) * SOUTH_PENALTY;
   };
   let best: BestView = { bearing: 0, pitch: opts.pitch, score: Infinity };
   for (let b = 0; b < 360; b += STEP_DEG) {
