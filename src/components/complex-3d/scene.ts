@@ -925,8 +925,9 @@ export class Complex3dScene {
   private walkAnim: { start: number; ms: number } | null = null;
   private walker: THREE.Object3D | null = null;
   private walkLastEmit = 0;
-  private walkLineMat = new LineMaterial({ color: 0x2563eb, linewidth: 6 });
-  private walkCaseMat = new LineMaterial({ color: 0xffffff, linewidth: 10 });
+  // 경로는 건물·지형에 가려도 이어져 보이게 (깊이 검사 끔, 맨 나중에 그림)
+  private walkLineMat = new LineMaterial({ color: 0x2563eb, linewidth: 6, depthTest: false, transparent: true });
+  private walkCaseMat = new LineMaterial({ color: 0xffffff, linewidth: 10, depthTest: false, transparent: true });
 
   /** 경로를 땅 위에 굵은 선으로 깔고, 사람 표시를 빨리 감기로 걷게 한다 (reduced면 움직이지 않고 도착점에) */
   showWalk(d: WalkRouteDraw, reduced: boolean, frame = true) {

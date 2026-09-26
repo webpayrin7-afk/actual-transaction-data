@@ -15,7 +15,12 @@ export const WALK_HALF_M = 1100;
 const STATION_MAX_M = 1000;
 const BASE_MPS = 4.5 / 3.6;
 const DENSIFY_M = 15;
-const OVERPASS_URLS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"];
+/** 거울 서버를 차례로 — 한 곳당 짧게 기다려 함수 제한(60초) 안에 끝낸다 */
+const OVERPASS_MIRRORS: Array<{ url: string; ms: number }> = [
+  { url: "https://overpass.kumi.systems/api/interpreter", ms: 14_000 },
+  { url: "https://overpass.private.coffee/api/interpreter", ms: 12_000 },
+  { url: "https://overpass-api.de/api/interpreter", ms: 14_000 },
+];
 const UA = "ZIPLAB-3d-walk/0.1 (apartment walking-route prototype; low volume, cached)";
 
 // ── 입력·출력 ────────────────────────────────────────────────────────────────
@@ -75,13 +80,13 @@ export type WalkPayload = {
 };
 
 // ── OSM ──────────────────────────────────────────────────────────────────────
-type Tags = Record<string, string>;
-type OsmEl =
+export type Tags = Record<string, string>;
+export type OsmEl =
   | { type: "node"; id: number; lat: number; lon: number; tags?: Tags }
   | { type: "way"; id: number; nodes: number[]; tags?: Tags; center?: { lat: number; lon: number } }
   | { type: "relation"; id: number; tags?: Tags; center?: { lat: number; lon: number } };
 
-const WALK_HW = new Set([
+export const WALK_HW = new Set([
   "footway", "path", "pedestrian", "steps", "living_street", "residential", "service", "tertiary", "tertiary_link",
   "secondary", "secondary_link", "primary", "primary_link", "unclassified", "track", "cycleway", "corridor", "road",
   "trunk", "trunk_link", "bridleway",
@@ -93,7 +98,7 @@ const ROAD_RANK: Record<string, number> = {
 
 function overpassQuery(b: Bbox): string {
   const bb = `${b.south.toFixed(6)},${b.west.toFixed(6)},${b.north.toFixed(6)},${b.east.toFixed(6)}`;
-  return `[out:json][timeout:50][bbox:${bb}];
+  return `[out:json][timeout:25][bbox:${bb}];
 way[highway]->.w;
 (.w;>;)->.wn;
 (node[railway=subway_entrance];node[railway~"^(station|halt)$"];node[public_transport=station];node[highway=bus_stop];node[entrance];node[highway=traffic_signals];)->.p;
@@ -102,21 +107,21 @@ way[highway]->.w;
 .p out body qt;`;
 }
 
-async function fetchOverpass(b: Bbox): Promise<OsmEl[]> {
+export async function fetchOverpass(b: Bbox): Promise<{ elements: OsmEl[]; source: string }> {
   const body = new URLSearchParams({ data: overpassQuery(b) });
   let last: unknown = null;
-  for (const url of OVERPASS_URLS) {
+  for (const { url, ms } of OVERPASS_MIRRORS) {
     try {
       const res = await fetch(url, {
         method: "POST",
         body,
         headers: { "User-Agent": UA, "Content-Type": "application/x-www-form-urlencoded" },
-        signal: AbortSignal.timeout(55_000),
+        signal: AbortSignal.timeout(ms),
       });
       if (!res.ok) throw new Error(`overpass ${res.status}`);
       const json = (await res.json()) as { elements?: OsmEl[]; remark?: string };
       if (!json.elements?.length) throw new Error(`overpass empty ${json.remark ?? ""}`);
-      return json.elements;
+      return { elements: json.elements, source: new URL(url).host };
     } catch (e) {
       last = e;
     }
@@ -231,10 +236,13 @@ function isPrivate(t: Tags): boolean {
   return (t.access === "private" || t.access === "no" || t.access === "customers") && !FOOT_OK.has(t.foot ?? "");
 }
 
-async function buildGraph(input: WalkInput): Promise<Graph> {
+/** 걷기 그래프 원천 — 저장본(DB)이 있으면 그것, 없으면 Overpass (성공하면 저장). 부르는 쪽이 정한다. */
+export type OsmLoader = (bbox: Bbox) => Promise<OsmEl[]>;
+
+async function buildGraph(input: WalkInput, loadOsm: OsmLoader): Promise<Graph> {
   const { center } = input;
   const bbox = bboxAround(center, WALK_HALF_M);
-  const [elements, sampler] = await Promise.all([fetchOverpass(bbox), elevationSampler(bbox).catch(() => null)]);
+  const [elements, sampler] = await Promise.all([loadOsm(bbox), elevationSampler(bbox).catch(() => null)]);
   const mPerLng = 111_320 * Math.cos((center.lat * Math.PI) / 180);
   const toX = (lng: number) => (lng - center.lng) * mPerLng;
   const toZ = (lat: number) => -(lat - center.lat) * 111_320;
@@ -340,8 +348,8 @@ async function buildGraph(input: WalkInput): Promise<Graph> {
   const z = Float64Array.from(zs);
   const h = new Float32Array(n);
   if (sampler) {
-    // 거친 원천(30m 급)은 건물·나무가 섞인 표면이라 한 점씩 튀는 값이 많다 — 원천 해상도만큼 떨어진 다섯 점 평균으로 누른다
-    const r = sampler.info.resolutionM >= 20 ? sampler.info.resolutionM / 2 : 0;
+    // 거친 원천(30m 급)은 건물·나무가 섞인 표면이라 한 점씩 튀는 값이 많다 — 원천 해상도 반경의 다섯 점 평균으로 누른다
+    const r = sampler.info.resolutionM >= 20 ? sampler.info.resolutionM : 0;
     const at = (px: number, pz: number) => sampler.at(center.lat - pz / 111_320, center.lng + px / mPerLng);
     for (let i = 0; i < n; i++) {
       const px = x[i]!;
@@ -436,6 +444,38 @@ function nearestNode(g: Graph, px: number, pz: number, maxM: number, accept?: (i
   return best;
 }
 
+/**
+ * 한 점 둘레의 길 점들 — 가장 가까운 길에서 extra m 더 먼 곳까지 (최대 maxM, 가까운 순 80개).
+ * 단지·학교 안 길이 OSM에 없거나 한쪽으로만 이어질 때, 어느 쪽으로 나가도(들어가도) 되게 여러 점을 후보로 둔다.
+ */
+function nodesAround(
+  g: Graph,
+  px: number,
+  pz: number,
+  maxM: number,
+  extra: number,
+  accept?: (i: number) => boolean,
+): Array<{ i: number; d: number }> {
+  const first = nearestNode(g, px, pz, maxM, accept);
+  if (!first) return [];
+  const r = Math.min(maxM, first.d + extra);
+  const out: Array<{ i: number; d: number }> = [];
+  const cr = Math.ceil(r / CELL);
+  const cx = Math.floor(px / CELL);
+  const cz = Math.floor(pz / CELL);
+  for (let dx = -cr; dx <= cr; dx++)
+    for (let dz = -cr; dz <= cr; dz++)
+      for (const i of g.grid.get(`${cx + dx},${cz + dz}`) ?? []) {
+        if (g.blocked[i] || g.adjStart[i + 1] === g.adjStart[i] || (accept && !accept(i))) continue;
+        const d = Math.hypot(g.x[i]! - px, g.z[i]! - pz);
+        if (d <= r) out.push({ i, d });
+      }
+  return out.sort((a, b) => a.d - b.d).slice(0, 80);
+}
+
+/** 길 밖(단지·학교 안) 걷는 거리 보정 — 직선의 1.25배 */
+const OFFNET = 1.25;
+
 // ── 비용 ─────────────────────────────────────────────────────────────────────
 type Mode = "walk" | "wheel";
 
@@ -448,7 +488,9 @@ function edgeSec(g: Graph, e: number, from: number, to: number, mode: Mode, plai
   const len = g.elen[e]!;
   const flag = g.eflag[e]!;
   const dh = g.h[to]! - g.h[from]!;
-  const grade = len > 1 ? Math.max(-0.4, Math.min(0.4, dh / len)) : 0;
+  // 짧은 구간 경사는 원천 잡음이 크다 — 계단이 아니면 ±25%(서울 가파른 길 수준)로 자른다
+  const cap = flag & F_STEPS ? 0.6 : 0.25;
+  const grade = len > 1 ? Math.max(-cap, Math.min(cap, dh / len)) : 0;
   let t = len / toblerMps(grade);
   if (flag & F_STEPS) t /= 0.55;
   if (flag & F_PRIVATE && !plain) t *= PRIVATE_FACTOR;
@@ -748,16 +790,20 @@ const graphCache: Map<string, { at: number; p: Promise<Graph> }> = ((globalThis 
 const GRAPH_TTL = 12 * 3600_000;
 const GRAPH_CAP = 6;
 
-function getGraph(input: WalkInput): Promise<Graph> {
-  const hit = graphCache.get(input.complexId);
+/** 그래프 만드는 규칙이 바뀌면 올린다 (메모리 캐시 무효화) */
+const GRAPH_VERSION = 4;
+
+function getGraph(input: WalkInput, loadOsm: OsmLoader): Promise<Graph> {
+  const key = `${GRAPH_VERSION}|${input.complexId}`;
+  const hit = graphCache.get(key);
   if (hit && Date.now() - hit.at < GRAPH_TTL) {
-    graphCache.delete(input.complexId);
-    graphCache.set(input.complexId, hit);
+    graphCache.delete(key);
+    graphCache.set(key, hit);
     return hit.p;
   }
-  const p = buildGraph(input);
-  graphCache.set(input.complexId, { at: Date.now(), p });
-  p.catch(() => graphCache.delete(input.complexId));
+  const p = buildGraph(input, loadOsm);
+  graphCache.set(key, { at: Date.now(), p });
+  p.catch(() => graphCache.delete(key));
   while (graphCache.size > GRAPH_CAP) graphCache.delete(graphCache.keys().next().value!);
   return p;
 }
@@ -776,10 +822,13 @@ function ringCentroid(r: Ring, toX: (lng: number) => number, toZ: (lat: number) 
 
 const SCHOOL_LABEL: Record<string, string> = { elementary: "초등학교", middle: "중학교", high: "고등학교" };
 
-export async function computeWalkRoutes(input: WalkInput, opts: { from?: string | null; mode?: Mode } = {}): Promise<WalkPayload> {
+export async function computeWalkRoutes(
+  input: WalkInput,
+  opts: { from?: string | null; mode?: Mode; loadOsm?: OsmLoader } = {},
+): Promise<WalkPayload> {
   const mode: Mode = opts.mode === "wheel" ? "wheel" : "walk";
   const [g, cw] = await Promise.all([
-    getGraph(input),
+    getGraph(input, opts.loadOsm ?? (async (b) => (await fetchOverpass(b)).elements)),
     input.sigungu ? loadCrosswalks(input.sigungu) : Promise.resolve({ status: "unavailable" as const, note: "시군구 없음", items: [] }),
   ]);
   const { center, mPerLng } = g;
@@ -828,7 +877,19 @@ export async function computeWalkRoutes(input: WalkInput, opts: { from?: string 
     (p): p is Extract<OsmEl, { type: "node" }> => p.type === "node" && !!p.tags?.entrance && p.tags.railway !== "subway_entrance",
   );
   const inside = (i: number) => nearHull(g.x[i]!, g.z[i]!, g.hull, 25);
-  const starts: Array<{ buildingId: string; dong: string; node: number; accessM: number; door: "entrance" | "building"; cx: number; cz: number }> = [];
+  type Start = {
+    buildingId: string;
+    dong: string;
+    sources: Array<{ i: number; d: number }>;
+    door: "entrance" | "building";
+    cx: number;
+    cz: number;
+  };
+  const starts: Start[] = [];
+  const sourcesAt = (px: number, pz: number) => {
+    const inner = nodesAround(g, px, pz, 120, 50, inside);
+    return inner.length ? inner : nodesAround(g, px, pz, 300, 50);
+  };
   for (const b of input.buildings) {
     if (!b.residential || !b.dong || !b.rings?.[0]) continue;
     const ring = b.rings[0];
@@ -843,26 +904,42 @@ export async function computeWalkRoutes(input: WalkInput, opts: { from?: string 
       if (d < 4 && (!door || Math.hypot(ex - c.x, ez - c.z) < Math.hypot(door.x - c.x, door.z - c.z))) door = { x: ex, z: ez };
     }
     const p = door ?? c;
-    const snap = nearestNode(g, p.x, p.z, 120, inside) ?? nearestNode(g, p.x, p.z, 300);
-    if (!snap) continue;
-    starts.push({ buildingId: b.id, dong: b.dong, node: snap.i, accessM: snap.d, door: door ? "entrance" : "building", cx: c.x, cz: c.z });
+    const sources = sourcesAt(p.x, p.z);
+    if (!sources.length) continue;
+    starts.push({ buildingId: b.id, dong: b.dong, sources, door: door ? "entrance" : "building", cx: c.x, cz: c.z });
   }
   if (!starts.length) {
     // 동 모양이 없으면 단지 좌표에서 출발
-    const snap = nearestNode(g, 0, 0, 120, inside) ?? nearestNode(g, 0, 0, 300);
-    if (!snap) throw new Error("no start");
-    starts.push({ buildingId: "center", dong: "단지 중심", node: snap.i, accessM: snap.d, door: "building", cx: 0, cz: 0 });
+    const sources = sourcesAt(0, 0);
+    if (!sources.length) throw new Error("no start");
+    starts.push({ buildingId: "center", dong: "단지 중심", sources, door: "building", cx: 0, cz: 0 });
   }
   const mx = starts.reduce((s, q) => s + q.cx, 0) / starts.length;
   const mz = starts.reduce((s, q) => s + q.cz, 0) / starts.length;
   const rep = [...starts].sort((a, b) => Math.hypot(a.cx - mx, a.cz - mz) - Math.hypot(b.cx - mx, b.cz - mz))[0]!;
   const from = starts.find((s) => s.buildingId === opts.from) ?? rep;
-  const fwd = dijkstra(g, [[from.node, from.accessM / BASE_MPS]], false, mode, nodeWait);
+  const offSec = (d: number) => (d * OFFNET) / BASE_MPS;
+  const fwd = dijkstra(g, from.sources.map((q) => [q.i, offSec(q.d)] as [number, number]), false, mode, nodeWait);
+  const fromD = new Map(from.sources.map((q) => [q.i, q.d]));
 
   // 도착 후보
-  type Cand = { id: string; kind: WalkDestination["kind"]; name: string; sub: string | null; node: number; target: { lng: number; lat: number }; group: string; snapM: number };
+  type Cand = {
+    id: string;
+    kind: WalkDestination["kind"];
+    name: string;
+    sub: string | null;
+    ends: Array<{ i: number; d: number }>;
+    target: { lng: number; lat: number };
+    group: string;
+    node: number;
+    snapM: number;
+  };
   const cands: Cand[] = [];
-  const snapTo = (lng: number, lat: number, maxM: number) => nearestNode(g, toX(lng), toZ(lat), maxM);
+  // 출구·정류장은 바로 옆 길로, 학교·역 좌표(건물 가운데)는 둘레 40m 안 길 어디로든 닿으면 된다
+  const snapTo = (lng: number, lat: number, maxM: number) => {
+    const ends = nodesAround(g, toX(lng), toZ(lat), maxM, maxM > 60 ? 40 : 8);
+    return ends.length ? { ends, i: ends[0]!.i, d: ends[0]!.d } : null;
+  };
   const stations = input.stations.filter((s) => Math.hypot(toX(s.lng), toZ(s.lat)) <= STATION_MAX_M);
   const osmEntr = g.pois.filter((p): p is Extract<OsmEl, { type: "node" }> => p.type === "node" && p.tags?.railway === "subway_entrance");
   const base = (n: string) => n.replace(/\(.*?\)/g, "").replace(/역$/u, "").trim();
@@ -886,6 +963,7 @@ export async function computeWalkRoutes(input: WalkInput, opts: { from?: string 
           kind: "subway",
           name: ref ? `${label} ${ref}번 출구` : `${label} 출입구`,
           sub: st.lines.join("·") || null,
+          ends: snap.ends,
           node: snap.i,
           target: { lng: e.lon, lat: e.lat },
           group: `st-${label}`,
@@ -895,7 +973,7 @@ export async function computeWalkRoutes(input: WalkInput, opts: { from?: string 
     } else {
       const snap = snapTo(st.lng, st.lat, 150);
       if (snap)
-        cands.push({ id: `st-${label}`, kind: "subway", name: label, sub: st.lines.join("·") || null, node: snap.i, target: { lng: st.lng, lat: st.lat }, group: `st-${label}`, snapM: snap.d });
+        cands.push({ id: `st-${label}`, kind: "subway", name: label, sub: st.lines.join("·") || null, ends: snap.ends, node: snap.i, target: { lng: st.lng, lat: st.lat }, group: `st-${label}`, snapM: snap.d });
     }
   }
   for (const level of ["elementary", "middle"]) {
@@ -905,7 +983,7 @@ export async function computeWalkRoutes(input: WalkInput, opts: { from?: string 
     if (!s) continue;
     const snap = snapTo(s.lng, s.lat, 150);
     if (snap)
-      cands.push({ id: `school-${s.name}`, kind: "school", name: s.name, sub: SCHOOL_LABEL[level] ?? null, node: snap.i, target: { lng: s.lng, lat: s.lat }, group: `school-${level}`, snapM: snap.d });
+      cands.push({ id: `school-${s.name}`, kind: "school", name: s.name, sub: SCHOOL_LABEL[level] ?? null, ends: snap.ends, node: snap.i, target: { lng: s.lng, lat: s.lat }, group: `school-${level}`, snapM: snap.d });
   }
   for (const p of g.pois) {
     if (p.type !== "node" || p.tags?.highway !== "bus_stop") continue;
@@ -914,12 +992,22 @@ export async function computeWalkRoutes(input: WalkInput, opts: { from?: string 
     if (Math.hypot(toX(p.lon), toZ(p.lat)) > 700) continue;
     const snap = snapTo(p.lon, p.lat, 40);
     if (snap)
-      cands.push({ id: `bus-${p.id}`, kind: "bus", name: p.tags.name ?? "버스정류장", sub: "버스", node: snap.i, target: { lng: p.lon, lat: p.lat }, group: "bus", snapM: snap.d });
+      cands.push({ id: `bus-${p.id}`, kind: "bus", name: p.tags.name ?? "버스정류장", sub: "버스", ends: snap.ends, node: snap.i, target: { lng: p.lon, lat: p.lat }, group: "bus", snapM: snap.d });
   }
   // 묶음마다 가장 빨리 닿는 곳 하나
   const bestByGroup = new Map<string, Cand>();
   for (const c of cands) {
-    if (!Number.isFinite(fwd.dist[c.node]!)) continue;
+    // 가장 빨리 닿는 도착 점
+    let best = Infinity;
+    for (const e of c.ends) {
+      const t = fwd.dist[e.i]! + offSec(e.d);
+      if (t < best) {
+        best = t;
+        c.node = e.i;
+        c.snapM = e.d;
+      }
+    }
+    if (!Number.isFinite(best)) continue;
     const cur = bestByGroup.get(c.group);
     if (!cur || fwd.dist[c.node]! + c.snapM / BASE_MPS < fwd.dist[cur.node]! + cur.snapM / BASE_MPS) bestByGroup.set(c.group, c);
   }
@@ -928,26 +1016,29 @@ export async function computeWalkRoutes(input: WalkInput, opts: { from?: string 
   const others = chosen.filter((c) => c.kind !== "subway");
 
   const destinations: WalkDestination[] = [];
+  let fromAccess: number | null = null;
   for (const c of [...subways, ...others]) {
     const nodes: number[] = [c.node];
     const edges: number[] = [];
     let cur = c.node;
     let guard = 0;
-    while (cur !== from.node && guard++ < 200_000) {
+    while (guard++ < 200_000) {
       const e = fwd.pred[cur]!;
       if (e < 0) break;
       edges.push(e);
       cur = g.eu[e] === cur ? g.ev[e]! : g.eu[e]!;
       nodes.push(cur);
     }
-    if (cur !== from.node) continue;
+    const startD = fromD.get(cur);
+    if (startD == null) continue;
+    fromAccess ??= startD;
     nodes.reverse();
     edges.reverse();
-    const d = describePath(ctx, nodes, edges, from.accessM + c.snapM);
-    // 동별 — 도착점에서 거꾸로 한 번
-    const rev = dijkstra(g, [[c.node, c.snapM / BASE_MPS]], true, mode, nodeWait);
+    const d = describePath(ctx, nodes, edges, (startD + c.snapM) * OFFNET);
+    // 동별 — 도착 점들에서 거꾸로 한 번
+    const rev = dijkstra(g, c.ends.map((e) => [e.i, offSec(e.d)] as [number, number]), true, mode, nodeWait);
     const perDong = starts
-      .map((s) => ({ buildingId: s.buildingId, sec: rev.dist[s.node]! + s.accessM / BASE_MPS }))
+      .map((s) => ({ buildingId: s.buildingId, sec: Math.min(...s.sources.map((q) => rev.dist[q.i]! + offSec(q.d))) }))
       .filter((x) => Number.isFinite(x.sec))
       .map((x) => ({ buildingId: x.buildingId, min: Math.max(1, Math.round(x.sec / 60)) }));
     const mins = perDong.map((x) => x.min);
@@ -970,7 +1061,7 @@ export async function computeWalkRoutes(input: WalkInput, opts: { from?: string 
   return {
     complexId: input.complexId,
     mode,
-    from: { buildingId: from.buildingId, dong: from.dong, door: from.door, accessM: Math.round(from.accessM) },
+    from: { buildingId: from.buildingId, dong: from.dong, door: from.door, accessM: Math.round(fromAccess ?? from.sources[0]!.d) },
     dongs: starts
       .map((s) => ({ buildingId: s.buildingId, dong: s.dong }))
       .sort((a, b) => a.dong.localeCompare(b.dong, "ko", { numeric: true })),
