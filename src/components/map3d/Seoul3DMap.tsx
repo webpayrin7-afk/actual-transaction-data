@@ -23,6 +23,7 @@ import { ChevronDown, Compass, MapPin, Satellite, X } from "lucide-react";
 import { LabIndeterminateBar } from "@/components/ui/LabLoading";
 import { ComplexCardMore } from "@/components/map/ComplexCardMore";
 import { fitComplexCamera } from "@/components/map3d/fit-camera";
+import { chooseBestView } from "@/components/map3d/best-view";
 import { SEOUL_DISTRICTS } from "@/components/map3d/seoul-districts";
 import {
   MAP3D_ATTRIBUTION,
@@ -970,12 +971,22 @@ export default function Seoul3DMap({
       const top = rowBottom > 0 && rowBottom < box.clientHeight / 2 ? Math.round(rowBottom) + 12 : FRAME_TOP_FALLBACK;
       const safe = { top, bottom: mobile ? 152 + dockSpace() : 148, left: 16, right: 16 };
       const maxH = Math.max(0, ...(shape?.buildings ?? []).map((b) => buildingHeight(b)));
+      // 어느 쪽에서 볼지 — 지금 카메라 방향은 두고, 둘레 건물에 가장 덜 가리는 방향(비슷하면 남쪽에서) (best-view.ts)
       // 아주 높은 탑상형은 덜 기울여 (위가 덜 길어지게)
-      const pitch = maxH > 120 ? 50 : FOCUS_PITCH;
+      const basePitch = maxH > 120 ? 50 : FOCUS_PITCH;
+      const own = (shape?.buildings ?? []).filter((b) => b.rings?.length).map((b) => grow(b.rings![0]!, 8));
+      const view = chooseBestView(
+        map,
+        [(bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2],
+        maxH,
+        (lng, lat) => inGeometry([lng, lat], site?.fill) || own.some((r) => inRing([lng, lat], r)),
+        { pitch: basePitch, steepPitch: 42 },
+      );
+      const pitch = view.pitch;
       // 기울기·원근·높이까지 넣어 보이는 곳의 약 90%를 채우게 (fit-camera.ts)
       const fit = fitComplexCamera(map, bb, maxH, safe, {
         pitch,
-        bearing: map.getBearing(),
+        bearing: view.bearing,
         fill: 0.9,
         // 가운데보다 조금 위에 (단지가 카드 쪽으로 쳐져 보이지 않게)
         biasY: -0.07,
@@ -983,7 +994,7 @@ export default function Seoul3DMap({
         maxZoom: FOCUS_MAX_ZOOM,
       });
       if (!fit) return;
-      const opts = { center: fit.center, zoom: fit.zoom, pitch, bearing: map.getBearing() };
+      const opts = { center: fit.center, zoom: fit.zoom, pitch, bearing: view.bearing };
       if (reducedMotion()) map.jumpTo(opts);
       else map.flyTo({ ...opts, duration: 1100, essential: false });
     });
