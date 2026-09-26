@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-26T11:15:38.660Z",
-  "driver_status": "gwangju-jeonnam applied",
+  "generated_at": "2026-09-26T12:16:33.813Z",
+  "driver_status": "daejeon acquiring",
   "fee_table": {
     "rows": 7461,
     "complexes": 7348
   },
-  "api_calls_total": 140289,
+  "api_calls_total": 143761,
   "applied_rows_total": 4538,
   "provinces": [
     {
@@ -94,15 +94,15 @@
       "sido": "대전광역시",
       "phase": "ACQUIRE_QUOTA_HOLD",
       "cohort": 561,
-      "terminal": 1,
-      "unfinished": 560,
-      "COMPLETE": 0,
-      "NO_PUBLISHED_MONTH": 1,
+      "terminal": 121,
+      "unfinished": 440,
+      "COMPLETE": 117,
+      "NO_PUBLISHED_MONTH": 4,
       "PARTIAL": 0,
       "MISSING": 0,
       "FAILED": 0,
       "IDENTITY_CONFLICT": 0,
-      "api_calls": 54,
+      "api_calls": 3526,
       "http_429": 0,
       "retries": 4,
       "dryrun_gate": null,
