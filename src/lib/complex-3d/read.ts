@@ -92,6 +92,46 @@ function haversine(aLat: number, aLng: number, bLat: number, bLng: number): numb
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
+/** gis_buildings.change_type — 도로명주소 건물 도형으로 채운 행 (scripts/building-3d/fill-gis-from-vworld-spbd.mts) */
+const SPBD = "SPBD";
+
+function pointInRing(x: number, y: number, ring: Ring): boolean {
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return false;
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i]!;
+    const [xj, yj] = ring[j]!;
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
+const ringBoxes = new WeakMap<Ring, [number, number, number, number]>();
+function box(r: Ring): [number, number, number, number] {
+  let b = ringBoxes.get(r);
+  if (!b) {
+    b = [Infinity, Infinity, -Infinity, -Infinity];
+    for (const [x, y] of r) b = [Math.min(b[0], x), Math.min(b[1], y), Math.max(b[2], x), Math.max(b[3], y)];
+    ringBoxes.set(r, b);
+  }
+  return b;
+}
+
+/** 두 외곽선이 겹치는지 — 꼭짓점이 상대 안에 있거나 변이 교차 (겉 상자로 먼저 거른다) */
+function ringsOverlap(a: Ring, b: Ring): boolean {
+  const [ax0, ay0, ax1, ay1] = box(a);
+  const [bx0, by0, bx1, by1] = box(b);
+  if (ax1 < bx0 || bx1 < ax0 || ay1 < by0 || by1 < ay0) return false;
+  if (a.some(([x, y]) => pointInRing(x, y, b)) || b.some(([x, y]) => pointInRing(x, y, a))) return true;
+  const cross = (p: [number, number], q: [number, number], r: [number, number]) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+  for (let i = 0; i < a.length - 1; i++)
+    for (let j = 0; j < b.length - 1; j++) {
+      const [p1, p2, q1, q2] = [a[i]!, a[i + 1]!, b[j]!, b[j + 1]!];
+      if (cross(p1, p2, q1) * cross(p1, p2, q2) < 0 && cross(q1, q2, p1) * cross(q1, q2, p2) < 0) return true;
+    }
+  return false;
+}
+
 const str = (v: unknown) => (v == null || v === "" ? null : String(v));
 const num = (v: unknown) => (v == null || v === "" || Number.isNaN(Number(v)) ? null : Number(v));
 
@@ -208,7 +248,7 @@ export async function readComplex3d(
     {
       stmt: linkedGisStatement(
         complexId,
-        "bld_key, bldrgst_pk, height_m, floors_above, floors_below, approval_date, rings, lat, lng",
+        "bld_key, bldrgst_pk, height_m, floors_above, floors_below, approval_date, rings, lat, lng, change_type",
       ),
     },
     ...(lite
@@ -279,10 +319,13 @@ export async function readComplex3d(
   }
 
   const ownKeys = new Set<string>();
+  const spbdRings: Ring[][] = [];
   const buildings: Complex3dBuilding[] = cbRows!.map((r) => {
     const pk = String(r.mgm_bldrgst_pk ?? "");
     const gis = pk.length > 5 ? gisByPk.get(pk.slice(5)) : undefined;
     if (gis) ownKeys.add(String(gis.bld_key));
+    const rings = gis ? (JSON.parse(String(gis.rings)) as Ring[]) : null;
+    if (rings && gis?.change_type === SPBD) spbdRings.push(rings);
     return {
       id: String(r.building_id),
       dong: str(r.dong_label),
@@ -296,7 +339,7 @@ export async function readComplex3d(
       approvalDate: str(gis?.approval_date),
       units: (unitsByBuilding.get(String(r.building_id)) ?? []).sort((a, b) => b.households - a.households),
       lines: linesByBuilding.get(String(r.building_id)) ?? [],
-      rings: gis ? (JSON.parse(String(gis.rings)) as Ring[]) : null,
+      rings,
     };
   });
 
@@ -327,7 +370,7 @@ export async function readComplex3d(
   const [neighborRows, tradeRows, railRows] = await readAll(db, [
     {
       stmt: {
-        sql: `SELECT bld_key, name, use_name, height_m, floors_above, rings FROM gis_buildings
+        sql: `SELECT bld_key, name, use_name, height_m, floors_above, rings, lat, lng, change_type FROM gis_buildings
               WHERE lat BETWEEN ? AND ? AND lng BETWEEN ? AND ? LIMIT 2500`,
         args: [center.lat - dLat, center.lat + dLat, center.lng - dLng, center.lng + dLng],
       },
@@ -346,16 +389,30 @@ export async function readComplex3d(
     { stmt: railStationsBoxStatement(center, RAIL_MAX_M), optional: true },
   ]);
 
-  const neighbors: Neighbor3d[] = neighborRows!
+  const neighborsAll = neighborRows!
     .filter((r) => !ownKeys.has(String(r.bld_key)))
     .map((r) => ({
-      id: String(r.bld_key),
-      name: str(r.name),
-      usage: str(r.use_name),
-      heightM: num(r.height_m),
-      floors: num(r.floors_above),
-      rings: JSON.parse(String(r.rings)) as Ring[],
+      row: r,
+      n: {
+        id: String(r.bld_key),
+        name: str(r.name),
+        usage: str(r.use_name),
+        heightM: num(r.height_m),
+        floors: num(r.floors_above),
+        rings: JSON.parse(String(r.rings)) as Ring[],
+      } satisfies Neighbor3d,
     }));
+  // 도로명주소 건물 도형(SPBD, 현재 건물)과 겹치는 GIS건물통합정보 건물은 철거 전 건물이 남은 것 — 외곽선이 겹치면 뺀다.
+  // SPBD 행이 없는 곳은 예전과 같다.
+  for (const x of neighborsAll) if (x.row.change_type === SPBD) spbdRings.push(x.n.rings);
+  const neighbors: Neighbor3d[] = neighborsAll
+    .filter(
+      (x) =>
+        !spbdRings.length ||
+        x.row.change_type === SPBD ||
+        !spbdRings.some((rs) => rs.some((ring) => x.n.rings.some((own) => ringsOverlap(own, ring)))),
+    )
+    .map((x) => x.n);
 
   // 층별 시세 — 최근 3년 매매, 최고층을 3등분 (저·중·고), 전용 3.3㎡당 중위가
   const deals = tradeRows!
