@@ -569,10 +569,17 @@ export class Complex3dScene {
    * 바닥에 실제 지도 이미지를 깐다 — 단지 중심이 이미지 가운데, 한 변 sizeM 미터(웹 메르카토르라 가로·세로 축척 같음).
    * 지도가 뜨면 격자는 숨긴다. 그림자는 지도 위에 그대로 떨어진다. 지형이 있으면 지도가 지형을 따라 휜다.
    */
+  /** 바닥 이미지 요청 차례 — 늦게 끝난 옛 요청(NAVER 지도)이 새 바닥(위성영상)을 덮지 않게 */
+  private groundSeq = 0;
+
   setGroundMap(url: string, sizeM: number) {
     this.mapSize = sizeM;
+    const seq = ++this.groundSeq;
     new THREE.TextureLoader().load(url, (tex) => {
-      if (this.disposed) return;
+      if (this.disposed || seq !== this.groundSeq) {
+        tex.dispose();
+        return;
+      }
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.anisotropy = Math.min(8, this.renderer.capabilities.getMaxAnisotropy());
       this.mapTex?.dispose();

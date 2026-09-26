@@ -18,10 +18,11 @@ import maplibregl, {
   type StyleSpecification,
 } from "maplibre-gl";
 import { Protocol } from "pmtiles";
-import { ChevronDown, Compass, Satellite, X } from "lucide-react";
+import { ChevronDown, Compass, MapPin, Satellite, X } from "lucide-react";
 import { LabIndeterminateBar } from "@/components/ui/LabLoading";
 import { ComplexCardMore } from "@/components/map/ComplexCardMore";
 import { fitComplexCamera } from "@/components/map3d/fit-camera";
+import { SEOUL_DISTRICTS } from "@/components/map3d/seoul-districts";
 import {
   MAP3D_ATTRIBUTION,
   Map3dAttribution,
@@ -437,14 +438,21 @@ export default function Seoul3DMap({
   /** 지표 · 색 범례 팝오버 */
   const [legendOpen, setLegendOpen] = useState(false);
   const legendRef = useRef<HTMLDivElement | null>(null);
+  /** 구 이동 팝오버 — 3D는 끌어서 멀리 가기 어려워 구 단위로 바로 */
+  const [guOpen, setGuOpen] = useState(false);
+  const guRef = useRef<HTMLDivElement | null>(null);
   // 팝오버 밖을 누르거나 Esc — 닫는다
   useEffect(() => {
-    if (!legendOpen) return;
+    if (!legendOpen && !guOpen) return;
     const onDown = (e: PointerEvent) => {
       if (!legendRef.current?.contains(e.target as Node)) setLegendOpen(false);
+      if (!guRef.current?.contains(e.target as Node)) setGuOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLegendOpen(false);
+      if (e.key === "Escape") {
+        setLegendOpen(false);
+        setGuOpen(false);
+      }
     };
     document.addEventListener("pointerdown", onDown, true);
     window.addEventListener("keydown", onKey);
@@ -452,7 +460,16 @@ export default function Seoul3DMap({
       document.removeEventListener("pointerdown", onDown, true);
       window.removeEventListener("keydown", onKey);
     };
-  }, [legendOpen]);
+  }, [legendOpen, guOpen]);
+  const goDistrict = (d: { lat: number; lng: number }) => {
+    setGuOpen(false);
+    setSelectedId(null);
+    const map = mapRef.current;
+    if (!map) return;
+    const opts = { center: [d.lng, d.lat] as [number, number], zoom: 14.6, pitch: Math.max(45, map.getPitch()), bearing: map.getBearing() };
+    if (reducedMotion()) map.jumpTo(opts);
+    else map.flyTo({ ...opts, duration: 1400, essential: false });
+  };
   /** 고른 단지 — 지도를 옮겨 목록에서 빠져도 카드·강조가 남게 고를 때 값을 잡아 둔다 */
   const [picked, setPicked] = useState<MapComplex | null>(null);
   const [metric, setMetric] = useState<Map3dMetric>("perPyeong");
@@ -927,11 +944,11 @@ export default function Seoul3DMap({
       const maxH = Math.max(0, ...(shape?.buildings ?? []).map((b) => buildingHeight(b)));
       // 아주 높은 탑상형은 덜 기울여 (위가 덜 길어지게)
       const pitch = maxH > 120 ? 50 : FOCUS_PITCH;
-      // 기울기·원근·높이까지 넣어 보이는 곳의 약 80%를 채우게 (fit-camera.ts)
+      // 기울기·원근·높이까지 넣어 보이는 곳의 약 90%를 채우게 (fit-camera.ts)
       const fit = fitComplexCamera(map, bb, maxH, safe, {
         pitch,
         bearing: map.getBearing(),
-        fill: 0.8,
+        fill: 0.9,
         minZoom: 14.5,
         maxZoom: FOCUS_MAX_ZOOM,
       });
@@ -1081,6 +1098,45 @@ export default function Seoul3DMap({
                     값 없음
                   </li>
                 </ul>
+              </div>
+            ) : null}
+          </div>
+          {/* 구 이동 — 지표 알약 옆 */}
+          <div ref={guRef} className="pointer-events-auto relative shrink-0">
+            <button
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded={guOpen}
+              aria-controls={guOpen ? "map3d-gu" : undefined}
+              onClick={() => setGuOpen((v) => !v)}
+              className="relative inline-flex h-8 items-center gap-1 whitespace-nowrap rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] pl-2.5 pr-2 text-[13px] font-semibold leading-5 text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']"
+            >
+              <MapPin className="h-3.5 w-3.5" aria-hidden />
+              구 이동
+              <ChevronDown
+                className={`h-4 w-4 opacity-60 transition-transform motion-reduce:transition-none ${guOpen ? "rotate-180" : ""}`}
+                aria-hidden
+              />
+            </button>
+            {guOpen ? (
+              <div
+                id="map3d-gu"
+                role="dialog"
+                aria-label="서울 구로 이동"
+                className="absolute left-0 top-[calc(100%+6px)] z-10 w-[264px] rounded-xl border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] p-2 shadow-[0_8px_24px_rgb(15_23_42/0.16)]"
+              >
+                <div className="grid grid-cols-5 gap-1">
+                  {SEOUL_DISTRICTS.map((d) => (
+                    <button
+                      key={d.name}
+                      type="button"
+                      onClick={() => goDistrict(d)}
+                      className="h-9 whitespace-nowrap rounded-lg border border-[color:var(--lab-border)] text-[12px] font-medium leading-4 text-[color:var(--lab-navy-950)] active:bg-[color:var(--lab-brand-subtle)]"
+                    >
+                      {d.name}
+                    </button>
+                  ))}
+                </div>
               </div>
             ) : null}
           </div>
