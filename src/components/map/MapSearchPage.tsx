@@ -1115,9 +1115,7 @@ export function MapSearchPage() {
       {view3d ? (
         <Seoul3DMap
           initial={view3d}
-          deal={conditions.deal}
-          areaMin={area.min}
-          areaMax={area.max}
+          conditions={conditions}
           onClose={close3d}
         />
       ) : null}

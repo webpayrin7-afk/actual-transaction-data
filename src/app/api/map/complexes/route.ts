@@ -4,6 +4,7 @@ import {
   MAP_DEAL_KINDS,
   parseAreaRange,
   readMapComplexes,
+  toLiteComplex,
   type MapDealKind,
 } from "@/lib/map/map-complexes";
 
@@ -32,8 +33,10 @@ export async function GET(request: NextRequest) {
   if (!db) return NextResponse.json({ status: "unavailable", complexes: [] }, { status: 503 });
   try {
     const result = await readMapComplexes(db, { swLat, swLng, neLat, neLng }, area, deal);
+    // fields=lite — 서울 3D 지도용: 그리는 값만 (전세가율·갭·순위 등은 빼고)
+    const complexes = sp.get("fields") === "lite" ? result.complexes.map(toLiteComplex) : result.complexes;
     return NextResponse.json(
-      { status: "ok", area, deal, ...result },
+      { status: "ok", area, deal, complexes, truncated: result.truncated },
       // 실거래 동기화는 하루 1회 — CDN 1시간 + SWR 1일 (다른 단지 API와 같은 수준).
       { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } },
     );

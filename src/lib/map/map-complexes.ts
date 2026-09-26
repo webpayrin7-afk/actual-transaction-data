@@ -86,6 +86,33 @@ export type MapComplex = {
   heatingType: string | null;
 };
 
+/**
+ * 서울 3D 지도(fields=lite)가 그리는 값만 — 점 색·글자·단지 카드. 전세가율·갭·순위 같은 나머지는 보내지 않는다
+ * (화면에 안 쓰는 값은 내려보내지 않기 + 휴대폰 데이터 절약). 조건 칩을 걸면 3D도 전체 값을 받아 2D처럼 거른다.
+ */
+export const MAP_COMPLEX_LITE_KEYS = [
+  "complexId",
+  "aptName",
+  "lat",
+  "lng",
+  "dong",
+  "householdCount",
+  "href",
+  "priceMan",
+  "priceDate",
+  "pyeongLabel",
+  "perPyeongMan",
+  "change1yPct",
+  "buildYear",
+] as const satisfies ReadonlyArray<keyof MapComplex>;
+export type MapComplexLite = Pick<MapComplex, (typeof MAP_COMPLEX_LITE_KEYS)[number]>;
+
+export function toLiteComplex(c: MapComplex): MapComplexLite {
+  const out: Partial<MapComplexLite> = {};
+  for (const k of MAP_COMPLEX_LITE_KEYS) (out as Record<string, unknown>)[k] = c[k];
+  return out as MapComplexLite;
+}
+
 export const MAP_MAX_COMPLEXES = 400;
 const WINDOW_MONTHS = 12;
 /** 거래 쿼리 한 번에 넣는 단지 이름 수 — 조각을 작게 나눠 콜드 읽기를 병렬로 */

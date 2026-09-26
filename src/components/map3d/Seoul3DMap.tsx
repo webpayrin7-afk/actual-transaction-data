@@ -5,7 +5,7 @@
  * 2D(네이버) 지도와 따로 동작하며, 단지 값은 2D와 같은 /api/map/complexes(화면 범위, 서버 계산)만 쓴다.
  */
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import maplibregl, { type GeoJSONSource, type Map as MlMap, type StyleSpecification } from "maplibre-gl";
 import { Protocol } from "pmtiles";
@@ -13,6 +13,7 @@ import { Compass, Map as MapIcon, X } from "lucide-react";
 import { LabIndeterminateBar } from "@/components/ui/LabLoading";
 import { shortPerPyeong } from "@/components/map/complex-marker";
 import type { MapComplex, MapDealKind } from "@/lib/map/map-complexes";
+import { activeCount, areaQuery, matches, type MapConditions } from "@/lib/map/map-filters";
 import { formatDealDate, formatEok } from "@/lib/utils/format";
 import {
   BASEMAP_STYLE_URL,
@@ -35,10 +36,16 @@ export type Map3dView = { lat: number; lng: number; zoom: number };
 const DEAL_LABEL: Record<MapDealKind, string> = { trade: "매매", jeonse: "전세" };
 /** 단지를 불러오는 줌 — MapLibre 줌(512px 타일)이라 2D(네이버) 14와 같은 축척 */
 const COMPLEX_ZOOM = 13;
-/** 화면 가운데 기준으로 부르는 범위(도) — API 한도(0.12°) 안, 격자에 맞춰 CDN 캐시가 잘 맞게 */
-const HALF_LAT = 0.03;
-const HALF_LNG = 0.04;
-const SNAP = 0.01;
+/** 이 줌보다 멀면 단지를 부르지도, 그리지도 않는다 */
+const COMPLEX_MIN_ZOOM = COMPLEX_ZOOM - 0.25;
+/**
+ * 부르는 범위 = 지금 보이는 화면(map.getBounds). 기울이면 지평선 쪽이 아주 넓어지므로
+ * 화면 가운데 기준으로 이만큼까지만 자른다 (API 한도 0.12° × 0.168° 안, 넓은 화면 1440px 폭도 들어감).
+ */
+const MAX_LAT_SPAN = 0.08;
+const MAX_LNG_SPAN = 0.12;
+/** 범위 끝을 바깥쪽으로 맞추는 칸(도) — 조금 움직여도 같은 주소 → 캐시가 맞게 */
+const ROUND = 0.002;
 const START_PITCH = 55;
 
 let protocolAdded = false;
@@ -62,6 +69,34 @@ function reducedMotion(): boolean {
 function inSeoul(lat: number, lng: number): boolean {
   const b = SEOUL_BOUNDS;
   return lat >= b.south && lat <= b.north && lng >= b.west && lng <= b.east;
+}
+
+type Box = { s: number; w: number; n: number; e: number };
+
+/** 보이는 범위(가운데 기준으로 한도까지 자름, 바깥쪽으로 반올림) */
+function viewBox(map: MlMap): Box {
+  const b = map.getBounds();
+  const c = map.getCenter();
+  let s = b.getSouth();
+  let n = b.getNorth();
+  let w = b.getWest();
+  let e = b.getEast();
+  if (n - s > MAX_LAT_SPAN) {
+    s = Math.max(s, c.lat - MAX_LAT_SPAN / 2);
+    n = Math.min(n, c.lat + MAX_LAT_SPAN / 2);
+  }
+  if (e - w > MAX_LNG_SPAN) {
+    w = Math.max(w, c.lng - MAX_LNG_SPAN / 2);
+    e = Math.min(e, c.lng + MAX_LNG_SPAN / 2);
+  }
+  const down = (v: number) => Math.floor(v / ROUND) * ROUND;
+  const up = (v: number) => Math.ceil(v / ROUND) * ROUND;
+  return { s: down(s), w: down(w), n: up(n), e: up(e) };
+}
+
+function contains(outer: Box, inner: Box): boolean {
+  const eps = 1e-9;
+  return inner.s >= outer.s - eps && inner.w >= outer.w - eps && inner.n <= outer.n + eps && inner.e <= outer.e + eps;
 }
 
 function metricValue(c: MapComplex, metric: Map3dMetric): number | null {
@@ -89,76 +124,98 @@ function toGeoJson(list: MapComplex[], metric: Map3dMetric): GeoJSON.FeatureColl
 
 export default function Seoul3DMap({
   initial,
-  deal,
-  areaMin,
-  areaMax,
+  conditions,
   onClose,
 }: {
   initial: Map3dView;
-  deal: MapDealKind;
-  areaMin: number;
-  areaMax: number;
+  /** 2D 지도의 조건(거래유형·전용면적·필터 칩) — 2D와 같은 단지만 보이게 */
+  conditions: MapConditions;
   /** 2D로 돌아갈 때 3D에서 보던 곳을 넘겨 준다 */
   onClose: (view: Map3dView) => void;
 }) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MlMap | null>(null);
   const abortRef = useRef<AbortController | null>(null);
-  const lastKeyRef = useRef("");
+  /** 마지막으로 부른 범위·조건 — 새 화면이 그 안이고 잘리지 않았으면 다시 부르지 않는다 */
+  const lastRef = useRef<{ box: Box; params: string; truncated: boolean } | null>(null);
   const [styleReady, setStyleReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [buildingsMissing, setBuildingsMissing] = useState(false);
   const [complexes, setComplexes] = useState<MapComplex[]>([]);
+  const [truncated, setTruncated] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [metric, setMetric] = useState<Map3dMetric>("perPyeong");
-  const [zoomedOut, setZoomedOut] = useState(initial.zoom < COMPLEX_ZOOM - 0.25);
+  const [zoomedOut, setZoomedOut] = useState(initial.zoom < COMPLEX_MIN_ZOOM);
   const [outside, setOutside] = useState(!inSeoul(initial.lat, initial.lng));
   const [bearing, setBearing] = useState(0);
   const metricRef = useRef(metric);
+
+  const deal = conditions.deal;
+  const { min: areaMin, max: areaMax } = areaQuery(conditions);
+  /** 전용면적 말고 다른 조건 칩이 걸렸나 — 없으면 그리는 값만(fields=lite) 받는다 */
+  const chipFilters = activeCount({ ...conditions, ranges: { ...conditions.ranges, area: undefined } }) > 0;
 
   const fetchComplexes = useCallback(async () => {
     const map = mapRef.current;
     if (!map) return;
     const c = map.getCenter();
     const z = map.getZoom();
-    setZoomedOut(z < COMPLEX_ZOOM - 0.25);
+    const out = z < COMPLEX_MIN_ZOOM;
+    setZoomedOut(out);
     setOutside(!inSeoul(c.lat, c.lng));
-    if (z < COMPLEX_ZOOM - 0.25) return;
-    const swLat = Math.floor((c.lat - HALF_LAT) / SNAP) * SNAP;
-    const swLng = Math.floor((c.lng - HALF_LNG) / SNAP) * SNAP;
-    const neLat = Math.ceil((c.lat + HALF_LAT) / SNAP) * SNAP;
-    const neLng = Math.ceil((c.lng + HALF_LNG) / SNAP) * SNAP;
+    if (out) {
+      setSelectedId(null);
+      return;
+    }
+    const box = viewBox(map);
+    const params = new URLSearchParams({ areaMin: String(areaMin), areaMax: String(areaMax), deal });
+    if (!chipFilters) params.set("fields", "lite");
+    const paramsKey = params.toString();
+    const last = lastRef.current;
+    if (last && last.params === paramsKey && !last.truncated && contains(last.box, box)) return;
+    const entry = { box, params: paramsKey, truncated: false };
+    lastRef.current = entry;
     const qs = new URLSearchParams({
-      swLat: swLat.toFixed(2),
-      swLng: swLng.toFixed(2),
-      neLat: neLat.toFixed(2),
-      neLng: neLng.toFixed(2),
-      areaMin: String(areaMin),
-      areaMax: String(areaMax),
-      deal,
+      swLat: box.s.toFixed(3),
+      swLng: box.w.toFixed(3),
+      neLat: box.n.toFixed(3),
+      neLng: box.e.toFixed(3),
     });
-    const key = qs.toString();
-    if (key === lastKeyRef.current) return;
-    lastKeyRef.current = key;
     abortRef.current?.abort();
     const ac = new AbortController();
     abortRef.current = ac;
     setLoading(true);
     try {
-      const res = await fetch(`/api/map/complexes?${key}`, { signal: ac.signal });
-      const data = (await res.json()) as { status: string; complexes?: MapComplex[] };
+      const res = await fetch(`/api/map/complexes?${qs}&${paramsKey}`, { signal: ac.signal });
+      // lite 응답은 MapComplex의 일부 값만 — 조건 칩이 없을 때라 matches()는 빠진 값을 읽지 않는다
+      const data = (await res.json()) as { status: string; complexes?: MapComplex[]; truncated?: boolean };
       if (data.status !== "ok" && data.status !== "zoom_in") throw new Error(data.status);
+      const cut = Boolean(data.truncated);
+      entry.truncated = cut;
       setComplexes(data.complexes ?? []);
+      setTruncated(cut);
       setError(null);
     } catch (e) {
       if ((e as Error).name === "AbortError") return;
-      lastKeyRef.current = "";
+      if (lastRef.current === entry) lastRef.current = null;
       setError("단지 정보를 불러오지 못했습니다.");
     } finally {
       if (!ac.signal.aborted) setLoading(false);
     }
-  }, [deal, areaMin, areaMax]);
+  }, [deal, areaMin, areaMax, chipFilters]);
+  /** 지도 이벤트는 처음 한 번 걸어 두므로 늘 최신 함수를 부르게 */
+  const fetchRef = useRef(fetchComplexes);
+  useEffect(() => {
+    fetchRef.current = fetchComplexes;
+    // 거래유형·면적이 바뀌면 다시 부른다 (처음은 지도 load에서)
+    if (mapRef.current && styleReady) void fetchComplexes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchComplexes]);
+
+  // 2D와 같은 조건 칩(세대수·입주년차·전세가율 …) — 2D 목록과 같은 방식으로 거른다
+  const visible = useMemo(() => complexes.filter((c) => matches(c, conditions)), [complexes, conditions]);
+  const nActive = activeCount(conditions);
 
   // 지도 만들기
   useEffect(() => {
@@ -249,6 +306,7 @@ export default function Seoul3DMap({
           id: "complex-dots",
           type: "circle",
           source: "complexes",
+          minzoom: COMPLEX_MIN_ZOOM,
           paint: {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 13, 5, 16, 9],
             "circle-color": stepColor(metricRef.current),
@@ -261,6 +319,7 @@ export default function Seoul3DMap({
           id: "complex-selected",
           type: "circle",
           source: "complexes",
+          minzoom: COMPLEX_MIN_ZOOM,
           filter: ["==", ["get", "id"], ""],
           paint: {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 13, 9, 16, 14],
@@ -306,12 +365,12 @@ export default function Seoul3DMap({
         setLoading(false);
         // 처음 한 번 비스듬히 — 3D임을 알 수 있게 (동작 줄이기면 바로)
         if (!reduce) map.easeTo({ pitch: START_PITCH, duration: 900 });
-        void fetchComplexes();
+        void fetchRef.current();
       });
       map.on("rotate", () => setBearing(map.getBearing()));
       map.on("moveend", () => {
         window.clearTimeout(moveTimer);
-        moveTimer = window.setTimeout(() => void fetchComplexes(), 300);
+        moveTimer = window.setTimeout(() => void fetchRef.current(), 300);
       });
     })();
     return () => {
@@ -330,9 +389,9 @@ export default function Seoul3DMap({
     metricRef.current = metric;
     const map = mapRef.current;
     if (!map || !styleReady) return;
-    (map.getSource("complexes") as GeoJSONSource | undefined)?.setData(toGeoJson(complexes, metric));
+    (map.getSource("complexes") as GeoJSONSource | undefined)?.setData(toGeoJson(visible, metric));
     map.setPaintProperty("complex-dots", "circle-color", stepColor(metric));
-  }, [complexes, metric, styleReady]);
+  }, [visible, metric, styleReady]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -340,7 +399,21 @@ export default function Seoul3DMap({
     map.setFilter("complex-selected", ["==", ["get", "id"], selectedId ?? ""]);
   }, [selectedId, styleReady]);
 
-  const selected = selectedId ? complexes.find((c) => c.complexId === selectedId) ?? null : null;
+  const selected = selectedId ? visible.find((c) => c.complexId === selectedId) ?? null : null;
+
+  // 고른 단지에 3D 건물 모양이 있는지 — 2D 카드와 같이, 없으면 '3D 단지 탐색'을 막는다
+  const [has3d, setHas3d] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    if (!selectedId || selectedId in has3d) return;
+    const ctrl = new AbortController();
+    fetch(`/api/complex-3d/${selectedId}/coverage`, { signal: ctrl.signal })
+      .then((res) => (res.ok ? (res.json() as Promise<{ withShape: number }>) : null))
+      // 확인이 안 되면 버튼은 그대로 둔다 (3D 화면이 빈 상태를 안내)
+      .then((cov) => setHas3d((m) => ({ ...m, [selectedId]: cov ? cov.withShape > 0 : true })))
+      .catch(() => {});
+    return () => ctrl.abort();
+  }, [selectedId, has3d]);
+  const selected3d = selected ? has3d[selected.complexId] : undefined;
   const dealLabel = DEAL_LABEL[deal];
   const steps = metric === "perPyeong" ? PER_PYEONG_STEPS : CHANGE_STEPS;
 
@@ -428,6 +501,19 @@ export default function Seoul3DMap({
             값 없음
           </span>
         </div>
+        {!zoomedOut && !outside && !error && (nActive > 0 || truncated) ? (
+          <p
+            className="pointer-events-auto self-start rounded-lg bg-[color:var(--lab-surface)]/95 px-2.5 py-1 text-[12px] leading-5 text-[color:var(--lab-muted)] shadow-sm"
+            role="status"
+          >
+            {[
+              nActive > 0 ? `조건 맞는 ${visible.length}개 단지` : null,
+              truncated ? "세대수 큰 400개 단지까지 — 확대하면 더 보여요" : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+        ) : null}
         {notice ? (
           <p
             className={`pointer-events-auto self-start rounded-lg px-3 py-1.5 text-[13px] font-medium shadow ${
@@ -506,9 +592,15 @@ export default function Seoul3DMap({
               </div>
             </dl>
             <div className="mt-3 grid grid-cols-2 gap-2">
-              <Link href={`/complex-3d/${selected.complexId}`} className="lab-button lab-button-secondary w-full">
-                3D 단지 탐색
-              </Link>
+              {selected3d ? (
+                <Link href={`/complex-3d/${selected.complexId}`} className="lab-button lab-button-secondary w-full">
+                  3D 단지 탐색
+                </Link>
+              ) : (
+                <button type="button" disabled className="lab-button lab-button-secondary w-full">
+                  {selected3d === false ? "3D 준비 중" : "3D 단지 탐색"}
+                </button>
+              )}
               <Link href={selected.href} className="lab-button lab-button-primary w-full">
                 단지 상세 보기
               </Link>
