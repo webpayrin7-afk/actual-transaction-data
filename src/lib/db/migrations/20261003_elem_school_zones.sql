@@ -46,5 +46,7 @@ CREATE TABLE IF NOT EXISTS complex_elem_school_zones (
   point_source TEXT NOT NULL,
   zone_base_date TEXT NOT NULL,
   computed_at TEXT NOT NULL,
+  -- 동 넓이 중 이 구역에 든 비율 (동별 판정). 한 점으로 판정한 행은 NULL
+  share REAL,
   PRIMARY KEY (complex_id, zone_id)
 );

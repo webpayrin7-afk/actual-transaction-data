@@ -27,6 +27,8 @@ from shapely.strtree import STRtree
 from shapely.validation import make_valid
 
 MAX_BYTES = 30 * 1024
+# 동 넓이의 이 비율 이상이 든 통학구역만 단지에 잇는다 (경계에 걸친 한두 동의 잡음 제외)
+MIN_SHARE = 0.15
 TOLERANCES = [5.0, 10.0, 15.0, 20.0, 30.0]
 
 
@@ -145,27 +147,47 @@ def main():
     zones_with_school = {s["zone_id"] for s in schools}
 
     # 단지 → 통학구역 (원본 도형, covers)
+    # 동 외곽선(parts: [경도, 위도, 넓이㎡])이 있으면 동마다 판정해 넓이로 투표한다 — 단지 좌표 한 점은
+    # 주소 점·필지 모서리라 경계 근처 단지를 옆 구역에 넣을 수 있다. 동 넓이의 MIN_SHARE 이상이 든 구역만 잇는다
+    # (단지 안에서 구역이 갈리면 둘 다: 동에 따라 배정 학교가 다르다). parts 가 없으면 한 점으로.
     pts = json.load(open(a.points, encoding="utf-8"))
     tree = STRtree([g for _, g in originals])
+    kind = {z["zone_id"]: z["zone_kind"] for z in zones}
     links = []
     per_complex = defaultdict(list)
+    split_single = 0
     for p in pts:
-        x, y = to_tm(p["lng"], p["lat"])
-        pt = Point(x, y)
-        for i in tree.query(pt, predicate="intersects"):
-            zid = originals[i][0]
+        parts = p.get("parts") or [[p["lng"], p["lat"], 1]]
+        area = defaultdict(float)
+        total = 0.0
+        for lng, lat, m2 in parts:
+            x, y = to_tm(lng, lat)
+            total += m2
+            for i in tree.query(Point(x, y), predicate="intersects"):
+                area[originals[i][0]] += m2
+        if not total:
+            continue
+        # 가운데 (넓이 가중) — 판정 좌표로 남긴다
+        cx = sum(q[0] * q[2] for q in parts) / total
+        cy = sum(q[1] * q[2] for q in parts) / total
+        chosen = [(zid, a_ / total) for zid, a_ in area.items() if a_ / total >= MIN_SHARE]
+        if not chosen and p.get("parts"):
+            # 동 가운데가 모두 구역 밖(구역 사이 틈·도로)이면 단지 좌표 한 점으로
+            x, y = to_tm(p["lng"], p["lat"])
+            chosen = [(originals[i][0], 1.0) for i in tree.query(Point(x, y), predicate="intersects")]
+        if sum(1 for zid, _ in chosen if kind[zid] == "single") > 1:
+            split_single += 1
+        for zid, share in sorted(chosen, key=lambda t: -t[1]):
             per_complex[p["complex_id"]].append(zid)
-    kind = {z["zone_id"]: z["zone_kind"] for z in zones}
-    for p in pts:
-        for zid in per_complex.get(p["complex_id"], []):
             links.append(
                 {
                     "complex_id": p["complex_id"],
                     "zone_id": zid,
                     "zone_kind": kind[zid],
-                    "lat": p["lat"],
-                    "lng": p["lng"],
+                    "lat": round(cy, 7),
+                    "lng": round(cx, 7),
                     "src": p["src"],
+                    "share": round(share, 3),
                 }
             )
 
@@ -194,6 +216,7 @@ def main():
         "complexes_linked": len(per_complex),
         "complexes_unlinked": len(pts) - len(per_complex),
         "complexes_multi_single_zone": multi_single,
+        "complexes_split_single_zone": split_single,
         "complexes_with_joint": sum(1 for zs in per_complex.values() if any(kind[z] == "joint" for z in zs)),
         "link_rows": len(links),
     }
