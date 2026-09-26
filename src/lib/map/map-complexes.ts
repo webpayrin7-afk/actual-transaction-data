@@ -115,6 +115,9 @@ export const MAP_COMPLEX_LITE_KEYS = [
   "rangeMinMan",
   "rangeMaxMan",
   "tradeCount12m",
+  // 구 안 순위 왕관 (2D 마커와 같게)
+  "guRank",
+  "guName",
 ] as const satisfies ReadonlyArray<keyof MapComplex>;
 export type MapComplexLite = Pick<MapComplex, (typeof MAP_COMPLEX_LITE_KEYS)[number]>;
 

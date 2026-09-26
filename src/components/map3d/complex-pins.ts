@@ -11,6 +11,7 @@
  * - 핀 DOM은 단지 id로 기억해 다시 쓴다 (빠진 핀은 떼어 두기만).
  */
 import type { Map as MlMap } from "maplibre-gl";
+import { crownHtml } from "@/components/map/complex-marker";
 
 export type PinDatum = {
   id: string;
@@ -28,6 +29,8 @@ export type PinDatum = {
   top: number | null;
   /** 버튼 읽기 이름 "{이름} {값}" */
   aria: string;
+  /** 구 안 순위 왕관 (2D 마커와 같음) — 1·2·3위만 */
+  crown?: 1 | 2 | 3 | null;
 };
 
 type Tier = "off" | "dot" | "name" | "value";
@@ -79,6 +82,8 @@ export const PINS_CSS = `
 .cx-label{position:absolute;left:0;bottom:calc(var(--cx-d)/2 + ${LABEL_GAP}px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;white-space:nowrap;box-sizing:border-box;padding:3px 7px;border:1.25px solid #0f766e;border-radius:9px;background:#fff;color:#0f172a;font-weight:700;font-size:12px;line-height:${LINE1}px;text-align:center;box-shadow:0 1px 3px rgb(15 23 42/.18)}
 .cx-val{font-size:11px;line-height:${LINE2}px}
 .cx-val:empty{display:none}
+.cx-crown{position:absolute;left:-10px;top:-12px;transform:rotate(-14deg);pointer-events:none}
+.cx-crown:empty{display:none}
 .cx-nolabel .cx-label{display:none}
 .cx-pins[data-tier=dot] .cx-pin:not(.cx-sel) .cx-label{display:none}
 .cx-pins[data-tier=name] .cx-pin:not(.cx-sel) .cx-val{display:none}
@@ -334,7 +339,9 @@ export class ComplexPins {
       const nameEl = document.createElement("span");
       const valEl = document.createElement("span");
       valEl.className = "cx-val";
-      label.append(nameEl, valEl);
+      const crownEl = document.createElement("span");
+      crownEl.className = "cx-crown";
+      label.append(nameEl, valEl, crownEl);
       const dot = document.createElement("span");
       dot.className = "cx-dot";
       el.append(label, dot);
@@ -358,9 +365,11 @@ export class ComplexPins {
       this.pins.set(d.id, p);
     }
     p.d = d;
-    const sig = `${d.name}|${d.value}|${d.valueColor}|${d.dotColor}|${d.aria}`;
+    const sig = `${d.name}|${d.value}|${d.valueColor}|${d.dotColor}|${d.aria}|${d.crown ?? ""}`;
     if (sig !== p.sig) {
       p.sig = sig;
+      const crownEl = p.nameEl.parentElement?.querySelector<HTMLSpanElement>(".cx-crown");
+      if (crownEl) crownEl.innerHTML = d.crown ? crownHtml(d.crown) : "";
       p.nameEl.textContent = d.name;
       p.valEl.textContent = d.value;
       p.valEl.style.color = d.valueColor;

@@ -300,6 +300,7 @@ function toPins(list: MapComplex[], metric: Map3dMetric, labelMetric: MarkerMetr
       hh: c.householdCount ?? 0,
       ...at,
       aria: lv.text ? `${c.aptName} ${lv.text}` : c.aptName,
+      crown: c.guRank ?? null,
     };
   });
 }
