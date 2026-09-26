@@ -13,7 +13,8 @@ export const BASEMAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron"
 export function buildingsTilesUrl(): string {
   const env = process.env.NEXT_PUBLIC_MAP3D_BUILDINGS_URL?.trim();
   if (env) return env;
-  return `${window.location.origin}/map3d/seoul-buildings.pmtiles`;
+  // 서울 건물 타일 — Vercel Blob(ziplab-map3d, icn1). 환경변수로 바꿀 수 있고, 없으면 이 주소
+  return "https://nknxeggbsjwx9abs.public.blob.vercel-storage.com/map3d/seoul-buildings-BbweA7LAohi5MYroVw1eAT0ZLOCVy8.pmtiles";
 }
 
 export const BUILDINGS_ATTRIBUTION = "건물 © 국토교통부 GIS건물통합정보";
