@@ -12,6 +12,7 @@ import { aptDetailHref } from "@/lib/molit/apt-client";
 import { readRankingV4Board } from "@/lib/region-ranking/ranking-v4";
 import { regionDongHref } from "@/lib/molit/region-paths";
 import { pickLatestDeal } from "@/lib/deals/latest";
+import { readMapRecentDeals, type RecentDeal } from "@/lib/map/map-complex-recent";
 
 /** @deprecated 면적 범위(areaMin/areaMax)로 대체 — 옛 URL 호환용 */
 export type MapAreaBand = "all" | "small" | "mid" | "large";
@@ -89,6 +90,9 @@ export const MAP_MAX_COMPLEXES = 400;
 const WINDOW_MONTHS = 12;
 /** 거래 쿼리 한 번에 넣는 단지 이름 수 — 조각을 작게 나눠 콜드 읽기를 병렬로 */
 const TX_NAMES_PER_QUERY = 40;
+/** 스냅샷·변경 표시 표가 없을 때 스냅샷을 다시 시도하기까지 (그동안 거래 표에서 바로) */
+const SNAPSHOT_RETRY_MS = 5 * 60_000;
+let recentSnapshotRetryAt = 0;
 
 function median(values: number[]): number | null {
   if (values.length === 0) return null;
@@ -254,6 +258,13 @@ export async function readMapComplexes(
   bbox: MapBBox,
   area: MapAreaRange,
   deal: MapDealKind = "trade",
+  opts: {
+    /**
+     * 단지별 최근 거래 스냅샷(map_complex_recent) 사용. 기본 "fresh"(변경 번호가 같은 단지만).
+     * "off" = 거래 표에서 바로, "ignore-marks" = 저장 내용을 그대로(검증 스크립트 전용).
+     */
+    snapshot?: "fresh" | "off" | "ignore-marks";
+  } = {},
 ): Promise<{ complexes: MapComplex[]; truncated: boolean }> {
   // 콜드 인스턴스에서 sqlite_master 확인 왕복(약 0.3초)을 앞에 두지 않는다 — anchor 조인을 바로 시도.
   let master;
@@ -307,15 +318,35 @@ export async function readMapComplexes(
       }
     }),
   );
+  const pushDeal = (
+    k: string,
+    d: { dealType: unknown; amount: number; rent: number; date: string; area: number; buildYear: number; floor: number | null; gbn: string | null },
+  ) => {
+    if (!wanted.has(k)) return;
+    if (!(d.amount > 0)) return;
+    const kind = d.dealType === "trade" ? "trade" : d.rent > 0 ? "wolse" : "jeonse";
+    const list = deals.get(k) ?? [];
+    list.push({
+      kind,
+      amount: d.amount,
+      rent: d.rent,
+      date: d.date,
+      area: d.area,
+      buildYear: Number.isFinite(d.buildYear) && d.buildYear > 1900 ? d.buildYear : null,
+      floor: d.floor,
+      gbn: d.gbn,
+    });
+    deals.set(k, list);
+  };
+  // 거래 표에서 바로 — 스냅샷이 없거나 낡은 단지.
   // 이름은 세대수 큰 순이라 앞에서부터 자르면 첫 조각에 거래가 몰렸다(콜드에서 한 쿼리 9천 행·2초).
   // 조각마다 큰·작은 단지가 섞이도록 번갈아 나눠 조각별 행 수를 고르게 한다 — 단지별 거래는 그대로.
-  for (const [lawd, all] of byLawd) {
-    // 같은 (lawd, 이름) 단지가 둘이면 한 조각에만 넣는다 — 두 조각에서 읽으면 거래가 겹친다.
-    const names = [...new Set(all)];
+  const readLive = (lawd: string, names: string[]) => {
     const parts = Math.ceil(names.length / TX_NAMES_PER_QUERY);
+    const out: Array<Promise<void>> = [];
     for (let p = 0; p < parts; p++) {
       const slice = names.filter((_, j) => j % parts === p);
-      jobs.push(
+      out.push(
         db
           .execute({
             sql: `SELECT lawd_cd, apt_name_norm, deal_type, deal_amount, monthly_rent, deal_date,
@@ -328,29 +359,58 @@ export async function readMapComplexes(
           })
           .then((res) => {
             for (const r of res.rows) {
-              const k = keyOf(r.lawd_cd, r.apt_name_norm);
-              if (!wanted.has(k)) continue;
-              const amount = Number(r.deal_amount);
-              if (!(amount > 0)) continue;
-              const rent = Number(r.monthly_rent) || 0;
-              const kind = r.deal_type === "trade" ? "trade" : rent > 0 ? "wolse" : "jeonse";
-              const by = Number(r.build_year);
-              const list = deals.get(k) ?? [];
-              list.push({
-                kind,
-                amount,
-                rent,
+              pushDeal(keyOf(r.lawd_cd, r.apt_name_norm), {
+                dealType: r.deal_type,
+                amount: Number(r.deal_amount),
+                rent: Number(r.monthly_rent) || 0,
                 date: String(r.deal_date),
                 area: Number(r.exclusive_area),
-                buildYear: Number.isFinite(by) && by > 1900 ? by : null,
+                buildYear: Number(r.build_year),
                 floor: r.floor == null ? null : Number(r.floor),
                 gbn: r.dealing_gbn == null ? null : String(r.dealing_gbn),
               });
-              deals.set(k, list);
             }
           }),
       );
     }
+    return Promise.all(out).then(() => {});
+  };
+  const snapshotMode = opts.snapshot ?? "fresh";
+  const useSnapshot = snapshotMode === "ignore-marks" || (snapshotMode === "fresh" && Date.now() >= recentSnapshotRetryAt);
+  for (const [lawd, all] of byLawd) {
+    // 같은 (lawd, 이름) 단지가 둘이면 한 번만 읽는다 — 두 번 읽으면 거래가 겹친다.
+    const names = [...new Set(all)];
+    if (!useSnapshot) {
+      jobs.push(readLive(lawd, names));
+      continue;
+    }
+    // 단지별 최근 거래 스냅샷 (1왕복, PK) — 변경 번호가 같은 단지만. 예전 쿼리와 같은 조건을 여기서 건다.
+    // 스냅샷에 없는(낡은·없는) 단지와 읽기 에러는 예전 쿼리. 스냅샷 읽기 에러가 결과에 섞이지 않는다.
+    jobs.push(
+      readMapRecentDeals(db, lawd, names, since, { ignoreMarks: snapshotMode === "ignore-marks" })
+        .catch((error: unknown) => {
+          if (snapshotMode === "ignore-marks") throw error;
+          // 변경 표시·스냅샷 표가 아직 없으면 잠시 스냅샷을 건너뛴다 (요청마다 실패 왕복을 더하지 않게).
+          if (/no such (table|column)/i.test(String(error))) recentSnapshotRetryAt = Date.now() + SNAPSHOT_RETRY_MS;
+          else console.error("[map] map_complex_recent read failed — live:", error);
+          return new Map<string, RecentDeal[]>();
+        })
+        .then((snap) => {
+          for (const name of names) {
+            const list = snap.get(name);
+            if (!list) continue;
+            const k = keyOf(lawd, name);
+            for (const d of list) {
+              if (d.yearMonth < since) continue;
+              if (!(d.dealType === selectedType || d.date >= cut12)) continue;
+              if (!(d.area >= area.min && d.area <= area.max)) continue;
+              pushDeal(k, { ...d, buildYear: Number(d.buildYear) });
+            }
+          }
+          const missing = names.filter((n) => !snap.has(n));
+          return missing.length ? readLive(lawd, missing) : undefined;
+        }),
+    );
   }
   // 평형 이름 — 단지 평형 목록(공급 평)에서. 실패해도 지도는 그대로.
   const unitTypes = new Map<string, Array<{ area: number; supplySqm: number | null }>>();
