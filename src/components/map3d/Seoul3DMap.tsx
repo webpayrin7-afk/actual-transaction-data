@@ -113,6 +113,19 @@ const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: 
 const SCHOOL_ZONE_COLOR = "#d97706";
 type SchoolZoneGeo = { geometry: GeoJSON.FeatureCollection };
 
+/** 단지를 담을 때 범위의 최소 한 변 (m) — 작은 단지도 둘레가 조금 보이게 */
+const FRAME_MIN_SPAN_M = 220;
+
+/** 범위를 가운데 기준으로 가로·세로 최소 minM 미터까지 넓힌다 */
+function minSpan(b: [number, number, number, number], minM: number): [number, number, number, number] {
+  const cx = (b[0] + b[2]) / 2;
+  const cy = (b[1] + b[3]) / 2;
+  const kx = 111_320 * Math.cos((cy * Math.PI) / 180);
+  const hw = Math.max((b[2] - b[0]) / 2, minM / 2 / kx);
+  const hh = Math.max((b[3] - b[1]) / 2, minM / 2 / 111_320);
+  return [cx - hw, cy - hh, cx + hw, cy + hh];
+}
+
 /** 하단 메뉴가 차지하는 아래 높이 (px) — MobileDock 이 --map-dock-space 로 알려 준다 (접으면 줄어든다) */
 function dockSpace(): number {
   const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--map-dock-space"));
@@ -982,11 +995,13 @@ export default function Seoul3DMap({
       const shape = sh.status === "fulfilled" ? sh.value : null;
       // 담을 범위 — 단지 경계와 동 범위를 합친 것 (경계가 없으면 동 범위)
       const sb = shapeBounds(shape);
-      const bb: [number, number, number, number] | null =
+      const raw: [number, number, number, number] | null =
         site?.bbox && sb
           ? [Math.min(site.bbox[0], sb[0]), Math.min(site.bbox[1], sb[1]), Math.max(site.bbox[2], sb[2]), Math.max(site.bbox[3], sb[3])]
           : (site?.bbox ?? sb);
-      if (!bb) return;
+      if (!raw) return;
+      // 작은 단지(동 한두 개)는 너무 가까이 가지 않게 — 담을 범위를 가로·세로 최소 FRAME_MIN_SPAN_M 로 넓힌다 (둘레가 조금 보이게)
+      const bb = minSpan(raw, FRAME_MIN_SPAN_M);
       const box = map.getContainer();
       const w = box.clientWidth;
       // 가려지는 곳 — 위: 조작 줄(재어서, 안전 영역 포함), 아래: 작은 단지 카드(약 108px). 카드가 뜨면 독은 숨고
