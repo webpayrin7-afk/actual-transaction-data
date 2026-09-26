@@ -1,0 +1,211 @@
+"use client";
+
+import Link from "next/link";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type TouchEvent as ReactTouchEvent,
+} from "react";
+import { usePathname } from "next/navigation";
+import { Menu, X } from "lucide-react";
+import { MORE_SERVICE_LINKS, TOOL_NAV } from "@/lib/nav/site-menu";
+
+const DRAWER_CLOSE_MS = 160;
+
+function sectionHeadingClass() {
+  return "pb-0.5 text-[13px] font-semibold text-slate-500";
+}
+
+function drawerItemClass(active: boolean) {
+  return `flex h-11 items-center text-[17px] font-medium transition-colors ${
+    active
+      ? "bg-teal-50 text-teal-800"
+      : "text-slate-800 hover:bg-teal-50/70 active:bg-teal-50/80"
+  }`;
+}
+
+const DEFAULT_BUTTON_CLASS =
+  "inline-flex h-10 w-10 items-center justify-center rounded-md text-[color:var(--lab-navy-900)] transition-colors duration-150 hover:bg-slate-100 sm:h-9 sm:w-9";
+
+/**
+ * ≡ 사이트 메뉴 — 버튼 + 오른쪽 서랍 (도구 · 서비스).
+ * 상단바(SiteHeader)와 지도 첫 화면의 조작 줄(상단바 없음)이 같이 쓴다.
+ */
+export function SiteMenuButton({ buttonClassName = DEFAULT_BUTTON_CLASS }: { buttonClassName?: string }) {
+  const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuMounted, setMenuMounted] = useState(false);
+  const [menuShown, setMenuShown] = useState(false);
+  const [navPath, setNavPath] = useState(pathname);
+  const closeTimerRef = useRef<number | null>(null);
+  const touchStartXRef = useRef<number | null>(null);
+  const menuId = useId();
+  const titleId = useId();
+
+  function clearCloseTimer() {
+    if (closeTimerRef.current != null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  }
+
+  function openMenu() {
+    clearCloseTimer();
+    setMenuOpen(true);
+    setMenuMounted(true);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => setMenuShown(true));
+    });
+  }
+
+  function closeMenu() {
+    setMenuOpen(false);
+    setMenuShown(false);
+    clearCloseTimer();
+    closeTimerRef.current = window.setTimeout(() => {
+      setMenuMounted(false);
+      closeTimerRef.current = null;
+    }, DRAWER_CLOSE_MS);
+  }
+
+  if (navPath !== pathname) {
+    setNavPath(pathname);
+    if (menuOpen || menuMounted) {
+      setMenuOpen(false);
+      setMenuShown(false);
+      setMenuMounted(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!menuMounted) return;
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") closeMenu();
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = prev;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menuMounted]);
+
+  useEffect(() => () => clearCloseTimer(), []);
+
+  function onDrawerTouchStart(event: ReactTouchEvent) {
+    touchStartXRef.current = event.touches[0]?.clientX ?? null;
+  }
+
+  function onDrawerTouchEnd(event: ReactTouchEvent) {
+    const startX = touchStartXRef.current;
+    touchStartXRef.current = null;
+    if (startX == null) return;
+    const endX = event.changedTouches[0]?.clientX;
+    if (endX == null) return;
+    if (endX - startX > 72) closeMenu();
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        aria-expanded={menuOpen}
+        aria-controls={menuId}
+        aria-haspopup="dialog"
+        aria-label="더보기"
+        onClick={openMenu}
+        className={buttonClassName}
+      >
+        <Menu className="h-[18px] w-[18px]" aria-hidden />
+      </button>
+      {menuMounted ? (
+        <>
+          <div
+            className={`fixed inset-0 z-[45] bg-black/12 transition-opacity ease-out ${
+              menuShown
+                ? "opacity-100 duration-[200ms]"
+                : "opacity-0 duration-[160ms]"
+            }`}
+            aria-hidden
+            onClick={closeMenu}
+          />
+
+          <div
+            id={menuId}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+            className={`fixed inset-y-0 right-0 z-[48] flex w-[min(280px,78vw)] flex-col border-l border-slate-200 bg-white shadow-[-2px_0_8px_rgba(15,23,42,0.04)] transition-transform ease-out ${
+              menuShown
+                ? "translate-x-0 duration-[200ms]"
+                : "translate-x-full duration-[160ms]"
+            }`}
+            onTouchStart={onDrawerTouchStart}
+            onTouchEnd={onDrawerTouchEnd}
+          >
+            <div className="flex h-11 shrink-0 items-center justify-between border-b border-slate-100 pr-2.5 pl-5">
+              <h2
+                id={titleId}
+                className="text-[18px] font-semibold leading-none text-slate-900"
+              >
+                메뉴
+              </h2>
+              <button
+                type="button"
+                aria-label="닫기"
+                onClick={closeMenu}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
+              >
+                <X className="h-[18px] w-[18px]" aria-hidden />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-5 pt-3 pb-4">
+              <p className={sectionHeadingClass()}>도구</p>
+              <nav aria-label="도구" className="flex flex-col gap-0.5">
+                {TOOL_NAV.map((item) => {
+                  const active = item.match(pathname);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={drawerItemClass(active)}
+                      onClick={closeMenu}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              <div className="mt-3.5 border-t border-slate-100/80 pt-3.5">
+                <p className={sectionHeadingClass()}>서비스</p>
+                <nav aria-label="서비스" className="flex flex-col gap-0.5">
+                  {MORE_SERVICE_LINKS.map((item) => {
+                    const active = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={closeMenu}
+                        className={drawerItemClass(active)}
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </div>
+            </div>
+          </div>
+        </>
+      ) : null}
+    </>
+  );
+}

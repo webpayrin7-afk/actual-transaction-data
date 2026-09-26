@@ -8,6 +8,7 @@ import { MOBILE_DOCK_SPACER, MobileDock } from "@/components/layout/MobileDock";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BrandLogo } from "@/components/layout/BrandLogo";
+import { isMapHomePath } from "@/lib/map/map-dock";
 
 const NAV = [
   {
@@ -132,7 +133,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </p>
       </aside>
       <div className="flex min-h-dvh min-w-0 flex-col lg:col-start-2">
-        <SiteHeader />
+        {/* 지도 첫 화면: 모바일은 상단바 없이 지도가 화면 전체 — 검색·메뉴는 지도 조작 줄에 (MapSearchPage) */}
+        <SiteHeader className={isMapHomePath(pathname) ? "max-sm:hidden" : ""} />
         <main className="flex-1">{children}</main>
         <SiteFooter />
         {/* Mobile: leave room so the last content/footer isn't under the floating dock. */}
