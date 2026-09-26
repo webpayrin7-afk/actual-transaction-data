@@ -19,9 +19,9 @@ import maplibregl, {
   type StyleSpecification,
 } from "maplibre-gl";
 import { Protocol } from "pmtiles";
-import { ChevronDown, Compass, X } from "lucide-react";
+import { ChevronDown, Compass, Satellite, X } from "lucide-react";
 import { LabIndeterminateBar } from "@/components/ui/LabLoading";
-import { Map3dAttribution } from "@/components/map3d/Map3dAttribution";
+import { MAP3D_ATTRIBUTION, Map3dAttribution, SATELLITE_ATTRIBUTION } from "@/components/map3d/Map3dAttribution";
 import { MARKER_METRICS, markerValue, shortEok, shortPerPyeong, type MarkerMetric } from "@/components/map/complex-marker";
 import type { MapComplex, MapDealKind } from "@/lib/map/map-complexes";
 import { activeCount, areaQuery, matches, type MapConditions } from "@/lib/map/map-filters";
@@ -71,6 +71,8 @@ const MAX_LNG_SPAN = 0.12;
 const ROUND = 0.002;
 const START_PITCH = 55;
 /** 단지로 날아갈 때 기울기·최대 줌 */
+/** 위성영상 켬·끔 기억 (브라우저) */
+const SATELLITE_PREF = "ziplab:map3d-satellite:v1";
 const FOCUS_PITCH = 58;
 const FOCUS_MIN_ZOOM = 16;
 const FOCUS_MAX_ZOOM = 18.5;
@@ -386,6 +388,7 @@ export default function Seoul3DMap({
   labelMetric = "price",
   onLabelMetricChange,
   onMoveEnd,
+  satelliteKey = null,
 }: {
   initial: Map3dView;
   /** 2D 지도의 조건(거래유형·전용면적·필터 칩) — 2D와 같은 단지만 보이게 */
@@ -409,6 +412,8 @@ export default function Seoul3DMap({
   onLabelMetricChange?: (m: MarkerMetric) => void;
   /** 카메라가 멈출 때마다 (지도 브리핑 '지역' 범위) */
   onMoveEnd?: (v: Map3dView) => void;
+  /** 브이월드 위성영상 키 (없으면 위성 버튼을 숨긴다) */
+  satelliteKey?: string | null;
 }) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MlMap | null>(null);
@@ -416,6 +421,25 @@ export default function Seoul3DMap({
   /** 마지막으로 부른 범위·조건 — 새 화면이 그 안이고 잘리지 않았으면 다시 부르지 않는다 */
   const lastRef = useRef<{ box: Box; params: string; truncated: boolean } | null>(null);
   const [styleReady, setStyleReady] = useState(false);
+  /** 바닥을 위성영상으로 — 브라우저에 기억 */
+  const [satellite, setSatellite] = useState(false);
+  useEffect(() => {
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (satelliteKey && window.localStorage.getItem(SATELLITE_PREF) === "1") setSatellite(true);
+    } catch {
+      /* 저장소를 못 쓰면 끔 */
+    }
+  }, [satelliteKey]);
+  const toggleSatellite = () =>
+    setSatellite((on) => {
+      try {
+        window.localStorage.setItem(SATELLITE_PREF, on ? "0" : "1");
+      } catch {
+        /* 기억 못 해도 전환은 된다 */
+      }
+      return !on;
+    });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [buildingsMissing, setBuildingsMissing] = useState(false);
@@ -825,6 +849,28 @@ export default function Seoul3DMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusSeq, styleReady]);
 
+  // 위성영상 — 바탕 지도 위, 단지 경계·건물 아래 (길 이름 등 글자는 그 위에 그대로)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !styleReady || !satelliteKey) return;
+    if (!satellite) {
+      if (map.getLayer("satellite")) map.removeLayer("satellite");
+      return;
+    }
+    if (!map.getSource("satellite")) {
+      map.addSource("satellite", {
+        type: "raster",
+        tiles: [`https://api.vworld.kr/req/wmts/1.0.0/${encodeURIComponent(satelliteKey)}/Satellite/{z}/{y}/{x}.jpeg`],
+        tileSize: 256,
+        maxzoom: 19,
+        attribution: SATELLITE_ATTRIBUTION.text,
+      });
+    }
+    if (!map.getLayer("satellite")) {
+      map.addLayer({ id: "satellite", type: "raster", source: "satellite", paint: { "raster-opacity": 0.95 } }, "sel-site-fill");
+    }
+  }, [satellite, satelliteKey, styleReady]);
+
   // 단지 점·이름표·지표 갱신
   useEffect(() => {
     metricRef.current = metric;
@@ -1148,8 +1194,27 @@ export default function Seoul3DMap({
         <Compass className="h-5 w-5" style={{ transform: `rotate(${-bearing}deg)` }} aria-hidden />
       </button>
 
+      {/* 위성영상 켜고 끄기 — 보기 초기화 위 */}
+      {satelliteKey ? (
+        <button
+          type="button"
+          onClick={toggleSatellite}
+          aria-pressed={satellite}
+          aria-label={satellite ? "위성영상 끄기" : "위성영상으로 보기"}
+          className={`absolute left-3 bottom-[calc(env(safe-area-inset-bottom)+184px+var(--map-sheet-peek,0px))] inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-sm sm:left-4 sm:bottom-[calc(env(safe-area-inset-bottom)+100px)] ${
+            satellite
+              ? "border-[color:var(--lab-teal-700)] bg-[color:var(--lab-teal-700)] text-white"
+              : "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)]"
+          }`}
+          style={selected ? { visibility: "hidden" } : undefined}
+        >
+          <Satellite className="h-5 w-5" aria-hidden />
+        </button>
+      ) : null}
+
       {/* 왼쪽 아래 출처 ⓘ — 독·시트 위, 단지 카드가 뜨면 카드 위로 */}
       <Map3dAttribution
+        lines={satellite && satelliteKey ? [...MAP3D_ATTRIBUTION, SATELLITE_ATTRIBUTION] : MAP3D_ATTRIBUTION}
         className={
           selected
             ? "z-10 bottom-[calc(env(safe-area-inset-bottom)+198px)] sm:bottom-[140px]"

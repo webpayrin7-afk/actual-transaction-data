@@ -183,7 +183,7 @@ function zoneColor(z: RedevZoneShape): string {
  * 지도 첫 화면(/)과 /map. 보기 방식은 주소 `?view=3d` 로 — 첫 화면부터 3D면 2D를 거치지 않고 바로 3D.
  * useSearchParams 는 미리 그린 페이지에서 Suspense 경계가 필요하다 (그동안 빈 지도 틀).
  */
-export function MapSearchPage() {
+export function MapSearchPage({ satelliteKey = null }: { satelliteKey?: string | null } = {}) {
   return (
     <Suspense
       fallback={
@@ -194,12 +194,12 @@ export function MapSearchPage() {
         />
       }
     >
-      <MapSearchPageInner />
+      <MapSearchPageInner satelliteKey={satelliteKey} />
     </Suspense>
   );
 }
 
-function MapSearchPageInner() {
+function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
   const searchParams = useSearchParams();
   const pathname = usePathname() || "/";
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -1338,6 +1338,7 @@ function MapSearchPageInner() {
           onLabelMetricChange={chooseMetric}
           sessionPath={pathname}
           onMoveEnd={setCam3d}
+          satelliteKey={satelliteKey}
         />
       ) : null}
 

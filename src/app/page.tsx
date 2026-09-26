@@ -8,5 +8,6 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <MapSearchPage />;
+  // 브이월드 위성영상 키 — 도메인(서비스 URL)에 묶인 브라우저용 키라 화면에 실려도 된다
+  return <MapSearchPage satelliteKey={process.env.VWORLD_WEB_KEY?.trim() || null} />;
 }

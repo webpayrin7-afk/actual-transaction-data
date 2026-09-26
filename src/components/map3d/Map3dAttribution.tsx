@@ -21,6 +21,8 @@ export const MAP3D_ATTRIBUTION: AttributionLine[] = [
   { text: "건물 도형 일부 © 행정안전부 도로명주소" },
   { text: "MapLibre", href: "https://maplibre.org/" },
 ];
+/** 위성영상을 켰을 때 더하는 출처 */
+export const SATELLITE_ATTRIBUTION: AttributionLine = { text: "위성영상 © 국토교통부 브이월드", href: "https://www.vworld.kr/" };
 const MAP3D_SHORT = "© OpenStreetMap · OpenFreeMap · 국토교통부";
 
 const INTRO_MS = 4000;
