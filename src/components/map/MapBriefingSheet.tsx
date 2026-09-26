@@ -17,7 +17,6 @@ import {
   type MapRegionAt,
 } from "@/lib/market/briefing-scope";
 import type { MapLocateResult } from "@/lib/map/locate";
-import { seoulToday } from "@/lib/market/time";
 import { formatArea, formatEok } from "@/lib/utils/format";
 
 /**
@@ -101,40 +100,34 @@ function surgeItem(item: MarketVolumeItem): BriefItem {
   };
 }
 
-function monthDay(iso: string): string {
-  return `${Number(iso.slice(5, 7))}월 ${Number(iso.slice(8, 10))}일`;
-}
-
 const TONE_COLOR = { up: "var(--lab-change-up)", down: "var(--lab-change-down)" } as const;
 
 type ScopeCounts = { singoga: number; drop: number; surge: number };
 
-function PeekLine({ data, scope, counts }: { data: MarketHomeResponse; scope: BriefScope; counts: ScopeCounts }) {
-  const day = data.discoveryDate && data.discoveryDate !== seoulToday() ? monthDay(data.discoveryDate) : "오늘";
+function PeekLine({ scope, counts }: { scope: BriefScope; counts: ScopeCounts }) {
+  // 날짜는 바로 위 줄(브리핑 시각)에 있으니 여기서는 빼고, 항목 사이를 조금 띄운다
   const where = scope.label;
   if (!counts.singoga && !counts.drop && !counts.surge) {
     return (
       <>
-        {day === "오늘"
-          ? `${where}${topicJosa(where)} 오늘 새 신고가·하락 거래가 없어요`
-          : `${where} ${day} 새 신고가·하락 거래 없음`}
+        {`${where}${topicJosa(where)} 새 신고가·하락 거래가 없어요`}
       </>
     );
   }
   return (
     <>
-      <span className="text-[color:var(--lab-teal-700)]">{where}</span> {day} 신고가{" "}
+      <span className="text-[color:var(--lab-teal-700)]">{where}</span> 신고가{" "}
       <span className="tabular-nums" style={counts.singoga ? { color: TONE_COLOR.up } : undefined}>
         {counts.singoga.toLocaleString("ko-KR")}
       </span>
-      <span className="px-[3px] text-[color:var(--lab-muted)]" aria-hidden>
+      <span className="px-1.5 text-[color:var(--lab-muted)]" aria-hidden>
         ·
       </span>
       하락{" "}
       <span className="tabular-nums" style={counts.drop ? { color: TONE_COLOR.down } : undefined}>
         {counts.drop.toLocaleString("ko-KR")}
       </span>
-      <span className="px-[3px] text-[color:var(--lab-muted)]" aria-hidden>
+      <span className="px-1.5 text-[color:var(--lab-muted)]" aria-hidden>
         ·
       </span>
       거래 급증 <span className="tabular-nums text-[color:var(--lab-teal-700)]">{counts.surge.toLocaleString("ko-KR")}곳</span>
@@ -376,7 +369,7 @@ export function MapBriefingSheet({
           <span className="mt-1 flex min-h-7 items-center gap-1 sm:gap-2">
             <span className="min-w-0 flex-1 truncate text-[15px] font-bold leading-6 tracking-[-0.04em] sm:text-[16px] sm:tracking-tight text-[color:var(--lab-navy-950)]">
               {data && counts && !regionPending ? (
-                <PeekLine data={data} scope={scope} counts={counts} />
+                <PeekLine scope={scope} counts={counts} />
               ) : query.isError ? (
                 <span className="text-[14px] font-medium text-[color:var(--lab-muted)]">시장 브리핑을 불러오지 못했어요</span>
               ) : (
