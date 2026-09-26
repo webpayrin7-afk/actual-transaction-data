@@ -27,7 +27,9 @@ import type {
   ViewResult,
   DongContext,
   WindowViewInfo,
+  FacadeSunProgress,
 } from "@/components/complex-3d/scene";
+import { FACADE_SUN_COLORS } from "@/components/complex-3d/facade-sun";
 import { TYPE_COLORS } from "@/components/complex-3d/palette";
 import { fetchComplexTypes } from "@/lib/apt/area-supply";
 import { mergeNearSupply, sameSqm, supplyLabels } from "@/lib/apt/type-labels";
@@ -135,6 +137,9 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
   const [walkProgress, setWalkProgress] = useState<{ sec: number; done: boolean } | null>(null);
   // 걷기 — 사람 뒤에서 따라가는 카메라
   const [walkFollow, setWalkFollow] = useState(false);
+  // 일조 — 외벽을 층 구간별 해 드는 시간으로 색칠
+  const [facadeOn, setFacadeOn] = useState(false);
+  const [facadeProg, setFacadeProg] = useState<FacadeSunProgress | null>(null);
   const [terrainOn, setTerrainOn] = useState(false);
   // 우리 집 창문 시점 — 켜져 있으면 정보(방향·앞 건물·가림)
   const [windowInfo, setWindowInfo] = useState<WindowViewInfo | null>(null);
@@ -301,6 +306,7 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
         s.onHeading = setHeading;
         s.onWalkProgress = (sec, done) => setWalkProgress({ sec, done });
         s.onWalkFollow = setWalkFollow;
+        s.onFacadeSunProgress = setFacadeProg;
         s.onTerrain = () => setTerrainOn(true);
         s.onWindowInfo = (info) => setWindowInfo(info);
         sceneRef.current = scene;
@@ -393,6 +399,14 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
     const p = sceneRef.current?.setSun(date, hour);
     if (p) setSunInfo(p);
   }, [season, hour, ready]);
+
+  // 외벽 일조 — 계절이 바뀌면 그 계절로 (계산한 계절은 기억한다)
+  useEffect(() => {
+    if (!ready) return;
+    const s = SEASONS.find((x) => x.id === season)!;
+    const date = new Date(Date.UTC(new Date().getFullYear(), s.md[0] - 1, s.md[1]));
+    sceneRef.current?.setFacadeSun(facadeOn, date, season);
+  }, [facadeOn, season, ready]);
 
   const sel = useMemo(
     () => d?.buildings.find((b) => b.id === selected) ?? null,
@@ -1018,6 +1032,13 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
                     ))}
                   </div>
                 </div>
+                <FacadeSunControl
+                  on={facadeOn}
+                  onToggle={() => setFacadeOn((v) => !v)}
+                  progress={facadeProg}
+                  seasonLabel={SEASONS.find((x) => x.id === season)!.label}
+                  dong={sel?.dong ?? null}
+                />
                 <label className="flex items-center gap-2">
                   <span className="w-[92px] shrink-0 whitespace-nowrap text-[13px] text-[color:var(--lab-muted)]">
                     그림자{" "}
@@ -1436,6 +1457,95 @@ function SunStatsView({ stats, season }: { stats: SunHours; season: Season }) {
           <span>18시</span>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** 외벽 일조 색칠 — 켜기, 계산 진행, 범례, 고른 동의 층 구간별 요약 */
+function FacadeSunControl({
+  on,
+  onToggle,
+  progress,
+  seasonLabel,
+  dong,
+}: {
+  on: boolean;
+  onToggle: () => void;
+  progress: FacadeSunProgress | null;
+  seasonLabel: string;
+  dong: string | null;
+}) {
+  const busy = on && progress?.on && progress.done < progress.total;
+  const h1 = (v: number) => (Math.round(v * 10) / 10).toString();
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          role="switch"
+          aria-checked={on}
+          onClick={onToggle}
+          className={`flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-[12px] font-semibold transition active:scale-95 ${
+            on
+              ? "bg-[color:var(--lab-navy-950)] text-white"
+              : "border border-[color:var(--lab-border)] text-[color:var(--lab-navy-950)]"
+          }`}
+        >
+          외벽 일조 색칠
+        </button>
+        {on ? (
+          <span className="min-w-0 truncate text-[12px] tabular-nums text-[color:var(--lab-muted)]" aria-live="polite">
+            {busy ? `계산 중 ${progress!.done}/${progress!.total}동` : `${seasonLabel} · 3개 층마다 · 해 드는 쪽 외벽`}
+          </span>
+        ) : (
+          <span className="min-w-0 truncate text-[12px] text-[color:var(--lab-muted)]">모든 동 외벽을 층별 해 드는 시간으로</span>
+        )}
+      </div>
+      {busy ? (
+        <div className="h-1 overflow-hidden rounded-full bg-slate-100" aria-hidden>
+          <div
+            className="h-full rounded-full bg-[color:var(--lab-brand-primary)]"
+            style={{ width: `${Math.round((progress!.done / Math.max(1, progress!.total)) * 100)}%` }}
+          />
+        </div>
+      ) : null}
+      {on ? (
+        <div>
+          <div className="flex h-2.5 overflow-hidden rounded-full" aria-label="하루 해 드는 시간 색 범례">
+            {FACADE_SUN_COLORS.map((c) => (
+              <span key={c} className="h-full flex-1" style={{ background: c }} />
+            ))}
+          </div>
+          <div className="mt-0.5 flex justify-between text-[11px] tabular-nums text-[color:var(--lab-muted)]">
+            <span>0</span>
+            <span>2</span>
+            <span>4</span>
+            <span>6시간+</span>
+          </div>
+        </div>
+      ) : null}
+      {on && dong && progress?.selected?.length ? (
+        <div>
+          <p className="text-[12px] font-semibold text-[color:var(--lab-navy-950)]">
+            {dong} 정면 벽 · 층 구간별 하루 해 드는 시간
+          </p>
+          <ul className="mt-0.5 grid grid-cols-3 gap-1">
+            {[...progress.selected].reverse().map((b) => (
+              <li
+                key={b.from}
+                className="flex items-center gap-1 rounded-md border border-[color:var(--lab-border)] px-1.5 py-0.5 text-[11px] tabular-nums text-[color:var(--lab-navy-950)]"
+              >
+                <span className="h-2 w-2 shrink-0 rounded-sm" style={{ background: FACADE_SUN_COLORS[Math.min(6, Math.floor(b.main))] }} aria-hidden />
+                <span className="text-[color:var(--lab-muted)]">{b.from === b.to ? `${b.from}층` : `${b.from}~${b.to}층`}</span>
+                <span className="ml-auto font-semibold">{h1(b.main)}시간</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-0.5 text-[11px] leading-[15px] text-[color:var(--lab-muted)]">
+            해 드는 쪽 가장 긴 외벽 기준 · 다른 벽은 모형 색 참고 · 주변 건물·지형 그림자 반영
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }

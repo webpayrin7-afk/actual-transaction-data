@@ -14,6 +14,7 @@ import { Line2 } from "three/examples/jsm/lines/Line2.js";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 import type { Complex3d, Complex3dBuilding, FloorBand, Poi3d, Ring } from "@/lib/complex-3d/read";
 import type { TerrainGridPayload } from "@/lib/complex-3d/ground";
+import { facadeSunColor, makePrism, prismsInFront, sunBlocked, type Prism } from "@/components/complex-3d/facade-sun";
 
 export const FLOOR_M = 3;
 const TEAL = 0x0e9aa0;
@@ -109,6 +110,34 @@ export type WindowViewInfo = {
   /** 눈높이 — 동 바닥에서 (m) */
   eyeM: number;
 };
+
+export type FacadeSunProgress = {
+  on: boolean;
+  done: number;
+  total: number;
+  /** 고른 동 — 층 구간별 외벽 구간 중 가장 적게·많이 드는 시간 (아직 계산 전이면 null) */
+  selected: Array<{ from: number; to: number; main: number; min: number; max: number }> | null;
+};
+
+/** 외벽 일조 계산 결과 — 외벽 구간(segs) × 층 구간(bands), hours[i]는 segs[i]의 하루 해 드는 시간(시간) */
+type FacadeSunCells = {
+  segs: Array<{ x0: number; z0: number; x1: number; z1: number; ox: number; oz: number }>;
+  bands: Array<{ from: number; to: number; y0: number; y1: number; ys: number; hours: number[] }>;
+};
+
+/** 7~18시 10분 간격(가운데 시각)의 해 방향 — 해가 없으면 null (일조 시간 계산과 같은 칸) */
+function sunDirs(center: { lat: number; lng: number }, date: Date): Array<THREE.Vector3 | null> {
+  const out: Array<THREE.Vector3 | null> = [];
+  for (let m = 7 * 60; m < 18 * 60; m += 10) {
+    const sp = sunPosition(center.lat, center.lng, date, (m + 5) / 60);
+    out.push(
+      sp.altitude <= 0.01
+        ? null
+        : new THREE.Vector3(Math.sin(sp.azimuth) * Math.cos(sp.altitude), Math.sin(sp.altitude), -Math.cos(sp.azimuth) * Math.cos(sp.altitude)),
+    );
+  }
+  return out;
+}
 
 /** 창문 시점 — 좌우로 둘러볼 수 있는 범위(°)와 미리 재는 범위 */
 const WIN_YAW = 50;
@@ -216,6 +245,7 @@ export class Complex3dScene {
     view: new THREE.Group(),
     pois: new THREE.Group(),
     walk: new THREE.Group(),
+    facadeSun: new THREE.Group(),
   };
   private ownMeshes = new Map<string, THREE.Mesh>();
   private ownMaterial = new THREE.MeshStandardMaterial({ color: OWN, roughness: 0.85, metalness: 0 });
@@ -307,7 +337,7 @@ export class Complex3dScene {
   private mapTex: THREE.Texture | null = null;
   private mapSize = 0;
   /** 지형 — 단지 중심 기준 상대 높이(m), n×n, 북쪽 행부터 */
-  private terrain: { size: number; n: number; h: Float32Array; min: number } | null = null;
+  private terrain: { size: number; n: number; h: Float32Array; min: number; max: number } | null = null;
 
   /**
    * 바닥에 실제 지도 이미지를 깐다 — 단지 중심이 이미지 가운데, 한 변 sizeM 미터(웹 메르카토르라 가로·세로 축척 같음).
@@ -340,11 +370,13 @@ export class Complex3dScene {
     const raw = new Int16Array(bytes.buffer, 0, t.n * t.n);
     const h = new Float32Array(t.n * t.n);
     let min = Infinity;
+    let max = -Infinity;
     for (let i = 0; i < h.length; i++) {
       h[i] = raw[i]! / 10;
       min = Math.min(min, h[i]!);
+      max = Math.max(max, h[i]!);
     }
-    this.terrain = { size: t.sizeM, n: t.n, h, min };
+    this.terrain = { size: t.sizeM, n: t.n, h, min, max };
     if (!this.mapSize) this.mapSize = t.sizeM;
     this.buildGround();
     this.ground.position.y = Math.min(0, min) - 0.6;
@@ -426,6 +458,8 @@ export class Complex3dScene {
     if (this.lastPois) this.setPois(this.lastPois);
     if (this.walkDraw) this.showWalk(this.walkDraw, this.walkReduced, false);
     this.paint();
+    // 외벽 일조 — 땅 높이가 바뀌었으니 처음부터 다시
+    this.refreshFacadeSun();
     // 창문 시점이면 땅 높이가 바뀐 동에 다시 선다
     if (this.win) this.onWindowInfo(this.enterWindowView(this.win.id, this.win.floor, true)!);
   }
@@ -461,6 +495,7 @@ export class Complex3dScene {
     this.ownMeshes.clear();
     this.labelEls.clear();
     this.baseById.clear();
+    this.prisms = null;
     for (const b of data.buildings) this.baseById.set(b.id, this.baseOf(b.rings));
 
     // 우리 단지 동
@@ -629,6 +664,7 @@ export class Complex3dScene {
   setMode(mode: SceneMode) {
     this.mode = mode;
     this.groups.walk.visible = mode === "walk";
+    this.groups.facadeSun.visible = mode === "sun" && this.facadeSun.on;
     this.groups.floors.visible = mode === "floors";
     this.groups.types.visible = mode === "types";
     this.groups.own.visible = mode !== "floors" && mode !== "types";
@@ -835,7 +871,7 @@ export class Complex3dScene {
       }
       this.raycaster.set(origin, dir);
       this.raycaster.far = 1500;
-      slots.push(this.raycaster.intersectObjects(targets, false).length === 0);
+      slots.push(this.raycaster.intersectObjects(targets, false).length === 0 && !this.terrainBlocks(origin.x, origin.y, origin.z, dir));
     }
     const totalMin = slots.filter((x) => x === true).length * 10;
     let best = 0;
@@ -848,6 +884,258 @@ export class Complex3dScene {
       } else run = 0;
     });
     return { totalMin, best9to15Min: best, slots };
+  }
+
+  /**
+   * 땅(언덕·산)이 햇빛을 막는지 — 해 쪽으로 8m마다 지형 높이와 광선 높이를 비교한다.
+   * 광선이 지형 최고점보다 높아지거나 지형 격자 밖으로 나가면 그만둔다.
+   */
+  private terrainBlocks(ox: number, oy: number, oz: number, dir: { x: number; y: number; z: number }): boolean {
+    const t = this.terrain;
+    if (!t) return false;
+    const h = Math.hypot(dir.x, dir.z);
+    if (h < 1e-6) return false;
+    const ux = dir.x / h;
+    const uz = dir.z / h;
+    const slope = dir.y / h;
+    const half = t.size / 2;
+    for (let s = 8; s < 1500; s += 8) {
+      const y = oy + slope * s;
+      if (y > t.max) return false;
+      const x = ox + ux * s;
+      const z = oz + uz * s;
+      if (Math.abs(x) > half || Math.abs(z) > half) return false;
+      if (this.groundAt(x, z) > y) return true;
+    }
+    return false;
+  }
+
+  // ── 외벽 일조 색칠 ────────────────────────────────────────────────────────
+  /** 몇 동까지 계산했는지 (done === total이면 끝) */
+  onFacadeSunProgress: (p: FacadeSunProgress) => void = () => {};
+  private emitFacadeSun() {
+    const f = this.facadeSun;
+    this.onFacadeSunProgress({
+      on: f.on,
+      done: f.total - f.queue.length,
+      total: f.total,
+      selected: this.selectedId ? this.facadeSunOf(this.selectedId) : null,
+    });
+  }
+  private prisms: Prism[] | null = null;
+  private facadeSun: {
+    on: boolean;
+    key: string;
+    date: Date | null;
+    /** 계절 → 동 → 계산 결과 */
+    cache: Map<string, Map<string, FacadeSunCells>>;
+    queue: string[];
+    total: number;
+  } = { on: false, key: "", date: null, cache: new Map(), queue: [], total: 0 };
+
+  /** 단지 동·주변 건물을 기둥(외곽선 × 바닥~지붕)으로 — 햇빛 광선 검사용 */
+  private getPrisms(): Prism[] {
+    if (this.prisms) return this.prisms;
+    const out: Prism[] = [];
+    if (this.data) {
+      const loc = (rings: Ring[]) => rings.map((r) => r.map(([lng, lat]) => this.toLocal(lng, lat)));
+      for (const b of this.data.buildings) {
+        if (!b.rings) continue;
+        const y0 = this.base(b.id);
+        const p = makePrism(b.id, loc(b.rings), y0, y0 + buildingHeight(b).h);
+        if (p) out.push(p);
+      }
+      for (const n of this.data.neighbors) {
+        const y0 = this.baseOf(n.rings);
+        const p = makePrism(n.id, loc(n.rings), y0, y0 + buildingHeight(n).h);
+        if (p) out.push(p);
+      }
+    }
+    this.prisms = out;
+    return out;
+  }
+
+  /**
+   * 외벽 일조 색칠 켜기·끄기 — date의 하루(7~18시, 10분 간격) 해 드는 시간을 동마다 3개 층 구간 × 외벽 구간별로 계산해
+   * 벽에 색을 입힌다. 계산은 한 화면에 8ms씩 나눠서 (휴대폰에서도 끊기지 않게), 결과는 계절별로 기억한다.
+   */
+  setFacadeSun(on: boolean, date: Date | null, key: string) {
+    const f = this.facadeSun;
+    if (!on || !date || !this.data) {
+      const was = f.on;
+      f.on = false;
+      f.queue = [];
+      this.groups.facadeSun.visible = false;
+      if (was) this.emitFacadeSun();
+      return;
+    }
+    if (f.on && f.key === key) return;
+    f.on = true;
+    f.key = key;
+    f.date = date;
+    this.clearFacadeSunMeshes();
+    const cache = f.cache.get(key) ?? new Map<string, FacadeSunCells>();
+    f.cache.set(key, cache);
+    const t = this.controls.target;
+    const ids = this.data.buildings
+      .filter((b) => b.rings && (b.residential || b.dong))
+      .map((b) => {
+        const c = this.ringCenter(b.rings!);
+        return { id: b.id, d: b.id === this.selectedId ? -1 : Math.hypot(c.x - t.x, c.z - t.z) };
+      })
+      .sort((a, b) => a.d - b.d)
+      .map((x) => x.id);
+    f.queue = [];
+    for (const id of ids) {
+      const cells = cache.get(id);
+      if (cells) this.addFacadeSunMesh(id, cells);
+      else f.queue.push(id);
+    }
+    f.total = ids.length;
+    this.groups.facadeSun.visible = this.mode === "sun";
+    this.emitFacadeSun();
+  }
+
+  /** 지형이 늦게 와 건물 높이가 바뀌면 — 기억한 결과를 버리고 켜져 있으면 다시 */
+  private refreshFacadeSun() {
+    const f = this.facadeSun;
+    f.cache.clear();
+    this.clearFacadeSunMeshes();
+    if (!f.on) return;
+    f.on = false;
+    this.setFacadeSun(true, f.date, f.key);
+  }
+
+  private clearFacadeSunMeshes() {
+    for (const o of this.groups.facadeSun.children) (o as THREE.Mesh).geometry?.dispose();
+    this.groups.facadeSun.clear();
+  }
+
+  private facadeSunMat = new THREE.MeshBasicMaterial({
+    vertexColors: true,
+    side: THREE.DoubleSide,
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
+    polygonOffsetUnits: -2,
+  });
+
+  private stepFacadeSun() {
+    const f = this.facadeSun;
+    if (!f.on || !f.queue.length || this.mode !== "sun" || !f.date) return;
+    const t0 = performance.now();
+    const cache = f.cache.get(f.key)!;
+    const suns = sunDirs(this.data!.center, f.date);
+    do {
+      const id = f.queue.shift()!;
+      // 칠할 외벽이 없는 동도 빈 결과로 기억해 다시 계산하지 않는다
+      const cells = this.computeFacadeSun(id, suns) ?? { segs: [], bands: [] };
+      cache.set(id, cells);
+      this.addFacadeSunMesh(id, cells);
+    } while (f.queue.length && performance.now() - t0 < 8);
+    this.emitFacadeSun();
+  }
+
+  /**
+   * 한 동 — 바깥쪽이 정면(해 드는 쪽)을 향한 외벽 변을 약 15m 구간으로 나눠(동마다 최대 12구간) 구간 가운데 벽 밖 0.6m,
+   * 3개 층마다 가운데 층 창 높이(바닥 + 1.2m)에서 10분마다 해 쪽으로 광선을 쏜다. 해가 그 벽 뒤쪽이면 들지 않는 것으로 본다.
+   */
+  private computeFacadeSun(id: string, suns: Array<THREE.Vector3 | null>): FacadeSunCells | null {
+    const fa = this.facadeOf(id);
+    const fb = this.floorBase(id, 1);
+    if (!fa || !fb) return null;
+    const edges = fa.edges.filter((e) => e.dot > 0.3 && e.len >= 3).sort((a, b) => b.len - a.len);
+    const segs: FacadeSunCells["segs"] = [];
+    for (const e of edges) {
+      const k = Math.max(1, Math.min(4, Math.round(e.len / 15)));
+      for (let i = 0; i < k && segs.length < 12; i++) {
+        const t0 = i / k;
+        const t1 = (i + 1) / k;
+        segs.push({
+          x0: e.ax + (e.bx - e.ax) * t0,
+          z0: e.az + (e.bz - e.az) * t0,
+          x1: e.ax + (e.bx - e.ax) * t1,
+          z1: e.az + (e.bz - e.az) * t1,
+          ox: e.ox,
+          oz: e.oz,
+        });
+      }
+    }
+    if (!segs.length) return null;
+    const bands: FacadeSunCells["bands"] = [];
+    for (let f0 = 1; f0 <= fb.floors; f0 += 3) {
+      const f1 = Math.min(fb.floors, f0 + 2);
+      const mid = Math.round((f0 + f1) / 2);
+      bands.push({
+        from: f0,
+        to: f1,
+        y0: fb.y + (f0 - 1) * fb.perFloor,
+        y1: fb.y + f1 * fb.perFloor,
+        ys: fb.y + (mid - 1) * fb.perFloor + Math.min(1.2, fb.perFloor * 0.4),
+        hours: [],
+      });
+    }
+    const prisms = this.getPrisms();
+    for (const sg of segs) {
+      const sx = (sg.x0 + sg.x1) / 2 + sg.ox * 0.6;
+      const sz = (sg.z0 + sg.z1) / 2 + sg.oz * 0.6;
+      const front = prismsInFront(prisms, sx, sz, sg.ox, sg.oz);
+      for (const band of bands) {
+        let lit = 0;
+        for (const d of suns) {
+          if (!d || d.x * sg.ox + d.z * sg.oz <= 0) continue;
+          if (sunBlocked(sx, band.ys, sz, d.x, d.y, d.z, front)) continue;
+          if (this.terrainBlocks(sx, band.ys, sz, d)) continue;
+          lit++;
+        }
+        band.hours.push((lit * 10) / 60);
+      }
+    }
+    return { segs, bands };
+  }
+
+  private addFacadeSunMesh(id: string, cells: FacadeSunCells) {
+    if (!cells.segs.length) return;
+    const pos: number[] = [];
+    const col: number[] = [];
+    const c = new THREE.Color();
+    const off = 0.15;
+    cells.segs.forEach((sg, si) => {
+      const ax = sg.x0 + sg.ox * off;
+      const az = sg.z0 + sg.oz * off;
+      const bx = sg.x1 + sg.ox * off;
+      const bz = sg.z1 + sg.oz * off;
+      for (const band of cells.bands) {
+        c.set(facadeSunColor(band.hours[si] ?? 0));
+        // 구간 사이가 보이게 위아래 0.15m씩 틈
+        const y0 = band.y0 + 0.15;
+        const y1 = band.y1 - 0.15;
+        pos.push(ax, y0, az, bx, y0, bz, bx, y1, bz, ax, y0, az, bx, y1, bz, ax, y1, az);
+        for (let k = 0; k < 6; k++) col.push(c.r, c.g, c.b);
+      }
+    });
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    geo.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+    const mesh = new THREE.Mesh(geo, this.facadeSunMat);
+    mesh.userData.id = id;
+    this.groups.facadeSun.add(mesh);
+  }
+
+  /** 고른 동의 외벽 일조 — 층 구간별 정면 가장 긴 벽(구간 평균)과 모든 외벽 구간 중 최소·최대 (없으면 null) */
+  facadeSunOf(id: string): FacadeSunProgress["selected"] {
+    const f = this.facadeSun;
+    const cells = f.on ? f.cache.get(f.key)?.get(id) : null;
+    if (!cells?.segs.length) return null;
+    // segs는 긴 변부터 — 첫 변에서 나온 구간들(같은 법선)이 정면 가장 긴 벽
+    const s0 = cells.segs[0]!;
+    const main = cells.segs.map((g, i) => (g.ox === s0.ox && g.oz === s0.oz ? i : -1)).filter((i) => i >= 0);
+    return cells.bands.map((b) => ({
+      from: b.from,
+      to: b.to,
+      main: main.reduce((a, i) => a + b.hours[i]!, 0) / main.length,
+      min: Math.min(...b.hours),
+      max: Math.max(...b.hours),
+    }));
   }
 
   /** 주변 학교·역 핀 */
@@ -877,6 +1165,7 @@ export class Complex3dScene {
   select(id: string | null) {
     this.selectedId = id;
     this.paint();
+    if (this.facadeSun.on) this.emitFacadeSun();
   }
 
   private highlight: Set<string> | null = null;
@@ -1642,6 +1931,7 @@ export class Complex3dScene {
     const dt = this.lastFrameAt ? Math.min(0.1, (now - this.lastFrameAt) / 1000) : 0;
     this.lastFrameAt = now;
     this.stepWalk(dt);
+    this.stepFacadeSun();
     if (this.win) this.stepWindow();
     else this.controls.update();
     // 멀리서 보면 동 이름표를 작게 (겹침 줄이기)
