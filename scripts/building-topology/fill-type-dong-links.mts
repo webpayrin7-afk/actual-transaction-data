@@ -402,7 +402,7 @@ async function main() {
   for (const complexId of targets) {
     if (AUTO && processed >= AUTO) break;
     if (quotaHit || apiCalls >= MAX_API) break;
-    const [meta, typesRes, bRes, linkRes] = await retry(() => db.batch(
+    const [meta, typesRes, bRes, linkRes, mineRes] = await retry(() => db.batch(
       [
         {
           sql: `SELECT m.apt_name, c.parcel_key FROM apt_complex_master m
@@ -417,7 +417,15 @@ async function main() {
           sql: `SELECT building_id, dong_label, household_count FROM complex_buildings WHERE complex_id = ? AND residential_flag = 1`,
           args: [complexId],
         },
-        { sql: `SELECT COUNT(*) n FROM unit_type_building_links WHERE complex_id = ?`, args: [complexId] },
+        {
+          // 다른 원천 연결이 있는 단지만 건너뛴다. 이 스크립트가 넣은 단지는 다시 계산해 빠진 줄만 넣는다(재실행 검증).
+          sql: `SELECT COUNT(*) n FROM unit_type_building_links WHERE complex_id = ? AND source <> ?`,
+          args: [complexId, SOURCE],
+        },
+        {
+          sql: `SELECT unit_type_id, building_id FROM unit_type_building_links WHERE complex_id = ? AND source = ?`,
+          args: [complexId, SOURCE],
+        },
       ],
       "read",
     ));
@@ -462,6 +470,12 @@ async function main() {
       hh: r.household_count == null ? null : Number(r.household_count),
     }));
     const o = resolveComplex(complexId, name, units, types, buildings);
+    const mine = new Set(mineRes.rows.map((r) => `${r.unit_type_id}	${r.building_id}`));
+    if (mine.size) {
+      const before = o.links?.length ?? 0;
+      o.links = (o.links ?? []).filter((l) => !mine.has(`${l.unitTypeId}	${l.buildingId}`));
+      o.status = o.links.length ? "LINKS_MISSING_ROWS" : before ? "COMPLETE" : o.status;
+    }
     outcomes.push(o);
     console.error(
       `${complexId} ${name} ${o.status} units=${o.units} bOk=${o.buildingsOk} bHeld=${o.buildingsHeld} linked=${o.unitsLinked} types=${o.typesLinked}/${o.types} links=${o.links?.length} api=${apiCalls}`,
