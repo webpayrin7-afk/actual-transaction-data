@@ -102,3 +102,45 @@ export const FACADE_SUN_COLORS = ["#3f4a68", "#5d5f9e", "#8c64a8", "#c0679a", "#
 export function facadeSunColor(hours: number): string {
   return FACADE_SUN_COLORS[Math.max(0, Math.min(6, Math.floor(hours)))]!;
 }
+
+/**
+ * 수평 광선(원점 o, 평면 방향 u — 단위 벡터)이 처음 닿는 기둥까지 거리와 그 기둥 id.
+ * 광선 높이 oy가 기둥 바닥~지붕 사이일 때만 닿는다 (장면의 건물 모형과 같은 결과). minDist 안은 무시.
+ */
+export function firstPrismHit(
+  ox: number,
+  oy: number,
+  oz: number,
+  ux: number,
+  uz: number,
+  prisms: Prism[],
+  maxDist: number,
+  minDist = 0.2,
+): { d: number; id: string } | null {
+  let best: { d: number; id: string } | null = null;
+  for (const p of prisms) {
+    if (oy < p.bot || oy > p.top) continue;
+    const vx = p.cx - ox;
+    const vz = p.cz - oz;
+    const along = vx * ux + vz * uz;
+    if (along < -p.r || along - p.r > (best?.d ?? maxDist)) continue;
+    if (Math.abs(vx * uz - vz * ux) > p.r) continue;
+    const e = p.edges;
+    for (let i = 0; i < e.length; i += 4) {
+      const ax = e[i]!;
+      const az = e[i + 1]!;
+      const ex = e[i + 2]! - ax;
+      const ez = e[i + 3]! - az;
+      const den = ux * ez - uz * ex;
+      if (Math.abs(den) < 1e-9) continue;
+      const wx = ax - ox;
+      const wz = az - oz;
+      const s = (wx * ez - wz * ex) / den;
+      if (s <= minDist || s > (best?.d ?? maxDist)) continue;
+      const t = (wx * uz - wz * ux) / den;
+      if (t < 0 || t > 1) continue;
+      best = { d: s, id: p.id };
+    }
+  }
+  return best;
+}

@@ -452,13 +452,14 @@ export function Complex3dPage({ complexId }: { complexId: string }) {
 
   // 조망 계산 — 고른 동과 층이 바뀔 때
   useEffect(() => {
-    if (mode !== "view" || !selected || !ready) return;
+    // 창문 시점 안에서는 부채꼴이 숨어 있으니 층을 바꿔도 다시 재지 않는다 (나올 때 한 번)
+    if (mode !== "view" || !selected || !ready || inWindow) return;
     const t = window.setTimeout(
       () => setView(sceneRef.current?.computeView(selected, viewFloor) ?? null),
       60,
     );
     return () => window.clearTimeout(t);
-  }, [mode, selected, viewFloor, ready, terrainOn]);
+  }, [mode, selected, viewFloor, ready, terrainOn, inWindow]);
 
   const maxFloors = sel?.floors ?? 1;
   const floorNow = Math.min(viewFloor, maxFloors);
@@ -1264,7 +1265,8 @@ function WindowOverlay({
           {Math.abs(info.yaw) >= 5
             ? `지금 ${info.lookDir}을 보는 중(정면에서 ${info.yaw > 0 ? "오른쪽" : "왼쪽"} ${Math.abs(info.yaw)}°) · `
             : ""}
-          {info.frontHill ? "언덕·산이 먼저 가려요 · " : info.frontDong ? `${info.frontDong}이 먼저 보여요 · ` : ""}가림 = 보는 방향 60° 중 200m 안에서 막힌 비율
+          {info.frontHill ? "언덕·산이 먼저 가려요 · " : info.frontDong ? `${info.frontDong}이 먼저 보여요 · ` : ""}가림 = 화면에 보이는 가로 {info.spanDeg}° 중 200m 안에서 막힌 비율
+          {info.roughGround ? " · 비탈이라 지형 자료가 거칠어 창 자리 땅높이 기준으로 보여줘요" : ""}
         </p>
         <div className="mt-1.5 flex items-center gap-1.5">
           <button type="button" className={stepBtn} onClick={() => onLook(-15)} aria-label="왼쪽으로 둘러보기">
@@ -1739,7 +1741,7 @@ function WalkPanel({
                   type="button"
                   onClick={() => onPick(x.id)}
                   aria-pressed={on}
-                  className={`flex w-full flex-col items-start gap-0.5 rounded-lg px-1.5 py-1.5 text-left transition active:scale-[0.99] ${
+                  className={`flex w-full flex-col items-start gap-0.5 ${on && progress ? "rounded-t-lg" : "rounded-lg"} px-1.5 py-1.5 text-left transition active:scale-[0.99] ${
                     on ? "bg-[color:var(--lab-brand-subtle)]" : ""
                   }`}
                 >
@@ -1784,58 +1786,42 @@ function WalkPanel({
                         ) : null}
                         {x.gate ? <Chip tone="teal">{x.gate}</Chip> : null}
                       </span>
-                      {progress ? (
-                        <span className="flex items-center gap-1.5 font-semibold text-[color:var(--lab-navy-950)]">
-                          <span
-                            role="switch"
-                            tabIndex={0}
-                            aria-checked={follow}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onFollow(!follow);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                onFollow(!follow);
-                              }
-                            }}
-                            className={`flex h-6 shrink-0 items-center gap-1 rounded-full px-2 text-[12px] font-semibold ${
-                              follow
-                                ? "bg-[color:var(--lab-navy-950)] text-white"
-                                : "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-950)]"
-                            }`}
-                          >
-                            <Footprints className="h-3.5 w-3.5" aria-hidden />
-                            따라가기
-                          </span>
-                          {progress.done ? "도착" : "걷는 중"} {mmss(progress.sec)}
-                          {progress.done ? (
-                            <span
-                              role="button"
-                              tabIndex={0}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onReplay();
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter" || e.key === " ") {
-                                  e.stopPropagation();
-                                  onReplay();
-                                }
-                              }}
-                              aria-label="다시 걷기"
-                              className="flex h-6 w-6 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-white"
-                            >
-                              <RotateCcw className="h-3.5 w-3.5" aria-hidden />
-                            </span>
-                          ) : null}
-                        </span>
-                      ) : null}
                     </span>
                   ) : null}
                 </button>
+                {on && progress ? (
+                  <div
+                    className="flex items-center gap-1.5 rounded-b-lg bg-[color:var(--lab-brand-subtle)] px-1.5 pb-1.5 text-[12px] font-semibold tabular-nums text-[color:var(--lab-navy-950)]"
+                  >
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={follow}
+                      onClick={() => onFollow(!follow)}
+                      className={`flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-[12px] font-semibold transition active:scale-95 ${
+                        follow
+                          ? "bg-[color:var(--lab-navy-950)] text-white"
+                          : "border border-[color:var(--lab-border)] bg-white text-[color:var(--lab-navy-950)]"
+                      }`}
+                    >
+                      <Footprints className="h-3.5 w-3.5" aria-hidden />
+                      따라가기
+                    </button>
+                    <span>
+                      {progress.done ? "도착" : "걷는 중"} {mmss(progress.sec)}
+                    </span>
+                    {progress.done ? (
+                      <button
+                        type="button"
+                        onClick={onReplay}
+                        aria-label="다시 걷기"
+                        className="flex h-7 w-7 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-white transition active:scale-95"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" aria-hidden />
+                      </button>
+                    ) : null}
+                  </div>
+                ) : null}
               </li>
             );
           })}

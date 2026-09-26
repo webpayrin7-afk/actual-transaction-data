@@ -14,9 +14,12 @@ import { Line2 } from "three/examples/jsm/lines/Line2.js";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 import type { Complex3d, Complex3dBuilding, FloorBand, Poi3d, Ring } from "@/lib/complex-3d/read";
 import type { TerrainGridPayload } from "@/lib/complex-3d/ground";
-import { facadeSunColor, makePrism, prismsInFront, sunBlocked, type Prism } from "@/components/complex-3d/facade-sun";
+import { facadeSunColor, firstPrismHit, makePrism, prismsInFront, sunBlocked, type Prism } from "@/components/complex-3d/facade-sun";
 
 export const FLOOR_M = 3;
+/** 평소 둘러보기에서 가장 가까이 다가갈 수 있는 거리 (m) — 걷기 따라가기 중에는 풀어 둔다 */
+const MIN_DIST = 40;
+const FOLLOW_MIN_DIST = 20;
 const TEAL = 0x0e9aa0;
 const TEAL_DARK = 0x087f83;
 const OWN = 0x9fd9d6; // 단지 동 — 주변 회색 건물과 구분되는 중간 톤 청록
@@ -105,10 +108,14 @@ export type WindowViewInfo = {
   frontDong: string | null;
   /** 첫 가림이 건물이 아니라 지형(언덕·산) */
   frontHill: boolean;
-  /** 보는 방향 ±30° 중 200m 안에서 막힌 비율 */
+  /** 화면에 보이는 가로 폭(°) 중 200m 안에서 막힌 비율 */
   blockedShare: number;
+  /** 가림 비율을 잰 가로 폭 (°) — 지금 화면에 보이는 가로 시야 */
+  spanDeg: number;
   /** 눈높이 — 동 바닥에서 (m) */
   eyeM: number;
+  /** 지형 격자가 거칠어 창 자리 땅이 동 바닥보다 높게 잡힘 (비탈) — 카메라·지형 가림을 그 땅 높이 기준으로 올려 잰다 */
+  roughGround: boolean;
 };
 
 export type FacadeSunProgress = {
@@ -121,6 +128,8 @@ export type FacadeSunProgress = {
 
 /** 외벽 일조 계산 결과 — 외벽 구간(segs) × 층 구간(bands), hours[i]는 segs[i]의 하루 해 드는 시간(시간) */
 type FacadeSunCells = {
+  /** 동 바닥 높이 (지형 가림을 잴 때 기준) */
+  base: number;
   segs: Array<{ x0: number; z0: number; x1: number; z1: number; ox: number; oz: number }>;
   bands: Array<{ from: number; to: number; y0: number; y1: number; ys: number; hours: number[] }>;
 };
@@ -139,9 +148,14 @@ function sunDirs(center: { lat: number; lng: number }, date: Date): Array<THREE.
   return out;
 }
 
+/** 지형 가림은 이 거리(m)부터 본다 — 지형 격자(약 15m 칸) 두세 칸 안은 동 바닥 높이와 어긋나 믿지 않는다 */
+const TERRAIN_NEAR = 40;
+
 /** 창문 시점 — 좌우로 둘러볼 수 있는 범위(°)와 미리 재는 범위 */
 const WIN_YAW = 50;
-const WIN_RAY = WIN_YAW + 30;
+/** 가림 비율을 재는 가로 폭 상한 (°) — 넓은 가로 화면에서도 이만큼만 */
+const WIN_SPAN_MAX = 80;
+const WIN_RAY = WIN_YAW + WIN_SPAN_MAX / 2;
 
 type Local = { x: number; z: number };
 
@@ -227,6 +241,23 @@ function makeWalker(): WalkerRig {
   return { root, body, legL, legR, armL, armR, ring };
 }
 
+/**
+ * 그룹 비우기 — 모양·재질을 GPU에서 내리고(keep에 든 공유 자원은 남김), CSS2D 이름표는 장면에서 빼도 화면에 남으니 요소도 지운다.
+ */
+function disposeGroup(g: THREE.Group, keep?: Set<unknown>) {
+  g.traverse((o) => {
+    if (o instanceof CSS2DObject) {
+      o.element.remove();
+      return;
+    }
+    const m = o as THREE.Mesh;
+    if (m.geometry && !keep?.has(m.geometry)) m.geometry.dispose();
+    const mat = m.material as THREE.Material | THREE.Material[] | undefined;
+    for (const x of Array.isArray(mat) ? mat : mat ? [mat] : []) if (!keep?.has(x)) x.dispose();
+  });
+  g.clear();
+}
+
 export class Complex3dScene {
   private renderer: THREE.WebGLRenderer;
   private labels: CSS2DRenderer;
@@ -289,7 +320,7 @@ export class Complex3dScene {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.maxPolarAngle = Math.PI / 2 - 0.05;
-    this.controls.minDistance = 40;
+    this.controls.minDistance = MIN_DIST;
     this.controls.maxDistance = 6000;
 
     this.sun.castShadow = true;
@@ -315,15 +346,20 @@ export class Complex3dScene {
     this.scene.add(grid);
     this.grid = grid;
     for (const g of Object.values(this.groups)) this.scene.add(g);
+    // 모드별 그룹을 처음부터 숨겨 둔다 (페이지가 모드를 넘기기 전 첫 화면에 주변 핀이 잠깐 보이지 않게)
+    this.setMode(this.mode);
 
     this.renderer.domElement.addEventListener("pointerdown", this.onPointerDown);
     this.renderer.domElement.addEventListener("pointerup", this.onPointerUp);
     this.renderer.domElement.addEventListener("pointermove", this.onPointerMove);
+    this.renderer.domElement.addEventListener("pointercancel", this.onPointerCancel);
     // 사용자가 직접 돌리면 진행 중인 이동은 멈춘다
     this.controls.addEventListener("start", () => {
       this.anim = null;
       // 따라가기 중에 직접 돌리면 따라가기를 끈다
       if (this.walkFollow) {
+        // 따라가던 거리(약 30m)에서 그대로 이어 돌리게 — 40m 밖으로 나가면 loop에서 다시 40m로
+        this.controls.minDistance = FOLLOW_MIN_DIST;
         this.walkFollow = false;
         this.onWalkFollow(false);
       }
@@ -491,7 +527,18 @@ export class Complex3dScene {
   setData(data: Complex3d, keepCamera = false) {
     this.data = data;
     this.mPerLng = 111_320 * Math.cos((data.center.lat * Math.PI) / 180);
-    for (const g of Object.values(this.groups)) g.clear();
+    // 다시 지을 때 (지형이 늦게 오면) 이전 모양·재질과 이름표 요소를 버린다 — 함께 쓰는 재질·사람 모형은 남긴다
+    const keep = new Set<unknown>([
+      this.ownMaterial,
+      this.hiMaterial,
+      this.dimMaterial,
+      this.facadeSunMat,
+      this.walkLineMat,
+      this.walkCaseMat,
+      ...(walkerParts ? Object.values(walkerParts) : []),
+    ]);
+    for (const g of Object.values(this.groups)) disposeGroup(g, keep);
+    this.walker = null;
     this.ownMeshes.clear();
     this.labelEls.clear();
     this.baseById.clear();
@@ -676,7 +723,7 @@ export class Complex3dScene {
   /** 층별 시세 — 각 동을 저·중·고 구간으로 잘라 구간 평당가에 따라 색을 입힌다 */
   setFloorBands(bands: FloorBand[]) {
     this.lastBands = bands;
-    this.groups.floors.clear();
+    disposeGroup(this.groups.floors);
     if (!this.data) return;
     const prices = bands.map((b) => b.perPyeong).filter((v): v is number => v != null);
     const lo = Math.min(...prices);
@@ -708,7 +755,7 @@ export class Complex3dScene {
   /** 평형 — 각 동을 주력 평형 색으로 (colorOf: 평형 이름 → 색). 평형 정보가 없는 동은 회색 */
   setTypeColors(colorOf: (label: string) => string) {
     this.lastTypeColor = colorOf;
-    this.groups.types.clear();
+    disposeGroup(this.groups.types);
     if (!this.data) return;
     for (const b of this.data.buildings) {
       if (!b.rings) continue;
@@ -771,8 +818,8 @@ export class Complex3dScene {
       const hit = this.raycaster.intersectObjects(targets, false)[0];
       rays.push({ azimuth: i * 5, distance: hit ? Math.round(hit.distance) : null });
     }
-    // 부채꼴 그리기
-    this.groups.view.clear();
+    // 부채꼴 그리기 — 이전 부채꼴 72개의 모양·재질은 버린다 (층을 바꿀 때마다 다시 그린다)
+    disposeGroup(this.groups.view);
     for (const r of rays) {
       const d = r.distance ?? MAX;
       const a0 = ((r.azimuth - 2.5) * Math.PI) / 180;
@@ -871,7 +918,7 @@ export class Complex3dScene {
       }
       this.raycaster.set(origin, dir);
       this.raycaster.far = 1500;
-      slots.push(this.raycaster.intersectObjects(targets, false).length === 0 && !this.terrainBlocks(origin.x, origin.y, origin.z, dir));
+      slots.push(this.raycaster.intersectObjects(targets, false).length === 0 && !this.terrainBlocks(origin.x, origin.y, origin.z, dir, this.base(buildingId)));
     }
     const totalMin = slots.filter((x) => x === true).length * 10;
     let best = 0;
@@ -888,9 +935,12 @@ export class Complex3dScene {
 
   /**
    * 땅(언덕·산)이 햇빛을 막는지 — 해 쪽으로 8m마다 지형 높이와 광선 높이를 비교한다.
-   * 광선이 지형 최고점보다 높아지거나 지형 격자 밖으로 나가면 그만둔다.
+   * 지형 격자는 약 15m 칸이라 동 바로 옆 땅 높이는 거칠다 (비탈에서는 동 바닥보다 10m 넘게 높게 나오기도 한다).
+   * 그래서 가까운 TERRAIN_NEAR m 안은 보지 않고(가까운 가림은 건물 광선이 맡는다), 출발 높이는 동 바닥(base) 기준 높이를
+   * 제자리 격자 땅에 얹어 잰다 (격자 땅이 바닥보다 높으면 그만큼 올림) — 모형에서 땅에 묻힌 낮은 층이 격자 오차 때문에
+   * 0시간이 되지 않고, 층마다 높이 차이는 그대로 남는다. 광선이 지형 최고점보다 높아지거나 격자 밖으로 나가면 그만둔다.
    */
-  private terrainBlocks(ox: number, oy: number, oz: number, dir: { x: number; y: number; z: number }): boolean {
+  private terrainBlocks(ox: number, oy: number, oz: number, dir: { x: number; y: number; z: number }, base: number): boolean {
     const t = this.terrain;
     if (!t) return false;
     const h = Math.hypot(dir.x, dir.z);
@@ -899,8 +949,9 @@ export class Complex3dScene {
     const uz = dir.z / h;
     const slope = dir.y / h;
     const half = t.size / 2;
-    for (let s = 8; s < 1500; s += 8) {
-      const y = oy + slope * s;
+    const y0 = oy + Math.max(0, this.groundAt(ox, oz) - base);
+    for (let s = TERRAIN_NEAR; s < 1500; s += 8) {
+      const y = y0 + slope * s;
       if (y > t.max) return false;
       const x = ox + ux * s;
       const z = oz + uz * s;
@@ -917,7 +968,7 @@ export class Complex3dScene {
     const f = this.facadeSun;
     this.onFacadeSunProgress({
       on: f.on,
-      done: f.total - f.queue.length,
+      done: f.total - f.queue.length - (f.job ? 1 : 0),
       total: f.total,
       selected: this.selectedId ? this.facadeSunOf(this.selectedId) : null,
     });
@@ -931,7 +982,11 @@ export class Complex3dScene {
     cache: Map<string, Map<string, FacadeSunCells>>;
     queue: string[];
     total: number;
-  } = { on: false, key: "", date: null, cache: new Map(), queue: [], total: 0 };
+    /** 하루 10분 간격 해 방향 (date가 바뀔 때만 다시) */
+    suns: Array<THREE.Vector3 | null>;
+    /** 계산 중인 동 — 외벽 구간(si)마다 나눠 한 화면에 조금씩 */
+    job: { id: string; cells: FacadeSunCells; si: number } | null;
+  } = { on: false, key: "", date: null, cache: new Map(), queue: [], total: 0, suns: [], job: null };
 
   /** 단지 동·주변 건물을 기둥(외곽선 × 바닥~지붕)으로 — 햇빛 광선 검사용 */
   private getPrisms(): Prism[] {
@@ -965,6 +1020,7 @@ export class Complex3dScene {
       const was = f.on;
       f.on = false;
       f.queue = [];
+      f.job = null;
       this.groups.facadeSun.visible = false;
       if (was) this.emitFacadeSun();
       return;
@@ -973,6 +1029,8 @@ export class Complex3dScene {
     f.on = true;
     f.key = key;
     f.date = date;
+    f.suns = sunDirs(this.data.center, date);
+    f.job = null;
     this.clearFacadeSunMeshes();
     const cache = f.cache.get(key) ?? new Map<string, FacadeSunCells>();
     f.cache.set(key, cache);
@@ -1019,27 +1077,46 @@ export class Complex3dScene {
     polygonOffsetUnits: -2,
   });
 
+  /**
+   * 한 화면에 쓰는 계산 시간 — 휴대폰(좁은 화면)은 4ms, 넓은 화면은 8ms. 한 동을 통째로 하지 않고 외벽 구간 하나씩
+   * (가장 무거운 동도 구간 하나는 1ms 안팎) 나눠, 예산을 넘기면 다음 화면으로 넘긴다.
+   */
   private stepFacadeSun() {
     const f = this.facadeSun;
-    if (!f.on || !f.queue.length || this.mode !== "sun" || !f.date) return;
+    if (!f.on || (!f.queue.length && !f.job) || this.mode !== "sun" || !f.date) return;
     const t0 = performance.now();
+    const budget = this.host.clientWidth < 640 ? 4 : 8;
     const cache = f.cache.get(f.key)!;
-    const suns = sunDirs(this.data!.center, f.date);
-    do {
-      const id = f.queue.shift()!;
-      // 칠할 외벽이 없는 동도 빈 결과로 기억해 다시 계산하지 않는다
-      const cells = this.computeFacadeSun(id, suns) ?? { segs: [], bands: [] };
-      cache.set(id, cells);
-      this.addFacadeSunMesh(id, cells);
-    } while (f.queue.length && performance.now() - t0 < 8);
+    while (performance.now() - t0 < budget) {
+      if (!f.job) {
+        const id = f.queue.shift();
+        if (!id) break;
+        const cells = this.prepareFacadeSun(id);
+        if (!cells) {
+          // 칠할 외벽이 없는 동도 빈 결과로 기억해 다시 계산하지 않는다
+          cache.set(id, { base: 0, segs: [], bands: [] });
+          continue;
+        }
+        f.job = { id, cells, si: 0 };
+      }
+      const j = f.job;
+      this.computeFacadeSeg(j.cells, j.si, f.suns);
+      j.si++;
+      if (j.si >= j.cells.segs.length) {
+        cache.set(j.id, j.cells);
+        this.addFacadeSunMesh(j.id, j.cells);
+        f.job = null;
+      }
+    }
     this.emitFacadeSun();
   }
 
   /**
    * 한 동 — 바깥쪽이 정면(해 드는 쪽)을 향한 외벽 변을 약 15m 구간으로 나눠(동마다 최대 12구간) 구간 가운데 벽 밖 0.6m,
    * 3개 층마다 가운데 층 창 높이(바닥 + 1.2m)에서 10분마다 해 쪽으로 광선을 쏜다. 해가 그 벽 뒤쪽이면 들지 않는 것으로 본다.
+   * 여기서는 구간·층 구간만 잡고, 시간 계산은 computeFacadeSeg가 구간마다.
    */
-  private computeFacadeSun(id: string, suns: Array<THREE.Vector3 | null>): FacadeSunCells | null {
+  private prepareFacadeSun(id: string): FacadeSunCells | null {
     const fa = this.facadeOf(id);
     const fb = this.floorBase(id, 1);
     if (!fa || !fb) return null;
@@ -1074,23 +1151,25 @@ export class Complex3dScene {
         hours: [],
       });
     }
-    const prisms = this.getPrisms();
-    for (const sg of segs) {
-      const sx = (sg.x0 + sg.x1) / 2 + sg.ox * 0.6;
-      const sz = (sg.z0 + sg.z1) / 2 + sg.oz * 0.6;
-      const front = prismsInFront(prisms, sx, sz, sg.ox, sg.oz);
-      for (const band of bands) {
-        let lit = 0;
-        for (const d of suns) {
-          if (!d || d.x * sg.ox + d.z * sg.oz <= 0) continue;
-          if (sunBlocked(sx, band.ys, sz, d.x, d.y, d.z, front)) continue;
-          if (this.terrainBlocks(sx, band.ys, sz, d)) continue;
-          lit++;
-        }
-        band.hours.push((lit * 10) / 60);
+    return { base: this.base(id), segs, bands };
+  }
+
+  /** 외벽 구간 하나(si)의 층 구간별 하루 해 드는 시간 */
+  private computeFacadeSeg(cells: FacadeSunCells, si: number, suns: Array<THREE.Vector3 | null>) {
+    const sg = cells.segs[si]!;
+    const sx = (sg.x0 + sg.x1) / 2 + sg.ox * 0.6;
+    const sz = (sg.z0 + sg.z1) / 2 + sg.oz * 0.6;
+    const front = prismsInFront(this.getPrisms(), sx, sz, sg.ox, sg.oz);
+    for (const band of cells.bands) {
+      let lit = 0;
+      for (const d of suns) {
+        if (!d || d.x * sg.ox + d.z * sg.oz <= 0) continue;
+        if (sunBlocked(sx, band.ys, sz, d.x, d.y, d.z, front)) continue;
+        if (this.terrainBlocks(sx, band.ys, sz, d, cells.base)) continue;
+        lit++;
       }
+      band.hours[si] = (lit * 10) / 60;
     }
-    return { segs, bands };
   }
 
   private addFacadeSunMesh(id: string, cells: FacadeSunCells) {
@@ -1141,7 +1220,7 @@ export class Complex3dScene {
   /** 주변 학교·역 핀 */
   setPois(pois: Poi3d[]) {
     this.lastPois = pois;
-    this.groups.pois.clear();
+    disposeGroup(this.groups.pois);
     if (!this.data) return;
     for (const p of pois) {
       const l = this.toLocal(p.lng, p.lat);
@@ -1365,6 +1444,9 @@ export class Complex3dScene {
     pitch: number;
     facing: string;
     rays: Array<{ off: number; d: number | null; dong: string | null; hill: boolean }>;
+    roughGround: boolean;
+    /** 창 높이 — 동 바닥에서 (m) */
+    eyeM: number;
     saved: { pos: THREE.Vector3; target: THREE.Vector3; fov: number; near: number };
     anim: { p0: THREE.Vector3; l0: THREE.Vector3; fov0: number; start: number; ms: number } | null;
     lastEmit: number;
@@ -1374,16 +1456,26 @@ export class Complex3dScene {
     return !!this.win;
   }
 
-  /** 세로 화면에서도 가로로 약 60°가 보이게 (세로 시야각은 50~75°) */
+  /**
+   * 창문 시점 세로 시야각 — 가로로 약 60°가 보이게 하되 세로는 50~80°로 (세로 휴대폰에서는 가로가 약 38°까지 좁아진다,
+   * 더 넓히면 화면 가장자리가 심하게 늘어나 보인다). 가림 비율은 실제 화면 가로 폭(spanDeg)만큼만 잰다.
+   */
   private windowFov(): number {
     const hHalf = (30 * Math.PI) / 180;
     const v = (2 * Math.atan(Math.tan(hHalf) / Math.max(0.2, this.camera.aspect)) * 180) / Math.PI;
-    return Math.max(50, Math.min(75, v));
+    return Math.max(50, Math.min(80, v));
+  }
+
+  /** 창문 시점 화면의 가로 시야 (°, WIN_SPAN_MAX 이하) */
+  private windowSpan(): number {
+    const v = (this.windowFov() * Math.PI) / 180;
+    const hDeg = (2 * Math.atan(Math.tan(v / 2) * this.camera.aspect) * 180) / Math.PI;
+    return Math.min(WIN_SPAN_MAX, Math.round(hDeg));
   }
 
   /**
-   * 고른 동 floor층 창가에 선다 — 정면을 향한 가장 긴 외벽 가운데, 그 층 바닥 + 1.5m 눈높이, 벽 밖 0.6m.
-   * 정면 ±80°를 2°마다 수평으로 쏴 첫 가림까지 거리를 재 둔다 (둘러볼 때 다시 쏘지 않는다).
+   * 고른 동 floor층 창가에 선다 — 정면(동 정보의 향)을 향한 가장 긴 외벽 가운데, 그 층 바닥 + 1.5m 눈높이, 벽 밖 0.6m.
+   * 정면 ±WIN_RAY°를 2°마다 수평으로 쏴 첫 가림까지 거리를 재 둔다 (둘러볼 때 다시 쏘지 않는다). 건물은 외곽선 기둥으로 잰다.
    */
   enterWindowView(id: string, floor: number, reduced: boolean): WindowViewInfo | null {
     const fa = this.facadeOf(id);
@@ -1392,39 +1484,49 @@ export class Complex3dScene {
     const m = fa.main;
     const px = (m.ax + m.bx) / 2 + m.ox * 0.6;
     const pz = (m.az + m.bz) / 2 + m.oz * 0.6;
-    const eyeY = Math.max(fb.y + 1.5, this.groundAt(px, pz) + 1.2);
-    const eye = new THREE.Vector3(px, Math.min(eyeY, this.base(id) + fb.h - 0.5), pz);
-    // 창이 난 변의 바깥 방향을 정면으로 (긴 축 수직과 거의 같지만 외곽선을 그대로 따른다)
-    const bearing0 = ((Math.atan2(m.ox, -m.oz) * 180) / Math.PI + 360) % 360;
-    const targets: THREE.Object3D[] = [...this.groups.neighbors.children, ...this.ownMeshes.values()];
+    // 창 높이는 그 층 그대로 (건물 가림은 이 높이에서). 비탈에서는 지형 격자(약 15m 칸)가 창 자리 땅을 동 바닥보다 높게
+    // 잡기도 해 — 그러면 카메라와 지형 가림은 일조 계산과 같은 기준으로, 동 바닥 기준 높이를 제자리 격자 땅에 얹는다
+    // (낮은 층이 땅속에서 보지 않고, 층마다 높이 차이는 그대로).
+    const eyeY = Math.min(fb.y + 1.5, this.base(id) + fb.h - 0.5);
+    const g0 = this.groundAt(px, pz);
+    const lift = this.terrain ? Math.max(0, g0 - this.base(id)) : 0;
+    const roughGround = lift > 1;
+    const eye = new THREE.Vector3(px, eyeY + lift, pz);
+    // 정면 = 동 정보의 향과 같은 방향 (긴 축에 수직, 남쪽 쪽) — 창 자리는 그쪽을 향한 가장 긴 외벽 가운데
+    const bearing0 = fa.bearing;
+    const all = this.getPrisms();
+    const n0x = Math.sin((bearing0 * Math.PI) / 180);
+    const n0z = -Math.cos((bearing0 * Math.PI) / 180);
+    // 정면 쪽 반평면(±90°, WIN_RAY와 같음) 500m 안 기둥만
+    const near = prismsInFront(all, px, pz, n0x, n0z, 500);
+    // 지형 가림 — 일조와 같은 기준: 가까운 TERRAIN_NEAR m는 격자가 거칠어 빼고, 눈높이는 동 바닥 기준 높이를 제자리 격자 땅에 얹어
+    const t = this.terrain;
+    const hillY = eye.y;
+    const checkHill = !!t && hillY < t.max;
     const rays: Array<{ off: number; d: number | null; dong: string | null; hill: boolean }> = [];
     for (let off = -WIN_RAY; off <= WIN_RAY; off += 2) {
       const a = ((bearing0 + off) * Math.PI) / 180;
       const sx = Math.sin(a);
       const sz = -Math.cos(a);
-      this.raycaster.set(eye, new THREE.Vector3(sx, 0, sz));
-      this.raycaster.far = 500;
-      const hit = this.raycaster.intersectObjects(targets, false).find((x) => x.distance > 0.2);
-      // 땅(언덕·산)이 눈높이보다 먼저 솟으면 그게 첫 가림 — 4m 간격으로 지형을 따라가며 본다
+      const hit = firstPrismHit(px, eyeY, pz, sx, sz, near, 500);
       let hillAt: number | null = null;
-      if (this.terrain) {
-        // 지형 격자 끝까지 (건물은 500m까지만 쏜다)
-        const far = hit ? hit.distance : this.terrain.size / 2;
-        for (let t = 4; t < far; t += t < 200 ? 4 : 8) {
-          if (this.groundAt(eye.x + sx * t, eye.z + sz * t) > eye.y) {
-            hillAt = t;
+      if (checkHill) {
+        // 지형 격자 끝까지 (건물은 500m까지만 본다)
+        const far = hit ? hit.d : t!.size / 2;
+        for (let s = TERRAIN_NEAR; s < far; s += s < 200 ? 4 : 8) {
+          if (this.groundAt(px + sx * s, pz + sz * s) > hillY) {
+            hillAt = s;
             break;
           }
         }
       }
-      const hid = hit?.object.userData.id as string | undefined;
       rays.push(
         hillAt != null
           ? { off, d: hillAt, dong: null, hill: true }
           : {
               off,
-              d: hit ? Math.round(hit.distance) : null,
-              dong: hid && hid !== id ? (this.data.buildings.find((x) => x.id === hid)?.dong ?? null) : null,
+              d: hit ? Math.round(hit.d) : null,
+              dong: hit && hit.id !== id ? (this.data.buildings.find((x) => x.id === hit.id)?.dong ?? null) : null,
               hill: false,
             },
       );
@@ -1454,8 +1556,10 @@ export class Complex3dScene {
       bearing0,
       yaw: prev?.id === id ? prev.yaw : 0,
       pitch: prev?.id === id ? prev.pitch : 0,
-      facing: `${FACING[Math.round(bearing0 / 45) % 8]}향`,
+      facing: fa.facing,
       rays,
+      roughGround,
+      eyeM: eyeY - this.base(id),
       saved,
       anim: reduced ? null : { p0: this.camera.position.clone(), l0: look0, fov0: this.camera.fov, start: performance.now(), ms: prev ? 350 : 900 },
       lastEmit: 0,
@@ -1467,11 +1571,12 @@ export class Complex3dScene {
     return this.windowInfo();
   }
 
-  /** 지금 보는 방향 ±30° 안에서 200m 안에 막힌 비율, 정면(±4°) 첫 건물까지 거리 */
+  /** 지금 화면에 보이는 가로 폭 안에서 200m 안에 막힌 비율, 정면(±4°) 첫 건물까지 거리 */
   private windowInfo(): WindowViewInfo {
     const w = this.win!;
     const bearing = (w.bearing0 + w.yaw + 360) % 360;
-    const within = w.rays.filter((r) => Math.abs(r.off - w.yaw) <= 30);
+    const span = this.windowSpan();
+    const within = w.rays.filter((r) => Math.abs(r.off - w.yaw) <= span / 2);
     const blocked = within.filter((r) => r.d != null && r.d < 200).length / Math.max(1, within.length);
     const front = w.rays
       .filter((r) => Math.abs(r.off - w.yaw) <= 4 && r.d != null)
@@ -1485,7 +1590,9 @@ export class Complex3dScene {
       frontDong: front?.dong ?? null,
       frontHill: !!front?.hill,
       blockedShare: blocked,
-      eyeM: Math.round((w.eye.y - this.base(w.id)) * 10) / 10,
+      spanDeg: span,
+      eyeM: Math.round(w.eyeM * 10) / 10,
+      roughGround: w.roughGround,
     };
   }
 
@@ -1578,10 +1685,11 @@ export class Complex3dScene {
    * 걷기 그룹 비우기 — 사람 표시·도착 핀은 CSS2D(HTML) 요소라 장면에서 빼도 화면에 남는다. 요소도 같이 지운다.
    */
   private clearWalkGroup() {
-    this.groups.walk.traverse((o) => {
-      if (o instanceof CSS2DObject) o.element.remove();
-    });
-    this.groups.walk.clear();
+    // 경로 선 재질(walkLineMat·walkCaseMat)과 걷는 사람 모형(walkerKit)은 함께 쓰니 남긴다
+    const k = walkerParts;
+    const keep = new Set<unknown>([this.walkLineMat, this.walkCaseMat]);
+    if (k) for (const v of Object.values(k)) keep.add(v);
+    disposeGroup(this.groups.walk, keep);
     this.walker = null;
   }
 
@@ -1800,11 +1908,16 @@ export class Complex3dScene {
     }
   }
 
-  /** 따라가기 — 사람 뒤 22m, 11m 위에서 사람 앞쪽을 본다 */
+  /**
+   * 따라가기 — 사람 뒤 22m, 11m 위에서 사람 앞 8m를 본다. 따라가는 동안에는 OrbitControls를 돌리지 않는다
+   * (최소 거리 40m에 끌려가지 않게). 사용자가 직접 돌리면 따라가기가 꺼지고, 그때 거리에서 이어서 돌릴 수 있게
+   * 최소 거리는 잠시 낮춰 두었다가 다시 40m 밖으로 나가면 돌려 놓는다.
+   */
   setWalkFollow(on: boolean, reduced: boolean) {
     if (on === this.walkFollow) return;
     this.walkFollow = on;
     this.walkFollowReduced = reduced;
+    if (on) this.controls.minDistance = FOLLOW_MIN_DIST;
     if (on) this.followWalker(true);
     else if (this.walkPath && !this.win) this.fitWalk();
   }
@@ -1844,18 +1957,35 @@ export class Complex3dScene {
   private dragAt: { x: number; y: number; id: number } | null = null;
   private onPointerDown = (e: PointerEvent) => {
     this.down = { x: e.clientX, y: e.clientY };
-    if (this.win) this.dragAt = { x: e.clientX, y: e.clientY, id: e.pointerId };
+    if (this.win) {
+      this.dragAt = { x: e.clientX, y: e.clientY, id: e.pointerId };
+      // 마우스를 패널 위에서 놓아도 pointerup이 캔버스로 오게
+      try {
+        this.renderer.domElement.setPointerCapture(e.pointerId);
+      } catch {
+        /* 이미 끝난 포인터 */
+      }
+    }
   };
   /** 창문 시점 — 끌면 고개를 돌린다 (화면 너비만큼 끌면 약 60°) */
   private onPointerMove = (e: PointerEvent) => {
     const d = this.dragAt;
     if (!this.win || !d || d.id !== e.pointerId) return;
+    // 버튼을 놓은 채 움직이는 마우스 (놓은 이벤트를 놓쳤을 때) — 끌기 끝
+    if (e.pointerType === "mouse" && (e.buttons & 1) === 0) {
+      this.dragAt = null;
+      return;
+    }
     const k = 60 / Math.max(240, this.host.clientWidth);
     this.lookWindow(-(e.clientX - d.x) * k, (e.clientY - d.y) * k, true);
     this.dragAt = { x: e.clientX, y: e.clientY, id: e.pointerId };
   };
+  private onPointerCancel = () => {
+    this.dragAt = null;
+  };
   private onPointerUp = (e: PointerEvent) => {
     if (this.win) {
+      if (this.renderer.domElement.hasPointerCapture?.(e.pointerId)) this.renderer.domElement.releasePointerCapture(e.pointerId);
       this.dragAt = null;
       if (this.win) this.onWindowInfo(this.windowInfo());
       return;
@@ -1909,6 +2039,8 @@ export class Complex3dScene {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
     this.labels.setSize(w, h);
+    // 화면 비율이 바뀌면 보이는 가로 폭도 바뀐다
+    if (this.win) this.onWindowInfo(this.windowInfo());
   }
 
   private loop = () => {
@@ -1933,14 +2065,24 @@ export class Complex3dScene {
     this.stepWalk(dt);
     this.stepFacadeSun();
     if (this.win) this.stepWindow();
-    else this.controls.update();
+    else if (this.walkFollow && this.walker) {
+      // 따라가기 — 위치는 followWalker가 정하고 여기서는 바라보기만 (controls.update는 최소 거리로 끌어당긴다)
+      this.camera.lookAt(this.controls.target);
+    } else {
+      if (this.controls.minDistance < MIN_DIST && this.camera.position.distanceTo(this.controls.target) >= MIN_DIST) {
+        this.controls.minDistance = MIN_DIST;
+      }
+      this.controls.update();
+    }
     // 멀리서 보면 동 이름표를 작게 (겹침 줄이기)
     const far = this.camera.position.distanceTo(this.controls.target) > this.bounds.radius * 2.6;
     if (far !== this.labelsFar) {
       this.labelsFar = far;
       this.labels.domElement.classList.toggle("complex3d-far", far);
     }
-    const heading = Math.round((this.controls.getAzimuthalAngle() * 180) / Math.PI);
+    // 나침반 — controls.update를 건너뛰는 따라가기 중에도 맞게 카메라 위치에서 직접 (OrbitControls 방위각과 같은 식)
+    const off = this.camera.position.clone().sub(this.controls.target);
+    const heading = Math.round((Math.atan2(off.x, off.z) * 180) / Math.PI);
     if (!this.win && heading !== this.lastHeading) {
       this.lastHeading = heading;
       this.onHeading(heading);
@@ -1955,6 +2097,7 @@ export class Complex3dScene {
     this.renderer.domElement.removeEventListener("pointerdown", this.onPointerDown);
     this.renderer.domElement.removeEventListener("pointerup", this.onPointerUp);
     this.renderer.domElement.removeEventListener("pointermove", this.onPointerMove);
+    this.renderer.domElement.removeEventListener("pointercancel", this.onPointerCancel);
     this.controls.dispose();
     this.scene.traverse((o) => {
       const m = o as THREE.Mesh;
