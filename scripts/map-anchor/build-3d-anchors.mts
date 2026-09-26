@@ -4,6 +4,8 @@
  *
  *   npx tsx scripts/map-anchor/build-3d-anchors.mts                         # dry-run: JSONL + 요약, DB 쓰기 없음
  *   npx tsx scripts/map-anchor/build-3d-anchors.mts --apply --from=<jsonl>  # 없는 것만 넣기 (INSERT OR IGNORE)
+ *   npx tsx scripts/map-anchor/build-3d-anchors.mts --all                     # 이미 있는 단지도 다시 계산 (dry-run)
+ *   npx tsx scripts/map-anchor/build-3d-anchors.mts --update --from=<jsonl> # 값이 달라진 행만 고치기 (다시 돌리면 0)
  *
  * 규칙: dry-run → 건수 확인 → apply → 다시 apply = 0.
  * - 외곽선이 있는 동만. 가운데가 단지 좌표에서 FAR_M 넘게 떨어지면 잘못 이은 필지로 보고 넣지 않는다.
@@ -39,15 +41,19 @@ function center(rings: Array<Array<[number, number]>>): [number, number] | null 
       a += k; cx += (x0 + x1) * k; cy += (y0 + y1) * k;
     }
     if (Math.abs(a) < 1e-14) continue;
-    sx += cx / 3; sy += cy / 3; sw += a;
+    // 외곽선 방향(시계·반시계)이 섞여도 되게 — 넓이는 절댓값으로 가중
+    const sg = Math.sign(a);
+    sx += (cx / 3) * sg; sy += (cy / 3) * sg; sw += Math.abs(a);
   }
   return sw ? [sx / sw, sy / sw] : null;
 }
 
 async function dryRun() {
   const client = db();
+  const all = args.includes("--all");
   const ids = (
     await client.execute(
+      all ? `SELECT complex_id FROM apt_complex_master WHERE lawd_cd LIKE '11%' AND latitude IS NOT NULL` :
       `SELECT m.complex_id FROM apt_complex_master m
        WHERE m.lawd_cd LIKE '11%' AND m.latitude IS NOT NULL
          AND NOT EXISTS (SELECT 1 FROM complex_3d_anchor a WHERE a.complex_id = m.complex_id)`,
@@ -84,6 +90,29 @@ async function dryRun() {
   console.log(JSON.stringify({ file, ...counts, would_insert: counts.ok }, null, 2));
 }
 
+async function update() {
+  const from = arg("from");
+  if (!from || !existsSync(from)) throw new Error("--update needs --from=<dry-run .jsonl>");
+  const client = db();
+  const rows: Row[] = [];
+  const rl = createInterface({ input: createReadStream(from), crlfDelay: Infinity });
+  for await (const line of rl) if (line.trim()) rows.push(JSON.parse(line) as Row);
+  const now = new Date().toISOString();
+  let updated = 0;
+  for (let k = 0; k < rows.length; k += 200) {
+    const res = await client.batch(
+      rows.slice(k, k + 200).map((r) => ({
+        sql: `UPDATE complex_3d_anchor SET lat = ?, lng = ?, top_m = ?, buildings = ?, computed_at = ?
+              WHERE complex_id = ? AND (abs(lat - ?) > 1e-7 OR abs(lng - ?) > 1e-7 OR top_m <> ? OR buildings <> ?)`,
+        args: [r.lat, r.lng, r.top_m, r.buildings, now, r.complex_id, r.lat, r.lng, r.top_m, r.buildings],
+      })),
+      "write",
+    );
+    updated += res.reduce((s, x) => s + x.rowsAffected, 0);
+  }
+  console.log(JSON.stringify({ from, rows_in_file: rows.length, updated }, null, 2));
+}
+
 async function apply() {
   const from = arg("from");
   if (!from || !existsSync(from)) throw new Error("--apply needs --from=<dry-run .jsonl>");
@@ -118,4 +147,4 @@ async function apply() {
 }
 
 loadEnv();
-await (args.includes("--apply") ? apply() : dryRun());
+await (args.includes("--update") ? update() : args.includes("--apply") ? apply() : dryRun());

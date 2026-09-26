@@ -187,9 +187,11 @@ function massCenter(shape: Complex3d | null, site: SiteBoundary | null): [number
       cy += (y0 + y1) * k;
     }
     if (Math.abs(a) < 1e-14) continue;
-    sx += cx / 3;
-    sy += cy / 3;
-    sw += a;
+    // 외곽선 방향(시계·반시계)이 섞여도 되게 — 넓이는 절댓값으로 가중
+    const sg = Math.sign(a);
+    sx += (cx / 3) * sg;
+    sy += (cy / 3) * sg;
+    sw += Math.abs(a);
   }
   if (sw !== 0) return [sx / sw, sy / sw];
   if (site?.bbox) return [(site.bbox[0] + site.bbox[2]) / 2, (site.bbox[1] + site.bbox[3]) / 2];
@@ -343,7 +345,7 @@ function tileBuildingsOf(
   shape: Complex3d | null,
   site: SiteBoundary | null,
 ): GeoJSON.Feature[] {
-  const near = (shape?.buildings ?? []).filter((b) => b.rings?.length).map((b) => grow(b.rings![0]!, 5));
+  const near = (shape?.buildings ?? []).filter((b) => b.rings?.length).map((b) => grow(b.rings![0]!, 8));
   if (!near.length && !site) return [];
   const out: GeoJSON.Feature[] = [];
   const seen = new Set<string>();
@@ -357,7 +359,11 @@ function tileBuildingsOf(
       pts.reduce((a, q) => a + q[1], 0) / pts.length,
     ];
     const h = Number(f.properties?.h) || 0;
-    const mine = near.some((r) => inRing(c, r)) || (f.properties?.a === 1 && inGeometry(c, site?.fill));
+    // 단지 경계 안 건물은 모두(상가·관리동 포함), 경계 밖이면 동 외곽선(8m 넓힘)과 겹치는 조각만
+    // (타일 건물은 타일 경계에서 잘려 조각으로 오기도 해서 가운데 말고 꼭짓점 절반 기준도 본다)
+    const inside = (q: [number, number]) => near.some((r) => inRing(q, r));
+    const mine =
+      inGeometry(c, site?.fill) || inside(c) || pts.filter((q) => inside(q as [number, number])).length * 2 >= pts.length;
     if (!mine || h <= 0) continue;
     const key = `${c[0].toFixed(6)},${c[1].toFixed(6)},${h}`;
     if (seen.has(key)) continue;
