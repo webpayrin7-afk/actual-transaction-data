@@ -74,6 +74,8 @@ const START_PITCH = 55;
 /** 위성영상 켬·끔 기억 (브라우저) */
 const SATELLITE_PREF = "ziplab:map3d-satellite:v1";
 const FOCUS_PITCH = 58;
+/** 점을 지붕보다 조금 더 위에 (m) */
+const ROOF_GAP_M = 8;
 const FOCUS_MIN_ZOOM = 16;
 const FOCUS_MAX_ZOOM = 18.5;
 /** 고른 단지 도형 기억 (다시 골랐을 때 바로) — 많이 쌓지 않는다 */
@@ -194,11 +196,27 @@ function massCenter(shape: Complex3d | null, site: SiteBoundary | null): [number
   return null;
 }
 
+/** 카메라 기울기·방향 — 점을 지붕 위로 띄우는 데 쓴다 */
+type Lift = { pitch: number; bearing: number };
+
+/**
+ * 동 가운데 지붕 위(높이 top m + 여유)에 떠 있는 점을, 같은 화면 자리에 보이는 땅 위 점으로 옮긴다.
+ * 비스듬히 보면 높이 h 인 점은 카메라 반대쪽(화면 위쪽 = 지도 방향)으로 h·tan(기울기)만큼 떨어진 땅과 겹쳐 보인다.
+ * (점·이름표는 MapLibre에서 땅에만 놓을 수 있어서 — 가까운·먼 곳의 원근 차이는 무시)
+ */
+function liftedPoint(a: [number, number, number], lift: Lift): [number, number] {
+  const d = (a[2] + ROOF_GAP_M) * Math.tan((Math.min(lift.pitch, 72) * Math.PI) / 180);
+  const b = (lift.bearing * Math.PI) / 180;
+  const kx = 111_320 * Math.cos((a[1] * Math.PI) / 180);
+  return [a[0] + (d * Math.sin(b)) / kx, a[1] + (d * Math.cos(b)) / 111_320];
+}
+
 function toGeoJson(
   list: MapComplex[],
   metric: Map3dMetric,
   labelMetric: MarkerMetric,
   moved: PointAt | null = null,
+  lift: Lift = { pitch: 0, bearing: 0 },
 ): GeoJSON.FeatureCollection {
   return {
     type: "FeatureCollection",
@@ -213,7 +231,11 @@ function toGeoJson(
         hh: c.householdCount ?? 0,
       };
       if (v != null) props.v = v;
-      const at = moved?.id === c.complexId ? [moved.lng, moved.lat] : [c.lng, c.lat];
+      const at = c.anchor3d
+        ? liftedPoint(c.anchor3d, lift)
+        : moved?.id === c.complexId
+          ? [moved.lng, moved.lat]
+          : [c.lng, c.lat];
       return { type: "Feature", geometry: { type: "Point", coordinates: at }, properties: props };
     }),
   };
@@ -476,6 +498,8 @@ export default function Seoul3DMap({
   const [zoomedOut, setZoomedOut] = useState(initial.zoom < COMPLEX_MIN_ZOOM);
   const [outside, setOutside] = useState(!inSeoul(initial.lat, initial.lng));
   const [bearing, setBearing] = useState(0);
+  /** 점 띄우기용 — 움직임이 멈출 때만 갱신 (매 프레임 다시 그리면 이름표가 깜빡인다) */
+  const [lift, setLift] = useState<Lift>({ pitch: 0, bearing: 0 });
   const metricRef = useRef(metric);
   const labelMetricRef = useRef(labelMetric);
   const persistRef = useRef<(() => void) | null>(null);
@@ -504,6 +528,7 @@ export default function Seoul3DMap({
     const box = viewBox(map);
     const params = new URLSearchParams({ areaMin: String(areaMin), areaMax: String(areaMax), deal });
     if (!chipFilters) params.set("fields", "lite");
+    params.set("view", "3d");
     const paramsKey = params.toString();
     const last = lastRef.current;
     if (last && last.params === paramsKey && !last.truncated && contains(last.box, box)) return;
@@ -808,6 +833,8 @@ export default function Seoul3DMap({
       map.on("rotate", () => setBearing(map.getBearing()));
       map.on("moveend", () => {
         persist();
+        const next = { pitch: Math.round(map.getPitch()), bearing: Math.round(map.getBearing()) };
+        setLift((prev) => (prev.pitch === next.pitch && prev.bearing === next.bearing ? prev : next));
         const mc = map.getCenter();
         onMoveEndRef.current?.({ lat: mc.lat, lng: mc.lng, zoom: map.getZoom() });
         window.clearTimeout(moveTimer);
@@ -877,9 +904,9 @@ export default function Seoul3DMap({
     labelMetricRef.current = labelMetric;
     const map = mapRef.current;
     if (!map || !styleReady) return;
-    (map.getSource("complexes") as GeoJSONSource | undefined)?.setData(toGeoJson(visible, metric, labelMetric, selAt));
+    (map.getSource("complexes") as GeoJSONSource | undefined)?.setData(toGeoJson(visible, metric, labelMetric, selAt, lift));
     map.setPaintProperty("complex-dots", "circle-color", stepColor(metric));
-  }, [visible, metric, labelMetric, styleReady, selAt]);
+  }, [visible, metric, labelMetric, styleReady, selAt, lift]);
 
   // 고른 단지 — 점 테두리 · 이름표
   useEffect(() => {

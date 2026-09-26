@@ -38,6 +38,8 @@ export type MapComplex = {
   aptName: string;
   lat: number;
   lng: number;
+  /** 3D 지도 점 자리 — [경도, 위도, 가장 높은 동 높이(m)]: 동 외곽선 가운데 지붕 위 (complex_3d_anchor, 서울). 없으면 lat·lng */
+  anchor3d?: [number, number, number] | null;
   dong: string | null;
   householdCount: number | null;
   href: string;
@@ -106,8 +108,24 @@ export const MAP_COMPLEX_LITE_KEYS = [
   "buildYear",
   // 3D 이름표 값을 2D 마커 표시(전세가율)와 같게
   "jeonseRatioPct",
+  "anchor3d",
 ] as const satisfies ReadonlyArray<keyof MapComplex>;
 export type MapComplexLite = Pick<MapComplex, (typeof MAP_COMPLEX_LITE_KEYS)[number]>;
+
+/** 3D 지도용 점 자리 붙이기 — 표가 없거나 읽기 실패면 그대로 (lat·lng로 그린다) */
+export async function attach3dAnchors(db: Client, list: MapComplex[]): Promise<MapComplex[]> {
+  if (!list.length) return list;
+  try {
+    const r = await db.execute({
+      sql: `SELECT complex_id, lat, lng, top_m FROM complex_3d_anchor WHERE complex_id IN (${list.map(() => "?").join(",")})`,
+      args: list.map((c) => c.complexId),
+    });
+    const by = new Map(r.rows.map((x) => [String(x.complex_id), [Number(x.lng), Number(x.lat), Number(x.top_m)] as [number, number, number]]));
+    return list.map((c) => ({ ...c, anchor3d: by.get(c.complexId) ?? null }));
+  } catch {
+    return list;
+  }
+}
 
 export function toLiteComplex(c: MapComplex): MapComplexLite {
   const out: Partial<MapComplexLite> = {};

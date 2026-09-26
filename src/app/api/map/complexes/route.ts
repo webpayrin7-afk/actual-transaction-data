@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db/client";
 import {
   MAP_DEAL_KINDS,
   parseAreaRange,
+  attach3dAnchors,
   readMapComplexes,
   toLiteComplex,
   type MapDealKind,
@@ -34,7 +35,9 @@ export async function GET(request: NextRequest) {
   try {
     const result = await readMapComplexes(db, { swLat, swLng, neLat, neLng }, area, deal);
     // fields=lite — 서울 3D 지도용: 그리는 값만 (전세가율·갭·순위 등은 빼고)
-    const complexes = sp.get("fields") === "lite" ? result.complexes.map(toLiteComplex) : result.complexes;
+    // 3D 지도(view=3d)는 점을 동 가운데 지붕 위에 — 3D 점 자리를 붙인다
+    const list = sp.get("view") === "3d" ? await attach3dAnchors(db, result.complexes) : result.complexes;
+    const complexes = sp.get("fields") === "lite" ? list.map(toLiteComplex) : list;
     return NextResponse.json(
       { status: "ok", area, deal, complexes, truncated: result.truncated },
       // 실거래 동기화는 하루 1회 — CDN 1시간 + SWR 1일 (다른 단지 API와 같은 수준).

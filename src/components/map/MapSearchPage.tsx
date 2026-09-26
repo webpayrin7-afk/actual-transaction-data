@@ -236,8 +236,11 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
   }));
   /** 3D 지도에서 지금 고른 단지 — 2D로 돌아가도 고른 채로 */
   const sel3dRef = useRef<string | null>(null);
+  /** 3D에서 고른 단지 (카드가 아직 안 떴어도) — 전환 중 브리핑 시트가 잠깐 떴다 사라지지 않게 */
+  const [sel3d, setSel3d] = useState<string | null>(null);
   const onSelected3d = useCallback((id: string | null) => {
     sel3dRef.current = id;
+    setSel3d(id);
   }, []);
   /** 2D 단지 카드 '더보기' — 연 단지에만 (다른 단지를 고르면 접힘) */
   const [cardMoreId, setCardMoreId] = useState<string | null>(null);
@@ -276,6 +279,7 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
     }
     // 2D에서 고른 단지는 3D에서도 고른 채로 (그 단지를 비스듬히 담는다)
     setInitial3dSel({ id: selectedId, frame: true });
+    setSel3d(selectedId);
     setSelectedId(null);
     setCam3d(null);
     // 네이버 줌(256px 타일)과 MapLibre 줌(512px)은 1 차이 — 같은 축척으로 연다
@@ -835,7 +839,8 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
     }
     return view2d ? { ...view2d, mode: "2d" } : null;
   }, [view3d, cam3d, view2d]);
-  const briefingHidden = view3d ? card3d : Boolean(selected) || Boolean(zone);
+  // 고른 단지가 있으면(카드가 불러오는 중이어도) 숨김 — 2D·3D 전환 때 잠깐 떴다 사라지지 않게
+  const briefingHidden = view3d ? card3d || sel3d != null : Boolean(selectedId) || Boolean(zone);
   const showInvite = inviteDone === false && !view3d && center != null && inSeoul(center);
 
   return (
