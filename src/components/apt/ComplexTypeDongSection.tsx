@@ -230,7 +230,10 @@ export function ComplexTypeDongSection({
         </div>
       </dl>
       {sharedExclusive.length ? (
-        <p className="detail-meta -mt-1">전용면적이 같은 다른 타입({sharedExclusive.map((t) => labels.get(t.id)).join(", ")})과는 실거래를 나눌 수 없어 합쳐서 보여줘요.</p>
+        <p className="detail-meta -mt-1">
+          실거래는 전용면적으로만 신고돼요. 전용 {type.exclusiveSqm.toFixed(2)}㎡가 같은{" "}
+          {sharedExclusive.map((t) => labels.get(t.id)).join(", ")} 타입 거래도 위 최근 매매·거래 수에 함께 들어가 있어요.
+        </p>
       ) : null}
 
       {type.dongs.length ? (

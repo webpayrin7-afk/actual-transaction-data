@@ -17,7 +17,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     const types = await readUnitTypesWithDongs(db, complexId);
     return NextResponse.json(
       { types },
-      { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } },
+      { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=3600" } },
     );
   } catch (error) {
     console.error("[complex-types]", error);
