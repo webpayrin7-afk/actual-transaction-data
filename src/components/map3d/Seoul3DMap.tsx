@@ -902,21 +902,17 @@ export default function Seoul3DMap({
         },
       );
       if (!cam?.center || cam.zoom == null) return;
-      // 높은 건물은 위가 잘리지 않게 — 땅 범위에 건물 높이(기울기만큼)를 더한 만큼 멀리서, 아주 높으면 덜 기울여
+      // 높은 건물은 위가 잘리지 않게 — 기울이면 땅 깊이는 cos 만큼 줄고 건물은 sin 만큼 서니,
+      // 둘을 합친 세로 길이가 위에서 내려다본 땅 깊이보다 길 때만 그만큼 멀리 (아주 높으면 덜 기울여)
       const maxH = Math.max(
         0,
         ...(shape?.buildings ?? []).map((b) => b.heightM ?? (b.floors != null ? b.floors * 3 : 0)),
       );
-      const midLat = (bb[1] + bb[3]) / 2;
-      const spanM = Math.max(
-        40,
-        (bb[2] - bb[0]) * 111_320 * Math.cos((midLat * Math.PI) / 180),
-        (bb[3] - bb[1]) * 111_320,
-      );
+      const depthM = Math.max(40, (bb[3] - bb[1]) * 111_320);
       const pitch = maxH > 90 ? 50 : FOCUS_PITCH;
-      const vertical = maxH * Math.sin((pitch * Math.PI) / 180) * 1.15;
-      const zoomOut = maxH > 0 ? Math.log2((spanM + vertical) / spanM) : 0;
-      const minZoom = maxH > 60 ? 15 : FOCUS_MIN_ZOOM;
+      const rad = (pitch * Math.PI) / 180;
+      const zoomOut = Math.max(0, Math.log2((depthM * Math.cos(rad) + maxH * Math.sin(rad)) / depthM));
+      const minZoom = zoomOut > 0 ? 15 : FOCUS_MIN_ZOOM;
       const opts = {
         center: cam.center,
         // 작은 단지가 너무 크게, 큰 단지(헬리오시티 등)가 너무 멀게 되지 않게
