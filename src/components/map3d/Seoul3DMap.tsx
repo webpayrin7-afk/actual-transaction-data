@@ -32,7 +32,7 @@ import {
   SATELLITE_ATTRIBUTION,
   SCHOOL_ZONE_ATTRIBUTION,
 } from "@/components/map3d/Map3dAttribution";
-import { CROWNS, MARKER_METRICS, markerValue, shortEok, shortPerPyeong, type MarkerMetric } from "@/components/map/complex-marker";
+import { complexMarkerCard, CROWNS, MARKER_METRICS, shortPerPyeong, type MarkerMetric } from "@/components/map/complex-marker";
 import type { MapComplex, MapDealKind } from "@/lib/map/map-complexes";
 import { activeCount, areaQuery, matches, type MapConditions } from "@/lib/map/map-filters";
 import type { Complex3d, Ring } from "@/lib/complex-3d/read";
@@ -275,26 +275,6 @@ function metricText(v: number | null, metric: Map3dMetric): string {
   return `${v > 0 ? "+" : "−"}${Math.abs(v).toFixed(1)}%`;
 }
 
-/** 긴 단지 이름은 이름표에서 줄인다 (카드에는 전체 이름) */
-function shortName(name: string): string {
-  const s = displayAptName(name);
-  return s.length > 11 ? `${s.slice(0, 10)}…` : s;
-}
-
-/**
- * 이름표 둘째 줄 — 2D 마커와 같은 값(마커 표시: 가격·평당가·전세가율·1년 변동).
- * 가격은 대표 평형 최근 실거래가(매매/전세 — 고른 거래유형) 앞에 평형을 붙인다 ("34평 · 29억").
- */
-function labelValue(c: MapComplex, metric: MarkerMetric): { text: string; color: string } {
-  if (metric === "price") {
-    if (c.priceMan == null) return { text: "", color: "#94a3b8" };
-    return { text: c.pyeongLabel ? `${c.pyeongLabel} · ${shortEok(c.priceMan)}` : shortEok(c.priceMan), color: "#115e59" };
-  }
-  const v = markerValue(c, metric);
-  if (v.text === "–") return { text: "", color: "#94a3b8" };
-  return { text: v.text, color: v.color ?? "#115e59" };
-}
-
 /** 고른 단지 점을 옮길 자리 — 단지 좌표는 필지 모서리·길가일 때가 있어, 동들의 가운데(면적 가중)로 */
 type PointAt = { id: string; lng: number; lat: number };
 
@@ -337,11 +317,13 @@ function massCenter(shape: Complex3d | null, site: SiteBoundary | null): [number
 /**
  * 단지 핀 데이터 (complex-pins.ts가 매 프레임 지붕 위에 띄워 그린다).
  * 동 가운데·지붕 높이(anchor3d)가 있으면 그 위, 없으면 단지 좌표(고른 단지는 동들의 가운데) 땅 위.
- * 이름표: LABEL_ZOOM부터 이름, VALUE_ZOOM부터 두 줄(이름 굵게 12px · 값 11px 지표 색), 고른 단지는 늘 두 줄.
+ * 카드: 2D 마커와 같은 모양 — LABEL_ZOOM부터 이름만 카드, VALUE_ZOOM부터 평형 탭 + 이름 + 값, 고른 단지는 늘 전체.
  */
 function toPins(list: MapComplex[], metric: Map3dMetric, labelMetric: MarkerMetric, moved: PointAt | null): PinDatum[] {
   return list.map((c) => {
-    const lv = labelValue(c, labelMetric);
+    // 고름·화살표는 핀이 정한다
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { selected, arrow, ...card } = complexMarkerCard(c, false, labelMetric);
     const a = c.anchor3d;
     const at = a
       ? { lng: a[0], lat: a[1], top: a[2] }
@@ -350,14 +332,11 @@ function toPins(list: MapComplex[], metric: Map3dMetric, labelMetric: MarkerMetr
         : { lng: c.lng, lat: c.lat, top: null };
     return {
       id: c.complexId,
-      name: shortName(c.aptName),
-      value: lv.text,
-      valueColor: lv.color,
+      card,
       dotColor: metricColor(metricValue(c, metric), metric),
       hh: c.householdCount ?? 0,
       ...at,
-      aria: lv.text ? `${c.aptName} ${lv.text}` : c.aptName,
-      crown: c.guRank ?? null,
+      aria: [displayAptName(c.aptName), card.pyeong, card.value].filter(Boolean).join(" "),
     };
   });
 }

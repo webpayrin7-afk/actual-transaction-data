@@ -18,11 +18,13 @@ import {
 } from "@/lib/nearby-map/naver-sdk";
 import type { MapComplex, MapDealKind } from "@/lib/map/map-complexes";
 import {
+  complexMarkerCard,
   complexMarkerHtml,
   CROWNS,
   escapeHtml,
   FONT,
   MARKER_METRICS,
+  markerCardSize,
   markerValue,
   shortPerPyeong,
   type MarkerMetric,
@@ -532,24 +534,36 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
       priority: number;
       title: string;
       box: (p: { x: number; y: number }) => Box;
+      /** 겹칠 때 먼저 시도할 작은 모양 (단지 이름 줄 뺀 카드) */
+      compact?: { html: string; box: (p: { x: number; y: number }) => Box };
       onClick: () => void;
     };
+    // 카드 크기 → 꼬리 끝(좌표) 위쪽 박스
+    const cardBox =
+      (s: { w: number; h: number }) =>
+      (p: { x: number; y: number }): Box => ({ x0: p.x - s.w / 2, x1: p.x + s.w / 2, y0: p.y - s.h, y1: p.y });
     const specs: Spec[] = [
       ...visibleComplexes.map((c) => {
         const selected = c.complexId === selectedId;
+        const priced = c.priceMan != null;
         return {
           id: `c:${c.complexId}`,
           lat: c.lat,
           lng: c.lng,
           html: complexMarkerHtml(c, selected, metric),
-          z: selected ? 1000 : c.guRank ? 200 + (4 - c.guRank) : c.priceMan != null ? 100 : 10,
+          z: selected ? 1000 : c.guRank ? 200 + (4 - c.guRank) : priced ? 100 : 10,
           priority: c.householdCount ?? 0,
           title: c.aptName,
-          // 꼬리 끝이 좌표 — 박스는 그 위쪽. 가격 없는 단지 아이콘은 작다.
-          box: (p: { x: number; y: number }): Box =>
-            c.priceMan != null
-              ? { x0: p.x - 28, x1: p.x + 28, y0: p.y - (c.mainAreaSqm ? 44 : 28) - (c.guRank ? 14 : 0), y1: p.y }
-              : { x0: p.x - 9, x1: p.x + 9, y0: p.y - 20, y1: p.y },
+          // 꼬리 끝이 좌표 — 박스는 그 위쪽(이름 줄 포함). 가격 없는 단지 아이콘은 작다.
+          box: priced
+            ? cardBox(markerCardSize(complexMarkerCard(c, selected, metric)))
+            : (p: { x: number; y: number }): Box => ({ x0: p.x - 9, x1: p.x + 9, y0: p.y - 20, y1: p.y }),
+          compact: priced
+            ? {
+                html: complexMarkerHtml(c, selected, metric, { name: false }),
+                box: cardBox(markerCardSize(complexMarkerCard(c, selected, metric, { name: false }))),
+              }
+            : undefined,
           onClick: () => {
             setSelectedId(c.complexId);
             centerOnSelection(c.lat, c.lng);
@@ -580,19 +594,26 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
     const proj = (map as unknown as {
       getProjection?: () => { fromCoordToOffset(c: unknown): { x: number; y: number } };
     }).getProjection?.();
+    // 겹치면 이름 줄을 뺀 작은 카드로 한 번 더, 그래도 겹치면 뺀다.
     const kept: Box[] = [];
-    const placed = proj
-      ? [...specs]
-          .sort((a, b) => b.z - a.z || b.priority - a.priority)
-          .filter((s) => {
-            const box = s.box(proj.fromCoordToOffset(new maps.LatLng(s.lat, s.lng)));
-            if (s.z < 1000 && kept.some((k) => box.x0 < k.x1 && box.x1 > k.x0 && box.y0 < k.y1 && box.y1 > k.y0)) {
-              return false;
-            }
-            kept.push(box);
-            return true;
-          })
-      : specs;
+    const hits = (box: Box) => kept.some((k) => box.x0 < k.x1 && box.x1 > k.x0 && box.y0 < k.y1 && box.y1 > k.y0);
+    const placed: Spec[] = [];
+    if (proj) {
+      for (const s of [...specs].sort((a, b) => b.z - a.z || b.priority - a.priority)) {
+        const pt = proj.fromCoordToOffset(new maps.LatLng(s.lat, s.lng));
+        const box = s.box(pt);
+        if (s.z >= 1000 || !hits(box)) {
+          kept.push(box);
+          placed.push(s);
+          continue;
+        }
+        const small = s.compact ? s.compact.box(pt) : null;
+        if (small && !hits(small)) {
+          kept.push(small);
+          placed.push({ ...s, html: s.compact!.html });
+        }
+      }
+    } else placed.push(...specs);
     const next = new Set(placed.map((s) => s.id));
     for (const [id, m] of markers) {
       if (!next.has(id)) {
