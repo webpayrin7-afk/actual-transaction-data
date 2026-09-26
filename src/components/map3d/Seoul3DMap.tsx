@@ -254,6 +254,57 @@ function buildingsGeoJson(shape: Complex3d): GeoJSON.FeatureCollection {
   return { type: "FeatureCollection", features };
 }
 
+function inRing(pt: [number, number], ring: Ring): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i]!;
+    const [xj, yj] = ring[j]!;
+    if (yi > pt[1] !== yj > pt[1] && pt[0] < ((xj - xi) * (pt[1] - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
+function inGeometry(pt: [number, number], g: GeoJSON.Geometry | null | undefined): boolean {
+  if (!g) return false;
+  if (g.type === "Polygon") return inRing(pt, g.coordinates[0] as Ring);
+  if (g.type === "MultiPolygon") return g.coordinates.some((poly) => inRing(pt, poly[0] as Ring));
+  return false;
+}
+
+/**
+ * 건물 타일에서 고른 단지에 속하는 건물 — 우리 동 외곽선과 타일 외곽선이 조금 달라
+ * 삐져나온 타일 조각이 회색 틈으로 보이지 않게, 같은 청록으로 덮는다.
+ * 동 외곽선(5m 넓힘) 안이거나, 단지 경계 안의 공동주택(a=1) 건물이면 단지 건물로 본다.
+ */
+function tileBuildingsOf(
+  map: maplibregl.Map,
+  shape: Complex3d | null,
+  site: SiteBoundary | null,
+): GeoJSON.Feature[] {
+  const near = (shape?.buildings ?? []).filter((b) => b.rings?.length).map((b) => grow(b.rings![0]!, 5));
+  if (!near.length && !site) return [];
+  const out: GeoJSON.Feature[] = [];
+  const seen = new Set<string>();
+  for (const f of map.querySourceFeatures("buildings", { sourceLayer: "buildings" })) {
+    const g = f.geometry;
+    const ring = g.type === "Polygon" ? (g.coordinates[0] as Ring) : null;
+    if (!ring || ring.length < 4) continue;
+    const pts = ring.slice(0, -1);
+    const c: [number, number] = [
+      pts.reduce((a, q) => a + q[0], 0) / pts.length,
+      pts.reduce((a, q) => a + q[1], 0) / pts.length,
+    ];
+    const h = Number(f.properties?.h) || 0;
+    const mine = near.some((r) => inRing(c, r)) || (f.properties?.a === 1 && inGeometry(c, site?.fill));
+    if (!mine || h <= 0) continue;
+    const key = `${c[0].toFixed(6)},${c[1].toFixed(6)},${h}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ type: "Feature", geometry: { type: "Polygon", coordinates: [grow(ring, 0.4)] }, properties: { h: h + 0.4 } });
+  }
+  return out;
+}
+
 function siteGeoJson(b: SiteBoundary): GeoJSON.FeatureCollection {
   return {
     type: "FeatureCollection",
@@ -777,17 +828,40 @@ export default function Seoul3DMap({
       ? Promise.resolve(siteCache.current.get(id) ?? null)
       : getJson<SiteBoundary>(`/api/complex-3d/${id}/boundary?v=2`).then((b) => (remember(siteCache.current, id, b), b));
 
+    let curShape: Complex3d | null = null;
+    let curSite: SiteBoundary | null = null;
+    const paintSel = () => {
+      if (ac.signal.aborted) return;
+      const own = curShape ? buildingsGeoJson(curShape).features : [];
+      setSrc("sel-buildings", { type: "FeatureCollection", features: [...tileBuildingsOf(map, curShape, curSite), ...own] });
+    };
+    // 건물 타일이 늦게 오면(비행 중 새 타일) 다시 덮는다
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const onData = (e: maplibregl.MapSourceDataEvent) => {
+      if (e.sourceId !== "buildings" || !e.isSourceLoaded) return;
+      clearTimeout(t);
+      t = setTimeout(paintSel, 150);
+    };
+    map.on("sourcedata", onData);
+    ac.signal.addEventListener("abort", () => {
+      clearTimeout(t);
+      map.off("sourcedata", onData);
+    });
     shapeP
       .then((shape) => {
         if (ac.signal.aborted) return;
         // 확인이 안 되면 3D 버튼은 그대로 둔다 (3D 화면이 빈 상태를 안내)
         setHas3d((m) => ({ ...m, [id]: shape ? shape.coverage.withShape > 0 : true }));
-        if (shape) setSrc("sel-buildings", buildingsGeoJson(shape));
+        curShape = shape;
+        paintSel();
       })
       .catch(() => {});
     siteP
       .then((site) => {
-        if (!ac.signal.aborted && site) setSrc("sel-site", siteGeoJson(site));
+        if (ac.signal.aborted || !site) return;
+        curSite = site;
+        setSrc("sel-site", siteGeoJson(site));
+        paintSel();
       })
       .catch(() => {});
 
