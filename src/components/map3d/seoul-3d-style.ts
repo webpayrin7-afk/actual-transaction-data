@@ -98,6 +98,50 @@ export const BUILDING_COLOR: ExpressionSpecification = [
   ["interpolate", ["linear"], ["get", "h"], 0, "#e6e7ea", 100, "#c4c9d2"],
 ];
 
+/** 단지를 골랐을 때 나머지 건물 — 채도를 빼고 조금 옅게 (고른 단지가 눈에 띄게) */
+export const BUILDING_COLOR_DIM: ExpressionSpecification = [
+  "interpolate",
+  ["linear"],
+  ["get", "h"],
+  0,
+  "#e9eaec",
+  100,
+  "#cfd2d7",
+];
+
+/** 고른 단지 — 집랩 청록(#0f766e)보다 조금 밝게 */
+export const SELECTED_BUILDING_COLOR = "#1a9e90";
+export const SELECTED_SITE_LINE = "#0f766e";
+export const SELECTED_SITE_FILL = "#14b8a6";
+
+/**
+ * 단지 이름표 바탕(알약 모양) — icon-text-fit으로 글자 크기에 맞춰 늘인다 (모서리는 그대로).
+ * 기울인 건물 위에서도 읽히게 흰 바탕 + 청록 테두리, 고른 단지는 청록 바탕.
+ */
+export function pillImage(fill: string, stroke: string): { data: ImageData; options: { pixelRatio: number; stretchX: Array<[number, number]>; stretchY: Array<[number, number]> } } | null {
+  const pr = 2;
+  const r = 9 * pr;
+  const w = r * 2 + 8;
+  const h = r * 2 + 4;
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  const lw = 1.25 * pr;
+  ctx.beginPath();
+  ctx.roundRect(lw / 2, lw / 2, w - lw, h - lw, r - lw / 2);
+  ctx.fillStyle = fill;
+  ctx.fill();
+  ctx.lineWidth = lw;
+  ctx.strokeStyle = stroke;
+  ctx.stroke();
+  return {
+    data: ctx.getImageData(0, 0, w, h),
+    options: { pixelRatio: pr, stretchX: [[r, w - r]], stretchY: [[r, h - r]] },
+  };
+}
+
 export type Map3dMetric = "perPyeong" | "change1y";
 
 /** 평당가(만원/3.3㎡) 단계 색 — 옅은 청록 → 짙은 남색 */
