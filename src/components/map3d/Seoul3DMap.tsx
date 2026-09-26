@@ -168,6 +168,61 @@ function dockSpace(): number {
   return Number.isFinite(v) ? v : 68;
 }
 
+/**
+ * 위에서 보기 버튼 — 한 번 누르면 북쪽 위·수직으로, 다시 누르면 누르기 전 기울기·방향으로.
+ * 아이콘은 지도 방향·기울기를 따라 돈다 (MapLibre 나침반과 같은 모양 · 같은 CSS).
+ */
+class TopViewControl implements maplibregl.IControl {
+  private map: MlMap | null = null;
+  private box: HTMLDivElement | null = null;
+  private icon: HTMLSpanElement | null = null;
+  private saved: { pitch: number; bearing: number } | null = null;
+  constructor(private readonly reduced: () => boolean) {}
+  private sync = () => {
+    const m = this.map;
+    if (!m || !this.icon) return;
+    this.icon.style.transform = `scale(${1 / Math.pow(Math.cos((m.getPitch() * Math.PI) / 180), 0.5)}) rotateX(${m.getPitch()}deg) rotateZ(${-m.getBearing()}deg)`;
+  };
+  onAdd(map: MlMap) {
+    this.map = map;
+    const box = document.createElement("div");
+    box.className = "maplibregl-ctrl maplibregl-ctrl-group";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "maplibregl-ctrl-compass";
+    btn.setAttribute("aria-label", "위에서 보기 · 다시 누르면 원래 보기");
+    const icon = document.createElement("span");
+    icon.className = "maplibregl-ctrl-icon";
+    icon.setAttribute("aria-hidden", "true");
+    btn.appendChild(icon);
+    box.appendChild(btn);
+    btn.addEventListener("click", () => {
+      const flat = map.getPitch() < 1 && Math.abs(map.getBearing()) < 1;
+      const duration = this.reduced() ? 0 : 500;
+      if (flat && this.saved) {
+        const back = this.saved;
+        this.saved = null;
+        map.easeTo({ ...back, duration });
+      } else if (!flat) {
+        this.saved = { pitch: map.getPitch(), bearing: map.getBearing() };
+        map.easeTo({ pitch: 0, bearing: 0, duration });
+      }
+    });
+    map.on("rotate", this.sync);
+    map.on("pitch", this.sync);
+    this.box = box;
+    this.icon = icon;
+    this.sync();
+    return box;
+  }
+  onRemove() {
+    this.map?.off("rotate", this.sync);
+    this.map?.off("pitch", this.sync);
+    this.box?.remove();
+    this.map = null;
+  }
+}
+
 function reducedMotion(): boolean {
   try {
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -710,28 +765,9 @@ export default function Seoul3DMap({
           return { lat: c.lat, lng: c.lng, zoom: map.getZoom() };
         };
       }
-      map.addControl(new maplibregl.NavigationControl({ visualizePitch: true, showZoom: true }), "bottom-right");
-      // 나침반(위에서 보기) — 한 번 누르면 북쪽 위·수직, 다시 누르면 누르기 전 기울기·방향으로 돌아간다
-      {
-        const compass = map.getContainer().querySelector<HTMLButtonElement>(".maplibregl-ctrl-compass");
-        let saved: { pitch: number; bearing: number } | null = null;
-        compass?.addEventListener(
-          "click",
-          (e) => {
-            const flat = map.getPitch() < 1 && Math.abs(map.getBearing()) < 1;
-            if (flat && saved) {
-              e.preventDefault();
-              e.stopImmediatePropagation();
-              const back = saved;
-              saved = null;
-              map.easeTo({ ...back, duration: reducedMotion() ? 0 : 500 });
-              return;
-            }
-            saved = flat ? null : { pitch: map.getPitch(), bearing: map.getBearing() };
-          },
-          true,
-        );
-      }
+      // 확대·축소 + 나침반(위에서 보기 켜고 끄기 — 우리 것: MapLibre 나침반은 폰에서 누르면 바로 되돌려 다시 누를 때 원래 보기로 못 돌아갔다)
+      map.addControl(new maplibregl.NavigationControl({ showCompass: false, showZoom: true }), "bottom-right");
+      map.addControl(new TopViewControl(() => reducedMotion()), "bottom-right");
       map.touchPitch.enable();
       // 역 이름 옆 점 아이콘 — 바탕 스프라이트에 없어 처음 쓰일 때 만들어 넣는다
       map.on("styleimagemissing", (e) => {
