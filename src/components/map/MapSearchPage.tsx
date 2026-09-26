@@ -24,7 +24,6 @@ import {
   FONT,
   MARKER_METRICS,
   markerValue,
-  shortEok,
   shortPerPyeong,
   type MarkerMetric,
 } from "@/components/map/complex-marker";
@@ -1134,16 +1133,12 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
                 </span>
               ) : null}
               <span aria-hidden>·</span>
-              <span className="min-w-0 truncate tabular-nums">
-                12개월{" "}
-                <span className="font-semibold text-[color:var(--lab-navy-950)]">
-                  {selected.rangeMinMan != null && selected.rangeMaxMan != null
-                    ? selected.rangeMinMan === selected.rangeMaxMan
-                      ? shortEok(selected.rangeMinMan)
-                      : `${shortEok(selected.rangeMinMan)}~${shortEok(selected.rangeMaxMan)}`
-                    : "—"}
-                </span>{" "}
-                {selected.tradeCount12m}건
+              {/* 3D 카드와 같게 — 평당가 (12개월 범위·건수는 더보기) */}
+              <span className="min-w-0 truncate">
+                평당{" "}
+                <span className="font-semibold tabular-nums text-[color:var(--lab-teal-700)]">
+                  {selected.perPyeongMan != null ? shortPerPyeong(selected.perPyeongMan) : "–"}
+                </span>
               </span>
             </p>
             {cardMore ? <ComplexCardMore c={selected} id="map2d-card-more" /> : null}

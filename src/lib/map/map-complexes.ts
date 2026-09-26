@@ -112,6 +112,9 @@ export const MAP_COMPLEX_LITE_KEYS = [
   // 단지 카드 '더보기' (2D와 같은 값)
   "gapMan",
   "rentYieldPct",
+  "rangeMinMan",
+  "rangeMaxMan",
+  "tradeCount12m",
 ] as const satisfies ReadonlyArray<keyof MapComplex>;
 export type MapComplexLite = Pick<MapComplex, (typeof MAP_COMPLEX_LITE_KEYS)[number]>;
 
