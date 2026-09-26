@@ -69,3 +69,20 @@ export function replaceViewParam(mode: "2d" | "3d") {
     /* ignore */
   }
 }
+
+/** 멀리(약 15km 넘게) 가거나 줌이 크게(4단계 넘게) 바뀌면 날지 않고 바로 옮긴다 — 긴 비행은 느리고 어지럽다 */
+const JUMP_KM = 15;
+const JUMP_ZOOM_DELTA = 4;
+
+export function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const dLat = (a.lat - b.lat) * 111.32;
+  const dLng = (a.lng - b.lng) * 111.32 * Math.cos(((a.lat + b.lat) / 2) * (Math.PI / 180));
+  return Math.hypot(dLat, dLng);
+}
+
+export function shouldJump(
+  from: { lat: number; lng: number; zoom: number },
+  to: { lat: number; lng: number; zoom: number },
+): boolean {
+  return distanceKm(from, to) > JUMP_KM || Math.abs(to.zoom - from.zoom) > JUMP_ZOOM_DELTA;
+}

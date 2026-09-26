@@ -2,12 +2,20 @@
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronRight, ChevronUp, MapPin } from "lucide-react";
 import { LabDataLoading, LabLoadingDots } from "@/components/ui/LabLoading";
 import { LabTabs, labTabPanelId } from "@/components/ui/LabTabs";
 import type { MarketDealItem, MarketHomeResponse, MarketVolumeItem } from "@/lib/market/home";
 import { fetchMarketHome, MARKET_HOME_QUERY_KEY, MARKET_HOME_STALE_MS } from "@/lib/market/home-client";
+import {
+  localScope,
+  scopedCount,
+  scopedList,
+  topicJosa,
+  type BriefScope,
+  type MapRegionAt,
+} from "@/lib/market/briefing-scope";
 import type { MapLocateResult } from "@/lib/map/locate";
 import { seoulToday } from "@/lib/market/time";
 import { formatArea, formatEok } from "@/lib/utils/format";
@@ -17,6 +25,10 @@ import { formatArea, formatEok } from "@/lib/utils/format";
  * 데이터는 /market 과 같은 /api/market-home (같은 React Query 키) — 새 집계·대량 조회 없음, 목록마다 5개만 그린다.
  * 항목을 누르면 그 단지(못 찾으면 동·구) 위치만 /api/map/locate 로 한 곳씩 찾아 지도를 옮기고 시트를 접는다.
  *
+ * 범위 [지역 이름 | 전국] — 기본은 지도 가운데 지역. 가운데 시·도(서울·경기·부산 …)로 거르고, 구 수준까지 확대했고(2D 줌 ≥ 13,
+ * 3D 줌 ≥ 12) 그 구에 오늘 항목이 있으면 구(송파구)로 좁힌다. 가운데 지역은 지도가 멈추고 400ms 뒤 /api/map/region-at
+ * (좌표 약 100m 단위로 기억)으로 한 번 찾는다. 거르기는 받은 목록으로 브라우저에서 (lib/market/briefing-scope).
+ *
  * 모바일: 아래 독(탭 막대) 바로 위 떠 있는 시트, 접힘 88px · 펼침 화면 높이의 55%.
  * 데스크톱(≥ sm): 오른쪽 위 패널 (누르면 아래로 펼침).
  */
@@ -25,6 +37,23 @@ export const BRIEFING_PEEK_PX = 88;
 /** 목록마다 최대 개수 — 전체는 /market */
 const LIST_MAX = 5;
 const EXPANDED_RATIO = 0.55;
+/** 지도가 멈춘 뒤 이만큼 기다렸다 가운데 지역을 찾는다 */
+const SCOPE_DEBOUNCE_MS = 400;
+/** 구 수준 확대 — 네이버 2D 줌 / MapLibre 3D 줌 (512px 타일이라 1 작다) */
+const GU_ZOOM_2D = 13;
+const GU_ZOOM_3D = 12;
+const ALL_SCOPE: BriefScope = { kind: "all", label: "전국" };
+
+/** 지도가 지금 보는 곳 (2D: 네이버 줌, 3D: MapLibre 줌) */
+export type BriefingView = { lat: number; lng: number; zoom: number; mode: "2d" | "3d" };
+
+async function fetchRegionAt(lat: string, lng: string): Promise<MapRegionAt | null> {
+  const res = await fetch(`/api/map/region-at?${new URLSearchParams({ lat, lng })}`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error("region-at failed");
+  const body = (await res.json()) as MapRegionAt & { status: string };
+  return body.status === "ok" ? { lawdCd: body.lawdCd, name: body.name, metro: body.metro, metroLabel: body.metroLabel } : null;
+}
 
 type BriefTab = "singoga" | "drop" | "surge";
 type BriefItem = {
@@ -76,40 +105,50 @@ function monthDay(iso: string): string {
 
 const TONE_COLOR = { up: "var(--lab-change-up)", down: "var(--lab-change-down)" } as const;
 
-function PeekLine({ data }: { data: MarketHomeResponse }) {
-  const k = data.kpis;
-  const surge = k.volumeSurgeCount ?? 0;
+type ScopeCounts = { singoga: number; drop: number; surge: number };
+
+function PeekLine({ data, scope, counts }: { data: MarketHomeResponse; scope: BriefScope; counts: ScopeCounts }) {
   const day = data.discoveryDate && data.discoveryDate !== seoulToday() ? monthDay(data.discoveryDate) : "오늘";
-  if (!k.singogaCount && !k.dropCount && !surge) {
-    return <>{day === "오늘" ? "오늘은 아직 새 신고가·하락 거래가 없어요" : `${day} 새 신고가·하락 거래 없음`}</>;
+  const where = scope.label;
+  if (!counts.singoga && !counts.drop && !counts.surge) {
+    return (
+      <>
+        {day === "오늘"
+          ? `${where}${topicJosa(where)} 오늘 새 신고가·하락 거래가 없어요`
+          : `${where} ${day} 새 신고가·하락 거래 없음`}
+      </>
+    );
   }
   return (
     <>
-      {day} 신고가{" "}
-      <span className="tabular-nums" style={k.singogaCount ? { color: TONE_COLOR.up } : undefined}>
-        {k.singogaCount.toLocaleString("ko-KR")}
+      <span className="text-[color:var(--lab-teal-700)]">{where}</span> {day} 신고가{" "}
+      <span className="tabular-nums" style={counts.singoga ? { color: TONE_COLOR.up } : undefined}>
+        {counts.singoga.toLocaleString("ko-KR")}
       </span>
-      <span className="px-1 text-[color:var(--lab-muted)]" aria-hidden>
+      <span className="px-[3px] text-[color:var(--lab-muted)]" aria-hidden>
         ·
       </span>
       하락{" "}
-      <span className="tabular-nums" style={k.dropCount ? { color: TONE_COLOR.down } : undefined}>
-        {k.dropCount.toLocaleString("ko-KR")}
+      <span className="tabular-nums" style={counts.drop ? { color: TONE_COLOR.down } : undefined}>
+        {counts.drop.toLocaleString("ko-KR")}
       </span>
-      <span className="px-1 text-[color:var(--lab-muted)]" aria-hidden>
+      <span className="px-[3px] text-[color:var(--lab-muted)]" aria-hidden>
         ·
       </span>
-      거래 급증 <span className="tabular-nums text-[color:var(--lab-teal-700)]">{surge.toLocaleString("ko-KR")}곳</span>
+      거래 급증 <span className="tabular-nums text-[color:var(--lab-teal-700)]">{counts.surge.toLocaleString("ko-KR")}곳</span>
     </>
   );
 }
 
 export function MapBriefingSheet({
   hidden = false,
+  view,
   onTarget,
 }: {
   /** 단지 카드가 떠 있을 때 등 — 시트를 숨긴다 (상태는 그대로) */
   hidden?: boolean;
+  /** 지도가 지금 보는 곳 — '지역' 범위를 정한다 (null = 아직 모름) */
+  view: BriefingView | null;
   /** 항목 위치를 찾았을 때 — 지도를 옮긴다 */
   onTarget: (t: BriefingTarget) => void;
 }) {
@@ -132,6 +171,35 @@ export function MapBriefingSheet({
   const panelId = useId();
   const tabPrefix = "map-briefing";
 
+  /* ── 범위: 지도 가운데 지역 | 전국 ── */
+  const [scopeMode, setScopeMode] = useState<"local" | "all">("local");
+  /** 멈춘 지 SCOPE_DEBOUNCE_MS 지난 지도 위치 (처음 한 번은 바로) */
+  const [settled, setSettled] = useState<BriefingView | null>(null);
+  const hasSettled = settled != null;
+  useEffect(() => {
+    if (!view) return;
+    const t = window.setTimeout(() => setSettled(view), hasSettled ? SCOPE_DEBOUNCE_MS : 0);
+    return () => window.clearTimeout(t);
+  }, [view, hasSettled]);
+  const latKey = settled ? settled.lat.toFixed(3) : null;
+  const lngKey = settled ? settled.lng.toFixed(3) : null;
+  const regionQuery = useQuery({
+    queryKey: ["map-region-at", latKey, lngKey],
+    queryFn: () => fetchRegionAt(latKey!, lngKey!),
+    enabled: latKey != null && lngKey != null,
+    staleTime: Infinity,
+    gcTime: 30 * 60 * 1000,
+    retry: 1,
+    placeholderData: keepPreviousData,
+  });
+  const region = regionQuery.data ?? null;
+  const zoomedIn = settled ? settled.zoom >= (settled.mode === "3d" ? GU_ZOOM_3D : GU_ZOOM_2D) : false;
+  const local = localScope(data, region, zoomedIn);
+  /** 가운데 지역을 처음 찾는 중 — 그동안 개수 자리는 불러오는 중으로 (못 찾으면 전국) */
+  const regionPending = scopeMode === "local" && !local && view != null && (settled == null || regionQuery.isPending);
+  const scope: BriefScope = scopeMode === "all" || !local ? ALL_SCOPE : local;
+  const localLabel = local?.label ?? "이 지역";
+
   // 펼친 채 Esc — 접는다
   useEffect(() => {
     if (!expanded) return;
@@ -142,17 +210,43 @@ export function MapBriefingSheet({
     return () => window.removeEventListener("keydown", onKey);
   }, [expanded]);
 
-  const lists: Record<BriefTab, BriefItem[]> = {
-    singoga: (data?.singoga ?? []).slice(0, LIST_MAX).map(dealItem),
-    drop: (data?.drops ?? []).slice(0, LIST_MAX).map(dealItem),
-    surge: (data?.volumeSurges ?? []).slice(0, LIST_MAX).map(surgeItem),
-  };
+  const lists: Record<BriefTab, BriefItem[]> = data
+    ? {
+        singoga: scopedList(data, "singoga", scope, LIST_MAX).map(dealItem),
+        drop: scopedList(data, "drops", scope, LIST_MAX).map(dealItem),
+        surge: scopedList(data, "volumeSurges", scope, LIST_MAX).map(surgeItem),
+      }
+    : { singoga: [], drop: [], surge: [] };
+  const counts: ScopeCounts | null = data
+    ? {
+        singoga: scopedCount(data, "singoga", scope),
+        drop: scopedCount(data, "drops", scope),
+        surge: scopedCount(data, "volumeSurges", scope),
+      }
+    : null;
   const tabs: { id: BriefTab; label: string; count?: string }[] = [
-    { id: "singoga", label: "신고가", count: data ? String(data.kpis.singogaCount) : undefined },
-    { id: "drop", label: "하락", count: data ? String(data.kpis.dropCount) : undefined },
-    { id: "surge", label: "거래 급증", count: data ? String(data.kpis.volumeSurgeCount ?? 0) : undefined },
+    { id: "singoga", label: "신고가", count: counts ? String(counts.singoga) : undefined },
+    { id: "drop", label: "하락", count: counts ? String(counts.drop) : undefined },
+    { id: "surge", label: "거래 급증", count: counts ? String(counts.surge) : undefined },
   ];
   const items = lists[tab];
+  const chooseScope = (m: "local" | "all") => {
+    setScopeMode(m);
+    setFailKey(null);
+  };
+  const emptyText = (() => {
+    if (scope.kind === "all") {
+      return tab === "singoga"
+        ? "오늘 확인된 신고가가 없습니다."
+        : tab === "drop"
+          ? "오늘 확인된 하락 거래가 없습니다."
+          : "거래가 급증한 단지가 없습니다.";
+    }
+    const topic = `${scope.label}${topicJosa(scope.label)}`;
+    if (tab === "surge") return `${topic} 거래가 급증한 단지가 없어요`;
+    if (counts && !counts.singoga && !counts.drop) return `${topic} 오늘 새 신고가·하락 거래가 없어요`;
+    return tab === "singoga" ? `${topic} 오늘 새 신고가가 없어요` : `${topic} 오늘 새 하락 거래가 없어요`;
+  })();
 
   const pick = async (item: BriefItem) => {
     if (busyKey) return;
@@ -274,10 +368,10 @@ export function MapBriefingSheet({
               <span className="font-medium text-[color:var(--lab-muted)]">· {data.lastUpdatedLabel}</span>
             ) : null}
           </span>
-          <span className="mt-1 flex min-h-7 items-center gap-2">
-            <span className="min-w-0 flex-1 truncate text-[16px] font-bold leading-6 tracking-tight text-[color:var(--lab-navy-950)]">
-              {data ? (
-                <PeekLine data={data} />
+          <span className="mt-1 flex min-h-7 items-center gap-1 sm:gap-2">
+            <span className="min-w-0 flex-1 truncate text-[15px] font-bold leading-6 tracking-[-0.04em] sm:text-[16px] sm:tracking-tight text-[color:var(--lab-navy-950)]">
+              {data && counts && !regionPending ? (
+                <PeekLine data={data} scope={scope} counts={counts} />
               ) : query.isError ? (
                 <span className="text-[14px] font-medium text-[color:var(--lab-muted)]">시장 브리핑을 불러오지 못했어요</span>
               ) : (
@@ -313,6 +407,38 @@ export function MapBriefingSheet({
             <LabDataLoading label="오늘의 시장 불러오는 중" minHeight={160} />
           ) : (
             <>
+              {/* 범위 — 두 칸 같은 너비라 지역 이름이 바뀌어도 자리가 흔들리지 않는다 (긴 이름은 말줄임) */}
+              <div
+                className="grid h-9 shrink-0 grid-cols-2 rounded-full border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] p-0.5"
+                role="group"
+                aria-label="브리핑 범위"
+              >
+                {(
+                  [
+                    ["local", localLabel, local ? `${local.label} 브리핑 보기` : "지도 가운데 지역 브리핑 보기"],
+                    ["all", "전국", "전국 브리핑 보기"],
+                  ] as const
+                ).map(([id, label, aria]) => {
+                  const on = (scopeMode === "local" && local ? "local" : "all") === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      aria-pressed={on}
+                      aria-label={aria}
+                      disabled={id === "local" && !local}
+                      onClick={() => chooseScope(id)}
+                      className={`relative min-w-0 truncate rounded-full px-3 text-[14px] leading-5 transition-colors motion-reduce:transition-none before:absolute before:inset-x-0 before:-inset-y-1 before:content-[''] disabled:opacity-50 ${
+                        on
+                          ? "bg-[color:var(--lab-navy-950)] font-semibold text-white"
+                          : "font-medium text-[color:var(--lab-navy-950)]"
+                      }`}
+                    >
+                      {regionPending && id === "local" ? <LabLoadingDots /> : label}
+                    </button>
+                  );
+                })}
+              </div>
               <LabTabs
                 variant="secondary"
                 ariaLabel="브리핑 구분"
@@ -326,13 +452,14 @@ export function MapBriefingSheet({
               />
               <div id={labTabPanelId(tabPrefix, tab)} role="tabpanel">
                 {items.length === 0 ? (
-                  <p className="lab-state">
-                    {tab === "singoga"
-                      ? "오늘 확인된 신고가가 없습니다."
-                      : tab === "drop"
-                        ? "오늘 확인된 하락 거래가 없습니다."
-                        : "거래가 급증한 단지가 없습니다."}
-                  </p>
+                  <div className="flex flex-col gap-2">
+                    <p className="lab-state">{emptyText}</p>
+                    {scope.kind !== "all" ? (
+                      <button type="button" className="lab-button lab-button-secondary w-full" onClick={() => chooseScope("all")}>
+                        전국 보기
+                      </button>
+                    ) : null}
+                  </div>
                 ) : (
                   <ul className="flex flex-col divide-y divide-[color:var(--lab-border)]">
                     {items.map((item) => (

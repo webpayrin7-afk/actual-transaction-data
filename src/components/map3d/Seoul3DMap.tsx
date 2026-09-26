@@ -28,7 +28,7 @@ import { activeCount, areaQuery, matches, type MapConditions } from "@/lib/map/m
 import type { Complex3d, Ring } from "@/lib/complex-3d/read";
 import type { SiteBoundary } from "@/lib/complex-3d/boundary";
 import { formatDealDate, formatEok } from "@/lib/utils/format";
-import { write3dSession, type Map3dCamera } from "@/lib/map/view-state";
+import { shouldJump, write3dSession, type Map3dCamera } from "@/lib/map/view-state";
 import {
   BASEMAP_STYLE_URL,
   BUILDING_COLOR,
@@ -294,6 +294,7 @@ export default function Seoul3DMap({
   sessionPath,
   labelMetric = "price",
   onLabelMetricChange,
+  onMoveEnd,
 }: {
   initial: Map3dView;
   /** 2D 지도의 조건(거래유형·전용면적·필터 칩) — 2D와 같은 단지만 보이게 */
@@ -311,6 +312,8 @@ export default function Seoul3DMap({
   /** 이름표 값 — 2D 마커 표시와 같은 값(같은 설정을 나눠 쓴다) */
   labelMetric?: MarkerMetric;
   onLabelMetricChange?: (m: MarkerMetric) => void;
+  /** 카메라가 멈출 때마다 (지도 브리핑 '지역' 범위) */
+  onMoveEnd?: (v: Map3dView) => void;
 }) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MlMap | null>(null);
@@ -355,6 +358,10 @@ export default function Seoul3DMap({
   const metricRef = useRef(metric);
   const labelMetricRef = useRef(labelMetric);
   const persistRef = useRef<(() => void) | null>(null);
+  const onMoveEndRef = useRef(onMoveEnd);
+  useEffect(() => {
+    onMoveEndRef.current = onMoveEnd;
+  }, [onMoveEnd]);
   const shapeCache = useRef(new Map<string, Complex3d | null>());
   const siteCache = useRef(new Map<string, SiteBoundary | null>());
 
@@ -680,6 +687,8 @@ export default function Seoul3DMap({
       map.on("rotate", () => setBearing(map.getBearing()));
       map.on("moveend", () => {
         persist();
+        const mc = map.getCenter();
+        onMoveEndRef.current?.({ lat: mc.lat, lng: mc.lng, zoom: map.getZoom() });
         window.clearTimeout(moveTimer);
         moveTimer = window.setTimeout(() => void fetchRef.current(), 300);
       });
@@ -697,6 +706,7 @@ export default function Seoul3DMap({
   }, []);
 
   // 밖에서 고른 곳으로 — 먼저 그 자리로 날아가고(단지가 목록에 들어오게), 단지면 고른다.
+  // 멀리(약 15km 넘게)·줌이 크게 바뀌면 날지 않고 바로 옮긴다.
   // 고르면 아래 '고른 단지' 효과가 대지 경계에 맞춰 다시 담는다.
   const focusSeq = focus?.seq ?? null;
   useEffect(() => {
@@ -708,7 +718,9 @@ export default function Seoul3DMap({
       pitch: FOCUS_PITCH,
       bearing: map.getBearing(),
     };
-    if (reducedMotion()) map.jumpTo(opts);
+    const here = map.getCenter();
+    const far = shouldJump({ lat: here.lat, lng: here.lng, zoom: map.getZoom() }, { lat: focus.lat, lng: focus.lng, zoom: opts.zoom });
+    if (reducedMotion() || far) map.jumpTo(opts);
     else map.flyTo({ ...opts, duration: 1000, essential: false });
     setSelectedId(focus.complexId);
     setPicked(null);
@@ -1016,7 +1028,7 @@ export default function Seoul3DMap({
           >
             <div className="flex items-center gap-2">
               <p className="min-w-0 flex-1 truncate leading-5">
-                <span className="text-[15px] font-bold text-[color:var(--lab-navy-950)]">{selected.aptName}</span>
+                <span className="text-[15px] font-bold text-[color:var(--lab-teal-700)]">{selected.aptName}</span>
                 <span className="ml-1.5 text-[12px] text-[color:var(--lab-muted)]">
                   {[
                     selected.dong,
@@ -1041,7 +1053,7 @@ export default function Seoul3DMap({
                 최근 {dealLabel}
                 {selected.pyeongLabel ? ` ${selected.pyeongLabel}` : ""}
               </span>
-              <span className="shrink-0 text-[15px] font-bold tabular-nums text-[color:var(--lab-navy-950)]">
+              <span className="shrink-0 text-[15px] font-bold tabular-nums text-[color:var(--lab-teal-700)]">
                 {selected.priceMan ? formatEok(selected.priceMan) : "거래 없음"}
               </span>
               {selected.priceDate ? <span className="shrink-0 tabular-nums">{formatDealDate(selected.priceDate)}</span> : null}
@@ -1049,7 +1061,7 @@ export default function Seoul3DMap({
               <span className="min-w-0 truncate">
                 {metric === "change1y" ? "1년 " : "평당 "}
                 <span
-                  className="font-semibold tabular-nums text-[color:var(--lab-navy-950)]"
+                  className="font-semibold tabular-nums text-[color:var(--lab-teal-700)]"
                   style={
                     metric === "change1y" && selected.change1yPct
                       ? { color: selected.change1yPct > 0 ? "#D93A3F" : "#2F62D6" }
@@ -1069,14 +1081,14 @@ export default function Seoul3DMap({
             <div className="mt-1.5 grid grid-cols-2 gap-2">
               <Link
                 href={selected.href}
-                className="inline-flex h-9 items-center justify-center rounded-lg bg-[color:var(--lab-navy-950)] text-[14px] font-semibold text-white"
+                className="lab-button lab-button-primary h-9 !min-h-9 text-[14px]"
               >
                 단지 상세
               </Link>
               {selected3d ? (
                 <Link
                   href={`/complex-3d/${selected.complexId}`}
-                  className="inline-flex h-9 items-center justify-center rounded-lg border border-[color:var(--lab-navy-950)] bg-[color:var(--lab-surface)] text-[14px] font-semibold text-[color:var(--lab-navy-950)]"
+                  className="lab-button lab-button-secondary h-9 !min-h-9 text-[14px]"
                 >
                   3D 탐색
                 </Link>
@@ -1084,7 +1096,7 @@ export default function Seoul3DMap({
                 <button
                   type="button"
                   disabled
-                  className="inline-flex h-9 items-center justify-center rounded-lg border border-[color:var(--lab-border)] text-[14px] font-medium text-[color:var(--lab-muted)]"
+                  className="lab-button lab-button-secondary h-9 !min-h-9 text-[14px]"
                 >
                   {selected3d === false ? "3D 준비 중" : "3D 탐색"}
                 </button>
