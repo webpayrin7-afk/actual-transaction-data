@@ -35,7 +35,8 @@ import { formatArea, formatEok } from "@/lib/utils/format";
 
 export const BRIEFING_PEEK_PX = 88;
 /** 목록마다 최대 개수 — 전체는 /market */
-const LIST_MAX = 5;
+/** 지도 브리핑은 탭마다 3개까지 — 스크롤 없이 한눈에, 나머지는 시장 화면에서 */
+const LIST_MAX = 3;
 const EXPANDED_RATIO = 0.55;
 /** 지도가 멈춘 뒤 이만큼 기다렸다 가운데 지역을 찾는다 */
 const SCOPE_DEBOUNCE_MS = 400;
@@ -396,8 +397,7 @@ export function MapBriefingSheet({
         <div
           id={panelId}
           hidden={!expanded && dragH == null}
-          className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain px-4 pb-3 sm:max-h-[55dvh] sm:flex-none"
-          style={expanded && dragH == null ? { maxHeight: `calc(${EXPANDED_RATIO * 100}dvh - ${BRIEFING_PEEK_PX}px)` } : undefined}
+          className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden px-4 pb-3 sm:flex-none"
         >
           {query.isError ? (
             <div className="flex flex-col gap-2 py-2">
