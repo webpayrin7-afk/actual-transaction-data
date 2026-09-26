@@ -775,7 +775,7 @@ export default function Seoul3DMap({
       : getJson<Complex3d>(`/api/complex-3d/${id}?v=2&shapes=1`).then((s) => (remember(shapeCache.current, id, s), s));
     const siteP = siteCache.current.has(id)
       ? Promise.resolve(siteCache.current.get(id) ?? null)
-      : getJson<SiteBoundary>(`/api/complex-3d/${id}/boundary`).then((b) => (remember(siteCache.current, id, b), b));
+      : getJson<SiteBoundary>(`/api/complex-3d/${id}/boundary?v=2`).then((b) => (remember(siteCache.current, id, b), b));
 
     shapeP
       .then((shape) => {

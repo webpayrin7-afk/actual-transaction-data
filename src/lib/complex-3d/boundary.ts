@@ -257,10 +257,36 @@ async function writeCached(db: Client, b: SiteBoundary): Promise<void> {
   }
 }
 
+/**
+ * 경계가 지도 마커(단지 좌표) 근처에 있는지 — 약 100m 여유. 재건축 등으로 마스터 지번이 옛 작은 필지를 가리키면
+ * 엉뚱한 곳에 작은 경계가 그려지므로(예: 힐스테이트마포더퍼스트) 그런 경계는 쓰지 않는다.
+ */
+function nearAnchor(b: SiteBoundary, lat: number, lng: number): boolean {
+  const [x0, y0, x1, y1] = b.bbox;
+  return lng >= x0 - 0.0012 && lng <= x1 + 0.0012 && lat >= y0 - 0.0009 && lat <= y1 + 0.0009;
+}
+
+async function anchorOf(db: Client, complexId: string): Promise<{ lat: number; lng: number } | null> {
+  try {
+    const r = await db.execute({
+      sql: `SELECT COALESCE(a.lat, m.latitude) AS lat, COALESCE(a.lng, m.longitude) AS lng
+            FROM apt_complex_master m LEFT JOIN complex_map_anchor a ON a.complex_id = m.complex_id
+            WHERE m.complex_id = ?`,
+      args: [complexId],
+    });
+    const row = r.rows[0];
+    const lat = Number(row?.lat);
+    const lng = Number(row?.lng);
+    return Number.isFinite(lat) && Number.isFinite(lng) && lat !== 0 ? { lat, lng } : null;
+  } catch {
+    return null;
+  }
+}
+
 /** 단지 경계 한 개. 단지를 모르면 null. 브이월드가 잠시 안 되면 추정 경계를 주되 저장하지 않는다 */
 export async function readSiteBoundary(db: Client, complexId: string): Promise<SiteBoundary | null> {
-  const cached = await readCached(db, complexId);
-  if (cached) return cached;
+  const [cached, anchor] = await Promise.all([readCached(db, complexId), anchorOf(db, complexId)]);
+  if (cached && (!anchor || nearAnchor(cached, anchor.lat, anchor.lng))) return cached;
 
   const [shape, meta] = await Promise.all([
     readComplex3d(db, complexId, { shapesOnly: true }),
@@ -357,6 +383,8 @@ export async function readSiteBoundary(db: Client, complexId: string): Promise<S
         parcels.flatMap((p) => p.polys),
       )
     : estimate();
+  // 마커에서 멀리 떨어진 경계는 잘못 고른 필지 — 그리지 않는다 (저장도 안 함)
+  if (result && anchor && !nearAnchor(result, anchor.lat, anchor.lng)) return null;
   if (result) await writeCached(db, result).catch((e) => console.warn("[complex-3d/boundary] cache", (e as Error).message));
   return result;
 }
