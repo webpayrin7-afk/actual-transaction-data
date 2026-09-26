@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LabIndeterminateBar } from "@/components/ui/LabLoading";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import { useQuery } from "@tanstack/react-query";
 import { ComplexRegionPriceCompare } from "@/components/apt/ComplexRegionPriceCompare";
 import { LAB_SUBSECTION_RULE, LabSection, LabSubsectionHeader } from "@/components/ui/LabSection";
@@ -155,10 +155,7 @@ export function ComplexRegionRankSection({
         />
 
         {query.isLoading ? (
-          <div className="mt-2 flex flex-col items-center gap-2.5 py-5" aria-label="순위 불러오는 중">
-            <LabIndeterminateBar className="max-w-[160px]" />
-            <p className="detail-meta">순위 불러오는 중…</p>
-          </div>
+          <LabDataLoading label="순위 불러오는 중" minHeight={112} />
         ) : query.isError ? (
           <div className="mt-2 rounded-xl bg-slate-50 px-3 py-3 text-center">
             <p className="detail-body font-medium text-[color:var(--lab-navy-950)]">

@@ -19,6 +19,49 @@ export function LabIndeterminateBar({ className = "" }: { className?: string }) 
   );
 }
 
+/** 점 세 개가 차례로 튀는 로딩 표시 (●●●) */
+export function LabLoadingDots({ className = "" }: { className?: string }) {
+  return (
+    <span className={`lab-dots inline-flex items-center gap-1.5 ${className}`} role="progressbar" aria-busy="true" aria-valuetext="불러오는 중">
+      <span className="lab-dot" />
+      <span className="lab-dot" />
+      <span className="lab-dot" />
+    </span>
+  );
+}
+
+/**
+ * 데이터 자리 로딩 — 섹션 틀(제목·탭·표 머리 등)은 그대로 그려 두고, 데이터가 들어갈 자리에만 넣는다.
+ * 회색 빈 상자 대신 가운데 점 세 개와 "○○ 불러오는 중…".
+ */
+export function LabDataLoading({
+  label = "불러오는 중",
+  minHeight = 96,
+  className = "",
+}: {
+  label?: string;
+  minHeight?: number;
+  className?: string;
+}) {
+  // 아주 빨리 끝나는 로딩은 번쩍이지 않게 0.25초 뒤에만 보인다
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const t = window.setTimeout(() => setShown(true), 250);
+    return () => window.clearTimeout(t);
+  }, []);
+  return (
+    <div
+      className={`flex flex-col items-center justify-center gap-2 transition-opacity duration-200 ${className}`}
+      style={{ minHeight, opacity: shown ? 1 : 0 }}
+      aria-busy="true"
+      aria-live="polite"
+    >
+      <LabLoadingDots />
+      <p className="detail-meta">{label}…</p>
+    </div>
+  );
+}
+
 /**
  * 섹션 로딩 — 회색 빈 상자 대신, 무엇을 불러오는지와 진행 막대를 보여 준다.
  * 페이지는 먼저 뜨고 아래 섹션만 늦게 채워질 때 쓴다.
@@ -52,10 +95,10 @@ export function LabSectionLoading({
     >
       {title ? <h2 className="detail-section-title">{title}</h2> : null}
       <div
-        className="flex flex-1 flex-col items-center justify-center gap-2.5 py-6 transition-opacity duration-200"
+        className="flex flex-1 flex-col items-center justify-center gap-2 py-6 transition-opacity duration-200"
         style={{ opacity: shown ? 1 : 0 }}
       >
-        <LabIndeterminateBar className="max-w-[180px]" />
+        <LabLoadingDots />
         <p className="detail-meta">{text}…</p>
       </div>
     </section>
