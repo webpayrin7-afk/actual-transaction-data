@@ -1032,32 +1032,6 @@ export function AptDetailPage({
         />
       </LabSectionBoundary>
 
-      <LabSectionBoundary id="section-calculator" mountWhenNear title="세금·대출 계산">
-      <ComplexPurchaseCalculatorSection
-          complexId={identity?.complexId ?? null}
-          complexName={data.aptName}
-          areaKey={areaKey}
-          areaLabel={
-            areaKey === "all" || !selectedArea
-              ? "전체 면적"
-              : areaSelectorClosedLabel(selectedArea)
-          }
-          latestTradeMan={latestTrade?.dealAmount ?? 0}
-          exclusiveAreaMinSqm={
-            selectedArea
-              ? (selectedArea.exclusiveAreaMin ?? selectedArea.exclusiveArea ?? null)
-              : null
-          }
-          exclusiveAreaMaxSqm={
-            selectedArea
-              ? (selectedArea.exclusiveAreaMax ?? selectedArea.exclusiveArea ?? null)
-              : null
-          }
-          regionSlug={regionSlug}
-          locationLabel={locationLabel}
-        />
-      </LabSectionBoundary>
-
       <LabSectionBoundary id="section-region-rank" mountWhenNear title="지역 비교">
       <ComplexRegionRankSection
           complexId={identity?.complexId ?? null}
@@ -1106,6 +1080,33 @@ export function AptDetailPage({
           aptName={aptName}
           sigungu={nearbySigungu}
           lawdCd={nearbyLawdCd}
+        />
+      </LabSectionBoundary>
+
+      {/* 세금·대출 계산 — 관리비 바로 위 (집값·대출·관리비를 이어서 보게) */}
+      <LabSectionBoundary id="section-calculator" mountWhenNear title="세금·대출 계산">
+      <ComplexPurchaseCalculatorSection
+          complexId={identity?.complexId ?? null}
+          complexName={data.aptName}
+          areaKey={areaKey}
+          areaLabel={
+            areaKey === "all" || !selectedArea
+              ? "전체 면적"
+              : areaSelectorClosedLabel(selectedArea)
+          }
+          latestTradeMan={latestTrade?.dealAmount ?? 0}
+          exclusiveAreaMinSqm={
+            selectedArea
+              ? (selectedArea.exclusiveAreaMin ?? selectedArea.exclusiveArea ?? null)
+              : null
+          }
+          exclusiveAreaMaxSqm={
+            selectedArea
+              ? (selectedArea.exclusiveAreaMax ?? selectedArea.exclusiveArea ?? null)
+              : null
+          }
+          regionSlug={regionSlug}
+          locationLabel={locationLabel}
         />
       </LabSectionBoundary>
 

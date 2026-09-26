@@ -9,11 +9,12 @@ import type { AptAreaOption } from "@/lib/molit/apt-client";
 
 export const APT_SECTIONS = [
   { id: "section-market", label: "시세" },
-  { id: "section-calculator", label: "계산기" },
   // 지역 비교 → 단지 비교가 이어지는 한 흐름. 탭은 첫 섹션으로 점프 (policy §12.3 탭 수 ≤ 6).
   { id: "section-region-rank", label: "비교" },
   { id: "section-nearby-life", label: "생활" },
   { id: "section-nearby-sales", label: "공급" },
+  // 계산기는 관리비 바로 위 (화면 순서와 같게)
+  { id: "section-calculator", label: "계산기" },
   { id: "section-management", label: "관리비" },
 ] as const;
 
