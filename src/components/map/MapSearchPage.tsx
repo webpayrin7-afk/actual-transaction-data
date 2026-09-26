@@ -50,8 +50,6 @@ import { Map3dInvite, mark3dInviteDone, read3dInviteDone } from "@/components/ma
 import { SEOUL_BOUNDS } from "@/components/map3d/seoul-3d-style";
 import { clear3dSession, read3dSession, replaceViewParam, shouldJump } from "@/lib/map/view-state";
 import { mapInteractionEnd, mapInteractionStart, resetMapDock, setMapCardOpen } from "@/lib/map/map-dock";
-import { HeaderAptSearch } from "@/components/layout/HeaderAptSearch";
-import { SiteMenuButton } from "@/components/layout/SiteMenu";
 
 /** 서울 3D 지도 — MapLibre(약 1MB)는 3D를 열 때만 받는다 (2D 번들에 넣지 않음). */
 const Seoul3DMap = dynamic(() => import("@/components/map3d/Seoul3DMap"), {
@@ -72,10 +70,6 @@ type MapWithBounds = NaverMapInstance & {
 };
 
 const DEAL_LABEL: Record<MapDealKind, string> = { trade: "매매", jeonse: "전세" };
-
-/** 조작 줄의 둥근 아이콘 버튼 (검색 · ≡) — h-9, 누르는 곳은 위아래로 넓게 */
-const MAP_ICON_BUTTON =
-  "relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] text-[color:var(--lab-navy-950)] shadow-sm before:absolute before:-inset-1 before:content-['']";
 
 /** 지도 높이 — 모바일은 상단바가 없어 화면 전체, PC는 상단바 아래 */
 const MAP_HEIGHT_CLASS = "h-dvh sm:h-[calc(100dvh-var(--site-header-height,56px))]";
@@ -895,8 +889,6 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
             role="toolbar"
             aria-label="지도 조건"
           >
-            {/* 통합 검색 — 상단바와 같은 검색 (모바일만, PC는 상단바에 있음) */}
-            <HeaderAptSearch className="shrink-0 sm:hidden" buttonClassName={MAP_ICON_BUTTON} />
             <MapViewSwitch
               mode={view3d ? "3d" : "2d"}
               onChange={(m) => {
@@ -1015,10 +1007,6 @@ function MapSearchPageInner({ satelliteKey }: { satelliteKey: string | null }) {
                 </button>
               );
             })}
-          </div>
-          {/* ≡ 사이트 메뉴 — 상단바와 같은 서랍 (모바일만) */}
-          <div className="shrink-0 sm:hidden">
-            <SiteMenuButton buttonClassName={MAP_ICON_BUTTON} />
           </div>
         </div>
         <div className="flex flex-col items-start gap-2 px-3 sm:px-4">
