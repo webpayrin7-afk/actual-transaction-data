@@ -1,0 +1,23 @@
+{
+  "at": "2026-09-24T06:44:44.550Z",
+  "apply": true,
+  "totals": {
+    "targets": 13400,
+    "plannedComplexes": 3552,
+    "inserts": 195,
+    "updates": 3357,
+    "byField": {
+      "corridor_type": 2613,
+      "far_ratio": 1328,
+      "bcr_ratio": 1341,
+      "household_count": 434,
+      "heating_type": 201,
+      "parking_total": 272,
+      "parking_per_household": 254
+    },
+    "sharedParcelHold": 1,
+    "sharedKaptHold": 0,
+    "conflicts": 1024,
+    "appliedChanges": 3552
+  }
+}

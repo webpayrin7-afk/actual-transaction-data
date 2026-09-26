@@ -5,6 +5,8 @@
 
 import "server-only";
 
+import { getDb } from "@/lib/db/client";
+
 import {
   fetchApi,
   hasApiKey,
@@ -469,6 +471,29 @@ async function loadSchoolDetailBySchoolInfoCode(p: {
   };
 }
 
+/** school_master PK 한 줄 — 없거나 DB 없으면 null. */
+async function readSchoolMasterRegion(
+  schoolCode: string,
+): Promise<{ kind: Kind; sidoCode: string; sggCode: string } | null> {
+  const db = getDb();
+  if (!db || !schoolCode) return null;
+  try {
+    const res = await db.execute({
+      sql: `SELECT school_level, sido_code, sgg_code FROM school_master WHERE school_code = ? LIMIT 1`,
+      args: [schoolCode],
+    });
+    const r = res.rows[0];
+    if (!r) return null;
+    const level = String(r.school_level ?? "");
+    const sidoCode = String(r.sido_code ?? "").trim();
+    const sggCode = String(r.sgg_code ?? "").trim();
+    if (!(level in KIND) || !sidoCode || !sggCode) return null;
+    return { kind: level as Kind, sidoCode, sggCode };
+  } catch {
+    return null;
+  }
+}
+
 export async function getSchoolDetail(
   params: GetSchoolDetailParams,
 ): Promise<SchoolDetail> {
@@ -476,14 +501,19 @@ export async function getSchoolDetail(
   const nameHint = params.nameHint?.trim() || null;
   const addressHint = params.addressHint?.trim() || null;
   const known = findKnownLink(appSchoolId);
+  // 학교알리미 코드(school_master)면 그 학교의 시도·시군구로 목록 조회 (송파 기본값 대신).
+  const master = known ? null : await readSchoolMasterRegion(appSchoolId);
   const kind: Kind =
     params.kind ??
     known?.kind ??
+    master?.kind ??
     inferKindFromNameHint(nameHint) ??
     "middle";
   const kindCode = KIND[kind];
-  const sidoCode = params.sidoCode ?? known?.sidoCode ?? SEOUL_SIDO;
-  const sggCode = params.sggCode ?? known?.sggCode ?? SONGPA_SGG;
+  const sidoCode =
+    params.sidoCode ?? known?.sidoCode ?? master?.sidoCode ?? SEOUL_SIDO;
+  const sggCode =
+    params.sggCode ?? known?.sggCode ?? master?.sggCode ?? SONGPA_SGG;
   const yearList = years();
 
   if (!hasApiKey()) return authHold(appSchoolId, nameHint);

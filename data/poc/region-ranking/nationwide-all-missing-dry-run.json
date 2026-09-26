@@ -1,0 +1,1643 @@
+{
+  "apply": true,
+  "scope": "nationwide",
+  "asOf": "2026-07-31",
+  "featureRunId": "25271cada9ee3dd1ad731132eaeda56574b59e922073a110449e1ec5df1ee2f4",
+  "featureRows": 4589,
+  "featureEligibleInput": 1320,
+  "guTotal": 86,
+  "guPublish": 51,
+  "guEmpty": 35,
+  "byMetro": {
+    "chungbuk": {
+      "publishGus": 0,
+      "emptyGus": 3,
+      "eligibleComplexes": 0
+    },
+    "chungnam": {
+      "publishGus": 0,
+      "emptyGus": 2,
+      "eligibleComplexes": 0
+    },
+    "gangwon": {
+      "publishGus": 17,
+      "emptyGus": 1,
+      "eligibleComplexes": 109
+    },
+    "gwangju": {
+      "publishGus": 5,
+      "emptyGus": 0,
+      "eligibleComplexes": 115
+    },
+    "gyeongbuk": {
+      "publishGus": 0,
+      "emptyGus": 6,
+      "eligibleComplexes": 0
+    },
+    "gyeonggi": {
+      "publishGus": 0,
+      "emptyGus": 5,
+      "eligibleComplexes": 0
+    },
+    "gyeongnam": {
+      "publishGus": 1,
+      "emptyGus": 4,
+      "eligibleComplexes": 1
+    },
+    "incheon": {
+      "publishGus": 4,
+      "emptyGus": 2,
+      "eligibleComplexes": 47
+    },
+    "jeonbuk": {
+      "publishGus": 10,
+      "emptyGus": 5,
+      "eligibleComplexes": 93
+    },
+    "jeonnam": {
+      "publishGus": 14,
+      "emptyGus": 7,
+      "eligibleComplexes": 82
+    }
+  },
+  "emptyGuAll": [
+    "12720:곡성군",
+    "12730:구례군",
+    "12740:고흥군",
+    "12750:보성군",
+    "12770:장흥군",
+    "12820:함평군",
+    "12860:진도군",
+    "28710:강화군",
+    "28720:옹진군",
+    "41194:부천시 소사구",
+    "41196:부천시 오정구",
+    "41591:화성시 만세구",
+    "41595:화성시 병점구",
+    "41597:화성시 동탄구",
+    "43720:보은군",
+    "43745:증평군",
+    "43760:괴산군",
+    "44760:부여군",
+    "44770:서천군",
+    "47730:의성군",
+    "47750:청송군",
+    "47760:영양군",
+    "47820:청도군",
+    "47840:성주군",
+    "47930:울진군",
+    "48720:의령군",
+    "48840:남해군",
+    "48870:함양군",
+    "48890:합천군",
+    "51780:철원군",
+    "52190:남원시",
+    "52720:진안군",
+    "52740:장수군",
+    "52750:임실군",
+    "52790:고창군"
+  ],
+  "seoulDiff": null,
+  "guReports": [
+    {
+      "lawd": "12110",
+      "name": "목포시",
+      "metro": "jeonnam",
+      "candidates": 33,
+      "eligible": 16,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_8680211288397e14",
+          "name": "하당풍경채어바니티",
+          "score": 0.8563
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_2ff4c1c437a889de",
+          "name": "우미파렌하이트",
+          "score": 0.8063
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_88dca37d730700ae",
+          "name": "한라비발디",
+          "score": 0.725
+        }
+      ]
+    },
+    {
+      "lawd": "12130",
+      "name": "여수시",
+      "metro": "jeonnam",
+      "candidates": 23,
+      "eligible": 12,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_6016b2d374f0b2d2",
+          "name": "경도비전 지에이그린웰",
+          "score": 0.7083
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_2a93ee02b42b1f04",
+          "name": "엑스포힐스테이트1단지",
+          "score": 0.6833
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_ee8563f35062ae8f",
+          "name": "라온유",
+          "score": 0.65
+        }
+      ]
+    },
+    {
+      "lawd": "12150",
+      "name": "순천시",
+      "metro": "jeonnam",
+      "candidates": 16,
+      "eligible": 14,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_b243b10ecc5cc93e",
+          "name": "포레나순천",
+          "score": 0.8714
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_9fae97df7ab6e599",
+          "name": "호반베르디움",
+          "score": 0.8571
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_de7bf9b6385d04a1",
+          "name": "트리마제 순천 2단지",
+          "score": 0.6857
+        }
+      ]
+    },
+    {
+      "lawd": "12170",
+      "name": "나주시",
+      "metro": "jeonnam",
+      "candidates": 8,
+      "eligible": 5,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_a209f9fb11a22a18",
+          "name": "나주역자이리버파크",
+          "score": 0.8
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_a712ad0900f4dd8f",
+          "name": "빛가람우미린",
+          "score": 0.72
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_06812b8a7570653f",
+          "name": "양우내안애센텀시티아파트",
+          "score": 0.44
+        }
+      ]
+    },
+    {
+      "lawd": "12190",
+      "name": "광양시",
+      "metro": "jeonnam",
+      "candidates": 25,
+      "eligible": 13,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_5b259f4ffc4ceb83",
+          "name": "광양 푸르지오 더 퍼스트",
+          "score": 0.8692
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_cfd0fc084c9e1afa",
+          "name": "광양센트럴자이",
+          "score": 0.8231
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_164c70985374558c",
+          "name": "광양 동문디이스트",
+          "score": 0.6538
+        }
+      ]
+    },
+    {
+      "lawd": "12210",
+      "name": "동구",
+      "metro": "gwangju",
+      "candidates": 21,
+      "eligible": 13,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_123bf49c827e8cb6",
+          "name": "무등산 아이파크",
+          "score": 0.9
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_84b2d8bebe71c7b8",
+          "name": "그랜드센트럴",
+          "score": 0.8769
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_12dd8984ffff110b",
+          "name": "무등산골드클래스2차",
+          "score": 0.8
+        }
+      ]
+    },
+    {
+      "lawd": "12240",
+      "name": "서구",
+      "metro": "gwangju",
+      "candidates": 40,
+      "eligible": 28,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_f3fb393f54619319",
+          "name": "더샵염주센트럴파크",
+          "score": 0.9429
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_2166650aa5183de2",
+          "name": "유니버시아드힐스테이트2단지",
+          "score": 0.7964
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_3f51e664b2617596",
+          "name": "상무양우내안애",
+          "score": 0.7821
+        }
+      ]
+    },
+    {
+      "lawd": "12270",
+      "name": "남구",
+      "metro": "gwangju",
+      "candidates": 31,
+      "eligible": 22,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_585332370e267e72",
+          "name": "더 퍼스트 데시앙",
+          "score": 0.8591
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_39e7651f9f60ddf9",
+          "name": "쌍용스윗닷홈",
+          "score": 0.8409
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_f7656acac54cbbb0",
+          "name": "봉선3차한국아델리움",
+          "score": 0.7182
+        }
+      ]
+    },
+    {
+      "lawd": "12300",
+      "name": "북구",
+      "metro": "gwangju",
+      "candidates": 44,
+      "eligible": 22,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_fa82d806e670b381",
+          "name": "제일풍경채 센트럴파크 1단지",
+          "score": 0.9727
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_d9eacedb3f39bf21",
+          "name": "힐스테이트본촌",
+          "score": 0.8909
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_a7d0a78f319dec18",
+          "name": "교대 금호어울림",
+          "score": 0.8682
+        }
+      ]
+    },
+    {
+      "lawd": "12330",
+      "name": "광산구",
+      "metro": "gwangju",
+      "candidates": 56,
+      "eligible": 30,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_b375af14d2ab2abd",
+          "name": "어등산진아리채리버필드",
+          "score": 0.92
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_5b6819d12ba9cf0f",
+          "name": "모아엘가 더 수완",
+          "score": 0.91
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_d32f46215da1a0fc",
+          "name": "무진로진아리채리버뷰",
+          "score": 0.81
+        }
+      ]
+    },
+    {
+      "lawd": "12710",
+      "name": "담양군",
+      "metro": "jeonnam",
+      "candidates": 2,
+      "eligible": 1,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_a859fe6fbb6996ad",
+          "name": "담양양우내안애퍼스트힐1단지",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "12720",
+      "name": "곡성군",
+      "metro": "jeonnam",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "12730",
+      "name": "구례군",
+      "metro": "jeonnam",
+      "candidates": 1,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "12740",
+      "name": "고흥군",
+      "metro": "jeonnam",
+      "candidates": 1,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "12750",
+      "name": "보성군",
+      "metro": "jeonnam",
+      "candidates": 1,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "12760",
+      "name": "화순군",
+      "metro": "jeonnam",
+      "candidates": 7,
+      "eligible": 4,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_bd0346986cb853c9",
+          "name": "힐스테이트 화순",
+          "score": 0.7
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_454bac013e97b314",
+          "name": "대광로제비앙2차",
+          "score": 0.525
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_d708263e3f3402ea",
+          "name": "대성베르힐",
+          "score": 0.4
+        }
+      ]
+    },
+    {
+      "lawd": "12770",
+      "name": "장흥군",
+      "metro": "jeonnam",
+      "candidates": 1,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "12780",
+      "name": "강진군",
+      "metro": "jeonnam",
+      "candidates": 2,
+      "eligible": 1,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_dfa9b43332a0d3fe",
+          "name": "강진코아루블루핀아파트",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "12790",
+      "name": "해남군",
+      "metro": "jeonnam",
+      "candidates": 4,
+      "eligible": 4,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_ddb1007bfa97e598",
+          "name": "해남파크사이드2차아파트",
+          "score": 0.725
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_b2f1121d2cb275ce",
+          "name": "해남코아루더베스트1단지아파트",
+          "score": 0.65
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_c6ca09bae61f9abb",
+          "name": "해남파크사이드아파트",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "12800",
+      "name": "영암군",
+      "metro": "jeonnam",
+      "candidates": 4,
+      "eligible": 3,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_11b97c721ca21a04",
+          "name": "한양파크빌1차",
+          "score": 0.5
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_e98de7285657cbad",
+          "name": "현대삼호3차아파트",
+          "score": 0.5
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_f73740ea5c03563e",
+          "name": "현대삼호2차아파트",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "12810",
+      "name": "무안군",
+      "metro": "jeonnam",
+      "candidates": 12,
+      "eligible": 5,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_9a994d698e5b1368",
+          "name": "근화베아채",
+          "score": 0.68
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_00198a6d5f200453",
+          "name": "힐스테이트오룡1단지",
+          "score": 0.56
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_8c32dda1306feebf",
+          "name": "오룡푸르지오파르세나1단지",
+          "score": 0.44
+        }
+      ]
+    },
+    {
+      "lawd": "12820",
+      "name": "함평군",
+      "metro": "jeonnam",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "12830",
+      "name": "영광군",
+      "metro": "jeonnam",
+      "candidates": 5,
+      "eligible": 2,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_c5a9ac86c8866fa0",
+          "name": "영광 금호어울림리더스",
+          "score": 0.7
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_31c7a5290ef73358",
+          "name": "모두원웰리스",
+          "score": 0.3
+        }
+      ]
+    },
+    {
+      "lawd": "12840",
+      "name": "장성군",
+      "metro": "jeonnam",
+      "candidates": 1,
+      "eligible": 1,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_c1829921602659fb",
+          "name": "부강2차아트빌",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "12850",
+      "name": "완도군",
+      "metro": "jeonnam",
+      "candidates": 2,
+      "eligible": 1,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_243ef56f82150548",
+          "name": "무등파크맨션",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "12860",
+      "name": "진도군",
+      "metro": "jeonnam",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "28125",
+      "name": "제물포구",
+      "metro": "incheon",
+      "candidates": 7,
+      "eligible": 5,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_6af812e95d66ed95",
+          "name": "동인천역파크푸르지오",
+          "score": 0.7
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_62faf4c55e197c4e",
+          "name": "동산휴먼시아2단지",
+          "score": 0.64
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_d91fae92eb3742ed",
+          "name": "만석 비치타운주공 아파트",
+          "score": 0.56
+        }
+      ]
+    },
+    {
+      "lawd": "28155",
+      "name": "영종구",
+      "metro": "incheon",
+      "candidates": 13,
+      "eligible": 8,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_cf9e3e745d6f5a6e",
+          "name": "e편한세상 영종국제도시 센텀베뉴",
+          "score": 0.8
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_8de0ec12d66e0a80",
+          "name": "e편한세상 영종국제도시 오션하임",
+          "score": 0.625
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_197ccf4051f1b5f5",
+          "name": "운서역반도유보라퍼스티지",
+          "score": 0.5125
+        }
+      ]
+    },
+    {
+      "lawd": "28275",
+      "name": "서해구",
+      "metro": "incheon",
+      "candidates": 23,
+      "eligible": 12,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_c6685e8aa08a76b8",
+          "name": "청라센트럴에일린의뜰",
+          "score": 0.8833
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_a465892df026e4ad",
+          "name": "청라제일풍경채2차에듀앤파크",
+          "score": 0.8583
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_63f282b3d9a9b6ae",
+          "name": "청라더샵레이크파크",
+          "score": 0.6667
+        }
+      ]
+    },
+    {
+      "lawd": "28290",
+      "name": "검단구",
+      "metro": "incheon",
+      "candidates": 31,
+      "eligible": 22,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_ecc5059433facb8b",
+          "name": "검단 금호어울림 센트럴",
+          "score": 0.8955
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_b72f9680d5c34dda",
+          "name": "파라곤 센트럴파크",
+          "score": 0.8364
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_66f1ea755245542d",
+          "name": "검암역 로열파크씨티푸르지오2단지",
+          "score": 0.8091
+        }
+      ]
+    },
+    {
+      "lawd": "28710",
+      "name": "강화군",
+      "metro": "incheon",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "28720",
+      "name": "옹진군",
+      "metro": "incheon",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "41194",
+      "name": "부천시 소사구",
+      "metro": "gyeonggi",
+      "candidates": 180,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "41196",
+      "name": "부천시 오정구",
+      "metro": "gyeonggi",
+      "candidates": 155,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "41591",
+      "name": "화성시 만세구",
+      "metro": "gyeonggi",
+      "candidates": 76,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "41595",
+      "name": "화성시 병점구",
+      "metro": "gyeonggi",
+      "candidates": 71,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "41597",
+      "name": "화성시 동탄구",
+      "metro": "gyeonggi",
+      "candidates": 123,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "43720",
+      "name": "보은군",
+      "metro": "chungbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "43745",
+      "name": "증평군",
+      "metro": "chungbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "43760",
+      "name": "괴산군",
+      "metro": "chungbuk",
+      "candidates": 1,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "44760",
+      "name": "부여군",
+      "metro": "chungnam",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "44770",
+      "name": "서천군",
+      "metro": "chungnam",
+      "candidates": 1,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "47730",
+      "name": "의성군",
+      "metro": "gyeongbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "47750",
+      "name": "청송군",
+      "metro": "gyeongbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "47760",
+      "name": "영양군",
+      "metro": "gyeongbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "47820",
+      "name": "청도군",
+      "metro": "gyeongbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "47840",
+      "name": "성주군",
+      "metro": "gyeongbuk",
+      "candidates": 4,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "47930",
+      "name": "울진군",
+      "metro": "gyeongbuk",
+      "candidates": 1,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "48720",
+      "name": "의령군",
+      "metro": "gyeongnam",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "48840",
+      "name": "남해군",
+      "metro": "gyeongnam",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "48860",
+      "name": "산청군",
+      "metro": "gyeongnam",
+      "candidates": 2,
+      "eligible": 1,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_2d95121b02b63fcb",
+          "name": "성우목화맨션",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "48870",
+      "name": "함양군",
+      "metro": "gyeongnam",
+      "candidates": 3,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "48890",
+      "name": "합천군",
+      "metro": "gyeongnam",
+      "candidates": 1,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "51110",
+      "name": "춘천시",
+      "metro": "gangwon",
+      "candidates": 20,
+      "eligible": 15,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_4eee7b49878befb5",
+          "name": "춘천센트럴파크푸르지오",
+          "score": 0.9133
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_d0f8456caab944eb",
+          "name": "춘천후평우미린뉴시티",
+          "score": 0.8867
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_c891d9b72ed770e8",
+          "name": "춘천우두이지더원시그니처",
+          "score": 0.7867
+        }
+      ]
+    },
+    {
+      "lawd": "51130",
+      "name": "원주시",
+      "metro": "gangwon",
+      "candidates": 51,
+      "eligible": 42,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_d559606602811d3b",
+          "name": "더샵원주센트럴파크3단지",
+          "score": 0.9024
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_601af0ff33f66585",
+          "name": "원주혁신도시 제일풍경채센텀포레",
+          "score": 0.8857
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_06e31a0db91bf08d",
+          "name": "원주 봉화산 푸르지오",
+          "score": 0.8857
+        }
+      ]
+    },
+    {
+      "lawd": "51150",
+      "name": "강릉시",
+      "metro": "gangwon",
+      "candidates": 18,
+      "eligible": 15,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_2236999f19a7cd11",
+          "name": "강릉역경남아너스빌더센트로",
+          "score": 0.9067
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_43ae5ff23bbd5994",
+          "name": "강릉유천 유승한내들더퍼스트",
+          "score": 0.86
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_c53ed7d24b2c03a0",
+          "name": "강릉역 동도센트리움",
+          "score": 0.8
+        }
+      ]
+    },
+    {
+      "lawd": "51170",
+      "name": "동해시",
+      "metro": "gangwon",
+      "candidates": 14,
+      "eligible": 8,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_73556c745fef9aa3",
+          "name": "동해 이도 코아루 더 스카이",
+          "score": 0.825
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_a7a142e557871727",
+          "name": "동해자이",
+          "score": 0.775
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_47a62c5940308c61",
+          "name": "동아더프라임 1단지",
+          "score": 0.6125
+        }
+      ]
+    },
+    {
+      "lawd": "51190",
+      "name": "태백시",
+      "metro": "gangwon",
+      "candidates": 6,
+      "eligible": 2,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_c62ee5a01248da91",
+          "name": "영조아름다운나날",
+          "score": 0.6
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_5849ea9a2d64f8ff",
+          "name": "태백장성동아라이크텐",
+          "score": 0.4
+        }
+      ]
+    },
+    {
+      "lawd": "51210",
+      "name": "속초시",
+      "metro": "gangwon",
+      "candidates": 13,
+      "eligible": 10,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_b75298f2d0d412b2",
+          "name": "속초청호아이파크",
+          "score": 0.78
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_c80ceee15d3900ab",
+          "name": "속초디오션자이",
+          "score": 0.74
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_866b955c52e8928a",
+          "name": "조양동휴먼빌아파트",
+          "score": 0.68
+        }
+      ]
+    },
+    {
+      "lawd": "51230",
+      "name": "삼척시",
+      "metro": "gangwon",
+      "candidates": 2,
+      "eligible": 1,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_7528e79bb740f407",
+          "name": "트루엘시그니처",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "51720",
+      "name": "홍천군",
+      "metro": "gangwon",
+      "candidates": 3,
+      "eligible": 1,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_1fcb734b70f42177",
+          "name": "연봉아이파크",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "51730",
+      "name": "횡성군",
+      "metro": "gangwon",
+      "candidates": 4,
+      "eligible": 3,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_4ec597f873deb923",
+          "name": "횡성코아루하우스토리",
+          "score": 0.8
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_e0c4160e5d02bca1",
+          "name": "횡성코아루센트럴퍼스트",
+          "score": 0.4
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_f1122f46025c17b7",
+          "name": "횡성석미모닝파크",
+          "score": 0.3
+        }
+      ]
+    },
+    {
+      "lawd": "51750",
+      "name": "영월군",
+      "metro": "gangwon",
+      "candidates": 1,
+      "eligible": 1,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_091d0478d2576274",
+          "name": "영월코아루에듀타운",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "51760",
+      "name": "평창군",
+      "metro": "gangwon",
+      "candidates": 6,
+      "eligible": 3,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_7e10534346fa6332",
+          "name": "평창진부웰라움더퍼스트",
+          "score": 0.8
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_4378d6efd2f42dbd",
+          "name": "해피밸리",
+          "score": 0.4667
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_0eae0419705eff59",
+          "name": "평창코업스위트하우스",
+          "score": 0.2333
+        }
+      ]
+    },
+    {
+      "lawd": "51770",
+      "name": "정선군",
+      "metro": "gangwon",
+      "candidates": 2,
+      "eligible": 2,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_bd5fea2083b64e60",
+          "name": "미소빌",
+          "score": 0.65
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_a9903ea5a59525b1",
+          "name": "정선수려안",
+          "score": 0.35
+        }
+      ]
+    },
+    {
+      "lawd": "51780",
+      "name": "철원군",
+      "metro": "gangwon",
+      "candidates": 1,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "51790",
+      "name": "화천군",
+      "metro": "gangwon",
+      "candidates": 1,
+      "eligible": 1,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_e49f1e33a76e0b76",
+          "name": "화천건영아모리움",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "51800",
+      "name": "양구군",
+      "metro": "gangwon",
+      "candidates": 2,
+      "eligible": 1,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_e89ce05f0079dd3d",
+          "name": "서희스타힐스",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "51810",
+      "name": "인제군",
+      "metro": "gangwon",
+      "candidates": 3,
+      "eligible": 1,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_7a6826786b9f72a5",
+          "name": "인제 양우내안애 아파트",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "51820",
+      "name": "고성군",
+      "metro": "gangwon",
+      "candidates": 2,
+      "eligible": 1,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_8b7c9df9e5a73c38",
+          "name": "봉포스위트엠오션파크",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "51830",
+      "name": "양양군",
+      "metro": "gangwon",
+      "candidates": 3,
+      "eligible": 2,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_1786164e10700421",
+          "name": "양우내안애",
+          "score": 0.65
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_f59d0ccf79a70957",
+          "name": "유화",
+          "score": 0.35
+        }
+      ]
+    },
+    {
+      "lawd": "52111",
+      "name": "전주시 완산구",
+      "metro": "jeonbuk",
+      "candidates": 25,
+      "eligible": 15,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_b728ac59ba845aa8",
+          "name": "힐스테이트어울림효자",
+          "score": 0.9667
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_079b6cf0997e35c4",
+          "name": "아르팰리스휴먼시아",
+          "score": 0.7933
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_2bb572472b648d68",
+          "name": "힐스테이트 효자동",
+          "score": 0.7133
+        }
+      ]
+    },
+    {
+      "lawd": "52113",
+      "name": "전주시 덕진구",
+      "metro": "jeonbuk",
+      "candidates": 36,
+      "eligible": 31,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_caf53b3e7a317477",
+          "name": "에코시티 데시앙14블럭",
+          "score": 0.9065
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_6f117b116d7b48e0",
+          "name": "에코시티KCC스위첸",
+          "score": 0.8613
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_611ca832c759a29e",
+          "name": "포레나 전주에코시티",
+          "score": 0.8226
+        }
+      ]
+    },
+    {
+      "lawd": "52130",
+      "name": "군산시",
+      "metro": "jeonbuk",
+      "candidates": 23,
+      "eligible": 16,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_86aa4efbcfbd808f",
+          "name": "더샵디오션시티",
+          "score": 0.9438
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_92b9ef49b905800f",
+          "name": "나운 금호 어울림 센트럴",
+          "score": 0.8063
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_88277df3764c4202",
+          "name": "군산신역세권 우미린센텀오션",
+          "score": 0.6688
+        }
+      ]
+    },
+    {
+      "lawd": "52140",
+      "name": "익산시",
+      "metro": "jeonbuk",
+      "candidates": 28,
+      "eligible": 16,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_d9b8c3828e442209",
+          "name": "씨즈퍼스트",
+          "score": 0.7688
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_082e6f2f46e358a6",
+          "name": "익산e편한세상",
+          "score": 0.7563
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_06134586a1b4034c",
+          "name": "익산풍경채어바니티",
+          "score": 0.7375
+        }
+      ]
+    },
+    {
+      "lawd": "52180",
+      "name": "정읍시",
+      "metro": "jeonbuk",
+      "candidates": 5,
+      "eligible": 4,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_8d1ac22ec7f38831",
+          "name": "양우내안애",
+          "score": 0.775
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_e71e465a9cbd0481",
+          "name": "수성주공2단지",
+          "score": 0.65
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_04f097af37b82b18",
+          "name": "성원3차",
+          "score": 0.3
+        }
+      ]
+    },
+    {
+      "lawd": "52190",
+      "name": "남원시",
+      "metro": "jeonbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "52210",
+      "name": "김제시",
+      "metro": "jeonbuk",
+      "candidates": 5,
+      "eligible": 2,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_d3c7d2a57363861c",
+          "name": "김제검산화산샬레2차아파트",
+          "score": 0.75
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_c35510028dc7bb11",
+          "name": "성산그린빌",
+          "score": 0.25
+        }
+      ]
+    },
+    {
+      "lawd": "52710",
+      "name": "완주군",
+      "metro": "jeonbuk",
+      "candidates": 8,
+      "eligible": 5,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_568219f499d18129",
+          "name": "완주이서양우내안애퍼스트힐아파트",
+          "score": 0.9
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_b996858da397d0db",
+          "name": "용진 원주",
+          "score": 0.5
+        },
+        {
+          "rank": 3,
+          "complexId": "cx_b721221da7e449cf",
+          "name": "삼례 우성",
+          "score": 0.44
+        }
+      ]
+    },
+    {
+      "lawd": "52720",
+      "name": "진안군",
+      "metro": "jeonbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "52730",
+      "name": "무주군",
+      "metro": "jeonbuk",
+      "candidates": 1,
+      "eligible": 1,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_0ca855c9da227e00",
+          "name": "무주반딧불",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "52740",
+      "name": "장수군",
+      "metro": "jeonbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "52750",
+      "name": "임실군",
+      "metro": "jeonbuk",
+      "candidates": 0,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "52770",
+      "name": "순창군",
+      "metro": "jeonbuk",
+      "candidates": 1,
+      "eligible": 1,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_445c5f29eece7a23",
+          "name": "순창남양휴튼아파트",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "lawd": "52790",
+      "name": "고창군",
+      "metro": "jeonbuk",
+      "candidates": 1,
+      "eligible": 0,
+      "publish": false,
+      "top": []
+    },
+    {
+      "lawd": "52800",
+      "name": "부안군",
+      "metro": "jeonbuk",
+      "candidates": 3,
+      "eligible": 2,
+      "publish": true,
+      "top": [
+        {
+          "rank": 1,
+          "complexId": "cx_ac7b3349860cd43b",
+          "name": "봉덕주공2단지",
+          "score": 0.5
+        },
+        {
+          "rank": 2,
+          "complexId": "cx_9ed4af7d0b7179b2",
+          "name": "봉덕주공",
+          "score": 0.5
+        }
+      ]
+    }
+  ],
+  "before": []
+}

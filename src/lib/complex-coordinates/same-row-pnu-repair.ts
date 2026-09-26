@@ -34,7 +34,12 @@ const SAFE = new Set<SameRowRepairClass>([
   "ORIGINAL_CONFLICT_REPAIRED",
 ]);
 
-export function isSafeRepairClass(classification: SameRowRepairClass): boolean {
+export function isSafeRepairClass(
+  classification: SameRowRepairClass,
+): classification is
+  | "EXACT_ORIGINAL"
+  | "REPAIRED_FROM_SAME_ROW_LOT"
+  | "ORIGINAL_CONFLICT_REPAIRED" {
   return SAFE.has(classification);
 }
 

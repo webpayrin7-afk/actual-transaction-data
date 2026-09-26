@@ -151,6 +151,10 @@ export async function loadNearbySchoolsForMap(params: {
         lng: s.lng,
         coordSource: "NEIS",
       });
+      // Materialized rows carry distance from the parcel point — keep it (matches 1.5km cut).
+      if (place && s.distanceMeters != null && Number.isFinite(s.distanceMeters)) {
+        place.distanceM = Math.round(s.distanceMeters);
+      }
       if (place) resolved.push(place);
       continue;
     }

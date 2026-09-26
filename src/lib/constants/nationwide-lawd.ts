@@ -4,8 +4,9 @@
  * MOLIT RTMS AptTrade/AptRent LAWD_CD와 동일 체계.
  *
  * 주의:
- * - 강원/전북 등은 특별자치 개편 후에도 MOLIT가 구 코드(42xx/45xx)를 쓰는 경우가 많아
- *   구 코드 기준으로 유지. 운영 중 API NODATA면 대체 코드 검증 필요.
+ * - 행정구역 개편 후 신코드 기준 (DB transactions·apt_complex_master와 동일):
+ *   강원 51xxx, 전북 52xxx, 광주·전남 통합 12xxx(전남광주통합특별시),
+ *   인천 제물포구 28125·영종구 28155·서해구 28275·검단구 28290.
  * - 군위군(舊 47720) 등 이전 지역은 검증 전까지 제외.
  */
 import nationwideLawdJson from "./nationwide-lawd.json";
@@ -54,7 +55,7 @@ const PREFIX_METRO: Record<string, NationwideMetro> = {
   "36": "sejong",
   "41": "gyeonggi",
   "42": "gangwon",
-  "51": "gangwon", // 강원특별자치도 신코드 (검증용)
+  "51": "gangwon", // 강원특별자치도 신코드
   "43": "chungbuk",
   "44": "chungnam",
   "45": "jeonbuk",
@@ -86,8 +87,19 @@ export const METRO_LABELS: Record<NationwideMetro, string> = {
   other: "기타",
 };
 
+/**
+ * 전남광주통합특별시(12xxx): 옛 광주광역시 5개 구는 122xx~123xx(동구 12210 … 광산구 12330),
+ * 나머지 시·군은 옛 전라남도. 사용자에게는 광주/전남을 따로 보여 준다.
+ */
+function metroFromMergedGwangjuJeonnam(lawdCd: string): NationwideMetro {
+  const n = Number(lawdCd.slice(0, 5));
+  return n >= 12200 && n < 12500 ? "gwangju" : "jeonnam";
+}
+
 export function metroFromLawdNationwide(lawdCd: string): NationwideMetro {
-  return PREFIX_METRO[lawdCd.slice(0, 2)] ?? "other";
+  const prefix = lawdCd.slice(0, 2);
+  if (prefix === "12") return metroFromMergedGwangjuJeonnam(lawdCd);
+  return PREFIX_METRO[prefix] ?? "other";
 }
 
 export function sidoFromFullName(fullName: string): string {

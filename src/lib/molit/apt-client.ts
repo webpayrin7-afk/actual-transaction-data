@@ -6,6 +6,13 @@
 import { formatEok } from "@/lib/utils/format";
 import type { Transaction } from "@/types/transaction";
 
+/**
+ * 단지 상세·거래 API 응답 모양이 바뀌면 올린다 — 브라우저 캐시(max-age)에 남은 예전 응답을 안 쓰게 요청 주소에 붙인다.
+ * 2: 평형 묶기(전용 소수점 차이를 한 평형으로)
+ * 3: /api/apt-detail items를 압축 형식(itemsPacked)으로 — v<3 요청(예전 화면)은 기존 items 그대로
+ */
+export const APT_API_VERSION = "3";
+
 export interface AptSuggestion {
   aptName: string;
   regionSlug: string;
@@ -31,6 +38,10 @@ export interface AptAreaOption {
   supplyAreaMax?: number | null;
   secondaryLabel?: string | null;
   marketLabel?: number | null;
+  /** 이 평형의 세대수 (단지 타입 자료 합계) — 모르면 없음 */
+  households?: number | null;
+  /** 이 평형의 가장 최근 매매 실거래 (단지 상세가 불러온 거래에서) */
+  latestTrade?: { amount: number; date: string; singoga: boolean } | null;
 }
 
 export interface AptHistoryItem extends Transaction {

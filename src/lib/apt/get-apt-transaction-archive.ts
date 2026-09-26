@@ -1,7 +1,9 @@
 /**
  * Phase 7.6c — bounded transaction-history archive (year + area + type).
  * Read-only. No public MOLIT calls. No writes.
+ * When the warehouse is unavailable, fall back to the same payload as 단지상세.
  */
+import { groupAreaOptions, parseAreaRangeKey, resolveAreaKeyAlias } from "@/lib/apt/area-groups";
 import { getRegion } from "@/lib/constants/regions";
 import { getDb, hasDb } from "@/lib/db/client";
 import {
@@ -13,9 +15,16 @@ import {
   type AptArchiveListType,
   type AptArchiveYearBound,
 } from "@/lib/db/repository";
-import type { AptAreaOption, AptHistoryItem } from "@/lib/molit/apt-client";
+import type {
+  AptAreaOption,
+  AptDetailResponse,
+  AptHistoryItem,
+} from "@/lib/molit/apt-client";
 import { toPyeong } from "@/lib/utils/format";
-import type { TransactionTabType } from "@/lib/apt/transaction-type";
+import {
+  matchesTransactionTab,
+  type TransactionTabType,
+} from "@/lib/apt/transaction-type";
 import {
   parseTransactionYear,
   yearMonthBound,
@@ -23,6 +32,7 @@ import {
 } from "@/lib/apt/transaction-year";
 import { normalizeAreaKey } from "@/lib/apt/default-area";
 import type {
+  AptArchiveHigh,
   AptTransactionArchiveKpi,
   AptTransactionArchiveResponse,
 } from "@/lib/apt/transaction-archive-types";
@@ -63,6 +73,9 @@ function areaFilterFor(
   areas: AptAreaOption[],
 ): AptArchiveAreaFilter {
   if (!areaKey || areaKey === "all") return { kind: "all" };
+  // 묶인 평형("84.92-84.99")은 key만으로 범위를 안다 — 면적 목록 없이 오는 다음 페이지 요청도 같게 거른다
+  const range = parseAreaRangeKey(areaKey);
+  if (range) return { kind: "range", min: range.min - 0.005, max: range.max + 0.005 };
   const selected = areas.find((a) => a.key === areaKey);
   if (
     selected?.selectorKind === "market_group" &&
@@ -85,17 +98,59 @@ function exclusiveAreasFromBuckets(
   buckets: Array<{ exclusiveArea: number; count: number }>,
 ): AptAreaOption[] {
   return buckets
-    .map((b) => ({
-      key: normalizeAreaKey(b.exclusiveArea),
-      exclusiveArea: b.exclusiveArea,
-      count: b.count,
-      label: `${b.exclusiveArea.toFixed(2)}㎡`,
-      selectorKind: "exclusive" as const,
-    }))
+    .map((b) => {
+      const sqm = Number(b.exclusiveArea);
+      const safe = Number.isFinite(sqm) ? sqm : 0;
+      return {
+        key: normalizeAreaKey(safe),
+        exclusiveArea: safe,
+        count: b.count,
+        label: `${Number.isFinite(sqm) ? sqm.toFixed(2) : "—"}㎡`,
+        selectorKind: "exclusive" as const,
+      };
+    })
     .sort((a, b) => a.exclusiveArea - b.exclusiveArea);
 }
 
-export async function getAptTransactionArchive(params: {
+function highOf(
+  items: AptHistoryItem[],
+  amountOf: (item: AptHistoryItem) => number,
+): AptArchiveHigh {
+  let best: AptArchiveHigh = null;
+  for (const item of items) {
+    const amount = amountOf(item);
+    if (!Number.isFinite(amount) || amount <= 0) continue;
+    if (
+      !best ||
+      amount > best.amount ||
+      (amount === best.amount && item.dealDate > best.date)
+    ) {
+      best = { amount, date: item.dealDate };
+    }
+  }
+  return best;
+}
+
+function itemMatchesArea(
+  tx: { exclusiveArea: number },
+  area: AptArchiveAreaFilter,
+): boolean {
+  if (area.kind === "all") return true;
+  if (area.kind === "range") {
+    return tx.exclusiveArea >= area.min && tx.exclusiveArea <= area.max;
+  }
+  return normalizeAreaKey(tx.exclusiveArea) === area.areaKey;
+}
+
+function itemMatchesYear(
+  tx: { dealDate: string },
+  year: TransactionYear,
+): boolean {
+  if (year === "all") return true;
+  return tx.dealDate.slice(0, 4) === year;
+}
+
+export type ArchiveQueryParams = {
   aptName: string;
   regionSlug: string;
   gu?: string;
@@ -104,13 +159,141 @@ export async function getAptTransactionArchive(params: {
   year: TransactionYear;
   offset?: number;
   limit?: number;
-}): Promise<AptTransactionArchiveResponse | null> {
+};
+
+/** Pure rebuild of the archive payload from 단지상세 items (no warehouse). */
+export function buildArchiveFromDetail(
+  detail: AptDetailResponse,
+  params: ArchiveQueryParams,
+  timingMs: Record<string, number> = {},
+): AptTransactionArchiveResponse {
+  const year = parseTransactionYear(params.year);
+  const offset = Math.max(params.offset ?? 0, 0);
+  const limit = Math.min(Math.max(params.limit ?? 20, 1), 50);
+  const includeMeta = offset === 0;
+  const areas = detail.areas ?? [];
+  const requestedArea = params.areaKey?.trim() || "";
+  const aliased = requestedArea ? resolveAreaKeyAlias(requestedArea, areas) : null;
+  const areaKey =
+    requestedArea && (areas.length === 0 || aliased)
+      ? (aliased ?? requestedArea)
+      : (areas[0]?.key ?? (requestedArea || "all"));
+  const area = areaFilterFor(areaKey, areas);
+
+  const scoped = detail.items.filter(
+    (tx) => itemMatchesArea(tx, area) && itemMatchesYear(tx, year),
+  );
+  const trades = scoped.filter((tx) => tx.dealType === "trade");
+  const jeonse = scoped.filter(
+    (tx) => tx.dealType === "rent" && Number(tx.monthlyRent ?? 0) === 0,
+  );
+  const monthly = scoped.filter(
+    (tx) => tx.dealType === "rent" && Number(tx.monthlyRent ?? 0) > 0,
+  );
+
+  const kpi: AptTransactionArchiveKpi = includeMeta
+    ? {
+        saleHigh: highOf(trades, (tx) => tx.dealAmount),
+        jeonseHigh: highOf(jeonse, (tx) => tx.dealAmount),
+        monthlyDepositHigh: highOf(monthly, (tx) => tx.dealAmount),
+        monthlyRentHigh: highOf(monthly, (tx) => Number(tx.monthlyRent ?? 0)),
+        tradeCount: trades.length,
+        jeonseCount: jeonse.length,
+        monthlyCount: monthly.length,
+      }
+    : EMPTY_KPI;
+
+  const typed = scoped
+    .filter((tx) => matchesTransactionTab(tx, params.type))
+    .sort((a, b) => {
+      if (a.dealDate < b.dealDate) return 1;
+      if (a.dealDate > b.dealDate) return -1;
+      return a.id < b.id ? 1 : a.id > b.id ? -1 : 0;
+    });
+  const items = typed.slice(offset, offset + limit);
+  const total = includeMeta
+    ? params.type === "trade"
+      ? kpi.tradeCount
+      : params.type === "jeonse"
+        ? kpi.jeonseCount
+        : kpi.monthlyCount
+    : 0;
+
+  const years = includeMeta
+    ? [
+        ...new Set(
+          detail.items
+            .map((tx) => Number(tx.dealDate.slice(0, 4)))
+            .filter((y) => Number.isFinite(y) && y >= 1990 && y <= 2100),
+        ),
+      ].sort((a, b) => b - a)
+    : [];
+
+  return {
+    aptName: detail.aptName || params.aptName,
+    regionSlug: params.regionSlug,
+    years,
+    year,
+    areas: includeMeta ? areas : [],
+    areaKey,
+    type: params.type,
+    items,
+    offset,
+    limit,
+    total,
+    hasMore: includeMeta
+      ? offset + items.length < total
+      : items.length === limit,
+    kpi,
+    timingMs,
+    metaIncluded: includeMeta,
+  };
+}
+
+async function archiveFromAptDetail(
+  params: ArchiveQueryParams,
+): Promise<AptTransactionArchiveResponse | null> {
+  const tAll = performance.now();
+  const { getAptDetail } = await import("@/lib/molit/apt");
+  const detail = await getAptDetail({
+    aptName: params.aptName,
+    regionSlug: params.regionSlug,
+    gu: params.gu,
+    months: 120,
+    boundMonths: false,
+  });
+  if (!detail) return null;
+  return buildArchiveFromDetail(detail, params, {
+    fallbackMs: Math.round(performance.now() - tAll),
+  });
+}
+
+export async function getAptTransactionArchive(
+  params: ArchiveQueryParams,
+): Promise<AptTransactionArchiveResponse | null> {
   const region = getRegion(params.regionSlug);
   if (!region) return null;
   const aptName = params.aptName.trim();
   if (!aptName) return null;
-  if (!hasDb()) return null;
 
+  if (!hasDb()) {
+    return archiveFromAptDetail({ ...params, aptName });
+  }
+
+  try {
+    return await loadWarehouseArchive({ ...params, aptName });
+  } catch (error) {
+    console.error(
+      "[apt-archive] warehouse failed, falling back to detail",
+      error,
+    );
+    return archiveFromAptDetail({ ...params, aptName });
+  }
+}
+
+async function loadWarehouseArchive(
+  params: ArchiveQueryParams & { aptName: string },
+): Promise<AptTransactionArchiveResponse | null> {
   const year = parseTransactionYear(params.year);
   const yearBound: AptArchiveYearBound = yearMonthBound(year);
   const lawdCodes = resolveLawdCodes(params.regionSlug, params.gu);
@@ -123,6 +306,7 @@ export async function getAptTransactionArchive(params: {
     timing[key] = Math.round(performance.now() - started);
   };
   const tAll = performance.now();
+  const aptName = params.aptName;
 
   const {
     applyPilotSingoga,
@@ -183,12 +367,16 @@ export async function getAptTransactionArchive(params: {
         return { ...g, count };
       });
     } else {
-      areas = exclusiveAreasFromBuckets(yearBuckets).map((area) =>
-        attachCanonicalPyeongLabelSource(area, pilotBundle),
+      areas = groupAreaOptions(
+        exclusiveAreasFromBuckets(yearBuckets).map((area) =>
+          attachCanonicalPyeongLabelSource(area, pilotBundle),
+        ),
       );
       if (areas.length === 0) {
-        areas = exclusiveAreasFromBuckets(lifetimeBuckets).map((area) =>
-          attachCanonicalPyeongLabelSource(area, pilotBundle),
+        areas = groupAreaOptions(
+          exclusiveAreasFromBuckets(lifetimeBuckets).map((area) =>
+            attachCanonicalPyeongLabelSource(area, pilotBundle),
+          ),
         );
       }
     }
@@ -197,10 +385,10 @@ export async function getAptTransactionArchive(params: {
   }
 
   const requestedArea = params.areaKey?.trim() || "";
+  const aliasedArea = requestedArea ? resolveAreaKeyAlias(requestedArea, areas) : null;
   const areaKey =
-    requestedArea &&
-    (areas.length === 0 || areas.some((a) => a.key === requestedArea))
-      ? requestedArea
+    requestedArea && (areas.length === 0 || aliasedArea)
+      ? (aliasedArea ?? requestedArea)
       : (areas[0]?.key ?? (requestedArea || "all"));
   const area = areaFilterFor(areaKey, areas);
 

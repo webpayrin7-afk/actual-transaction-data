@@ -3,13 +3,18 @@
 import {
   useEffect,
   useId,
+  useRef,
   useState,
+  type PointerEvent as ReactPointerEvent,
   type ReactNode,
+  type RefObject,
 } from "react";
 import { createPortal } from "react-dom";
 
 const OPEN_MS = 220;
 const CLOSE_MS = 180;
+/** 손잡이를 이만큼 넘게 끌어내리면 닫는다 (px) */
+const DRAG_CLOSE_PX = 80;
 
 type LabBottomSheetProps = {
   open: boolean;
@@ -22,6 +27,22 @@ type LabBottomSheetProps = {
   hideHeaderDivider?: boolean;
   /** Tighten top padding above sheet body copy. */
   compactBodyTop?: boolean;
+  /** Fixed area under the scrolling body (e.g. result count + 초기화 / 적용). */
+  footer?: ReactNode;
+  /** Small note right after the title (e.g. what a chart means). */
+  titleNote?: ReactNode;
+  /** tall: long forms (e.g. 지도 조건) open to 88% of the viewport instead of 65%. */
+  size?: "default" | "tall";
+  /** Replaces the title row (title stays as the dialog's accessible name). */
+  header?: ReactNode;
+  /** Centered grab bar; dragging it down past 80px closes the sheet. */
+  dragHandle?: boolean;
+  /** Hide the right-side done button (close via handle, backdrop or footer). */
+  hideDone?: boolean;
+  /** The scrolling body element (e.g. for a scroll-spy header). */
+  bodyRef?: RefObject<HTMLDivElement | null>;
+  /** Scroll events of the body — attached on the element itself, so it works whenever the body mounts. */
+  onBodyScroll?: (body: HTMLDivElement) => void;
 };
 
 /**
@@ -34,13 +55,24 @@ export function LabBottomSheet({
   title,
   children,
   doneLabel = "완료",
-  hideHeaderDivider = false,
-  compactBodyTop = false,
+  hideHeaderDivider = true,
+  compactBodyTop = true,
+  footer,
+  titleNote,
+  size = "default",
+  header,
+  dragHandle = false,
+  hideDone = false,
+  bodyRef,
+  onBodyScroll,
 }: LabBottomSheetProps) {
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(true);
+  const [dragY, setDragY] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const dragStart = useRef<number | null>(null);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -83,6 +115,23 @@ export function LabBottomSheet({
   if (!mounted || typeof document === "undefined") return null;
 
   const duration = reducedMotion ? 0 : visible ? OPEN_MS : CLOSE_MS;
+  const onHandleDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    dragStart.current = e.clientY;
+    setDragging(true);
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onHandleMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (dragStart.current == null) return;
+    setDragY(Math.max(0, e.clientY - dragStart.current));
+  };
+  const onHandleUp = () => {
+    if (dragStart.current == null) return;
+    const shouldClose = dragY > DRAG_CLOSE_PX;
+    dragStart.current = null;
+    setDragging(false);
+    setDragY(0);
+    if (shouldClose) onClose();
+  };
   const easing = visible ? "ease-out" : "ease-in";
 
   return createPortal(
@@ -100,42 +149,69 @@ export function LabBottomSheet({
       <div
         role="dialog"
         aria-modal="true"
-        aria-labelledby={titleId}
+        aria-labelledby={header ? undefined : titleId}
+        aria-label={header ? title : undefined}
         className="relative z-10 flex w-full max-w-md flex-col rounded-t-2xl bg-white shadow-xl sm:rounded-2xl"
         style={{
-          maxHeight: "65dvh",
+          maxHeight: size === "tall" ? "88dvh" : "65dvh",
           height: "auto",
-          transform: visible ? "translateY(0)" : "translateY(100%)",
-          transition: `transform ${duration}ms ${easing}`,
+          transform: visible ? `translateY(${dragY}px)` : "translateY(100%)",
+          transition: dragging ? "none" : `transform ${duration}ms ${easing}`,
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
       >
-        <div
-          className={`flex shrink-0 items-center justify-between gap-3 px-4 ${
-            hideHeaderDivider ? "pt-5 pb-2" : "border-b border-slate-200 py-3"
-          }`}
-        >
-          <h3
-            id={titleId}
-            className="min-w-0 flex-1 truncate text-base font-semibold leading-snug text-slate-900"
+        {dragHandle ? (
+          <div
+            className="flex h-9 shrink-0 cursor-grab touch-none items-center justify-center active:cursor-grabbing"
+            onPointerDown={onHandleDown}
+            onPointerMove={onHandleMove}
+            onPointerUp={onHandleUp}
+            onPointerCancel={onHandleUp}
+            aria-hidden
           >
-            {title}
-          </h3>
-          <button
-            type="button"
-            className="shrink-0 text-sm font-medium text-teal-700"
-            onClick={onClose}
+            <span className="h-1 w-10 rounded-full bg-slate-300" />
+          </div>
+        ) : null}
+        {header ? (
+          <div className="shrink-0 px-4">{header}</div>
+        ) : (
+          <div
+            className={`flex shrink-0 items-center justify-between gap-3 px-4 ${
+              hideHeaderDivider ? `${dragHandle ? "pt-0" : "pt-5"} pb-2` : "border-b border-slate-200 py-3"
+            }`}
           >
-            {doneLabel}
-          </button>
-        </div>
+            <div className="flex min-w-0 flex-1 items-baseline gap-2">
+              <h3
+                id={titleId}
+                className="shrink-0 truncate text-base font-semibold leading-snug text-slate-900"
+              >
+                {title}
+              </h3>
+              {titleNote ? <span className="detail-meta min-w-0 truncate">{titleNote}</span> : null}
+            </div>
+            {hideDone ? null : (
+              <button
+                type="button"
+                className="shrink-0 text-sm font-medium text-teal-700"
+                onClick={onClose}
+              >
+                {doneLabel}
+              </button>
+            )}
+          </div>
+        )}
         <div
-          className={`min-h-0 flex-1 overflow-y-auto px-4 pb-4 ${
+          ref={bodyRef}
+          onScroll={onBodyScroll ? (e) => onBodyScroll(e.currentTarget) : undefined}
+          className={`relative min-h-0 flex-1 overflow-y-auto px-4 pb-4 ${
             compactBodyTop ? "pt-2" : "pt-4"
           }`}
         >
           {children}
         </div>
+        {footer ? (
+          <div className="shrink-0 border-t border-[color:var(--lab-border)] px-4 pt-3 pb-3">{footer}</div>
+        ) : null}
       </div>
     </div>,
     document.body,

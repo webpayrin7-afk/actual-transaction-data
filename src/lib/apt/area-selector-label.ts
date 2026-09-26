@@ -4,6 +4,7 @@ import type { AptAreaOption } from "@/lib/molit/apt-client";
 export const SQM_PER_PYEONG = 3.3058;
 
 function fmtSqm(n: number): string {
+  if (!Number.isFinite(n)) return "—";
   const s = n.toFixed(2);
   return s.replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
 }
@@ -59,6 +60,9 @@ export function areaSelectorPyeongLabel(area: AptAreaOption): string | null {
 export function areaSelectorExclusiveLabel(area: AptAreaOption): string {
   const min = area.exclusiveAreaMin ?? area.exclusiveArea;
   const max = area.exclusiveAreaMax ?? area.exclusiveArea;
+  if (!Number.isFinite(min) || !Number.isFinite(max)) return "전용 —";
+  // 묶인 평형(같은 타입, 신고값만 소수점 차이)은 정수 전용으로 — "전용 84㎡"
+  if (max - min >= 0.005 && Math.floor(min) === Math.floor(max)) return `전용 ${Math.floor(min)}㎡`;
   return `전용 ${rangeText(min, max)}`;
 }
 

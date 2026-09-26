@@ -15,12 +15,10 @@ import {
   type NaverMapMarker,
   type LivingMarkerCategory,
 } from "@/components/map/NaverMap";
-import {
-  LabCard,
-  LabState,
-  labSecondaryTabClass,
-  labSegmentedClass,
-} from "@/components/ui/lab";
+import { LabState } from "@/components/ui/lab";
+import { LabSection } from "@/components/ui/LabSection";
+import { LabMoreButton } from "@/components/ui/LabMoreButton";
+import { LabTabs } from "@/components/ui/LabTabs";
 import { InfoTip } from "@/components/ui/InfoTip";
 import type { LatLng } from "@/lib/nearby-map/geo";
 import {
@@ -50,12 +48,12 @@ import {
 import type { SchoolLevel } from "@/lib/complex-detail/neis";
 import { SchoolDistrictBlock } from "@/components/apt/SchoolDistrictBlock";
 import { AttendanceZoneBlock } from "@/components/apt/AttendanceZoneBlock";
-import { getCommerceSnapshot } from "@/lib/complex-detail/commerce-snapshot";
 import {
-  ComplexCommerceMeta,
-  ComplexCommercePreparing,
-  ComplexCommerceStats,
-} from "@/components/apt/ComplexCommerceSection";
+  getCommerceSnapshot,
+  type CommerceSnapshot,
+} from "@/lib/complex-detail/commerce-snapshot";
+import { ComplexCommerceStats } from "@/components/apt/ComplexCommerceSection";
+import { ComplexLivingCensus } from "@/components/apt/ComplexLivingCensus";
 
 export type NearbyLifeCategory = "commerce" | "living" | "transport" | "school";
 
@@ -135,8 +133,6 @@ const TABS: Array<{ id: NearbyLifeCategory; label: string }> = [
 ];
 
 const LIST_LIMIT = 5;
-/** Bus stops shown before “더보기” (subway always fully listed). */
-const TRANSPORT_BUS_LIST_LIMIT = 4;
 
 /** Stable DOM id for living list rows (marker → list scroll). */
 function livingRowDomId(poiId: string): string {
@@ -174,10 +170,10 @@ const LIVING_LIST_SUBTITLE = "가까운 순 · 주요 시설";
 
 function LivingDistanceSubtitle() {
   return (
-    <span className="inline-flex shrink-0 items-center gap-1 text-[11px] text-slate-500">
+    <span className="detail-meta inline-flex shrink-0 items-center">
       <span>{LIVING_LIST_SUBTITLE}</span>
-      <InfoTip aria-label="생활 시설 거리 기준 안내" className="text-[11px]">
-        <p className="text-[12px] leading-relaxed text-slate-600">
+      <InfoTip aria-label="생활 시설 거리 기준 안내" className="detail-meta">
+        <p className="detail-body">
           표시된 거리는 아파트와 시설 간 직선거리입니다.
           <br />
           실제 도보·차량 이동거리는 다를 수 있습니다.
@@ -233,7 +229,8 @@ function isSubwayPoi(p: { name: string; subcategory: string }): boolean {
 
 function subwayLinesOf(p: PoiItem): string[] {
   if (p.lines && p.lines.length > 0) {
-    return p.lines.map((l) => l.replace(/호선$/u, "").trim()).filter(Boolean);
+    // 배지는 짧게 — "2호선"→"2", "경의중앙선"→"경의중앙" (색은 원래 이름으로도 같게 찾는다)
+    return p.lines.map((l) => l.replace(/호선$/u, "").replace(/(?<=[가-힣]{2})선$/u, "").trim()).filter(Boolean);
   }
   const matches = [...(p.subcategory || "").matchAll(/(\d+)\s*호선/g)].map(
     (m) => m[1],
@@ -356,36 +353,10 @@ function livingPlaceAddress(p: {
   return raw.length > 42 ? `${raw.slice(0, 40)}…` : raw;
 }
 
-function livingChipClass(active: boolean): string {
-  return [
-    "inline-flex shrink-0 items-center justify-center whitespace-nowrap",
-    "h-7 rounded-full px-2.5 text-[12px] font-semibold leading-none",
-    "border transition-colors",
-    active
-      ? "border-[color-mix(in_srgb,var(--lab-teal-600)_35%,transparent)] bg-[var(--lab-teal-50)] text-[var(--lab-teal-700)]"
-      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
-  ].join(" ");
-}
-
-/** Secondary school-level filter — lighter than primary nearby-life tabs. */
-function schoolLevelChipClass(active: boolean): string {
-  return [
-    "relative inline-flex min-w-0 flex-1 items-center justify-center whitespace-nowrap",
-    // Visual ~h-6; ::before preserves ~36px touch/focus target.
-    "h-6 rounded-full px-2 text-[11px] font-medium leading-none",
-    "before:absolute before:inset-x-0 before:-inset-y-1.5 before:content-['']",
-    "border transition-colors",
-    active
-      ? "border-[color-mix(in_srgb,var(--lab-teal-600)_28%,transparent)] bg-[var(--lab-teal-50)] text-[var(--lab-teal-700)]"
-      : "border-[color-mix(in_srgb,var(--lab-border)_72%,transparent)] bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-600",
-  ].join(" ");
-}
-
-
 function EmptyBlock({ children }: { children: ReactNode }) {
   return (
     <div className="rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-3">
-      <p className="text-sm text-slate-600">{children}</p>
+      <p className="detail-body">{children}</p>
     </div>
   );
 }
@@ -405,6 +376,7 @@ export function ComplexNearbyLifeSection({
   identity,
   initialTab,
   initialSchoolLevel,
+  presetAnchor = null,
 }: {
   aptName: string;
   identity?: {
@@ -419,6 +391,8 @@ export function ComplexNearbyLifeSection({
   initialTab?: NearbyLifeCategory;
   /** Restore school-level sub-tab (?schoolLevel=high). */
   initialSchoolLevel?: string;
+  /** NAVER geocoded center stored in complex_map_anchor — skips the in-browser geocode. */
+  presetAnchor?: { lat: number; lng: number; matchedAddress: string | null } | null;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -433,11 +407,11 @@ export function ComplexNearbyLifeSection({
   const [schoolLevel, setSchoolLevel] = useState<SchoolLevelTab>(
     () => parseSchoolLevelTab(initialSchoolLevel) ?? "elementary",
   );
-  const [coords, setCoords] = useState<LatLng | null>(null);
+  const [resolvedCoords, setCoords] = useState<LatLng | null>(null);
   const [mapAnchor, setMapAnchor] = useState<ComplexMapAnchorResult | null>(
     null,
   );
-  const [geocodeStatus, setGeocodeStatus] = useState<
+  const [resolvedGeocodeStatus, setGeocodeStatus] = useState<
     "idle" | "loading" | "ready" | "error"
   >("idle");
   const [geocodeReason, setGeocodeReason] = useState<string | null>(null);
@@ -446,7 +420,8 @@ export function ComplexNearbyLifeSection({
   const [livingCategory, setLivingCategory] = useState<LivingOnlyCategory>(
     LIVING_DEFAULT_CATEGORY,
   );
-  const commerceSnapshot = useMemo(
+  /** 잠실엘스 pilot fixture (static) — wins over the national DB snapshot. */
+  const pilotCommerceSnapshot = useMemo(
     () =>
       getCommerceSnapshot({
         complexId: identity?.complexId,
@@ -454,6 +429,44 @@ export function ComplexNearbyLifeSection({
       }),
     [identity?.complexId, aptName],
   );
+  const commerceComplexId = identity?.complexId ?? null;
+  /** National SEMAS snapshot (complex_commerce_snapshots). Fetched on the commerce tab only. */
+  const nationalCommerceQuery = useQuery({
+    queryKey: ["complex-commerce", commerceComplexId],
+    queryFn: async (): Promise<CommerceSnapshot | null> => {
+      const res = await fetch(
+        `/api/complex-commerce?complex_id=${encodeURIComponent(commerceComplexId ?? "")}`,
+      );
+      if (!res.ok) throw new Error("complex-commerce");
+      const json = (await res.json()) as
+        | { status: "ok"; snapshot: CommerceSnapshot }
+        | { status: string };
+      return json.status === "ok" && "snapshot" in json ? json.snapshot : null;
+    },
+    enabled: !pilotCommerceSnapshot && !!commerceComplexId && tab === "commerce",
+    staleTime: 60 * 60 * 1000,
+    retry: 1,
+  });
+  const commerceSnapshot: CommerceSnapshot | null =
+    pilotCommerceSnapshot ?? nationalCommerceQuery.data ?? null;
+  const commerceLoading =
+    !pilotCommerceSnapshot && !!commerceComplexId && nationalCommerceQuery.isPending;
+  // One-center contract for national snapshots: once the commerce point cloud
+  // arrives, its origin (the stored complex center) is the map center so the
+  // marker, 1km ring and points line up — same rule as the pilot below.
+  const nationalCommercePoints = nationalCommerceQuery.data?.mapPoints ?? null;
+  const nationalCommerceCenter = useMemo<LatLng | null>(
+    () =>
+      nationalCommercePoints
+        ? {
+            lat: nationalCommercePoints.originLat,
+            lng: nationalCommercePoints.originLng,
+          }
+        : null,
+    [nationalCommercePoints],
+  );
+  const coords = nationalCommerceCenter ?? resolvedCoords;
+  const geocodeStatus = nationalCommerceCenter ? "ready" : resolvedGeocodeStatus;
   /** After marker click, scroll to this living row once it is in the DOM. */
   const pendingListScrollIdRef = useRef<string | null>(null);
   const mapSectionRef = useRef<HTMLDivElement | null>(null);
@@ -507,6 +520,25 @@ export function ComplexNearbyLifeSection({
         if (cancelled) return;
         setGeocodeStatus("loading");
 
+        // Stored NAVER anchor (same geocoder, precomputed) — no network round-trips.
+        // The 잠실엘스 commerce pilot origin still wins below via canonicalFromCommerce.
+        if (presetAnchor && !pilotCommerceSnapshot?.mapPoints) {
+          const coordinate = { lat: presetAnchor.lat, lng: presetAnchor.lng };
+          setMapAnchor({
+            ok: true,
+            coordinate,
+            anchorType: "NAVER_GEOCODE",
+            addressUsed: presetAnchor.matchedAddress ?? "",
+            matchedAddress: presetAnchor.matchedAddress ?? "",
+            poiLookup: "HOLD",
+            poiLookupReason: null,
+          });
+          setCoords(coordinate);
+          setGeocodeStatus("ready");
+          setGeocodeReason(null);
+          return;
+        }
+
         let apiAddress: string | null = null;
         try {
           const qs = new URLSearchParams({ aptName });
@@ -531,10 +563,10 @@ export function ComplexNearbyLifeSection({
         // C4 one-center contract: when commerce map points exist, their
         // origin is the canonical apartment center (product mapAnchor
         // snapshot). Marker, 1km ring, fit, and point cloud share it.
-        const canonicalFromCommerce = commerceSnapshot?.mapPoints
+        const canonicalFromCommerce = pilotCommerceSnapshot?.mapPoints
           ? {
-              lat: commerceSnapshot.mapPoints.originLat,
-              lng: commerceSnapshot.mapPoints.originLng,
+              lat: pilotCommerceSnapshot.mapPoints.originLat,
+              lng: pilotCommerceSnapshot.mapPoints.originLng,
             }
           : null;
 
@@ -561,7 +593,9 @@ export function ComplexNearbyLifeSection({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [identity, aptName, commerceSnapshot]);
+  }, [identity, aptName, pilotCommerceSnapshot, presetAnchor]);
+
+
 
   const lifeQuery = useQuery({
     queryKey: [
@@ -647,6 +681,7 @@ export function ComplexNearbyLifeSection({
   const selectSchoolLevel = useCallback((next: SchoolLevelTab) => {
     setSchoolLevel(next);
     setSelectedId(null);
+    setExpanded(false);
     pendingListScrollIdRef.current = null;
     // Sync URL without scroll so back-from-detail / share keep the level.
     if (typeof window !== "undefined" && tab === "school") {
@@ -837,24 +872,11 @@ export function ComplexNearbyLifeSection({
         }
         return;
       }
-      if (tab !== "living" || id === "complex") {
-        pendingListScrollIdRef.current = null;
-        return;
-      }
-      const idx = livingValidPlaces.findIndex((p) => p.id === id);
-      if (idx < 0) {
-        pendingListScrollIdRef.current = null;
-        return;
-      }
-      pendingListScrollIdRef.current = id;
-      if (idx >= LIST_LIMIT && !expanded) {
-        setExpanded(true);
-      }
+      // 마커를 누르면 지도 위 이름 말풍선만 — 목록으로 내려가거나 펼치지 않는다
+      pendingListScrollIdRef.current = null;
     },
     [
       tab,
-      livingValidPlaces,
-      expanded,
       schoolQuery.data?.places,
       tabMarkers,
       openSchoolDetail,
@@ -916,10 +938,13 @@ export function ComplexNearbyLifeSection({
     const data = lifeQuery.data;
 
     if (tab === "commerce") {
-      return commerceSnapshot ? (
-        <ComplexCommerceStats snapshot={commerceSnapshot} />
+      if (commerceSnapshot) {
+        return <ComplexCommerceStats snapshot={commerceSnapshot} />;
+      }
+      return commerceLoading ? (
+        <EmptyBlock>상권 정보를 불러오는 중…</EmptyBlock>
       ) : (
-        <ComplexCommercePreparing />
+        <ComplexLivingCensus complexId={identity?.complexId ?? null} />
       );
     }
 
@@ -937,17 +962,17 @@ export function ComplexNearbyLifeSection({
       const buses = data.transport.items
         .filter((p) => !isSubwayPoi(p))
         .sort((a, b) => a.distanceMeters - b.distanceMeters);
-      // Subway: always list all nearby stations. Bus: 4 default, expand via 더보기.
-      const subwayItems = subways;
+      // 지하철 먼저, 버스로 채워 합계 5개 (policy §12.4). 더보기로 전체.
+      const subwayItems = expanded ? subways : subways.slice(0, LIST_LIMIT);
       const busItems = expanded
         ? buses
-        : buses.slice(0, TRANSPORT_BUS_LIST_LIMIT);
+        : buses.slice(0, Math.max(0, LIST_LIMIT - subwayItems.length));
 
       return (
         <div className="space-y-4">
           {subwayItems.length > 0 ? (
             <div>
-              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
+              <p className="detail-subsection-title mb-1.5">
                 지하철
               </p>
               <ul className="space-y-1">
@@ -966,7 +991,7 @@ export function ComplexNearbyLifeSection({
                             lines.map((line) => (
                               <span
                                 key={`${p.id}-${line}`}
-                                className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-black/25 px-1 text-[9px] font-bold text-white shadow-sm"
+                                className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-black/25 px-1 text-[12px] font-bold leading-4 text-white shadow-sm"
                                 style={{
                                   backgroundColor: subwayLineColor(line),
                                 }}
@@ -975,17 +1000,17 @@ export function ComplexNearbyLifeSection({
                               </span>
                             ))
                           ) : (
-                            <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-black/25 bg-amber-700 px-1 text-[9px] font-bold text-white shadow-sm">
+                            <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-black/25 bg-amber-700 px-1 text-[12px] font-bold leading-4 text-white shadow-sm">
                               역
                             </span>
                           )}
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="flex min-w-0 items-baseline gap-2">
-                            <span className="min-w-0 truncate text-[13px] font-medium text-slate-800">
+                            <span className="detail-label min-w-0 truncate font-medium text-[color:var(--lab-navy-950)]">
                               {p.name}
                             </span>
-                            <span className="shrink-0 text-[10px] text-slate-500">
+                            <span className="detail-meta shrink-0">
                               {formatMeters(p.distanceMeters)}
                               {" · 직선거리"}
                             </span>
@@ -1004,7 +1029,7 @@ export function ComplexNearbyLifeSection({
           ) : null}
           {busItems.length > 0 ? (
             <div>
-              <p className="mb-1.5 text-[17px] font-semibold text-slate-800">
+              <p className="detail-subsection-title mb-1.5">
                 버스
               </p>
               <ul className="space-y-1">
@@ -1024,10 +1049,10 @@ export function ComplexNearbyLifeSection({
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="flex min-w-0 items-baseline gap-2">
-                            <span className="min-w-0 truncate text-[13px] font-medium text-slate-800">
+                            <span className="detail-label min-w-0 truncate font-medium text-[color:var(--lab-navy-950)]">
                               {p.name}
                             </span>
-                            <span className="shrink-0 text-[10px] text-slate-500">
+                            <span className="detail-meta shrink-0">
                               {metaText}
                             </span>
                           </span>
@@ -1036,7 +1061,7 @@ export function ComplexNearbyLifeSection({
                               {routes.map((route) => (
                                 <span
                                   key={`${p.id}-${route}`}
-                                  className="inline-flex h-[18px] items-center rounded border border-slate-200 bg-slate-50 px-1.5 text-[9px] font-semibold text-slate-700"
+                                  className="inline-flex h-[18px] items-center rounded border border-slate-200 bg-slate-50 detail-micro px-1.5 font-semibold text-slate-700"
                                 >
                                   {route}
                                 </span>
@@ -1082,7 +1107,7 @@ export function ComplexNearbyLifeSection({
           <EmptyBlock>
             주변 정보를 찾지 못했어요
             <br />
-            <span className="text-[12px] text-slate-500">
+            <span className="detail-meta">
               주변에 표시할 주요 시설이 없어요
             </span>
           </EmptyBlock>
@@ -1108,13 +1133,13 @@ export function ComplexNearbyLifeSection({
         return (
           <div>
             <div className="mb-2 flex items-baseline justify-between gap-2">
-              <p className="text-[15px] font-semibold text-slate-800">{label}</p>
+              <p className="detail-subsection-title">{label}</p>
               <LivingDistanceSubtitle />
             </div>
             <EmptyBlock>
               주변 정보를 찾지 못했어요
               <br />
-              <span className="text-[12px] text-slate-500">
+              <span className="detail-meta">
                 주변에 표시할 주요 시설이 없어요
               </span>
             </EmptyBlock>
@@ -1125,7 +1150,7 @@ export function ComplexNearbyLifeSection({
       return (
         <div>
           <div className="mb-2 flex items-baseline justify-between gap-2">
-            <p className="text-[15px] font-semibold text-slate-800">{label}</p>
+            <p className="detail-subsection-title">{label}</p>
             <LivingDistanceSubtitle />
           </div>
           <ul className="space-y-1">
@@ -1157,20 +1182,20 @@ export function ComplexNearbyLifeSection({
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="flex min-w-0 items-baseline gap-1.5">
-                        <span className="min-w-0 truncate text-[13px] font-medium text-slate-800">
+                        <span className="detail-label min-w-0 truncate font-medium text-[color:var(--lab-navy-950)]">
                           {p.name}
                         </span>
                         {p.medicalType === "GENERAL_HOSPITAL" ? (
-                          <span className="inline-flex shrink-0 items-center rounded border border-[color-mix(in_srgb,var(--lab-teal-600)_28%,transparent)] bg-[var(--lab-teal-50)] px-1 py-px text-[9px] font-semibold leading-none text-[var(--lab-teal-700)]">
+                          <span className="inline-flex shrink-0 items-center rounded border border-[color-mix(in_srgb,var(--lab-teal-600)_28%,transparent)] bg-[var(--lab-teal-50)] detail-micro px-1 py-px font-semibold leading-none text-[var(--lab-teal-700)]">
                             종합병원
                           </span>
                         ) : null}
-                        <span className="shrink-0 text-[10px] text-slate-500">
+                        <span className="detail-meta shrink-0">
                           {formatDistanceOnly(p.distanceM)}
                         </span>
                       </span>
                       {address ? (
-                        <span className="mt-0.5 block truncate text-[10px] text-slate-500">
+                        <span className="detail-meta mt-0.5 block truncate">
                           {address}
                         </span>
                       ) : null}
@@ -1201,9 +1226,10 @@ export function ComplexNearbyLifeSection({
       }
       const school = schoolQuery.data;
       if (!school || school.status === "PILOT_ONLY") {
+        // PILOT_ONLY reason is developer text — never show it to users.
         return (
           <EmptyBlock>
-            {school?.reason || "인근 학교 실데이터는 준비 중입니다."}
+            이 단지의 인근 학교 정보는 준비 중이에요.
           </EmptyBlock>
         );
       }
@@ -1288,16 +1314,16 @@ export function ComplexNearbyLifeSection({
             />
           ) : null}
           <div>
-            <p className="mb-1 text-[15px] font-semibold text-slate-800">
+            <p className="detail-subsection-title mb-1">
               {heading}
             </p>
             {places.length === 0 ? (
-              <p className="px-0.5 py-1.5 text-[13px] text-slate-500">
+              <p className="detail-meta px-0.5 py-1.5">
                 주변에서 확인된 학교가 없습니다.
               </p>
             ) : (
               <ul className="space-y-0">
-                {places.map((s) => {
+                {(expanded ? places : places.slice(0, LIST_LIMIT)).map((s) => {
                   const metaParts = [
                     s.establishment,
                     `${formatMeters(s.distanceM)} · 직선거리`,
@@ -1316,14 +1342,14 @@ export function ComplexNearbyLifeSection({
                         aria-label={`${s.name} 상세 보기`}
                         className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-[5px] text-left transition active:scale-[0.99] active:bg-slate-100 ${selectedRowClass(selectedId === s.id)}`}
                       >
-                        <span className="mt-0.5 inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded border border-slate-300 bg-white px-0.5 text-[9px] font-bold text-[#1e3a5f]">
+                        <span className="mt-0.5 inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded border border-slate-300 bg-white detail-micro px-0.5 font-bold text-[color:var(--lab-navy-950)]">
                           {SCHOOL_LEVEL_BADGE[s.schoolLevel as SchoolLevelCode]}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[13px] font-medium text-slate-800">
+                          <span className="detail-label block truncate font-medium text-[color:var(--lab-navy-950)]">
                             {s.name}
                           </span>
-                          <span className="mt-0.5 block text-[10px] text-slate-500">
+                          <span className="detail-meta mt-0.5 block">
                             {metaParts.join(" · ")}
                           </span>
                         </span>
@@ -1354,11 +1380,9 @@ export function ComplexNearbyLifeSection({
 
   const moreCount = (() => {
     const data = lifeQuery.data;
-    if (!data || expanded) return 0;
+    if (!data) return 0;
     if (tab === "transport") {
-      // 더보기 expands bus stops only — subway is always fully listed.
-      const buses = data.transport.items.filter((p) => !isSubwayPoi(p)).length;
-      return Math.max(0, buses - TRANSPORT_BUS_LIST_LIMIT);
+      return Math.max(0, data.transport.items.length - LIST_LIMIT);
     }
     if (tab === "living") {
       return Math.max(0, livingValidPlaces.length - LIST_LIMIT);
@@ -1367,21 +1391,21 @@ export function ComplexNearbyLifeSection({
       return 0;
     }
     if (tab === "school") {
-      return 0;
+      const places =
+        schoolQuery.data?.categories?.find((c) => c.level === schoolLevel)
+          ?.places ?? [];
+      return Math.max(0, places.length - LIST_LIMIT);
     }
     return 0;
   })();
 
   return (
-    <LabCard
-      className={`p-4 sm:p-5 ${tab === "living" ? "overflow-visible" : ""}`}
-    >
-      <div className="lab-section-heading mb-px flex-wrap items-center gap-x-2 gap-y-2">
-        <div className="min-w-0 shrink">
-          <h2 className="flex items-center">
-            주변 생활
-            <InfoTip aria-label="주변 생활 출처 안내" className="ml-1.5 text-[13px]">
-              <p className="text-[12px] leading-relaxed text-slate-600">
+    <LabSection
+      id="section-nearby-life"
+      title="주변 생활"
+      className={`gap-3 ${tab === "living" ? "overflow-visible" : ""}`}
+      tip={<>
+              <p className="detail-body">
                 지도: NAVER Maps
                 <br />
                 단지 위치:{" "}
@@ -1401,7 +1425,7 @@ export function ComplexNearbyLifeSection({
                 <br />
                 거리: 직선거리
                 <br />
-                학교: NEIS schoolInfo (인근 학교 · 배정/통학구역 아님)
+                학교: 학교알리미·NEIS schoolInfo (인근 학교 · 배정/통학구역 아님)
                 <br />
                 생활시설: NAVER 지역 검색
                 <br />
@@ -1411,75 +1435,39 @@ export function ComplexNearbyLifeSection({
                 <br />
                 지역 검색 결과 기준이며 전체 시설 수를 의미하지 않습니다.
               </p>
-            </InfoTip>
-          </h2>
-        </div>
-        <div
-          className={labSegmentedClass("ml-auto shrink-0")}
-          role="tablist"
-          aria-label="주변 생활 카테고리"
-        >
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              aria-selected={tab === t.id}
-              onClick={() => selectTab(t.id)}
-              className={labSecondaryTabClass(tab === t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      </>}
+    >
+      <LabTabs
+        variant="secondary"
+        ariaLabel="주변 생활 카테고리"
+        value={tab}
+        items={TABS}
+        onChange={selectTab}
+      />
 
-      <div className="mt-3 space-y-3">
-        {tab === "commerce" && commerceSnapshot ? (
-          <ComplexCommerceMeta snapshot={commerceSnapshot} />
-        ) : null}
-
+      <div className="space-y-3">
         {tab === "living" ? (
-          <div
-            className="-mx-1 flex justify-end gap-1.5 overflow-x-auto px-1 pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            role="tablist"
-            aria-label="생활 시설 종류"
-          >
-            {LIVING_CHIP_ORDER.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                role="tab"
-                aria-selected={livingCategory === cat}
-                onClick={() => selectLivingCategory(cat)}
-                className={livingChipClass(livingCategory === cat)}
-              >
-                {LIVING_CHIP_LABEL[cat]}
-              </button>
-            ))}
-          </div>
+          <LabTabs
+            variant="secondary"
+            ariaLabel="생활 시설 종류"
+            value={livingCategory}
+            items={LIVING_CHIP_ORDER.map((cat) => ({
+              id: cat,
+              label: LIVING_CHIP_LABEL[cat],
+            }))}
+            onChange={selectLivingCategory}
+          />
         ) : null}
 
         {tab === "school" ? (
-          <div
-            className="flex w-full flex-nowrap items-center gap-1"
-            role="tablist"
-            aria-label="학교급"
-            data-testid="school-level-tabs"
-          >
-            {SCHOOL_LEVEL_TABS.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                role="tab"
-                aria-selected={schoolLevel === t.id}
-                data-school-level-tab={t.id}
-                onClick={() => selectSchoolLevel(t.id)}
-                className={schoolLevelChipClass(schoolLevel === t.id)}
-              >
-                {t.label}
-              </button>
-            ))}
+          <div data-testid="school-level-tabs">
+            <LabTabs
+              variant="secondary"
+              ariaLabel="학교급"
+              value={schoolLevel}
+              items={SCHOOL_LEVEL_TABS}
+              onChange={selectSchoolLevel}
+            />
           </div>
         ) : null}
 
@@ -1547,7 +1535,7 @@ export function ComplexNearbyLifeSection({
                 className="h-full w-full rounded-none"
               />
               {tab === "commerce" && commerceSnapshot?.mapPoints ? (
-                <p className="pointer-events-none absolute bottom-2 left-3 rounded bg-white/85 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 shadow-sm">
+                <p className="detail-meta pointer-events-none absolute bottom-2 left-3 rounded bg-white/90 px-1.5 py-0.5 font-medium text-slate-600">
                   점 1개 = 생활업소 1곳 · 색 = 업종 대분류
                 </p>
               ) : null}
@@ -1573,21 +1561,24 @@ export function ComplexNearbyLifeSection({
 
         <div className="min-w-0">
           {listContent}
-          {moreCount > 0 && (tab === "transport" || tab === "living") ? (
-            <div className="mt-2 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setExpanded(true)}
-                className="text-[13px] font-medium text-[var(--lab-teal-700)] hover:underline"
-              >
-                {tab === "transport"
-                  ? `버스 정류장 더보기 · ${moreCount}곳`
-                  : `${LIVING_CHIP_LABEL[livingCategory]} 더보기 · ${moreCount}곳`}
-              </button>
+          {moreCount > 0 &&
+          (tab === "transport" || tab === "living" || tab === "school") ? (
+            <div className="mt-3">
+              <LabMoreButton
+                expanded={expanded}
+                onToggle={() => setExpanded((v) => !v)}
+                label={
+                  tab === "transport"
+                    ? `교통 ${moreCount}곳 더보기`
+                    : tab === "school"
+                      ? `학교 ${moreCount}곳 더보기`
+                      : `${LIVING_CHIP_LABEL[livingCategory]} ${moreCount}곳 더보기`
+                }
+              />
             </div>
           ) : null}
         </div>
       </div>
-</LabCard>
+    </LabSection>
   );
 }

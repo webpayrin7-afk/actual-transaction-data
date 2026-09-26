@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LabCard } from "@/components/ui/lab";
-import { InfoTip } from "@/components/ui/InfoTip";
+import { LabSection } from "@/components/ui/LabSection";
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 import type {
   NearbySaleCard,
   NearbySaleStatus,
@@ -20,8 +21,12 @@ const FEED_STATUSES = new Set<NearbySaleStatus>([
   "move_in_upcoming",
 ]);
 
-async function loadNearbySales(sigungu: string): Promise<NearbySalesResult> {
+async function loadNearbySales(
+  sigungu: string,
+  lawdCd: string,
+): Promise<NearbySalesResult> {
   const qs = new URLSearchParams({ sigungu });
+  if (lawdCd) qs.set("lawd", lawdCd);
   const res = await fetch(`/api/complex-nearby-sales?${qs}`);
   if (!res.ok) {
     return {
@@ -82,13 +87,13 @@ function TypeChips({ item }: { item: NearbySaleCard }) {
       {visible.map((t) => (
         <span
           key={`${item.id}-${t.modelNo}`}
-          className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-medium leading-none tabular-nums text-slate-600"
+          className="detail-micro inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-medium tabular-nums text-slate-600"
         >
           {t.label}
         </span>
       ))}
       {extra > 0 ? (
-        <span className="inline-flex items-center rounded-full border border-slate-200/80 bg-white px-1.5 py-0.5 text-[10px] font-medium leading-none tabular-nums text-slate-400">
+        <span className="detail-micro inline-flex items-center rounded-full border border-slate-200/80 bg-white px-1.5 py-0.5 font-medium tabular-nums text-slate-400">
           외 {extra}개
         </span>
       ) : null}
@@ -108,14 +113,18 @@ function DetailCta({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="shrink-0 text-[11px] font-medium !text-teal-700 transition hover:!text-teal-800"
+      className="detail-label relative shrink-0 font-medium !text-[color:var(--lab-teal-700)] transition before:absolute before:-inset-y-3 before:inset-x-0 before:content-[''] hover:!text-[color:var(--lab-teal-700)]"
     >
       {label}
     </a>
   );
 }
 
-function SaleRow({ item }: { item: NearbySaleCard }) {
+/**
+ * Stack: name → meta → badges → date/link.
+ * Badges wrap; long names wrap naturally.
+ */
+export function SaleRow({ item }: { item: NearbySaleCard }) {
   const isMoveIn = item.status === "move_in_upcoming";
   const detailHref = item.pblancUrl;
   const detailLabel = isMoveIn ? "공고상세 가기 →" : "청약상세 가기 →";
@@ -128,66 +137,64 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
 
   return (
     <li className="px-3 py-2.5">
-      {/* ROW 1 — name; status pill only when not move-in */}
+      {/* 1 — name (+ status when active) */}
       <div className="flex items-start justify-between gap-2">
-        <p className="min-w-0 line-clamp-2 text-[13px] font-semibold leading-snug text-slate-900">
+        <p className="detail-list-title min-w-0 break-keep">
           {item.houseName}
         </p>
         {!isMoveIn ? (
           <span
-            className={`mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none ${statusPillClass(item.status)}`}
+            className={`detail-micro mt-0.5 shrink-0 rounded-full px-1.5 py-0.5 font-medium leading-none ${statusPillClass(item.status)}`}
           >
             {item.statusLabel}
           </span>
         ) : null}
       </div>
 
-      {/* ROW 2 — meta + type badges to the right of 세대 */}
-      <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-        <p className="text-[11px] leading-snug text-slate-500">
-          {metaLeft(item)}
-        </p>
+      {/* 2 — meta */}
+      <p className="detail-meta mt-1">{metaLeft(item)}</p>
+
+      {/* 3 — type badges (wrap) */}
+      <div className="mt-1.5">
         <TypeChips item={item} />
       </div>
 
       {/* Active: schedule + competition + price rows */}
       {!isMoveIn && item.scheduleLabel ? (
-        <p className="mt-1 text-[12px] font-medium tabular-nums text-slate-800">
+        <p className="detail-label mt-2 font-medium tabular-nums text-[color:var(--lab-navy-950)]">
           {item.scheduleLabel}
         </p>
       ) : null}
       {!isMoveIn && item.competition ? (
-        <p className="mt-0.5 text-[11px] leading-snug text-slate-600">
-          {item.competition.label}
-        </p>
+        <p className="detail-meta mt-0.5">{item.competition.label}</p>
       ) : null}
       {priced.length > 0 ? (
-        <ul className="mt-1 space-y-0.5">
+        <ul className="mt-1.5 space-y-0.5">
           {priced.map((t) => (
             <li
               key={`${item.id}-price-${t.modelNo}`}
-              className="flex items-baseline justify-between gap-3 text-[12px] leading-snug"
+              className="flex items-baseline justify-between gap-3"
             >
-              <span className="font-medium tabular-nums text-slate-800">
+              <span className="detail-label font-medium tabular-nums text-[color:var(--lab-navy-950)]">
                 {t.label}
               </span>
-              <span className="tabular-nums text-slate-600">
+              <span className="detail-label tabular-nums">
                 최고 {t.topAmountLabel}
               </span>
             </li>
           ))}
           {pricedExtra > 0 ? (
-            <li className="text-[10px] font-medium tabular-nums text-slate-400">
+            <li className="detail-meta font-medium tabular-nums">
               외 {pricedExtra}개
             </li>
           ) : null}
         </ul>
       ) : null}
 
-      {/* ROW 3 — move-in date + 입주예정 (same type size) + teal text CTA */}
-      <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+      {/* 4 — move-in date / detail link */}
+      <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
         {isMoveIn && item.moveInLabel ? (
-          <span className="text-[12px] font-semibold leading-snug tabular-nums text-slate-800">
+          <span className="detail-label font-medium tabular-nums text-[color:var(--lab-navy-950)]">
             {item.moveInLabel} 입주예정
           </span>
         ) : null}
@@ -201,18 +208,22 @@ function SaleRow({ item }: { item: NearbySaleCard }) {
   );
 }
 
-/** Inline 주변 공급 — sigungu only; no map/coords. Compact list. */
+/** Inline 주변 공급 — 단지 시군구 코드(lawdCd) 정확 일치; no map/coords. Compact list. */
 export function ComplexNearbySalesSection({
   aptName,
   sigungu,
+  lawdCd,
 }: {
   aptName: string;
   sigungu: string | null | undefined;
+  /** 단지 시군구 코드 — 이름만으로는 강서구(서울·부산)·중구처럼 여러 곳이라 코드로 찾는다 */
+  lawdCd: string | null | undefined;
 }) {
   const key = sigungu?.trim() || "";
+  const lawd = lawdCd?.trim() || "";
   const q = useQuery({
-    queryKey: ["complex-nearby-supply", key, "apt+officetel"],
-    queryFn: () => loadNearbySales(key),
+    queryKey: ["complex-nearby-supply", key, lawd, "apt+officetel"],
+    queryFn: () => loadNearbySales(key, lawd),
     enabled: key.length > 0,
     staleTime: 60 * 60 * 1000,
     retry: 0,
@@ -226,54 +237,62 @@ export function ComplexNearbySalesSection({
     FEED_STATUSES.has(item.status),
   );
   const ready = q.data?.status === "READY" && items.length > 0;
-  const emptyReason =
-    q.data?.reason ||
+  const [expandedFor, setExpandedFor] = useState<string | null>(null);
+  const expanded = expandedFor === key;
+  const visibleItems = expanded ? items : items.slice(0, LAB_LIST_PREVIEW);
+  // 키 누락·조회 오류는 '공급 없음'이 아니라 불러오기 실패로 안내한다.
+  const unavailable =
+    q.isError || q.data?.status === "NO_API_KEY" || q.data?.status === "ERROR";
+  const emptyReason = unavailable
+    ? "주변 공급 정보를 불러오지 못했습니다."
+    : q.data?.reason ||
     (key
       ? `현재 ${key}에 확인된 청약·입주예정 아파트가 없습니다.`
       : "표시할 공급 정보가 없습니다.");
 
   return (
-    <LabCard className="p-4 sm:p-5">
-      <div className="lab-section-heading">
-        <div className="min-w-0">
-          <h2 className="flex items-center">
-            주변 공급
-            <InfoTip aria-label="주변 공급 출처 안내" className="ml-1.5 text-[13px]">
-              <p>출처: 청약홈 · 한국부동산원</p>
-              <p>지역 기준: 현재 단지가 속한 시군구</p>
-              <p>입주예정월 및 청약 일정은 공식 공고 기준입니다.</p>
-              <p>실제 일정과 공급조건은 공식 공고를 확인하세요.</p>
-            </InfoTip>
-          </h2>
-          <p>{description}</p>
-        </div>
-      </div>
+    <LabSection
+      id="section-nearby-sales"
+      title="주변 공급"
+      meta={description}
+      tip={
+        <>
+          <p>출처: 청약홈 · 한국부동산원</p>
+          <p>지역 기준: 현재 단지가 속한 시군구</p>
+          <p>입주예정월 및 청약 일정은 공식 공고 기준입니다.</p>
+          <p>실제 일정과 공급조건은 공식 공고를 확인하세요.</p>
+        </>
+      }
+    >
 
       {!key ? (
-        <p className="mt-2 text-[12px] leading-snug text-slate-500">
+        <p className="detail-meta">
           단지 시군구 정보가 없어 주변 공급을 조회할 수 없습니다.
         </p>
       ) : null}
 
       {key && q.isLoading ? (
-        <p className="mt-2 text-[12px] text-slate-500">
-          주변 공급 정보를 불러오는 중…
-        </p>
+        <p className="detail-meta">주변 공급 정보를 불러오는 중…</p>
       ) : null}
 
       {key && !q.isLoading && !ready ? (
-        <p className="mt-2 text-[12px] leading-snug text-slate-500">
-          {emptyReason}
-        </p>
+        <p className="detail-meta">{emptyReason}</p>
       ) : null}
 
       {ready ? (
-        <ul className="mt-2 overflow-hidden rounded-lg border border-slate-200 divide-y divide-slate-100">
-          {items.map((item) => (
+        <ul className="overflow-hidden rounded-lg border border-[color:var(--lab-border)] divide-y divide-slate-100">
+          {visibleItems.map((item) => (
             <SaleRow key={item.id} item={item} />
           ))}
         </ul>
       ) : null}
-    </LabCard>
+      {ready && items.length > LAB_LIST_PREVIEW ? (
+        <LabMoreButton
+          expanded={expanded}
+          onToggle={() => setExpandedFor(expanded ? null : key)}
+          label={`${(items.length - LAB_LIST_PREVIEW).toLocaleString("ko-KR")}곳 더보기`}
+        />
+      ) : null}
+    </LabSection>
   );
 }

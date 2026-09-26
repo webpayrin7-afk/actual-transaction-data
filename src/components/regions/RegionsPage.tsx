@@ -15,7 +15,12 @@ import {
   type Metro,
 } from "@/lib/constants/regions";
 import { suggestRegions } from "@/lib/region/suggest-regions";
-import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { PAGE_SHELL_MENU as PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { ChevronRight, Search } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import type { RegionTileStat, RegionsOverview } from "@/lib/region/regions-overview";
+import { LabSection, LabSubsectionHeader } from "@/components/ui/LabSection";
+import { LabTabs } from "@/components/ui/LabTabs";
 
 /** 지역별 조회 시·도 탭 — 서울 다음 경기(수도권)를 우선 배치 */
 const METRO_TAB_ORDER: Metro[] = [
@@ -42,6 +47,50 @@ const METRO_OPTIONS = METRO_TAB_ORDER.filter(
   (key) => key !== "other" && key in METRO_LABELS,
 ).map((key) => [key, METRO_LABELS[key]] as [Metro, string]);
 
+async function fetchOverview(): Promise<RegionsOverview> {
+  const res = await fetch("/api/regions/overview");
+  if (!res.ok) throw new Error("지역 정보를 불러오지 못했습니다.");
+  return res.json();
+}
+
+/** 평당가 짧은 표기: 12345 → "1.23억", 4120 → "4,120만" */
+function pppText(man: number): string {
+  return man >= 10_000 ? `${(man / 10_000).toFixed(2)}억` : `${Math.round(man).toLocaleString("ko-KR")}만`;
+}
+
+/** 칸은 항상 3줄: 이름 / 평당가 / 전년 대비 — 값이 없는 줄은 빈 줄로 높이를 맞춘다 */
+function TileStat({ stat }: { stat: RegionTileStat | undefined }) {
+  const line = "block min-h-5 whitespace-nowrap";
+  if (!stat || (stat.ppp == null && !stat.range)) {
+    return (
+      <span className="detail-meta flex flex-col">
+        <span className={line}>—</span>
+        <span className={line} aria-hidden />
+      </span>
+    );
+  }
+  if (stat.range) {
+    return (
+      <span className="detail-meta flex flex-col tabular-nums">
+        <span className={line}>{pppText(stat.range[0])}~</span>
+        <span className={line}>{pppText(stat.range[1])}</span>
+      </span>
+    );
+  }
+  const yoy = stat.yoyPct;
+  return (
+    <span className="detail-meta flex flex-col tabular-nums">
+      <span className={line}>{pppText(stat.ppp!)}</span>
+      <span
+        className={`${line} font-semibold`}
+        style={{ color: yoy == null ? undefined : yoy > 0 ? "var(--lab-change-up)" : yoy < 0 ? "var(--lab-change-down)" : undefined }}
+      >
+        {yoy == null ? "" : `${yoy > 0 ? "+" : yoy < 0 ? "−" : ""}${Math.abs(yoy)}%`}
+      </span>
+    </span>
+  );
+}
+
 /**
  * 지역 조회 인덱스.
  * 시·도 → 시·군·구 compact selector 후 /region/[slug]로 이동.
@@ -58,6 +107,9 @@ export function RegionsPage() {
   const [openSuggest, setOpenSuggest] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const searchWrapRef = useRef<HTMLDivElement>(null);
+  const overview = useQuery({ queryKey: ["regions-overview"], queryFn: fetchOverview, staleTime: 30 * 60_000 });
+  const ov = overview.data;
+  const ymLabel = ov?.yearMonth ? `${ov.yearMonth.slice(0, 4)}년 ${Number(ov.yearMonth.slice(4))}월` : null;
 
   const regions = useMemo(
     () => ALL_REGIONS.filter((r) => r.metro === metro),
@@ -99,13 +151,16 @@ export function RegionsPage() {
     <div className={PAGE_SHELL}>
       <PageHeader
         title="지역 조회"
-        description="지역별 아파트 실거래와 시장 현황을 확인하세요."
+        titleClassName="detail-page-title"
+        showDivider={false}
+        titleInHeader
       >
         <form onSubmit={onSubmit} className="relative z-30 max-w-xl">
           <label className="sr-only" htmlFor="region-search">
             지역명 검색
           </label>
           <div ref={searchWrapRef} className="relative z-30">
+            <Search className="pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
             <input
               id="region-search"
               value={regionQuery}
@@ -133,7 +188,7 @@ export function RegionsPage() {
                 }
               }}
               placeholder="지역명 검색 (예: 강남, 분당, 수원)"
-              className="lab-input px-3.5 text-sm outline-none placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+              className="lab-input pr-3 pl-10 outline-none placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
               autoComplete="off"
             />
 
@@ -158,14 +213,14 @@ export function RegionsPage() {
                           }`}
                         >
                           <span>
-                            <span className="block text-sm font-semibold text-slate-900">
+                            <span className="detail-data-value-emphasis block">
                               {item.name}
                             </span>
-                            <span className="mt-0.5 block text-xs text-slate-500">
+                            <span className="detail-meta mt-0.5 block">
                               {item.metroLabel} · {item.matchLabel}
                             </span>
                           </span>
-                          <span className="shrink-0 text-xs font-medium text-teal-700">
+                          <span className="shrink-0 text-[13px] font-medium leading-5 text-[color:var(--lab-teal-700)]">
                             이동
                           </span>
                         </button>
@@ -179,48 +234,50 @@ export function RegionsPage() {
         </form>
       </PageHeader>
 
-      <section className="flex flex-col gap-3">
-        <div>
-          <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
-            지역 선택
-          </h2>
-          <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">
-            시·도를 고른 뒤 시·군·구를 선택하면 해당 지역 시장으로 이동합니다
-          </p>
-        </div>
+      <LabSection
+        title="지역 선택"
+      >
+        <LabTabs
+          variant="secondary"
+          ariaLabel="시·도"
+          columns={6}
+          items={METRO_OPTIONS.map(([id, label]) => ({ id, label }))}
+          value={metro}
+          onChange={setMetro}
+        />
 
-        {/* 시·도 — nationwide METRO_OPTIONS */}
-        <div className="flex flex-wrap gap-1 rounded-xl border border-slate-200 bg-white p-1">
-          {METRO_OPTIONS.map(([value, label]) => {
-            const active = metro === value;
-            return (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setMetro(value)}
-                className={`lab-tab min-h-10 px-3 text-xs sm:text-[13px] ${
-                  active ? "lab-tab-active" : ""
-                }`}
+        <div className="flex flex-col gap-3">
+          <LabSubsectionHeader
+            title={METRO_LABELS[metro]}
+            meta={`${regions.length.toLocaleString("ko-KR")}곳`}
+          />
+          {ymLabel ? (
+            <p className="detail-meta -mt-1">
+              {ymLabel} 지역 시세 평당가 · 전년 같은 달 대비
+              {regions.some((r) => r.lawdCodes.length > 1) ? ". 여러 구가 있는 시는 구별 범위" : ""}
+            </p>
+          ) : null}
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
+            {regions.map((region) => (
+              <Link
+                key={region.slug}
+                href={`/region/${region.slug}`}
+                // 누르면 지역 상세로 — 버튼으로 읽히게 그림자·화살표·눌림 효과
+                className="lab-press flex min-h-12 flex-col items-stretch justify-center gap-0.5 py-2.5 pl-3 pr-2"
               >
-                {label}
-              </button>
-            );
-          })}
+                <span className="flex items-center justify-between gap-1">
+                  <span className="detail-data-value-emphasis min-w-0 break-keep">{region.name}</span>
+                  <ChevronRight
+                    className="lab-press-arrow h-4 w-4 shrink-0"
+                    aria-hidden
+                  />
+                </span>
+                {ov ? <TileStat stat={ov.regions[region.slug]} /> : null}
+              </Link>
+            ))}
+          </div>
         </div>
-
-        {/* 시·군·구 */}
-        <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
-          {regions.map((region) => (
-            <Link
-              key={region.slug}
-              href={`/region/${region.slug}`}
-              className="flex min-h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-center text-xs font-semibold text-slate-800 transition hover:border-teal-400 hover:bg-teal-50 hover:text-teal-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 sm:text-sm"
-            >
-              {region.name}
-            </Link>
-          ))}
-        </div>
-      </section>
+      </LabSection>
     </div>
   );
 }

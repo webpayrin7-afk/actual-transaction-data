@@ -10,7 +10,10 @@ import {
 } from "react";
 import {
   getNaverMapClientId,
+  isNaverMapAuthFailed,
   loadNaverMapsSdk,
+  NAVER_AUTH_FAILURE_EVENT,
+  NAVER_AUTH_FAILURE_MESSAGE,
   type NaverMapInstance,
   type NaverMarkerInstance,
   type NaverCircleInstance,
@@ -294,8 +297,16 @@ const LIVING_ICON_SVG: Record<
 };
 
 /**
- * Downward selection arrow that bounces vertically above a marker.
- * Shown when a list row (or marker) is selected.
+ * 선택된 마커 위 이름 말풍선 — 목록이나 마커를 누르면 그 장소 이름을 띄운다(살짝 튀는 모션).
+ */
+function selectionBubbleHtml(name: string): string {
+  const text = escapeHtml(name.trim());
+  if (!text) return selectionArrowHtml();
+  return `<style>@keyframes ziplab-marker-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}</style><div style="display:flex;flex-direction:column;align-items:center;margin-bottom:4px;animation:ziplab-marker-bounce .85s ease-in-out infinite;will-change:transform"><div style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 9px;border-radius:8px;background:#0f766e;color:#fff;font:700 12px/1.2 system-ui,-apple-system,sans-serif;box-shadow:0 2px 6px rgba(15,23,42,.28)">${text}</div><div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid #0f766e"></div></div>`;
+}
+
+/**
+ * Downward selection arrow that bounces vertically above a marker (이름이 없을 때).
  */
 function selectionArrowHtml(): string {
   return `<style>@keyframes ziplab-marker-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}</style><div style="display:flex;justify-content:center;margin-bottom:5px;animation:ziplab-marker-bounce .85s ease-in-out infinite;will-change:transform"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17L5.5 9.5h13L12 17z" fill="#0f766e"/><path d="M12 17L5.5 9.5h13L12 17z" fill="none" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/></svg></div>`;
@@ -313,11 +324,12 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
     (selected && kind === "COMPLEX" ? "#0f766e" : KIND_COLOR[kind]);
 
   if (kind === "COMPLEX") {
-    // Building icon only — no apartment-name text label on the map.
-    const fill = selected ? "#0f766e" : KIND_COLOR.COMPLEX;
-    const html = `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);white-space:nowrap;pointer-events:none">
-      <div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:${fill};border:2px solid #fff;box-shadow:0 1px 3px rgba(15,23,42,.28)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+    // 우리 단지 — 아파트 두 동 모양 핀(평소엔 이름 없이, 누르면 이름 말풍선)
+    const fill = KIND_COLOR.COMPLEX;
+    const html = `<div data-map-marker-id="${encodeURIComponent(marker.id)}" role="button" style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);white-space:nowrap;pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent">
+      ${selected ? selectionBubbleHtml(marker.title || "") : ""}
+      <div style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;background:${fill};border:2px solid #fff;box-shadow:0 2px 5px rgba(15,23,42,.3)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M3 21V8.5a1 1 0 0 1 .6-.9l6-2.7a1 1 0 0 1 1.4.9V21Z"/><path d="M12 21V3.6a1 1 0 0 1 1.3-.95l6.9 2.2a1 1 0 0 1 .7.95V21Z"/><g fill="${fill}"><rect x="5" y="10" width="1.8" height="1.8" rx=".3"/><rect x="7.8" y="10" width="1.8" height="1.8" rx=".3"/><rect x="5" y="13.5" width="1.8" height="1.8" rx=".3"/><rect x="7.8" y="13.5" width="1.8" height="1.8" rx=".3"/><rect x="14.2" y="7" width="1.8" height="1.8" rx=".3"/><rect x="17.2" y="7" width="1.8" height="1.8" rx=".3"/><rect x="14.2" y="10.5" width="1.8" height="1.8" rx=".3"/><rect x="17.2" y="10.5" width="1.8" height="1.8" rx=".3"/><rect x="14.2" y="14" width="1.8" height="1.8" rx=".3"/><rect x="17.2" y="14" width="1.8" height="1.8" rx=".3"/></g></svg>
       </div>
       <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid ${fill};filter:drop-shadow(0 1px 1px rgba(15,23,42,.2))"></div>
     </div>`;
@@ -350,8 +362,8 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
         return `<div style="min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:${fill};border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.25);display:flex;align-items:center;justify-content:center;font:700 10px/1 system-ui,-apple-system,sans-serif;color:#fff">${text}</div>`;
       })
       .join("");
-    const html = `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none">
-      ${selected ? selectionArrowHtml() : ""}
+    const html = `<div data-map-marker-id="${encodeURIComponent(marker.id)}" role="button" style="display:flex;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent">
+      ${selected ? selectionBubbleHtml(marker.title || marker.label || "") : ""}
       <div style="display:flex;align-items:center;gap:2px">${badgesHtml}</div>
       <span style="font:600 10px/1.1 system-ui,-apple-system,sans-serif;color:#1e293b;background:rgba(255,255,255,.92);padding:1px 4px;border-radius:4px;border:1px solid rgba(15,23,42,.1)">${label}</span>
     </div>`;
@@ -366,8 +378,8 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
   if (kind === "OTHER" && marker.variant === "bus-stop") {
     const stroke = selected ? "#0f766e" : "#1e3a5f";
     const border = selected ? "#0f766e" : "#cbd5e1";
-    const html = `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);pointer-events:none">
-      ${selected ? selectionArrowHtml() : ""}
+    const html = `<div data-map-marker-id="${encodeURIComponent(marker.id)}" role="button" style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent">
+      ${selected ? selectionBubbleHtml(marker.title || marker.label || "") : ""}
       <div style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;background:#fff;border:1px solid ${border};box-shadow:0 1px 2px rgba(15,23,42,.18);color:${stroke}">
         ${LUCIDE_BUS_SVG(stroke, 12)}
       </div>
@@ -398,8 +410,8 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
     const badge = emphasis
       ? `<span style="margin-top:2px;font:700 8px/1 system-ui,-apple-system,sans-serif;color:#1e3a5f;background:rgba(255,255,255,.94);padding:1px 3px;border-radius:3px;border:1px solid rgba(30,58,95,.22)">종합</span>`
       : "";
-    const html = `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);pointer-events:none">
-      ${selected ? selectionArrowHtml() : ""}
+    const html = `<div data-map-marker-id="${encodeURIComponent(marker.id)}" role="button" style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent">
+      ${selected ? selectionBubbleHtml(marker.title || marker.label || "") : ""}
       <div style="display:flex;align-items:center;justify-content:center;width:${box}px;height:${box}px;border-radius:6px;background:#fff;border:${ring};box-shadow:0 1px 2px rgba(15,23,42,.16)">
         ${iconFn(stroke, iconSize)}
       </div>
@@ -451,7 +463,7 @@ function markerIconHtml(marker: NaverMapMarker, selected: boolean) {
   }
 
   const size = selected ? 10 : 7;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size * 2}" height="${size * 2}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="${color}" stroke="#fff" stroke-width="2" opacity="0.92"/></svg>`;
+  const svg = `<svg data-map-marker-id="${encodeURIComponent(marker.id)}" style="pointer-events:auto;cursor:pointer" xmlns="http://www.w3.org/2000/svg" width="${size * 2}" height="${size * 2}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="${color}" stroke="#fff" stroke-width="2" opacity="0.92"/></svg>`;
   return {
     content: svg,
     anchor: window.naver?.maps
@@ -583,12 +595,25 @@ export function NaverMap({
         return;
       }
 
+      if (isNaverMapAuthFailed()) {
+        setStatus("error");
+        setError(NAVER_AUTH_FAILURE_MESSAGE);
+        return;
+      }
+
       const maps = window.naver.maps;
-      const map = new maps.Map(hostRef.current, {
-        center: new maps.LatLng(center.lat, center.lng),
-        zoom,
-        zoomControl: false,
-      });
+      let map: NaverMapInstance;
+      try {
+        map = new maps.Map(hostRef.current, {
+          center: new maps.LatLng(center.lat, center.lng),
+          zoom,
+          zoomControl: false,
+        });
+      } catch {
+        setStatus("error");
+        setError("지도를 표시할 수 없습니다.");
+        return;
+      }
       mapRef.current = map;
       setStatus("ready");
       if (process.env.NODE_ENV !== "production") {
@@ -622,6 +647,23 @@ export function NaverMap({
       mapRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // NAVER rejects unregistered origins after the SDK has loaded; drop the map and show why.
+  useEffect(() => {
+    const onAuthFailure = () => {
+      try {
+        mapRef.current?.destroy?.();
+      } catch {
+        /* ignore */
+      }
+      mapRef.current = null;
+      setStatus("error");
+      setError(NAVER_AUTH_FAILURE_MESSAGE);
+    };
+    if (isNaverMapAuthFailed()) onAuthFailure();
+    window.addEventListener(NAVER_AUTH_FAILURE_EVENT, onAuthFailure);
+    return () => window.removeEventListener(NAVER_AUTH_FAILURE_EVENT, onAuthFailure);
   }, []);
 
   // Keep tiles/layout correct when the parent animates container height.
@@ -711,6 +753,10 @@ export function NaverMap({
       maps.Event.addListener(marker, "click", () => {
         fireMarkerClick(item.id);
       });
+      // NAVER가 씌우는 바깥 상자는 아이콘을 transform으로 옮겨도 제자리(기준점 오른쪽 아래)에 남아
+      // 옆 마커 위를 덮고 클릭을 가로챈다 — 바깥 상자는 통과시키고, 보이는 아이콘(data-map-marker-id)만 눌리게.
+      const el = (marker as { getElement?: () => HTMLElement | null }).getElement?.();
+      if (el) el.style.pointerEvents = "none";
       markerMapRef.current.set(item.id, marker);
     }
 
@@ -847,8 +893,8 @@ export function NaverMap({
       const eastM = Math.max(lngDelta * 111320 * cos, 40);
       const mpp = Math.max((2 * eastM) / usableW, (2 * northM) / usableH);
       const z = Math.log2((156543.03392 * cos) / mpp);
-      // Allow 17 so commerce/school clusters can zoom in from a living overview.
-      return Math.max(12, Math.min(17, Math.round(z)));
+      // 마커가 가까이 몰려도 너무 확대하지 않는다(최대 16 — 동네 한 블록 이상 보이게)
+      return Math.max(12, Math.min(16, Math.floor(z)));
     };
 
     /** Native NAVER zoom — never step setZoom per-frame (that stutters). */
@@ -959,13 +1005,12 @@ export function NaverMap({
           (111320 * Math.max(0.25, Math.cos((anchor.lat * Math.PI) / 180)));
       }
 
-      const pad = 1.08;
-      const latDelta = Math.max(maxLatDelta * pad, 0.001);
-      const lngDelta = Math.max(maxLngDelta * pad, 0.001);
-      const z = Math.max(
-        12,
-        Math.min(18, estimateZoom(anchor, latDelta, lngDelta)),
-      );
+      // 여유를 두고, 가장 가까운 경우에도 단지 둘레 반경 약 500m는 보이게
+      const pad = 1.2;
+      const minDelta = 500 / 111320;
+      const latDelta = Math.max(maxLatDelta * pad, minDelta);
+      const lngDelta = Math.max(maxLngDelta * pad, minDelta);
+      const z = Math.max(12, Math.min(16, estimateZoom(anchor, latDelta, lngDelta)));
 
       applyZoom(anchorLatLng, z);
     };

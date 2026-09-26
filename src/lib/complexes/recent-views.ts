@@ -1,5 +1,6 @@
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import { getRegion } from "@/lib/constants/regions";
+import { METRO_LABELS } from "@/lib/constants/nationwide-lawd";
 
 /** localStorage key — 스키마 변경 시 버전 bump */
 export const RECENT_COMPLEXES_KEY = "apt-datalab:recent-complexes:v1";
@@ -33,16 +34,14 @@ export function formatComplexLocationLabel(opts: {
   dong?: string;
 }): string {
   const region = getRegion(opts.regionSlug);
-  const metro =
-    region?.metro === "seoul"
-      ? "서울"
-      : region?.metro === "gyeonggi"
-        ? "경기"
-        : "";
+  // 시·도 짧은 이름을 앞에 붙인다 ("부산 남구 문현동") — 구 이름만으론 어느 도시인지 모른다
+  const metroKey = region?.metro as keyof typeof METRO_LABELS | undefined;
+  const metro = metroKey && metroKey !== "other" ? (METRO_LABELS[metroKey] ?? "") : "";
   const district =
     opts.gu?.trim() || opts.regionName?.trim() || region?.name || "";
   const dong = opts.dong?.trim() || "";
-  return [metro, district, dong].filter(Boolean).join(" ");
+  const head = metro && district.startsWith(metro) ? "" : metro;
+  return [head, district, dong].filter(Boolean).join(" ");
 }
 
 export function recentComplexHref(item: RecentComplex): string {

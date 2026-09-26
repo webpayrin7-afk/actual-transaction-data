@@ -1,11 +1,17 @@
 "use client";
 
+import { APT_API_VERSION } from "@/lib/molit/apt-client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, ChevronsUpDown, LoaderCircle } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
-import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
+import { LabStatTiles, type LabStatTile } from "@/components/ui/LabStatTiles";
+import { LAB_SUBSECTION_RULE, LabSection } from "@/components/ui/LabSection";
+import { LabTextLink } from "@/components/ui/LabListRow";
+import { LAB_MORE_BUTTON } from "@/components/ui/LabMoreButton";
+import { DETAIL_PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { LabSectionLoading } from "@/components/ui/LabLoading";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
 import {
   GroupedTransactionList,
@@ -28,12 +34,8 @@ import {
   formatEokDetail,
   formatKpiMonthlyRent,
 } from "@/lib/utils/format";
-import Link from "next/link";
 
 const PAGE_SIZE = 30;
-
-const PAGE_WRAP =
-  "mx-auto flex w-full max-w-5xl flex-col overflow-x-clip px-4 pt-3 pb-8 sm:px-6 sm:pt-4 sm:pb-10 lg:px-8";
 
 async function fetchArchive(params: {
   aptName: string;
@@ -55,6 +57,7 @@ async function fetchArchive(params: {
   if (params.gu?.trim()) qs.set("gu", params.gu.trim());
   if (params.area) qs.set("area", params.area);
   const started = performance.now();
+  qs.set("v", APT_API_VERSION);
   const res = await fetch(`/api/apt-transactions?${qs.toString()}`);
   if (!res.ok) throw new Error("failed");
   const data = (await res.json()) as AptTransactionArchiveResponse;
@@ -85,14 +88,23 @@ function YearSelect({
     return [...set].sort((a, b) => b - a);
   }, [years, value]);
 
+  const displayLabel =
+    value === "all" ? "전체년도" : `${value}년`;
+
   return (
-    <label className="relative inline-flex shrink-0 items-center">
-      <span className="sr-only">년도</span>
+    <label className="relative inline-flex min-h-10 min-w-[5.75rem] shrink-0 cursor-pointer items-center justify-between gap-1 self-stretch rounded-[12px] border border-[color:var(--lab-border)] bg-white py-0 pl-2.5 pr-2 detail-label font-medium text-[color:var(--lab-navy-950)] sm:min-w-[6.5rem]">
+      <span className="pointer-events-none min-w-0 flex-1 truncate text-left" aria-hidden>
+        {displayLabel}
+      </span>
+      <ChevronsUpDown
+        className="pointer-events-none relative h-4 w-4 shrink-0 text-[color:var(--lab-muted)]"
+        aria-hidden
+      />
       <select
         value={value}
         aria-label="조회 연도"
         onChange={(e) => onChange(parseTransactionYear(e.target.value))}
-        className="h-8 min-w-[5.75rem] appearance-none rounded-lg border border-[color:var(--lab-border)] bg-white py-0 pl-2 pr-7 text-[12px] font-semibold text-[color:var(--lab-navy-900)] sm:h-9 sm:min-w-[6.5rem] sm:pl-2.5 sm:pr-8 sm:text-sm"
+        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
       >
         <option value="all">전체년도</option>
         {options.map((y) => (
@@ -101,52 +113,23 @@ function YearSelect({
           </option>
         ))}
       </select>
-      <ChevronsUpDown
-        className="pointer-events-none absolute right-1.5 h-3.5 w-3.5 text-[color:var(--lab-muted)] sm:right-2"
-        aria-hidden
-      />
     </label>
   );
 }
 
-function KpiCell({
-  label,
-  value,
-  hint,
-  valueClassName,
-}: {
-  label: string;
-  value: string;
-  hint: string;
-  valueClassName?: string;
-}) {
-  return (
-    <div className="min-w-0 flex-1 px-2 py-2.5 text-center sm:px-3 sm:py-3">
-      <p className="text-[10px] font-medium leading-tight text-[color:var(--lab-muted)] sm:text-[11px]">
-        {label}
-      </p>
-      <p
-        className={`lab-kpi-value mt-0.5 truncate text-[15px] font-bold leading-tight tabular-nums sm:text-base ${
-          valueClassName ?? "text-[color:var(--lab-navy-950)]"
-        }`}
-      >
-        {value}
-      </p>
-      <p className="mt-0.5 truncate text-[10px] leading-snug text-[color:var(--lab-muted)] sm:text-[11px]">
-        {hint}
-      </p>
-    </div>
-  );
-}
-
-/** Short centered rule — shorter than full cell height, not a full-bleed divide-x. */
-function KpiDivider() {
-  return (
-    <div
-      className="my-auto h-7 w-px shrink-0 self-center bg-[color:var(--lab-border)] sm:h-8"
-      aria-hidden
-    />
-  );
+function kpiTile(
+  key: string,
+  label: string,
+  value: string,
+  hint: string,
+  valueClassName?: string,
+): LabStatTile {
+  return {
+    key,
+    label,
+    value: valueClassName ? <span className={valueClassName}>{value}</span> : value,
+    sub: hint,
+  };
 }
 
 export function AptTransactionsPage({
@@ -249,11 +232,6 @@ export function AptTransactionsPage({
     }
   }
 
-  useLoadProgressWhen(
-    query.isLoading && offset === 0 && items.length === 0,
-    query.isLoading ? "거래내역 불러오는 중…" : "",
-  );
-
   const meta = listMeta && listMeta.metaIncluded !== false ? listMeta : data;
   const resolvedAreaKey = meta?.areaKey || areaKey;
 
@@ -261,7 +239,7 @@ export function AptTransactionsPage({
     const qs = new URLSearchParams({ region: regionSlug });
     if (gu?.trim()) qs.set("gu", gu.trim());
     if (resolvedAreaKey) qs.set("area", resolvedAreaKey);
-    return `/apt/${encodeURIComponent(aptName)}?${qs.toString()}`;
+    return `/apt/${aptName}?${qs.toString()}`;
   }, [aptName, regionSlug, gu, resolvedAreaKey]);
 
   const syncUrl = useCallback(
@@ -278,7 +256,7 @@ export function AptTransactionsPage({
       });
       if (gu?.trim()) qs.set("gu", gu.trim());
       router.replace(
-        `/apt/${encodeURIComponent(aptName)}/transactions?${qs.toString()}`,
+        `/apt/${aptName}/transactions?${qs.toString()}`,
         { scroll: false },
       );
     },
@@ -311,20 +289,27 @@ export function AptTransactionsPage({
   const hasMore = items.length < total;
   const loadingMore = query.isFetching && offset > 0;
 
+  // 첫 로딩: 머리(단지명)와 거래 내역 틀을 먼저 그리고 틀 안에서 로딩
   if (query.isLoading && items.length === 0 && !meta) {
     return (
-      <div className={PAGE_WRAP}>
-        <div className="h-48 animate-pulse rounded-xl bg-slate-200/70" />
+      <div className={DETAIL_PAGE_SHELL} aria-busy="true">
+        <header className="-mt-1 sm:-mt-1.5">
+          <PageHeader
+            leading={<BackLink fallback={detailHref} compact hideLabel />}
+            title={aptName}
+            titleClassName="detail-page-title"
+            showDivider={false}
+          />
+        </header>
+        <LabSectionLoading title="거래 내역" minHeight={560} />
       </div>
     );
   }
 
   if ((query.isError && !meta) || (!query.isLoading && !meta && !data)) {
     return (
-      <div className={`${PAGE_WRAP} text-center`}>
-        <p className="text-sm font-medium text-slate-700">
-          거래내역을 불러오지 못했습니다.
-        </p>
+      <div className={DETAIL_PAGE_SHELL}>
+        <p className="lab-state lab-state-error">거래내역을 불러오지 못했습니다.</p>
         <div className="mt-3 flex justify-center">
           <BackLink fallback={detailHref} compact />
         </div>
@@ -337,24 +322,25 @@ export function AptTransactionsPage({
   const areas = meta?.areas ?? [];
 
   return (
-    <div className={PAGE_WRAP}>
-      <div className="space-y-2">
-        <div className="flex min-h-10 items-center gap-1.5">
-          <BackLink fallback={detailHref} compact hideLabel />
-          <h1 className="min-w-0 flex-1 truncate font-semibold tracking-tight text-[color:var(--lab-navy-950)] text-xl leading-7 sm:text-[1.375rem] sm:leading-8">
-            {displayName}
-          </h1>
-          <Link
-            href={detailHref}
-            className="hidden shrink-0 text-[11px] font-medium text-[color:var(--lab-muted)] hover:text-[color:var(--lab-teal-700)] sm:inline"
-          >
-            단지상세로 돌아가기 &gt;
-          </Link>
-        </div>
+    <div className={DETAIL_PAGE_SHELL}>
+      <header className="-mt-1 sm:-mt-1.5">
+        <PageHeader
+          leading={<BackLink fallback={detailHref} compact hideLabel />}
+          title={displayName}
+          titleClassName="detail-page-title"
+          showDivider={false}
+          action={
+            <span className="hidden sm:inline-flex">
+              <LabTextLink href={detailHref}>단지 상세</LabTextLink>
+            </span>
+          }
+        />
+      </header>
 
-        <div className="flex items-center gap-2">
+      {/* 조회 조건 — 거래유형 · 연도 · 면적 */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-stretch gap-2">
           <TransactionTypeTabs
-            variant="pills"
             value={dealType}
             onChange={(next) => {
               resetAnd(() => {
@@ -363,7 +349,7 @@ export function AptTransactionsPage({
               });
             }}
           />
-          <div className="ml-auto shrink-0">
+          <div className="ml-auto flex shrink-0 items-stretch">
             <YearSelect
               value={year}
               years={years}
@@ -381,7 +367,6 @@ export function AptTransactionsPage({
           <AptAreaSelector
             areas={areas}
             value={resolvedAreaKey || areas[0]!.key}
-            triggerClassName="bg-white"
             onChange={(key) => {
               resetAnd(() => {
                 setAreaOverride({ forId: aptIdentity, key });
@@ -390,88 +375,83 @@ export function AptTransactionsPage({
             }}
           />
         ) : null}
-
-        <div className="flex items-stretch overflow-hidden rounded-xl border border-[color:var(--lab-border)] bg-white">
-          {dealType === "monthly" ? (
-            <>
-              <KpiCell
-                label="최고 보증금"
-                value={
-                  kpi?.monthlyDepositHigh
-                    ? formatEokDetail(kpi.monthlyDepositHigh.amount)
-                    : "—"
-                }
-                hint={
-                  kpi?.monthlyDepositHigh
-                    ? kpiDateShort(kpi.monthlyDepositHigh.date)
-                    : "—"
-                }
-                valueClassName={dealTypePriceTextClass("monthly")}
-              />
-              <KpiDivider />
-              <KpiCell
-                label="최고 월세"
-                value={
-                  kpi?.monthlyRentHigh
-                    ? formatKpiMonthlyRent(kpi.monthlyRentHigh.amount)
-                    : "—"
-                }
-                hint={
-                  kpi?.monthlyRentHigh
-                    ? kpiDateShort(kpi.monthlyRentHigh.date)
-                    : "—"
-                }
-                valueClassName={dealTypePriceTextClass("monthly")}
-              />
-              <KpiDivider />
-              <KpiCell
-                label="월세 거래"
-                value={`${activeCount.toLocaleString("ko-KR")}건`}
-                hint={yearHint}
-              />
-            </>
-          ) : (
-            <>
-              <KpiCell
-                label="매매 최고"
-                value={
-                  kpi?.saleHigh ? formatEokDetail(kpi.saleHigh.amount) : "—"
-                }
-                hint={kpi?.saleHigh ? kpiDateShort(kpi.saleHigh.date) : "—"}
-                valueClassName={dealTypePriceTextClass("trade")}
-              />
-              <KpiDivider />
-              <KpiCell
-                label="전세 최고"
-                value={
-                  kpi?.jeonseHigh
-                    ? formatEokDetail(kpi.jeonseHigh.amount)
-                    : "—"
-                }
-                hint={
-                  kpi?.jeonseHigh ? kpiDateShort(kpi.jeonseHigh.date) : "—"
-                }
-                valueClassName={dealTypePriceTextClass("jeonse")}
-              />
-              <KpiDivider />
-              <KpiCell
-                label={dealType === "jeonse" ? "전세 거래" : "매매 거래"}
-                value={`${activeCount.toLocaleString("ko-KR")}건`}
-                hint={yearHint}
-              />
-            </>
-          )}
-        </div>
       </div>
 
-      <div className="mt-5 space-y-4 pt-1 pb-3 sm:pb-4">
-        <GroupedTransactionList items={items} mode={dealType} />
+      <LabSection
+        title="거래 내역"
+        meta={`${total.toLocaleString("ko-KR")}건 · 최근 계약일순`}
+        className="gap-4"
+      >
+        <LabStatTiles
+          columns={3}
+          items={
+            dealType === "monthly"
+              ? [
+                  kpiTile(
+                    "deposit-high",
+                    "최고 보증금",
+                    kpi?.monthlyDepositHigh
+                      ? formatEokDetail(kpi.monthlyDepositHigh.amount)
+                      : "—",
+                    kpi?.monthlyDepositHigh
+                      ? kpiDateShort(kpi.monthlyDepositHigh.date)
+                      : "—",
+                    dealTypePriceTextClass("monthly"),
+                  ),
+                  kpiTile(
+                    "rent-high",
+                    "최고 월세",
+                    kpi?.monthlyRentHigh
+                      ? formatKpiMonthlyRent(kpi.monthlyRentHigh.amount)
+                      : "—",
+                    kpi?.monthlyRentHigh
+                      ? kpiDateShort(kpi.monthlyRentHigh.date)
+                      : "—",
+                    dealTypePriceTextClass("monthly"),
+                  ),
+                  kpiTile(
+                    "count",
+                    "월세 거래",
+                    `${activeCount.toLocaleString("ko-KR")}건`,
+                    yearHint,
+                  ),
+                ]
+              : [
+                  kpiTile(
+                    "sale-high",
+                    "매매 최고",
+                    kpi?.saleHigh ? formatEokDetail(kpi.saleHigh.amount) : "—",
+                    kpi?.saleHigh ? kpiDateShort(kpi.saleHigh.date) : "—",
+                    dealTypePriceTextClass("trade"),
+                  ),
+                  kpiTile(
+                    "jeonse-high",
+                    "전세 최고",
+                    kpi?.jeonseHigh
+                      ? formatEokDetail(kpi.jeonseHigh.amount)
+                      : "—",
+                    kpi?.jeonseHigh ? kpiDateShort(kpi.jeonseHigh.date) : "—",
+                    dealTypePriceTextClass("jeonse"),
+                  ),
+                  kpiTile(
+                    "count",
+                    dealType === "jeonse" ? "전세 거래" : "매매 거래",
+                    `${activeCount.toLocaleString("ko-KR")}건`,
+                    yearHint,
+                  ),
+                ]
+          }
+        />
+
+        <div className={LAB_SUBSECTION_RULE}>
+          <GroupedTransactionList items={items} mode={dealType} />
+        </div>
         {hasMore ? (
           <button
             type="button"
             onClick={() => setOffset((o) => o + PAGE_SIZE)}
             disabled={loadingMore}
-            className="lab-button lab-button-secondary flex w-full min-h-10 items-center justify-center gap-1.5 text-sm disabled:opacity-60"
+            className={LAB_MORE_BUTTON}
           >
             {loadingMore ? (
               <>
@@ -486,10 +466,7 @@ export function AptTransactionsPage({
             )}
           </button>
         ) : null}
-        <p className="text-center text-[10px] text-[color:var(--lab-muted)] sm:text-right sm:text-[11px]">
-          최근 계약일 순으로 정렬됩니다.
-        </p>
-      </div>
+      </LabSection>
     </div>
   );
 }

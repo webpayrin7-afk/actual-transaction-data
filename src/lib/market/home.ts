@@ -1,6 +1,10 @@
-import { getDb, hasDb, ensureSchema } from "@/lib/db/client";
+import { getDb, hasDb, ensureSchema, ensureSchemaForRead } from "@/lib/db/client";
 import { hasDiscoveryAtColumn } from "@/lib/db/discovery-axis";
-import { LAWD_TO_REGION } from "@/lib/constants/regions";
+import {
+  LAWD_TO_REGION,
+  METRO_LABELS,
+  metroFromLawdNationwide,
+} from "@/lib/constants/regions";
 import { aptDetailHref } from "@/lib/molit/apt";
 import {
   MARKET_COMPLEX_KEY_VERSION,
@@ -18,9 +22,15 @@ import {
 const LIST_LIMIT = 8;
 const HIGH_PRICE_MAN = 200_000; // 20억
 const VOLUME_WINDOW_DAYS = 30;
-const MIN_RECENT_VOLUME = 3;
-const MIN_PRIOR_VOLUME = 1;
-const MIN_VOLUME_GROWTH_RATIO = 1.5;
+/** 거래량 급증: 개수는 이만큼까지 세고(요약 타일), 목록은 VOLUME_LIST_LIMIT개만 보낸다 */
+const VOLUME_SCAN_LIMIT = 1000;
+/** 늘어난 건수 순위라 순위 정책(최대 10 · 5개 + 더보기)을 따른다 */
+const VOLUME_LIST_LIMIT = 10;
+/** 지도 브리핑 '이 지역' — 시·군·구마다 앞에서 이만큼까지 (전국 목록 밖의 것만 따로 보낸다) */
+const LOCAL_PER_LAWD = 5;
+const MIN_RECENT_VOLUME = 5;
+const MIN_PRIOR_VOLUME = 3;
+const MIN_VOLUME_GROWTH_RATIO = 2;
 /** 스냅샷 메모리 캐시 (DB 스냅샷 읽기용) */
 const READ_CACHE_TTL_MS = 60 * 1000;
 
@@ -42,6 +52,8 @@ export interface MarketDealItem {
   kindLabel: string;
   /** 시스템 최초 확인 시각 (ISO). 신고일 아님 */
   firstSeenAt?: string | null;
+  /** 시·군·구 LAWD 5자리 — 예전 스냅샷에는 없다 */
+  lawdCd?: string;
 }
 
 export interface MarketVolumeItem {
@@ -53,6 +65,43 @@ export interface MarketVolumeItem {
   priorCount: number;
   increaseCount: number;
   growthPct: number | null;
+  /** 시·군·구 LAWD 5자리 */
+  lawdCd?: string;
+}
+
+/**
+ * 지도 브리핑 '이 지역'(시·도 · 구) 거르기용 — 전체 목록은 앞 몇 개만 보내므로,
+ * LAWD별 전체 개수와, 구마다 앞 LOCAL_PER_LAWD개 중 전국 목록에 빠진 것만(전체 순서 그대로) 더 보낸다.
+ * 구·시·도 어느 쪽으로 걸러도 앞 5개는 (전국 목록 ∪ extra) 안에 모두 있다.
+ */
+export interface MarketLocalList<T> {
+  counts: Record<string, number>;
+  extra: T[];
+}
+
+export interface MarketLocalLists {
+  singoga?: MarketLocalList<MarketDealItem>;
+  drops?: MarketLocalList<MarketDealItem>;
+  volumeSurges?: MarketLocalList<MarketVolumeItem>;
+}
+
+/** 오늘 새로 확인된 매매의 지역 분포 — 시·군·구(지역 페이지 단위) */
+export interface MarketRegionCount {
+  key: string;
+  name: string;
+  metroLabel: string;
+  /** /region/[slug] — 등록 지역이 아니면 null */
+  href: string | null;
+  count: number;
+}
+
+export interface MarketRegionBreakdown {
+  /** 집계한 확인일 (한국시간) — discoveryDate와 같다 */
+  discoveryDate: string;
+  total: number;
+  /** 시·도별 합계 (많은 순) */
+  metros: { key: string; label: string; count: number }[];
+  regions: MarketRegionCount[];
 }
 
 export interface MarketHomeResponse {
@@ -84,6 +133,10 @@ export interface MarketHomeResponse {
   highDeals: MarketDealItem[];
   volumeSurges: MarketVolumeItem[];
   notables: MarketDealItem[];
+  /** 읽기 시점 집계 (스냅샷에는 없음) */
+  regionBreakdown?: MarketRegionBreakdown | null;
+  /** 지역별 개수·목록 보충 (예전 스냅샷에는 없음) */
+  local?: MarketLocalLists;
   warning?: string;
 }
 
@@ -101,6 +154,11 @@ interface RawTrade {
 }
 
 let readCache: { expiresAt: number; data: MarketHomeResponse } | null = null;
+let regionCache: {
+  expiresAt: number;
+  day: string;
+  data: MarketRegionBreakdown | null;
+} | null = null;
 let volumeCache: { expiresAt: number; asOf: string; items: MarketVolumeItem[] } | null =
   null;
 
@@ -121,6 +179,20 @@ function hrefFor(row: {
   gu: string;
 }): string {
   return aptDetailHref(row.aptName, regionSlugFor(row.lawdCd, row.gu), row.gu);
+}
+
+/** 정렬된 전체 목록 → LAWD별 개수 + 앞 `shown`개 밖에서 구마다 앞 LOCAL_PER_LAWD개 */
+function localList<T extends { lawdCd?: string }>(sorted: T[], shown: number): MarketLocalList<T> {
+  const counts: Record<string, number> = {};
+  const extra: T[] = [];
+  sorted.forEach((item, i) => {
+    const k = item.lawdCd;
+    if (!k) return;
+    const n = (counts[k] ?? 0) + 1;
+    counts[k] = n;
+    if (i >= shown && n <= LOCAL_PER_LAWD) extra.push(item);
+  });
+  return { counts, extra };
 }
 
 function emptyResponse(warning?: string): MarketHomeResponse {
@@ -156,7 +228,7 @@ function emptyResponse(warning?: string): MarketHomeResponse {
 export async function readMarketHomeSnapshot(): Promise<MarketHomeResponse | null> {
   if (readCache && readCache.expiresAt > Date.now()) return readCache.data;
   if (!hasDb()) return null;
-  await ensureSchema();
+  await ensureSchemaForRead();
   const db = getDb();
   if (!db) return null;
   try {
@@ -253,7 +325,7 @@ async function computeVolumeSurges(asOfDate: string): Promise<MarketVolumeItem[]
         MIN_RECENT_VOLUME,
         MIN_PRIOR_VOLUME,
         MIN_VOLUME_GROWTH_RATIO,
-        LIST_LIMIT,
+        VOLUME_SCAN_LIMIT,
       ],
     });
     const items: MarketVolumeItem[] = result.rows.map((row) => {
@@ -267,6 +339,7 @@ async function computeVolumeSurges(asOfDate: string): Promise<MarketVolumeItem[]
         gu,
         dong: String(row.dong ?? ""),
         href: hrefFor({ aptName, lawdCd, gu }),
+        lawdCd,
         recentCount,
         priorCount,
         increaseCount: recentCount - priorCount,
@@ -288,6 +361,83 @@ async function computeVolumeSurges(asOfDate: string): Promise<MarketVolumeItem[]
   }
 }
 
+/**
+ * 확인일(한국시간) 하루 동안 새로 확인된 매매를 LAWD별로 세고 지역 페이지 단위로 묶는다.
+ * 읽기 전용 · 인덱스(idx_tx_type_discovery / first_seen) 범위 조회.
+ */
+async function computeRegionBreakdown(
+  discoveryDay: string,
+): Promise<MarketRegionBreakdown | null> {
+  if (!discoveryDay || !hasDb()) return null;
+  if (
+    regionCache &&
+    regionCache.day === discoveryDay &&
+    regionCache.expiresAt > Date.now()
+  ) {
+    return regionCache.data;
+  }
+  const db = getDb();
+  if (!db) return null;
+  try {
+    const useDiscoveryAt = await hasDiscoveryAtColumn(db);
+    const col = useDiscoveryAt ? "discovery_at" : "first_seen_at";
+    const { startIso, endIso } = seoulDayBoundsUtc(discoveryDay);
+    const r = await db.execute({
+      sql: `SELECT lawd_cd, MAX(gu) AS gu, COUNT(*) AS cnt
+            FROM transactions
+            WHERE deal_type = ?
+              AND ${col} IS NOT NULL
+              AND ${col} >= ?
+              AND ${col} < ?
+            GROUP BY lawd_cd`,
+      args: ["trade", startIso, endIso],
+    });
+    const regions = new Map<string, MarketRegionCount>();
+    const metros = new Map<string, { key: string; label: string; count: number }>();
+    let total = 0;
+    for (const row of r.rows) {
+      const lawdCd = String(row.lawd_cd ?? "");
+      const count = Number(row.cnt) || 0;
+      if (!lawdCd || count <= 0) continue;
+      total += count;
+      const region = LAWD_TO_REGION[lawdCd];
+      const metroKey = region?.metro ?? metroFromLawdNationwide(lawdCd);
+      const metroLabel = METRO_LABELS[metroKey] ?? "기타";
+      const key = region?.slug ?? `lawd-${lawdCd}`;
+      const prev = regions.get(key);
+      if (prev) prev.count += count;
+      else {
+        regions.set(key, {
+          key,
+          name: region?.name ?? (String(row.gu ?? "") || lawdCd),
+          metroLabel,
+          href: region ? `/region/${region.slug}` : null,
+          count,
+        });
+      }
+      const m = metros.get(metroKey);
+      if (m) m.count += count;
+      else metros.set(metroKey, { key: metroKey, label: metroLabel, count });
+    }
+    const data: MarketRegionBreakdown | null =
+      total > 0
+        ? {
+            discoveryDate: discoveryDay,
+            total,
+            metros: [...metros.values()].sort((a, b) => b.count - a.count),
+            regions: [...regions.values()].sort(
+              (a, b) => b.count - a.count || a.name.localeCompare(b.name, "ko"),
+            ),
+          }
+        : null;
+    regionCache = { expiresAt: Date.now() + READ_CACHE_TTL_MS, day: discoveryDay, data };
+    return data;
+  } catch (error) {
+    console.warn("[market-home] region breakdown read failed:", error);
+    return null;
+  }
+}
+
 function withVolumeSurges(
   payload: MarketHomeResponse,
   volumeSurges: MarketVolumeItem[],
@@ -295,13 +445,15 @@ function withVolumeSurges(
   if (payload.volumeSurges.length > 0 && volumeSurges.length === 0) {
     return payload;
   }
+  // 개수는 전체(최대 VOLUME_SCAN_LIMIT), 목록은 상위 VOLUME_LIST_LIMIT개 — 예전엔 목록 8개 길이가 곧 개수여서 늘 8곳이었다
   return {
     ...payload,
-    volumeSurges,
+    volumeSurges: volumeSurges.slice(0, VOLUME_LIST_LIMIT),
     kpis: {
       ...payload.kpis,
       volumeSurgeCount: volumeSurges.length,
     },
+    local: { ...payload.local, volumeSurges: localList(volumeSurges, VOLUME_LIST_LIMIT) },
   };
 }
 
@@ -321,7 +473,11 @@ export async function getMarketHome(): Promise<MarketHomeResponse> {
   }
   const volumeSurges = await computeVolumeSurges(resolvedAsOf ?? "");
   const payload = snap ?? (await computeMarketHome({ discoveryDay: "today" }));
-  return withVolumeSurges(payload, volumeSurges);
+  const regionBreakdown =
+    payload.discoveryDate && (payload.kpis.newDealCount ?? 0) > 0
+      ? await computeRegionBreakdown(payload.discoveryDate)
+      : null;
+  return { ...withVolumeSurges(payload, volumeSurges), regionBreakdown };
 }
 
 /**
@@ -523,6 +679,7 @@ export async function computeMarketHome(opts?: {
         kind: "singoga",
         kindLabel: "신규 신고가",
         firstSeenAt: tx.firstSeenAt,
+        lawdCd: tx.lawdCd,
       });
     }
     if (dropFlag) {
@@ -542,6 +699,7 @@ export async function computeMarketHome(opts?: {
         kind: "drop",
         kindLabel: "신규 하락거래",
         firstSeenAt: tx.firstSeenAt,
+        lawdCd: tx.lawdCd,
       });
     }
     if (tx.dealAmount >= HIGH_PRICE_MAN) {
@@ -563,6 +721,7 @@ export async function computeMarketHome(opts?: {
         kind: "high",
         kindLabel: "신규 고가거래",
         firstSeenAt: tx.firstSeenAt,
+        lawdCd: tx.lawdCd,
       });
     }
   }
@@ -605,6 +764,10 @@ export async function computeMarketHome(opts?: {
     highDeals: highDeals.slice(0, LIST_LIMIT),
     volumeSurges: [],
     notables,
+    local: {
+      singoga: localList(singoga, LIST_LIMIT),
+      drops: localList(drops, LIST_LIMIT),
+    },
   };
 }
 
@@ -619,6 +782,7 @@ export async function rebuildMarketHome(): Promise<MarketHomeResponse> {
   }
   readCache = null;
   volumeCache = null;
+  regionCache = null;
   return data;
 }
 

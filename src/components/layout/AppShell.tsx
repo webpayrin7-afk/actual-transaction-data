@@ -3,24 +3,25 @@
 import Link from "next/link";
 import { useLayoutEffect } from "react";
 import { usePathname } from "next/navigation";
-import { BarChart3, Building2, MapPinned, Search } from "lucide-react";
+import { BarChart3, Building2, Map, MapPinned } from "lucide-react";
+import { MOBILE_DOCK_SPACER, MobileDock } from "@/components/layout/MobileDock";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BrandLogo } from "@/components/layout/BrandLogo";
+import { isMapHomePath } from "@/lib/map/map-dock";
 
 const NAV = [
   {
     href: "/",
-    label: "오늘의 시장",
-    icon: BarChart3,
-    match: (p: string) => p === "/",
+    label: "지도로 찾기",
+    icon: Map,
+    match: (p: string) => p === "/" || p.startsWith("/map"),
   },
   {
-    href: "/complexes",
-    label: "단지별 조회",
-    icon: Building2,
-    match: (p: string) =>
-      p.startsWith("/complexes") || p.startsWith("/apt/"),
+    href: "/market",
+    label: "시장",
+    icon: BarChart3,
+    match: (p: string) => p.startsWith("/market") || p.startsWith("/stats"),
   },
   {
     href: "/regions",
@@ -29,10 +30,11 @@ const NAV = [
     match: (p: string) => p === "/regions" || p.startsWith("/region/"),
   },
   {
-    href: "/stats",
-    label: "시장 동향",
-    icon: Search,
-    match: (p: string) => p.startsWith("/stats"),
+    href: "/complexes",
+    label: "단지별 조회",
+    icon: Building2,
+    match: (p: string) =>
+      p.startsWith("/complexes") || p.startsWith("/apt/"),
   },
 ] as const;
 
@@ -55,9 +57,21 @@ export function isDetailFullPagePath(pathname: string): boolean {
   );
 }
 
+/** /complex-3d/[id] — 화면 전체를 3D 캔버스로 (헤더·사이드바·푸터·독 없음) */
+export function isImmersivePath(pathname: string): boolean {
+  return /^\/complex-3d\/[^/]+\/?$/.test(pathname);
+}
+
+/** 메인 메뉴(하단 독) 화면만 상단바·사이드바를 둔다. 나머지는 단지 상세처럼 자기 제목줄(← 뒤로)로. */
+const MAIN_MENU_PATHS = new Set(["/", "/map", "/market", "/regions", "/complexes", "/presale"]);
+export function isMainMenuPath(pathname: string): boolean {
+  return MAIN_MENU_PATHS.has(pathname.replace(/\/+$/, "") || "/");
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const fullPage = isDetailFullPagePath(pathname);
+  const immersive = isImmersivePath(pathname);
+  const fullPage = immersive || isDetailFullPagePath(pathname) || !isMainMenuPath(pathname);
 
   // Sync before paint so sticky offsets don't briefly assume global header height.
   useLayoutEffect(() => {
@@ -71,12 +85,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     };
   }, [fullPage]);
 
+  if (immersive) return <div className="min-w-0 overflow-hidden" style={{ height: "100dvh" }}>{children}</div>;
+
   if (fullPage) {
     return (
       <div className="flex min-h-dvh min-w-0 flex-col bg-[var(--lab-bg,#f8fafc)]">
         {/* No SiteHeader / desktop sidebar / mobile global nav */}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">{children}</div>
         <SiteFooter />
+        {/* Mobile: leave room so the last content/footer isn't under the floating dock. */}
+        <div aria-hidden className={MOBILE_DOCK_SPACER} />
+        <MobileDock />
       </div>
     );
   }
@@ -86,7 +105,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[248px] border-r border-slate-200 bg-white lg:flex lg:flex-col">
         <Link
           href="/"
-          className="flex min-h-[92px] items-center border-b border-slate-100 px-0 py-1"
+          className="flex min-h-[92px] items-center border-b border-slate-100 px-5 py-1"
           aria-label="집랩 홈"
         >
           <BrandLogo priority />
@@ -114,9 +133,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </p>
       </aside>
       <div className="flex min-h-dvh min-w-0 flex-col lg:col-start-2">
-        <SiteHeader />
+        {/* 지도 첫 화면: 모바일은 상단바 없이 지도가 화면 전체 — 검색·메뉴는 지도 조작 줄에 (MapSearchPage) */}
+        <SiteHeader className={isMapHomePath(pathname) ? "max-sm:hidden" : ""} />
         <main className="flex-1">{children}</main>
-        <SiteFooter />
+        {/* 지도 첫 화면(모바일)은 지도가 화면 전체 — 푸터·독 자리 없이 (스크롤이 생기면 돌아왔을 때 지도가 밀린다) */}
+        <SiteFooter className={isMapHomePath(pathname) ? "max-sm:hidden" : undefined} />
+        {/* Mobile: leave room so the last content/footer isn't under the floating dock. */}
+        <div aria-hidden className={`${MOBILE_DOCK_SPACER} ${isMapHomePath(pathname) ? "max-sm:hidden" : ""}`} />
+        <MobileDock />
       </div>
     </div>
   );

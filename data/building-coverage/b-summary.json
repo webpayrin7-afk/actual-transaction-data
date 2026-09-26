@@ -1,0 +1,56 @@
+{
+ "complexes": 8435,
+ "withAnyCb": 8287,
+ "cbTotal": 24685,
+ "withShapeTotal": 22986,
+ "expectedTotal": 25262,
+ "complexesFull": 7027,
+ "complexesZero": 610,
+ "complexesPartial": 662,
+ "complexesHhFlag": 85,
+ "masterSplitComplexes": 1992,
+ "diagTotals": {
+  "NO_GIS_ROW_HERE(pk only far, other sigungu)": 822,
+  "NO_GIS_ROW": 877,
+  "REGISTER_ROWS_FEWER_THAN_KAPT": 477
+ },
+ "fillTotals": {
+  "cx": 419,
+  "cxLink": 263,
+  "cxExtra": 160,
+  "linkToCb": 286,
+  "extraShape": 248,
+  "byRule": {
+   "EXTRA_SHAPE|R3_SPBD_NAME+PARCEL": 164,
+   "LINK_TO_CB|R3_SPBD_NAME+PARCEL+SINGLE_1TO1": 190,
+   "LINK_TO_CB|R3_SPBD_ROAD": 3,
+   "LINK_TO_CB|R3_SPBD_NAME+PARCEL": 46,
+   "EXTRA_SHAPE|R3_SPBD_NAME+SITE": 4,
+   "EXTRA_SHAPE|R2_MAINNO+NAME": 73,
+   "LINK_TO_CB|R3_SPBD_NAME": 46,
+   "EXTRA_SHAPE|R1_PARCEL+NAME": 1,
+   "EXTRA_SHAPE|R3_SPBD_ROAD": 4,
+   "LINK_TO_CB|R3_SPBD_NAME+SITE+SINGLE_1TO1": 1,
+   "EXTRA_SHAPE|R1_PARCEL": 2
+  },
+  "dropped": {
+   "floor_count_differs_gt2": 91,
+   "extra_spbd_name_without_parcel_or_site": 201,
+   "extra_small_lt_100m2": 48,
+   "extra_exceeds_kapt_building_count": 111,
+   "extra_split_master": 62,
+   "dong_label_ambiguous": 112,
+   "name_shared_with_nearby_complex": 242,
+   "extra_dong_specific_master": 59,
+   "same_dong_as_already_linked": 37,
+   "outside_cached_site_boundary": 22,
+   "dup_between_sources": 46
+  }
+ },
+ "ambiguousCandidates": 7,
+ "spbdTotals": {
+  "cxEvaluated": 1426,
+  "cxNoCache": 0
+ },
+ "missingTotal": 2276
+}

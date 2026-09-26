@@ -3,13 +3,13 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { LabCard } from "@/components/ui/lab";
-import { InfoTip } from "@/components/ui/InfoTip";
+import { LabSection } from "@/components/ui/LabSection";
 import type {
   AptAreaOption,
   AptDetailResponse,
 } from "@/lib/molit/apt-client";
-import { aptDetailHref } from "@/lib/molit/apt-client";
+import { APT_API_VERSION, aptDetailHref } from "@/lib/molit/apt-client";
+import { unpackAptDetail } from "@/lib/molit/apt-detail-wire";
 import {
   buildCompareMetrics,
   compareAreaRefFromOption,
@@ -75,9 +75,10 @@ async function fetchDetail(
 ): Promise<AptDetailResponse | null> {
   const qs = new URLSearchParams({ aptName, region, months: "36" });
   if (gu?.trim()) qs.set("gu", gu.trim());
+  qs.set("v", APT_API_VERSION);
   const res = await fetch(`/api/apt-detail?${qs}`);
   if (!res.ok) return null;
-  return res.json();
+  return unpackAptDetail(await res.json());
 }
 
 async function fetchPeers(params: {
@@ -104,119 +105,112 @@ async function fetchPeers(params: {
   return json.peers ?? [];
 }
 
-/** Compact metric×complex matrix — mobile & desktop; no horizontal scroll. */
+/**
+ * Metric×complex matrix — label 72px sticky, complex cols min 104px,
+ * horizontal scroll when needed; selected column subtle bg.
+ */
 function CompareMatrix({ columns }: { columns: CompareComplexMetrics[] }) {
   const n = columns.length;
   const gridStyle = {
-    gridTemplateColumns: `minmax(2.35rem,0.5fr) repeat(${n}, minmax(0,1fr))`,
+    gridTemplateColumns: `72px repeat(${n}, minmax(104px, 1fr))`,
   } as const;
 
   const rows: Array<{
     label: string;
     values: string[];
-    strong?: boolean;
-    muted?: boolean;
-    large?: boolean;
+    price?: boolean;
   }> = [
     {
       label: "매매",
       values: columns.map((c) => formatMan(c.latestSaleMan)),
-      strong: true,
-      large: true,
+      price: true,
     },
     {
       label: "전세",
       values: columns.map((c) => formatMan(c.latestJeonseMan)),
-      large: true,
+      price: true,
     },
     {
       label: "㎡당",
       values: columns.map((c) => formatPerSqm(c.salePerSqmMan)),
-      muted: true,
     },
     {
       label: "세대수",
       values: columns.map(formatHousehold),
-      muted: true,
     },
     {
       label: "준공",
       values: columns.map(formatBuildYear),
-      muted: true,
     },
   ];
 
   return (
-    <div className="mt-2">
-      <div
-        className="grid items-end gap-x-1 border-b border-slate-200/80 pb-2 pt-1.5"
-        style={gridStyle}
-      >
-        <span className="text-[10px] text-slate-400" aria-hidden="true" />
-        {columns.map((c, i) => {
-          const isCurrent = i === 0;
-          // Current complex name: teal. Peers: black (link).
-          const nameClass = `line-clamp-2 text-[12px] font-semibold leading-snug sm:text-[13px] ${
-            isCurrent ? "text-teal-700" : "text-slate-900"
-          }`;
-          return (
-            <div
-              key={`h-${c.aptName}`}
-              className="min-w-0 px-0.5 text-center sm:px-1"
-            >
-              {isCurrent ? (
-                <span className={nameClass}>{c.aptName}</span>
-              ) : (
-                <Link
-                  href={aptDetailHref(c.aptName, c.regionSlug, c.gu)}
-                  className={`block hover:text-teal-700 ${nameClass}`}
-                >
-                  {c.aptName}
-                </Link>
-              )}
-              <p className="mt-0.5 mb-1 text-[11px] tabular-nums leading-none text-slate-500">
-                {formatAreaShort(c)}
-              </p>
-            </div>
-          );
-        })}
-      </div>
-
-      {rows.map((row) => (
-        <div
-          key={row.label}
-          className="grid items-center gap-x-1 border-b border-slate-100 py-1.5 last:border-0"
-          style={gridStyle}
-        >
-          <p
-            className={`leading-none text-slate-500 ${
-              row.large
-                ? "text-[12px] sm:text-[13px]"
-                : "text-[11px] sm:text-[12px]"
-            }`}
+    <div>
+      <div className="overflow-x-auto [-webkit-overflow-scrolling:touch]">
+        <div className="min-w-0" style={{ minWidth: 72 + n * 104 }}>
+          <div
+            className="grid items-end gap-x-0 border-b border-[color:var(--lab-border)] pb-2 pt-1.5"
+            style={gridStyle}
           >
-            {row.label}
-          </p>
-          {row.values.map((v, i) => (
-            <p
-              key={`${row.label}-${i}`}
-              className={`min-w-0 truncate px-0.5 text-center tabular-nums leading-snug ${
-                row.large
-                  ? "text-[13px] sm:text-[14px]"
-                  : "text-[12px] sm:text-[13px]"
-              } ${
-                row.strong
-                  ? "font-semibold text-slate-900"
-                  : row.muted
-                    ? "font-medium text-slate-600"
-                    : "font-medium text-slate-800"
-              }`}
+            <span
+              className="sticky left-0 z-10 bg-[color:var(--lab-surface)]"
+              aria-hidden="true"
+            />
+            {columns.map((c, i) => {
+              const isCurrent = i === 0;
+              return (
+                <div
+                  key={`h-${c.aptName}`}
+                  className="min-w-0 px-3 text-center"
+                >
+                  {isCurrent ? (
+                    <span className="detail-label line-clamp-2 font-semibold !text-[color:var(--lab-brand-primary)]">
+                      {c.aptName}
+                    </span>
+                  ) : (
+                    <Link
+                      href={aptDetailHref(c.aptName, c.regionSlug, c.gu)}
+                      className="detail-label block line-clamp-2 font-semibold text-[color:var(--lab-navy-950)] hover:text-[color:var(--lab-teal-700)]"
+                    >
+                      {c.aptName}
+                    </Link>
+                  )}
+                  <p className="detail-meta mt-0.5 mb-1 tabular-nums">
+                    {formatAreaShort(c)}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {rows.map((row) => (
+            <div
+              key={row.label}
+              className="grid min-h-11 items-center gap-x-0 border-b border-slate-100 last:border-0"
+              style={gridStyle}
             >
-              {v}
-            </p>
+              <p className="detail-label sticky left-0 z-10 bg-[color:var(--lab-surface)] px-0 py-2.5 pr-2">
+                {row.label}
+              </p>
+              {row.values.map((v, i) => (
+                <p
+                  key={`${row.label}-${i}`}
+                  className={`min-w-0 truncate px-3 py-2.5 text-center tabular-nums ${
+                    row.price
+                      ? "detail-data-value-emphasis"
+                      : "detail-label text-[color:var(--lab-navy-950)]"
+                  }`}
+                >
+                  {v}
+                </p>
+              ))}
+            </div>
           ))}
         </div>
-      ))}
+      </div>
+      {n > 2 ? (
+        <p className="detail-meta">좌우로 밀어서 다른 단지를 확인하세요.</p>
+      ) : null}
     </div>
   );
 }
@@ -323,38 +317,32 @@ export function ComplexCompareSection({
   const empty = !peersQuery.isLoading && !loadingPeers && peers.length === 0;
 
   return (
-    <LabCard className="p-3.5 sm:p-5">
-      <div className="lab-section-heading !mb-0 flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <h2 className="flex items-center">
-            주변 단지 비교
-            <InfoTip aria-label="주변 단지 비교 안내" className="ml-1">
-              <p>
-                같은 동·인근 지역에서 전용면적, 준공연도, 최근 거래와 확인 가능한
-                단지 규모를 기준으로 비교 단지를 자동 선정합니다.
-              </p>
-              <p>거리 기반 추천은 아닙니다.</p>
-            </InfoTip>
-          </h2>
-        </div>
-        <p className="shrink-0 pt-0.5 text-right text-[11px] leading-4 text-slate-500 sm:text-[12px]">
-          {areaBandLabel(areaCenter)}
-        </p>
-      </div>
+    <LabSection
+      id="section-comparison"
+      title="주변 단지 비교"
+      meta={areaBandLabel(areaCenter)}
+      tip={
+        <>
+          <p>
+            같은 동·인근 지역에서 면적·연식·규모가 비슷한 단지를 자동으로
+            골라 비교합니다.
+          </p>
+          <p>거리 기반 추천은 아닙니다.</p>
+        </>
+      }
+    >
 
       {loadingPeers ? (
-        <p className="mt-2 text-[12px] text-slate-500">
-          비교 단지를 불러오는 중…
-        </p>
+        <p className="detail-meta">비교 단지를 불러오는 중…</p>
       ) : null}
 
       {empty ? (
-        <p className="mt-2 text-[12px] leading-snug text-slate-500">
+        <p className="detail-meta">
           비교할 수 있는 주변 유사 단지가 아직 없습니다.
         </p>
       ) : null}
 
       {!loadingPeers && !empty ? <CompareMatrix columns={columns} /> : null}
-    </LabCard>
+    </LabSection>
   );
 }

@@ -27,6 +27,7 @@ export type NaverMapsApi = {
     LatLngBounds: new (sw: unknown, ne: unknown) => unknown;
     Marker: new (opts: Record<string, unknown>) => NaverMarkerInstance;
     Circle: new (opts: Record<string, unknown>) => NaverCircleInstance;
+    Polygon?: new (opts: Record<string, unknown>) => NaverCircleInstance;
     OverlayView: new () => NaverOverlayViewInstance;
     Point: new (x: number, y: number) => unknown;
     Size: new (width: number, height: number) => unknown;
@@ -120,7 +121,29 @@ export type NaverOverlayViewInstance = {
 declare global {
   interface Window {
     naver?: NaverMapsApi;
+    /** NAVER Maps SDK calls this global when the Client ID / web service URL check fails. */
+    navermap_authFailure?: () => void;
   }
+}
+
+/** Fired on window when NAVER rejects this origin (unregistered web service URL). */
+export const NAVER_AUTH_FAILURE_EVENT = "ziplab:naver-auth-failure";
+export const NAVER_AUTH_FAILURE_MESSAGE =
+  "이 주소는 네이버 지도 사용이 등록되지 않아 지도를 표시할 수 없습니다.";
+
+let authFailed = false;
+
+/** After an auth failure the SDK is half-initialized; callers must not touch naver.maps. */
+export function isNaverMapAuthFailed(): boolean {
+  return authFailed;
+}
+
+function installAuthFailureHook() {
+  if (window.navermap_authFailure) return;
+  window.navermap_authFailure = () => {
+    authFailed = true;
+    window.dispatchEvent(new Event(NAVER_AUTH_FAILURE_EVENT));
+  };
 }
 
 let loadPromise: Promise<
@@ -141,6 +164,7 @@ export async function loadNaverMapsSdk(): Promise<
   if (typeof window === "undefined") {
     return { ok: false, reason: "NAVER Maps SDK is browser-only" };
   }
+  if (authFailed) return { ok: false, reason: NAVER_AUTH_FAILURE_MESSAGE };
   if (window.naver?.maps) return { ok: true, naver: window.naver };
   if (loadPromise) return loadPromise;
 
@@ -181,6 +205,7 @@ export async function loadNaverMapsSdk(): Promise<
       return;
     }
 
+    installAuthFailureHook();
     const script = document.createElement("script");
     script.dataset.ziplabNaverMaps = "1";
     script.async = true;
@@ -231,6 +256,7 @@ export async function geocodeAddressWithNaver(
   if (!loaded.ok) return { ok: false, reason: loaded.reason };
 
   const ready = await waitForNaverGeocoder();
+  if (authFailed) return { ok: false, reason: NAVER_AUTH_FAILURE_MESSAGE };
   if (!ready) {
     return {
       ok: false,

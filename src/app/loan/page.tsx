@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { PageLoadingFrame } from "@/components/layout/PageLoadingFrame";
+import { PAGE_SHELL } from "@/components/layout/PageHeader";
 import { LoanCalculator } from "@/components/loan/LoanCalculator";
 
 export const metadata: Metadata = {
@@ -11,7 +13,15 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <main className="flex-1">
-      <Suspense fallback={null}>
+      <Suspense
+        fallback={
+          <PageLoadingFrame
+            title="대출 계산기"
+            shellClassName={`${PAGE_SHELL} max-w-3xl overflow-x-hidden`}
+            sections={[{ label: "계산기 불러오는 중", minHeight: 480 }]}
+          />
+        }
+      >
         <LoanCalculator />
       </Suspense>
     </main>

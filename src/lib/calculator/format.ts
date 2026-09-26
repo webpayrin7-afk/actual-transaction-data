@@ -1,5 +1,37 @@
 /** Display helpers for calculator amounts (만원 단위 입력). */
 
+/**
+ * YYYY-MM-DD (or YYYY-MM) → "2026년 1월". Returns null if unparseable —
+ * do not invent policy dates for the UI.
+ */
+export function formatYearMonthKo(isoDate: string): string | null {
+  const m = /^(\d{4})-(\d{2})(?:-\d{2})?$/.exec(isoDate.trim());
+  if (!m) return null;
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  if (!Number.isFinite(year) || month < 1 || month > 12) return null;
+  return `${year}년 ${month}월`;
+}
+
+/**
+ * User-facing purchase policy footing from real effective dates only.
+ * When tax vs brokerage effective months differ, avoid a misleading merge.
+ */
+export function formatPurchasePolicyBasisLine(
+  acquisitionEffectiveFrom: string,
+  brokerageEffectiveFrom: string,
+): string | null {
+  const acq = formatYearMonthKo(acquisitionEffectiveFrom);
+  const broker = formatYearMonthKo(brokerageEffectiveFrom);
+  if (acq && broker && acq === broker) {
+    return `${acq} 시행 세제·중개보수 기준`;
+  }
+  if (acq) {
+    return `취득세 · ${acq} 적용 기준 · 중개보수 · 현행 기준`;
+  }
+  return null;
+}
+
 export function formatManWon(man: number): string {
   if (!Number.isFinite(man)) return "—";
   const rounded = Math.round(man);

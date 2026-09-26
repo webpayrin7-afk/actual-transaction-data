@@ -2,6 +2,7 @@
  * Phase 7.2 — Complex Detail v1 server composition (enrichment only).
  * Market data continues to use the existing apt-detail path.
  */
+import type { RegionDef } from "@/lib/constants/regions";
 import { getDb } from "@/lib/db/client";
 import type {
   ComplexDetailBasic,
@@ -67,8 +68,25 @@ export type ComplexManagementV1 = {
   disclaimer: string;
 };
 
+/** 평형 구성 원천: unit_type_household_counts (ui_safe=1). 추정 없음. */
+export type ComplexUnitMixRowV1 = {
+  exclusiveSqm: number;
+  supplySqm: number | null;
+  householdCount: number;
+};
+
+export type ComplexUnitMixV1 = {
+  rows: ComplexUnitMixRowV1[];
+  sourceAsOf: string | null;
+};
+
+/** NAVER geocoded complex center (complex_map_anchor) — matches the NAVER map label position. */
+export type ComplexMapAnchorV1 = { lat: number; lng: number; matchedAddress: string | null };
+
 export type ComplexDetailV1 = {
   resolved: boolean;
+  unitMix?: ComplexUnitMixV1 | null;
+  mapAnchor?: ComplexMapAnchorV1 | null;
   identity: ComplexDetailIdentity | null;
   basic: ComplexDetailBasic | null;
   building: ComplexDetailBuilding | null;
@@ -194,8 +212,9 @@ function asNum(v: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/** transactions.apt_name_norm·apt_complex_master.apt_name_norm 과 같은 규칙 (공백 제거 + 소문자). */
 function normalizeAptName(name: string): string {
-  return name.replace(/\s+/g, "").trim();
+  return name.replace(/\s+/g, "").toLowerCase();
 }
 
 function statusFromRow(v: unknown): ComplexEnrichmentStatus {
@@ -260,9 +279,43 @@ export function formatYyyymmBasisLabel(yyyymm: string): string {
   return `${yyyymm.slice(0, 4)}년 ${yyyymm.slice(4, 6)}월 기준`;
 }
 
+/**
+ * 단지 식별용 법정동코드 후보 — molit/apt resolveDetailLawdCodes 와 같은 규칙.
+ * 구명이 맞으면 그 구만, 아니면 지역 전체(다구 도시: 성남·수원·고양 등).
+ * lawdCodes[0]만 쓰면 분당구 단지가 수정구(41131)로 조회돼 상세가 비었다.
+ */
+export function resolveComplexLawdCodes(
+  region: RegionDef | undefined,
+  gu?: string,
+): string[] {
+  if (!region) return [];
+  const needle = gu?.trim();
+  if (!needle) return [...region.lawdCodes];
+  const hit = region.districts.find(
+    (d) => needle === d.name || needle.includes(d.name) || d.name.includes(needle),
+  );
+  if (hit) return [hit.code];
+  return [...region.lawdCodes];
+}
+
+/**
+ * 마스터 후보 중 하나 고르기. 코드가 여럿(다구 도시에서 ?gu= 없이 들어온 링크)이면
+ * 가장 높은 우선순위(pri)에서 단지가 딱 하나일 때만 연결 — 첫 구 코드로 붙이면
+ * 장안·수정 등 다른 구의 동명 단지로 잘못 연결된다.
+ */
+function pickMasterRow<T extends Record<string, unknown>>(
+  rows: T[],
+  codeCount: number,
+): T | undefined {
+  const first = rows[0];
+  if (!first || codeCount <= 1) return first;
+  const top = rows.filter((r) => r.pri === first.pri);
+  return new Set(top.map((r) => String(r.complex_id))).size === 1 ? first : undefined;
+}
+
 export async function getComplexDetailV1(params: {
   aptName: string;
-  lawdCd?: string;
+  lawdCodes?: string[];
 }): Promise<ComplexDetailV1> {
   const t0 = performance.now();
   const empty: ComplexDetailV1 = {
@@ -293,18 +346,35 @@ export async function getComplexDetailV1(params: {
   }
 
   const tMaster = performance.now();
-  const masterResult = params.lawdCd?.trim()
+  const lawdCodes = [
+    ...new Set((params.lawdCodes ?? []).map((c) => c.trim()).filter(Boolean)),
+  ];
+  // 후보 시군구 코드 안에서 이름(시군구+단지명) 일치(pri 0) 우선, 안 맞으면 실거래 이름 → 단지 연결(pri 1).
+  // 지방 마스터는 K-apt 이름이라 실거래 이름과 다른 경우가 많다 (예: 골드디움3차 ↔ 옥암3차골드디움).
+  // 연결은 source='MOLIT', source_key='lawd|norm' PK 조회 — 지방은 필지(법정동·지번)가 정확히 같은 K-apt 단지로 만든 것.
+  // 이름은 idx_acm_lawd_norm 으로 코드별 SEARCH.
+  const codeIn = lawdCodes.map(() => "?").join(",");
+  const masterResult = lawdCodes.length
     ? await db.execute({
-        sql: `SELECT complex_id, apt_name, apt_name_norm, sido, sigungu,
-                     legal_dong_name, jibun, road_address, lawd_cd
-              FROM apt_complex_master
-              WHERE apt_name_norm = ? AND lawd_cd = ?
-              LIMIT 1`,
-        args: [aptNorm, params.lawdCd.trim()],
+        sql: `SELECT * FROM (
+                SELECT 0 AS pri, complex_id, apt_name, apt_name_norm, sido, sigungu,
+                       legal_dong_name, jibun, road_address, lawd_cd, bjdong_cd, identity_status
+                FROM apt_complex_master
+                WHERE apt_name_norm = ? AND lawd_cd IN (${codeIn})
+                UNION ALL
+                SELECT 1 AS pri, m.complex_id, m.apt_name, m.apt_name_norm, m.sido, m.sigungu,
+                       m.legal_dong_name, m.jibun, m.road_address, m.lawd_cd, m.bjdong_cd, m.identity_status
+                FROM apt_complex_source_links l
+                JOIN apt_complex_master m ON m.complex_id = l.complex_id
+                WHERE l.source = 'MOLIT' AND l.source_key IN (${codeIn})
+              )
+              ORDER BY pri, CASE WHEN identity_status = 'IDENTITY-READY' THEN 0 ELSE 1 END
+              LIMIT 4`,
+        args: [aptNorm, ...lawdCodes, ...lawdCodes.map((c) => `${c}|${aptNorm}`)],
       })
     : await db.execute({
         sql: `SELECT complex_id, apt_name, apt_name_norm, sido, sigungu,
-                     legal_dong_name, jibun, road_address, lawd_cd
+                     legal_dong_name, jibun, road_address, lawd_cd, bjdong_cd
               FROM apt_complex_master
               WHERE apt_name_norm = ?
               ORDER BY CASE WHEN identity_status = 'IDENTITY-READY' THEN 0 ELSE 1 END
@@ -312,7 +382,7 @@ export async function getComplexDetailV1(params: {
         args: [aptNorm],
       });
   const masterMs = Math.round(performance.now() - tMaster);
-  const master = masterResult.rows[0];
+  const master = pickMasterRow(masterResult.rows, lawdCodes.length);
   if (!master) {
     empty.timingMs = {
       total: Math.round(performance.now() - t0),
@@ -331,12 +401,15 @@ export async function getComplexDetailV1(params: {
     sido: asStr(master.sido),
     sigungu: asStr(master.sigungu),
     legalDongName: asStr(master.legal_dong_name),
+    lawdCd: asStr(master.lawd_cd),
+    bjdongCd: asStr(master.bjdong_cd),
     jibun: asStr(master.jibun),
     roadAddress: asStr(master.road_address),
   };
 
+  // master 뒤 조회는 서로 독립 — 한 번에 병렬(왕복 4→2). profile·fees 시간은 같은 묶음.
   const tProfile = performance.now();
-  const [profileRes, stateRes] = await Promise.all([
+  const [profileRes, stateRes, unitMixRes, feeRes, anchorRes] = await Promise.all([
     db.execute({
       sql: `SELECT household_count, building_count, approval_date, heating_type,
                    management_type, parking_total, parking_per_household,
@@ -350,8 +423,39 @@ export async function getComplexDetailV1(params: {
             WHERE complex_id = ?`,
       args: [complexId],
     }),
+    db.execute({
+      sql: `SELECT exclusive_cents, supply_cents,
+                   SUM(household_count) AS household_count,
+                   MAX(source_as_of) AS source_as_of
+            FROM unit_type_household_counts
+            WHERE complex_id = ? AND ui_safe = 1 AND household_count > 0
+            GROUP BY exclusive_cents, supply_cents
+            ORDER BY exclusive_cents`,
+      args: [complexId],
+    }),
+    // Read up to 24 months for season windows; averages still use ≤12 continuous.
+    db.execute({
+      sql: `SELECT period_yyyymm, common_fee, individual_fee, long_term_repair_reserve,
+                   household_basis,
+                   per_area_common_fee, per_area_individual_fee, per_area_reserve_fee,
+                   per_area_total_fee, area_basis_sqm, area_basis, fee_status,
+                   total_fee, source, source_version
+            FROM apt_complex_mgmt_fee_monthly
+            WHERE complex_id = ?
+            ORDER BY period_yyyymm DESC
+            LIMIT 24`,
+      args: [complexId],
+    }),
+    // Optional table (scripts/map-anchor) — absent until the first apply; never fail the page on it.
+    db
+      .execute({
+        sql: `SELECT lat, lng, matched_road, matched_jibun FROM complex_map_anchor WHERE complex_id = ? LIMIT 1`,
+        args: [complexId],
+      })
+      .catch(() => null),
   ]);
   const profileMs = Math.round(performance.now() - tProfile);
+  const feesMs = profileMs;
 
   const statusMap = new Map<string, ComplexEnrichmentStatus>();
   for (const row of stateRes.rows) {
@@ -389,22 +493,6 @@ export async function getComplexDetailV1(params: {
       candidate.bcrRatio != null;
     building = hasBuilding ? candidate : null;
   }
-
-  const tFees = performance.now();
-  // Read up to 24 months for season windows; averages still use ≤12 continuous.
-  const feeRes = await db.execute({
-    sql: `SELECT period_yyyymm, common_fee, individual_fee, long_term_repair_reserve,
-                 household_basis,
-                 per_area_common_fee, per_area_individual_fee, per_area_reserve_fee,
-                 per_area_total_fee, area_basis_sqm, area_basis, fee_status,
-                 total_fee, source, source_version
-          FROM apt_complex_mgmt_fee_monthly
-          WHERE complex_id = ?
-          ORDER BY period_yyyymm DESC
-          LIMIT 24`,
-    args: [complexId],
-  });
-  const feesMs = Math.round(performance.now() - tFees);
 
   const householdCount =
     basic?.householdCount && basic.householdCount > 0
@@ -533,8 +621,41 @@ export async function getComplexDetailV1(params: {
         ? "partial"
         : "minimum";
 
+  const unitMixRows: ComplexUnitMixRowV1[] = unitMixRes.rows
+    .map((r) => ({
+      exclusiveSqm: Number(r.exclusive_cents) / 100,
+      supplySqm: r.supply_cents == null ? null : Number(r.supply_cents) / 100,
+      householdCount: Number(r.household_count),
+    }))
+    .filter((r) => r.exclusiveSqm > 0 && r.householdCount > 0);
+  const unitMixAsOf = unitMixRes.rows
+    .map((r) => asStr(r.source_as_of))
+    .filter((v): v is string => Boolean(v))
+    .sort()
+    .at(-1);
+  const unitMix: ComplexUnitMixV1 | null =
+    unitMixRows.length > 0
+      ? { rows: unitMixRows, sourceAsOf: unitMixAsOf ?? null }
+      : null;
+
+  let mapAnchor: ComplexMapAnchorV1 | null = null;
+  const anchorRow = anchorRes?.rows[0];
+  if (
+    anchorRow &&
+    Number.isFinite(Number(anchorRow.lat)) &&
+    Number.isFinite(Number(anchorRow.lng))
+  ) {
+    mapAnchor = {
+      lat: Number(anchorRow.lat),
+      lng: Number(anchorRow.lng),
+      matchedAddress: asStr(anchorRow.matched_road) ?? asStr(anchorRow.matched_jibun),
+    };
+  }
+
   return {
     resolved: true,
+    unitMix,
+    mapAnchor,
     identity,
     basic,
     building,

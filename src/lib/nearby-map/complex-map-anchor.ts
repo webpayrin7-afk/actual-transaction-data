@@ -41,7 +41,45 @@ export const SEOUL_METRO_LINE_COLORS: Record<string, string> = {
   "9": "#BDB092",
 };
 
+/**
+ * 번호 없는 수도권 노선·지방 도시철도 색 (노선명 일부로 찾는다).
+ * 지방·인천 노선("부산1호선", "인천2호선"…)은 숫자만 보면 서울 1~9호선 색이 붙으므로 여기서 먼저 잡는다.
+ */
+const NAMED_LINE_COLORS: Array<[string, string]> = [
+  ["인천1호선", "#7CA8D5"],
+  ["인천2호선", "#ED8B00"],
+  ["부산1호선", "#F06A00"],
+  ["부산2호선", "#81BF48"],
+  ["부산3호선", "#BB8C00"],
+  ["부산4호선", "#217DCB"],
+  ["부산김해", "#8652A1"],
+  ["대구1호선", "#D93F5C"],
+  ["대구2호선", "#00AA80"],
+  ["대구3호선", "#FFB100"],
+  ["대전1호선", "#007448"],
+  ["광주1호선", "#009088"],
+  ["경강", "#0054A6"],
+  ["김포골드", "#A17800"],
+  ["의정부경전철", "#FDA600"],
+  ["에버라인", "#509F22"],
+  ["자기부상", "#FFCD12"],
+  ["경의중앙", "#77C4A3"],
+  ["수인분당", "#F5A200"],
+  ["신분당", "#D4003B"],
+  ["공항", "#0090D2"],
+  ["경춘", "#0C8E72"],
+  ["우이신설", "#B0CE18"],
+  ["신림", "#6789CA"],
+  ["서해", "#8FC31F"],
+  ["GTX", "#9A6292"],
+];
+
 export function subwayLineColor(lineOrSubcategory: string): string {
+  // 배지용 짧은 이름("부산1", "경의중앙")도 같은 색으로
+  const named = NAMED_LINE_COLORS.find(
+    ([k]) => lineOrSubcategory.includes(k) || k.replace(/호선$/u, "") === lineOrSubcategory,
+  );
+  if (named) return named[1];
   const m = lineOrSubcategory.match(/(\d+)\s*호선/) || lineOrSubcategory.match(/^(\d+)$/);
   const n = m?.[1];
   return (n && SEOUL_METRO_LINE_COLORS[n]) || "#b45309";

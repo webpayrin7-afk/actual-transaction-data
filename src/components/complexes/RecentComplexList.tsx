@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { useSyncExternalStore } from "react";
-import { Clock3, X } from "lucide-react";
+import { useState, useSyncExternalStore } from "react";
+import { X } from "lucide-react";
 import {
   clearRecentComplexes,
   getRecentComplexesServerSnapshot,
@@ -10,64 +9,64 @@ import {
   recentComplexHref,
   subscribeRecentComplexes,
 } from "@/lib/complexes/recent-views";
+import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
+import { LAB_LIST, LabListRow } from "@/components/ui/LabListRow";
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
 
 export function RecentComplexList() {
+  const [expanded, setExpanded] = useState(false);
   const items = useSyncExternalStore(
     subscribeRecentComplexes,
     getRecentComplexesSnapshot,
     getRecentComplexesServerSnapshot,
   );
+  const visible = expanded ? items : items.slice(0, LAB_LIST_PREVIEW);
+  // 본 단지가 없으면 섹션을 숨긴다 (관심 단지와 같은 규칙).
+  if (items.length === 0) return null;
 
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex items-end justify-between gap-3">
-        <div>
-          <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
-            최근 조회한 단지
-          </h2>
-          <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">
-            이전에 본 단지를 바로 다시 열어보세요
-          </p>
-        </div>
+    <section aria-label="최근 조회한 단지" className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}>
+      <div className="flex items-center justify-between gap-3">
+        <LabSectionHeader
+          title="최근 조회한 단지"
+          tip={<p>이 브라우저에만 저장됩니다.</p>}
+        />
         {items.length > 0 ? (
           <button
             type="button"
             onClick={() => clearRecentComplexes()}
-            className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 transition hover:text-slate-800"
+            className="detail-label inline-flex min-h-11 shrink-0 items-center gap-1 px-1 transition hover:text-slate-800"
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-4 w-4" aria-hidden />
             전체 삭제
           </button>
         ) : null}
       </div>
 
       {items.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50/80 px-4 py-6 text-center text-sm text-slate-500">
+        <p className="detail-body">
           아직 조회한 단지가 없습니다. 위 검색에서 궁금한 아파트를 찾아보세요.
         </p>
       ) : (
-        <ul className="lab-card divide-y divide-slate-100 overflow-hidden">
-          {items.map((item) => (
-            <li key={`${item.regionSlug}-${item.aptName}-${item.gu ?? ""}`}>
-              <Link
+        <>
+          <ul className={LAB_LIST}>
+            {visible.map((item) => (
+              <LabListRow
+                key={`${item.regionSlug}-${item.aptName}-${item.gu ?? ""}`}
                 href={recentComplexHref(item)}
-                className="flex min-h-14 items-center gap-3 px-3.5 py-3 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-teal-600 sm:px-4"
-              >
-                <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
-                  <Clock3 className="h-3.5 w-3.5" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold text-slate-900">
-                    {item.aptName}
-                  </span>
-                  <span className="mt-0.5 block truncate text-xs text-slate-500">
-                    {item.regionLabel}
-                  </span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+                title={item.aptName}
+                meta={item.regionLabel}
+              />
+            ))}
+          </ul>
+          {items.length > LAB_LIST_PREVIEW ? (
+            <LabMoreButton
+              expanded={expanded}
+              onToggle={() => setExpanded((v) => !v)}
+              label={`${items.length - LAB_LIST_PREVIEW}곳 더보기`}
+            />
+          ) : null}
+        </>
       )}
     </section>
   );

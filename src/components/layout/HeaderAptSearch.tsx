@@ -7,8 +7,19 @@ import { UNIFIED_SEARCH_PLACEHOLDER } from "@/lib/nav/site-menu";
 
 const EXIT_MS = 160;
 
-/** Header utility — 통합(단지+지역) 검색. 모바일은 sheet, PC는 dropdown */
-export function HeaderAptSearch({ className = "" }: { className?: string }) {
+/**
+ * Header utility — 통합(단지+지역) 검색. 모바일은 sheet, PC는 dropdown.
+ * `buttonClassName` 을 주면 그 모양의 버튼으로 (지도 조작 줄의 검색 알약 — `label` 을 옆에 적는다).
+ */
+export function HeaderAptSearch({
+  className = "",
+  buttonClassName,
+  label,
+}: {
+  className?: string;
+  buttonClassName?: string;
+  label?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [shown, setShown] = useState(false);
@@ -83,13 +94,17 @@ export function HeaderAptSearch({ className = "" }: { className?: string }) {
         aria-haspopup="dialog"
         aria-label="통합 검색"
         onClick={toggleSearch}
-        className={`inline-flex h-9 w-9 items-center justify-center rounded-md transition-colors duration-150 ${
-          open
-            ? "text-teal-800 hover:bg-teal-50/70"
-            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-        }`}
+        className={
+          buttonClassName ??
+          `inline-flex h-10 w-10 items-center justify-center rounded-md transition-colors duration-150 sm:h-9 sm:w-9 ${
+            open
+              ? "text-teal-800 hover:bg-teal-50/70"
+              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          }`
+        }
       >
-        <Search className="h-[18px] w-[18px]" />
+        <Search className="h-[18px] w-[18px] shrink-0" aria-hidden />
+        {label ? <span>{label}</span> : null}
       </button>
 
       {mounted ? (

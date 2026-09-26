@@ -1,15 +1,20 @@
 import type { HTMLAttributes, ReactNode } from "react";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 
 /**
- * LAB interaction color rules (existing tokens only):
- * - Solid teal (`.lab-button-primary`) = execution CTA only
- * - Light teal bg + dark teal text = selection (tabs/filters)
- * - White/transparent + neutral border/text = unselected
- * - No gray selected state, no gradients
+ * Tab hierarchy (ZIPLAB UI Policy v2 §11):
+ * - LabTabs variant="primary" — 48px soft-teal segmented (주요 모드)
+ * - LabTabs variant="secondary" — 40px soft-teal segmented (분류·보기)
+ * - LabTabs variant="compact" — 30px visual / 44px touch (기간·조건)
+ * White bordered shell + soft teal selected face; hierarchy is size only.
+ * Pair content tabs with `role="tabpanel"` via idPrefix.
+ * Legacy class helpers below remain for non-migrated surfaces.
  *
- * Tab hierarchy (same colors; size/spacing differ):
- * - Primary (`.lab-tab` + `.lab-tab-primary`): page section switcher
- * - Secondary (`.lab-tab-secondary`): in-view data filter/range chips
+ * Color rules:
+ * - Solid teal (`.lab-button-primary`) = execution CTA only
+ * - Soft teal-50 face + teal-700 text = selection (tabs/filters)
+ * - White shell + muted text = unselected
+ * - No gray selected state, no gradients
  */
 export function LabCard({ className = "", ...props }: HTMLAttributes<HTMLElement>) {
   return <section className={`lab-card ${className}`.trim()} {...props} />;
@@ -43,7 +48,9 @@ export function LabState({
   children?: ReactNode;
 }) {
   if (tone === "loading")
-    return <div className="lab-skeleton" aria-label="불러오는 중" />;
+    return (
+      <LabDataLoading label={typeof children === "string" ? children.replace(/…$/, "") : "불러오는 중"} minHeight={112} />
+    );
   return <div className={`lab-state lab-state-${tone}`}>{children}</div>;
 }
 

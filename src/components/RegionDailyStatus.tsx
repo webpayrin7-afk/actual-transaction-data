@@ -1,9 +1,11 @@
 "use client";
 
+import { LAB_SECTION_SURFACE, LabSectionHeader } from "@/components/ui/LabSection";
+import { LAB_LIST_PREVIEW, LabMoreButton } from "@/components/ui/LabMoreButton";
+import { LabDataLoading } from "@/components/ui/LabLoading";
 import Link from "next/link";
 import {
   useCallback,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -11,8 +13,21 @@ import {
   type ReactNode,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
-import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  RegionRankingTable,
+  RegionPriceSection,
+} from "@/components/region/RegionMarketSections";
+import {
+  RegionSupplyTimelineSection,
+  RegionTradeHighlightsSection,
+} from "@/components/region/RegionMarketExtras";
+import { regionScopeLawdCd } from "@/lib/region/region-scope";
+import { RegionDongPricesSection } from "@/components/region/RegionDongPrices";
+import { RegionBudgetFinderSection } from "@/components/region/RegionBudgetFinder";
+import { RegionJeonseSection } from "@/components/region/RegionJeonseSection";
+import { RegionStickyNav } from "@/components/region/RegionStickyNav";
+import { LabTextLink } from "@/components/ui/LabListRow";
 import { aptDetailHref } from "@/lib/molit/apt-client";
 import type {
   RegionDailyDaySection,
@@ -25,31 +40,20 @@ import {
   CONTRACT_DATE_BASIS_HELP,
   CONTRACT_DATE_BASIS_LABEL,
   CALENDAR_HELPER,
-  CONTRACT_MONTH_LOOKBACK,
   EMPTY_MONTH_HISTORY,
-  EMPTY_NEWLY_SEEN,
   HISTORY_INITIAL_DAY_COUNT,
-  contractMonthOptions,
-  hiddenNewlySeenCount,
   increaseRatePct,
   koreanMonthDayLabel,
   koreanYearMonthLabel,
   listedHistoryDates,
-  newlySeenCompactStatus,
   priorPeakAmount,
   recordDateDomId,
   SEEN_DATE_BASIS_HELP,
-  SEEN_DATE_BASIS_LABEL,
   shiftYearMonth,
   sortNewlySeenDeals,
-  visibleNewlySeenDeals,
-  formatMomChangeValue,
-  momChangePct,
-  singogaSharePct,
   vsPreviousTypeDeal,
 } from "@/lib/region/market-insight";
 import { TypePriceSparkline } from "@/components/region/TypePriceSparkline";
-import { InfoChip } from "@/components/ui/InfoChip";
 import {
   formatDealDate,
   formatEok,
@@ -80,9 +84,6 @@ function weekdayOfFirst(ym: string): number {
   return new Date(year, month - 1, 1).getDay();
 }
 
-const SECTION_SURFACE =
-  "lab-card px-3.5 py-4 sm:px-5 sm:py-5";
-
 function contractLine(date: string): string {
   return `계약 ${formatDealDate(date)}`;
 }
@@ -99,7 +100,7 @@ function DealMetaLine({
   emphasizeSpec?: boolean;
 }) {
   return (
-    <div className="mt-1.5 flex flex-wrap items-baseline text-[12px] leading-4">
+    <div className="mt-1.5 flex flex-wrap items-baseline text-[13px] leading-5">
       <span
         className={`whitespace-nowrap ${
           emphasizeSpec ? "font-medium text-slate-800" : "text-slate-500"
@@ -119,12 +120,7 @@ function DealMetaLine({
   );
 }
 
-function fallbackContractMonths(): string[] {
-  return contractMonthOptions(
-    yearMonthFromSeoulDate(seoulToday()),
-    CONTRACT_MONTH_LOOKBACK,
-  );
-}
+const SINGOGA_PREVIEW = 5; // 카드 목록 공통: 처음 5개 + 더보기
 
 function singogaLabel(kind: RegionDailyDeal["singogaKind"]): string {
   if (kind === "type") return "타입 신고가";
@@ -140,8 +136,8 @@ function SingogaBadge({
 }) {
   const cls =
     variant === "featured"
-      ? "inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-teal-600 px-2.5 py-1 text-[11px] font-bold leading-none text-white"
-      : "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-teal-300 bg-teal-50 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-teal-800";
+      ? "inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-teal-600 px-2.5 py-1 text-[12px] font-semibold leading-4 text-white"
+      : "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-teal-300 bg-teal-50 px-2 py-0.5 text-[12px] font-semibold leading-4 text-teal-800";
   return <span className={cls}>{children}</span>;
 }
 
@@ -157,9 +153,9 @@ function prevDealDelta(
 }
 
 function prevDealDeltaClass(tone: "up" | "down" | "same"): string {
-  if (tone === "up") return "whitespace-nowrap text-[12px] font-medium tabular-nums text-rose-600";
-  if (tone === "down") return "whitespace-nowrap text-[12px] font-medium tabular-nums text-blue-600";
-  return "whitespace-nowrap text-[12px] tabular-nums text-slate-500";
+  if (tone === "up") return "whitespace-nowrap text-[13px] font-medium tabular-nums text-rose-600";
+  if (tone === "down") return "whitespace-nowrap text-[13px] font-medium tabular-nums text-blue-600";
+  return "whitespace-nowrap text-[13px] tabular-nums text-slate-500";
 }
 
 function FeaturedDealCard({
@@ -180,21 +176,21 @@ function FeaturedDealCard({
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="block rounded-xl border border-teal-200 bg-teal-50 px-3 py-2.5 transition hover:border-teal-300 hover:bg-teal-50"
+      className="lab-row-press block rounded-xl border border-teal-200 bg-teal-50 px-3 py-2.5 hover:border-teal-300"
     >
       <SingogaBadge variant="featured">
         {singogaLabel(deal.singogaKind)}
       </SingogaBadge>
-      <strong className="mt-1.5 block break-keep text-[17px] font-bold leading-snug text-slate-900 line-clamp-2">
+      <strong className="mt-1.5 block break-keep text-[16px] font-semibold leading-6 text-slate-900 line-clamp-2">
         {deal.aptName}
       </strong>
       {titleMeta.length > 0 ? (
-        <p className="mt-1.5 truncate text-xs font-normal text-slate-500">
+        <p className="detail-meta mt-1 truncate">
           {titleMeta.join(" · ")}
         </p>
       ) : null}
       <div className="mt-2 flex flex-wrap items-baseline justify-start gap-x-2 gap-y-0.5">
-        <span className="whitespace-nowrap text-[22px] font-semibold leading-none tabular-nums text-slate-900">
+        <span className="whitespace-nowrap text-[20px] font-semibold leading-7 tabular-nums text-slate-900">
           {formatEok(deal.dealAmount)}
         </span>
         {deal.increaseAmount > 0 ? (
@@ -205,7 +201,64 @@ function FeaturedDealCard({
         ) : null}
       </div>
       {prior != null ? (
-        <p className="mt-1 whitespace-nowrap text-[12px] tabular-nums text-slate-500">
+        <p className="detail-meta mt-1 whitespace-nowrap tabular-nums">
+          종전 최고 {formatEok(prior)}
+        </p>
+      ) : null}
+      <DealMetaLine deal={deal} emphasizeSpec />
+      {trend && trend.length >= 3 ? (
+        <TypePriceSparkline
+          points={trend}
+          currentAmount={deal.dealAmount}
+          currentDate={deal.dealDate}
+        />
+      ) : null}
+    </Link>
+  );
+}
+
+function SingogaRowCard({
+  deal,
+  regionSlug,
+}: {
+  deal: RegionDailyDeal;
+  regionSlug: string;
+}) {
+  const prior = priorPeakAmount(deal);
+  const rate = increaseRatePct(deal);
+  const trend = deal.priceTrend;
+  const meta = [deal.dong || null, deal.buildYear ? `${deal.buildYear}년 준공` : null]
+    .filter(Boolean)
+    .join(" · ");
+  return (
+    <Link
+      href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
+      className="lab-row-press block rounded-xl border border-slate-200 px-3 py-2.5 hover:border-teal-200"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="break-keep text-[16px] font-semibold leading-6 text-slate-900 line-clamp-2">
+            {deal.aptName}
+          </p>
+          {meta ? (
+            <p className="detail-meta mt-0.5 truncate">{meta}</p>
+          ) : null}
+        </div>
+        <SingogaBadge variant="compact">{singogaLabel(deal.singogaKind)}</SingogaBadge>
+      </div>
+      <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+        <span className="whitespace-nowrap text-[20px] font-semibold leading-7 tabular-nums text-slate-900">
+          {formatEok(deal.dealAmount)}
+        </span>
+        {deal.increaseAmount > 0 ? (
+          <span className="whitespace-nowrap text-sm font-medium tabular-nums text-rose-600">
+            ▲ {formatEok(deal.increaseAmount)}
+            {rate != null ? ` (+${rate}%)` : ""}
+          </span>
+        ) : null}
+      </div>
+      {prior != null ? (
+        <p className="detail-meta mt-1 whitespace-nowrap tabular-nums">
           종전 최고 {formatEok(prior)}
         </p>
       ) : null}
@@ -232,7 +285,7 @@ function RegularDealCard({
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="block rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2.5 transition hover:border-slate-300 hover:bg-slate-50"
+      className="lab-row-press block rounded-xl border border-slate-200/80 bg-slate-50/50 px-3 py-2.5 hover:border-teal-200"
     >
       <p className="break-keep text-sm font-semibold leading-snug text-slate-900 line-clamp-2">
         {deal.aptName}
@@ -263,7 +316,7 @@ function HistoryDealCard({
   return (
     <Link
       href={aptDetailHref(deal.aptName, regionSlug, deal.gu)}
-      className="block rounded-lg border border-solid border-slate-100 px-3 py-2 transition hover:bg-slate-50/80"
+      className="lab-row-press block rounded-lg border border-solid border-slate-100 px-3 py-2"
     >
       <div className="flex items-start justify-between gap-2">
         <p className="min-w-0 flex-1 break-keep text-sm font-semibold leading-snug text-slate-900 line-clamp-2">
@@ -327,40 +380,6 @@ function DealGrid({
           />
         ),
       )}
-    </div>
-  );
-}
-
-function DateBasisChip({
-  label,
-  help,
-}: {
-  label: string;
-  help: string;
-}) {
-  return <InfoChip label={label}>{help}</InfoChip>;
-}
-
-function SectionHeading({
-  title,
-  basisLabel,
-  basisHelp,
-  aside,
-}: {
-  title: string;
-  basisLabel: string;
-  basisHelp: string;
-  aside?: ReactNode;
-}) {
-  return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      <h2 className="shrink-0 text-[15px] font-semibold tracking-tight text-slate-900 sm:text-base">
-        {title}
-      </h2>
-      <div className="flex shrink-0 flex-wrap items-center gap-1.5">
-        <DateBasisChip label={basisLabel} help={basisHelp} />
-        {aside}
-      </div>
     </div>
   );
 }
@@ -443,24 +462,6 @@ function MonthNav({
   );
 }
 
-function MoreControl({
-  children,
-  onClick,
-}: {
-  children: ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="mt-1 inline-flex min-h-9 items-center self-start whitespace-nowrap px-0.5 text-sm font-medium text-slate-600 underline-offset-2 transition hover:text-slate-900 hover:underline"
-    >
-      {children}
-    </button>
-  );
-}
-
 function MonthCalendar({
   yearMonth,
   days,
@@ -503,7 +504,7 @@ function MonthCalendar({
         spread
       />
       <div className="mt-1.5 rounded-xl border border-slate-200 bg-slate-50/70 p-1.5 sm:p-2">
-        <div className="mb-1 grid grid-cols-7 border-b border-slate-200/80 text-center text-[10px] font-medium text-slate-400">
+        <div className="mb-1 grid grid-cols-7 border-b border-slate-200/80 text-center text-[12px] font-medium text-slate-500">
           {weekLabels.map((label) => (
             <div key={label} className="py-1">
               {label}
@@ -537,7 +538,7 @@ function MonthCalendar({
               >
                 <span className="font-medium leading-none">{day}</span>
                 {hasDeals ? <span
-                  className={`mt-0.5 text-[10px] leading-none tabular-nums ${
+                  className={`mt-0.5 text-[12px] leading-none tabular-nums ${
                     active ? "text-[color:var(--lab-teal-700)]" : "text-slate-500"
                   }`}
                 >
@@ -556,97 +557,6 @@ function MonthCalendar({
             );
           })}
         </div>
-      </div>
-    </div>
-  );
-}
-
-function formatPyeongMedian(manwon: number): string {
-  if (manwon >= 10000) return formatEok(manwon);
-  return `${manwon.toLocaleString("ko-KR")}만원`;
-}
-
-function volumeChangeSide(
-  current: number,
-  previous: number,
-  pct: number | null,
-): { full: string; compact: string } | undefined {
-  if (pct == null || previous <= 0) return undefined;
-  const from = previous.toLocaleString("ko-KR");
-  const to = current.toLocaleString("ko-KR");
-  return {
-    full: `${from}건 → ${to}건`,
-    compact: `${from}→${to}건`,
-  };
-}
-
-function volumeChangeClass(pct: number | null): string {
-  if (pct == null) return "text-slate-400";
-  if (pct === 0) return "text-slate-500";
-  if (pct > 0) return "text-rose-600";
-  return "text-blue-600";
-}
-
-function volumeChangeSideClass(pct: number | null): string {
-  if (pct == null || pct === 0) return "text-slate-400";
-  if (pct > 0) return "text-rose-500";
-  return "text-blue-500";
-}
-
-function singogaValueClass(count: number | null): string {
-  if (count == null || count === 0) return "text-slate-400";
-  return "text-teal-700";
-}
-
-function formatSharePct(pct: number | null): string {
-  if (pct == null) return "—";
-  return `${pct.toFixed(1)}%`;
-}
-
-function Kpi({
-  label,
-  value,
-  side,
-  className,
-  valueClassName = "text-teal-700",
-  sideClassName = "text-teal-600/80",
-}: {
-  label: string;
-  value: string;
-  side?: string | { full: string; compact: string };
-  className?: string;
-  valueClassName?: string;
-  sideClassName?: string;
-}) {
-  const sideFull = typeof side === "string" ? side : side?.full;
-  const sideCompact = typeof side === "string" ? side : side?.compact;
-  return (
-    <div
-      className={`overflow-hidden rounded-lg border border-slate-200 bg-white px-2 py-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-4 sm:py-3.5 ${className ?? ""}`}
-    >
-      <p className="whitespace-nowrap text-[11px] leading-4 text-slate-600">
-        {label}
-      </p>
-      <div className="mt-1.5 flex min-w-0 items-baseline gap-x-1 sm:mt-2 sm:gap-x-2">
-        <p
-          className={`lab-kpi-figure whitespace-nowrap text-base font-semibold leading-none sm:text-xl ${valueClassName}`}
-        >
-          {value}
-        </p>
-        {sideFull ? (
-          <>
-            <p
-              className={`whitespace-nowrap text-[10px] leading-none tabular-nums sm:hidden ${sideClassName}`}
-            >
-              {sideCompact}
-            </p>
-            <p
-              className={`hidden whitespace-nowrap text-[11px] leading-none tabular-nums sm:inline ${sideClassName}`}
-            >
-              {sideFull}
-            </p>
-          </>
-        ) : null}
       </div>
     </div>
   );
@@ -692,16 +602,6 @@ function dayCountPhrases(section: RegionDailyDaySection): string[] {
   return [`총 ${n}건`, `신고가 ${section.singogaCount.toLocaleString("ko-KR")}건`];
 }
 
-function seenCountPhrases(opts: {
-  total: number;
-  singogaCount: number;
-  bulk: boolean;
-}): string[] {
-  const n = opts.total.toLocaleString("ko-KR");
-  if (opts.bulk) return [`총 ${n}건`, "신고가 계산 생략"];
-  return [`총 ${n}건`, `신고가 ${opts.singogaCount.toLocaleString("ko-KR")}건`];
-}
-
 function scrollToDateHeading(date: string) {
   const el = document.getElementById(recordDateDomId(date));
   if (!el) return false;
@@ -718,22 +618,20 @@ function scrollToDateHeading(date: string) {
 export function RegionDailyStatus({
   regionSlug,
   regionName,
+  lawdCodes = [],
 }: {
   regionSlug: string;
   regionName: string;
+  lawdCodes?: string[];
 }) {
-  const contractMonthFallback = useMemo(() => fallbackContractMonths(), []);
-  const [contractMonth, setContractMonth] = useState(
-    () => yearMonthFromSeoulDate(seoulToday()),
-  );
   const [activityMonthUser, setActivityMonthUser] = useState<string | null>(
     null,
   );
-  const [heroExpanded, setHeroExpanded] = useState(false);
+  const [singogaExpanded, setSingogaExpanded] = useState(false);
   const [visibleDayCount, setVisibleDayCount] = useState(
     HISTORY_INITIAL_DAY_COUNT,
   );
-  const [visibleDealCount, setVisibleDealCount] = useState(15);
+  const [visibleDealCount, setVisibleDealCount] = useState(LAB_LIST_PREVIEW);
   const [clickedDates, setClickedDates] = useState<string[]>([]);
   const [calendarSelected, setCalendarSelected] = useState<string | null>(null);
   const [flashDate, setFlashDate] = useState<string | null>(null);
@@ -746,23 +644,10 @@ export function RegionDailyStatus({
   );
   const [pendingDates, setPendingDates] = useState<string[]>([]);
   const pendingScroll = useRef<string | null>(null);
-  const historySentinel = useRef<HTMLDivElement | null>(null);
   const requestEpoch = useRef(0);
   const activityMonthRef = useRef(activityMonthUser ?? yearMonthFromSeoulDate(seoulToday()));
   const inFlightDates = useRef(new Set<string>());
   const inFlightPages = useRef(new Set<string>());
-
-  const marketQuery = useQuery({
-    queryKey: ["region-market", regionSlug, contractMonth],
-    queryFn: () =>
-      fetchRegionPart({
-        region: regionSlug,
-        part: "market",
-        contractMonth,
-      }),
-    staleTime: 60_000,
-    retry: 1,
-  });
 
   const latestQuery = useQuery({
     queryKey: ["region-latest", regionSlug],
@@ -803,11 +688,6 @@ export function RegionDailyStatus({
     retry: 1,
   });
 
-
-  const section1Months =
-    marketQuery.data?.contractMonthOptions?.length
-      ? marketQuery.data.contractMonthOptions
-      : contractMonthFallback;
   const section3Months =
     historyQuery.data?.activityYearMonths?.length
       ? historyQuery.data.activityYearMonths
@@ -850,18 +730,6 @@ export function RegionDailyStatus({
     }
     return map;
   }, [initialDaysQuery.data, extraSections, bulkExtra]);
-
-  const historyShellLoading =
-    (historyQuery.isFetching || initialDaysQuery.isFetching) &&
-    !historyQuery.data &&
-    !initialDaysQuery.data;
-  const marketStatusLoading =
-    (marketQuery.isFetching && !marketQuery.data) ||
-    (latestQuery.isFetching && !latestQuery.data) ||
-    historyShellLoading ||
-    pendingDates.length > 0;
-
-  useLoadProgressWhen(marketStatusLoading, "시장 현황 불러오는 중…");
 
   const fetchDaySections = useCallback(
     async (dates: string[]) => {
@@ -932,28 +800,20 @@ export function RegionDailyStatus({
     scrollToDateHeading(date);
   }, [listedDates, sectionByDate, visibleDayCount, clickedDates]);
 
-  const market = marketQuery.data;
-  const volumePct =
-    market != null
-      ? momChangePct(market.monthTradeCount, market.prevMonthTradeCount)
-      : null;
-  const yearAgoPct =
-    market?.yearAgoMonthTradeCount != null
-      ? momChangePct(market.monthTradeCount, market.yearAgoMonthTradeCount)
-      : null;
-  const singogaPct =
-    market?.monthSingogaCount != null
-      ? singogaSharePct(market.monthSingogaCount, market.monthTradeCount)
-      : null;
 
-  const heroDeals = useMemo(
-    () => sortNewlySeenDeals(latest?.deals ?? []),
+  // 지역 화면 범위: 구 하나면 그 코드, 여러 구로 나뉜 시는 모든 구 코드("41131,41133,41135").
+  const guLawdCd = regionScopeLawdCd(lawdCodes);
+  const stickyNavAnchor = useRef<HTMLDivElement | null>(null);
+  const singogaDeals = useMemo(
+    () =>
+      sortNewlySeenDeals(latest?.deals ?? []).filter(
+        (deal) => deal.singogaKind != null,
+      ),
     [latest],
   );
-  const heroVisible = visibleNewlySeenDeals(heroDeals, heroExpanded);
-  const heroHidden = hiddenNewlySeenCount(heroDeals, heroExpanded);
   const heroDate = latest?.selectedDate ?? null;
-  const heroIsToday = Boolean(latest?.latestIsToday);
+  // 확인일(discovery_at) 적재는 아직 서울·경기만 — 그 밖 지역은 '신고가 없음'이 아니라 미지원.
+  const seenTrackingOff = latest != null && !latest.firstSeenReady;
 
   function changeActivityMonth(next: string) {
     requestEpoch.current += 1;
@@ -962,7 +822,7 @@ export function RegionDailyStatus({
     inFlightPages.current.clear();
     setActivityMonthUser(next);
     setVisibleDayCount(HISTORY_INITIAL_DAY_COUNT);
-    setVisibleDealCount(15);
+    setVisibleDealCount(LAB_LIST_PREVIEW);
     setClickedDates([]);
     setCalendarSelected(null);
     setBulkExtra({});
@@ -970,7 +830,17 @@ export function RegionDailyStatus({
     setPendingDates([]);
   }
 
+  function clearCalendarDate() {
+    setCalendarSelected(null);
+    setFlashDate(null);
+    setClickedDates([]);
+  }
+
   function selectCalendarDate(date: string) {
+    if (date === calendarSelected) {
+      clearCalendarDate();
+      return;
+    }
     setCalendarSelected(date);
     setFlashDate(date);
     setFlashNonce((n) => n + 1);
@@ -1041,18 +911,6 @@ export function RegionDailyStatus({
     }
   }, [activeDates, fetchDaySections, listedDates, loadMoreBulk, sectionByDate, visibleDayCount]);
 
-  useEffect(() => {
-    const target = historySentinel.current;
-    if (!target || !hasMoreHistory) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) loadNextHistory();
-      },
-      { rootMargin: "320px 0px" },
-    );
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, [hasMoreHistory, loadNextHistory]);
   const calendarDays = (historyQuery.data?.days ?? []).map((day) => {
     const section = sectionByDate.get(day.date);
     if (!section) return day;
@@ -1064,11 +922,6 @@ export function RegionDailyStatus({
     };
   });
 
-  const heroCountPhrases = seenCountPhrases({
-    total: latest?.tradeCount ?? heroDeals.length,
-    singogaCount: latest?.selectedDaySingogaCount ?? 0,
-    bulk: Boolean(latest?.bulkIngestDay),
-  });
   const visibleDealsByDate = useMemo(() => {
     const map = new Map<string, RegionDailyDeal[]>();
     let remaining = visibleDealCount;
@@ -1084,166 +937,120 @@ export function RegionDailyStatus({
   }, [calendarSelected, listedDates, sectionByDate, visibleDealCount]);
 
   return (
-    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-4 sm:gap-5">
-      <section
-        aria-label={`${regionName} 지역 시장 현황`}
-        className={`${SECTION_SURFACE} flex flex-col gap-3`}
-      >
-        <SectionHeading
-          title="지역 시장 현황"
-          basisLabel={CONTRACT_DATE_BASIS_LABEL}
-          basisHelp={CONTRACT_DATE_BASIS_HELP}
+    <div className="flex min-h-[min(70vh,42rem)] flex-col gap-3 sm:gap-5">
+      <div ref={stickyNavAnchor} className="-mb-3 h-0 sm:-mb-5" aria-hidden />
+      <RegionStickyNav anchor={stickyNavAnchor} title={regionName} subtitle="시장 현황" />
+      {guLawdCd ? (
+        <RegionPriceSection scope={{ lawdCd: guLawdCd }} regionName={regionName} />
+      ) : null}
+      {guLawdCd ? (
+        <RegionDongPricesSection
+          lawdCd={guLawdCd}
+          regionSlug={regionSlug}
+          regionName={regionName}
         />
-        <div className="flex flex-col gap-2">
-        <MonthNav
-          value={contractMonth}
-          options={section1Months}
-          onChange={setContractMonth}
+      ) : null}
+      {guLawdCd ? (
+        <RegionJeonseSection
+          scope={{ lawdCd: guLawdCd }}
+          regionSlug={regionSlug}
+          regionName={regionName}
         />
-        {marketQuery.isError ? (
-          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            시장 현황을 불러오지 못했습니다.
-          </p>
-        ) : null}
-        {marketQuery.isLoading && !market ? (
-          <div className="h-24 animate-pulse rounded-lg bg-slate-200/50" />
-        ) : market ? (
-          <>
-            <div className="grid grid-cols-2 gap-2 lg:grid-cols-3">
-              <Kpi
-                label="거래량"
-                value={`${market.monthTradeCount.toLocaleString("ko-KR")}건`}
-                side={market.comparePartial ? "오늘까지" : undefined}
-              />
-              <Kpi
-                label="전월 대비"
-                value={formatMomChangeValue(volumePct)}
-                side={volumeChangeSide(
-                  market.monthTradeCount,
-                  market.prevMonthTradeCount,
-                  volumePct,
-                )}
-                valueClassName={volumeChangeClass(volumePct)}
-                sideClassName={volumeChangeSideClass(volumePct)}
-              />
-              <Kpi
-                label="전년 동월 대비"
-                value={formatMomChangeValue(yearAgoPct)}
-                side={
-                  market.yearAgoMonthTradeCount != null
-                    ? volumeChangeSide(
-                        market.monthTradeCount,
-                        market.yearAgoMonthTradeCount,
-                        yearAgoPct,
-                      )
-                    : undefined
-                }
-                valueClassName={volumeChangeClass(yearAgoPct)}
-                sideClassName={volumeChangeSideClass(yearAgoPct)}
-              />
-              <Kpi
-                label="신고가"
-                value={
-                  market.monthSingogaCount != null
-                    ? `${market.monthSingogaCount.toLocaleString("ko-KR")}건`
-                    : "—"
-                }
-                valueClassName={singogaValueClass(market.monthSingogaCount)}
-              />
-              <Kpi
-                label="신고가 비율"
-                value={formatSharePct(singogaPct)}
-                valueClassName={singogaValueClass(
-                  market.monthSingogaCount,
-                )}
-              />
-              <Kpi
-                label="평당 중위가"
-                value={
-                  market.medianPyeongPrice != null
-                    ? formatPyeongMedian(market.medianPyeongPrice)
-                    : "—"
-                }
-              />
-            </div>
-            <Link
-              href="/stats"
-              className="inline-flex items-center gap-1 self-start text-sm font-medium text-slate-600 transition hover:text-slate-900"
-            >
-              시장 동향 자세히 보기
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </>
-        ) : null}
-        </div>
-      </section>
+      ) : null}
+
+      {guLawdCd ? (
+        <RegionTradeHighlightsSection
+          scope={{ lawdCd: guLawdCd }}
+          regionSlug={regionSlug}
+          regionName={regionName}
+        />
+      ) : null}
 
       <section
         id="newly-seen-deals"
-        aria-label={`${regionName} 새로 확인된 거래`}
-        className={`${SECTION_SURFACE} flex flex-col gap-2.5`}
+        aria-label={`${regionName} 새로 확인된 신고가`}
+        className={`${LAB_SECTION_SURFACE} flex flex-col gap-2.5`}
       >
-        <SectionHeading
-          title="새로 확인된 거래"
-          basisLabel={SEEN_DATE_BASIS_LABEL}
-          basisHelp={SEEN_DATE_BASIS_HELP}
+        <LabSectionHeader
+          title="새로 확인된 신고가"
+          meta={
+            heroDate ? `확인일 기준 · 최근 확인 ${koreanMonthDayLabel(heroDate)}` : "확인일 기준"
+          }
+          tip={<p>{SEEN_DATE_BASIS_HELP}</p>}
         />
         {latestQuery.isError ? (
-          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            새로 확인된 거래를 불러오지 못했습니다.
-          </p>
-        ) : null}
-        {latestQuery.isLoading && !latest ? (
-          <div className="h-40 animate-pulse rounded-lg bg-slate-200/50" />
-        ) : heroDate && heroDeals.length > 0 ? (
+          <p className="detail-body">새로 확인된 신고가를 불러오지 못했습니다.</p>
+        ) : latestQuery.isLoading && !latest ? (
+          <LabDataLoading label="신고가 불러오는 중" minHeight={128} />
+        ) : singogaDeals.length > 0 ? (
           <>
-            {heroIsToday ? (
-              <PhraseRow
-                className="text-sm leading-5"
-                leadingClassName="font-medium text-slate-900"
-                restClassName="tabular-nums text-slate-500"
-                items={[koreanMonthDayLabel(heroDate), ...heroCountPhrases]}
+            <div className="flex flex-col gap-2">
+              {(singogaExpanded ? singogaDeals : singogaDeals.slice(0, SINGOGA_PREVIEW)).map(
+                (deal) => (
+                  <SingogaRowCard key={deal.id} deal={deal} regionSlug={regionSlug} />
+                ),
+              )}
+            </div>
+            {singogaDeals.length > SINGOGA_PREVIEW ? (
+              <LabMoreButton
+                expanded={singogaExpanded}
+                onToggle={() => setSingogaExpanded((v) => !v)}
+                label={`${(singogaDeals.length - SINGOGA_PREVIEW).toLocaleString("ko-KR")}건 더보기`}
               />
-            ) : (
-              <p className="break-keep text-sm text-slate-600">
-                {newlySeenCompactStatus({
-                  isToday: false,
-                  heroDate,
-                })}
-              </p>
-            )}
-            {latest?.bulkIngestDay ? (
-              <p className="text-pretty text-xs leading-5 text-slate-500">
-                이날 확인 건수가 많아 신고가 강조는 생략했습니다. 신고가가
-                0건이라는 뜻은 아닙니다.
-              </p>
-            ) : null}
-            <DealGrid
-              deals={heroVisible}
-              regionSlug={regionSlug}
-              variant="featured"
-            />
-            {heroHidden > 0 ? (
-              <MoreControl onClick={() => setHeroExpanded(true)}>
-                더보기 {heroHidden.toLocaleString("ko-KR")}건
-              </MoreControl>
             ) : null}
           </>
+        ) : seenTrackingOff ? (
+          <p className="detail-body">
+            새로 확인된 신고가는 아직 수도권(서울·경기)만 추적합니다. 계약일 기준
+            거래는 아래 지역 거래 내역에서 볼 수 있습니다.
+          </p>
         ) : (
-          <div className="px-1 py-2 text-sm text-slate-500">
-            {EMPTY_NEWLY_SEEN}
-          </div>
+          <p className="detail-body">
+            {latest?.bulkIngestDay
+              ? "이날 확인 건수가 많아 신고가 강조는 생략했습니다."
+              : "최근 확인된 거래 중 신고가가 없습니다."}
+          </p>
+        )}
+        {seenTrackingOff ? null : (
+          <Link
+            href={`/market/price-moves?region=${encodeURIComponent(regionSlug)}`}
+            className="lab-button lab-button-secondary mt-1 w-full"
+          >
+            {regionName} 신고가 · 하락 거래 전체 보기
+            <span aria-hidden className="ml-1">
+              →
+            </span>
+          </Link>
         )}
       </section>
 
+      {lawdCodes.length > 0 ? (
+        <>
+          <RegionRankingTable
+            regionSlug={regionSlug}
+            regionName={regionName}
+            regionCode={guLawdCd}
+          />
+          {guLawdCd ? (
+            <RegionBudgetFinderSection
+              lawdCd={guLawdCd}
+              regionSlug={regionSlug}
+              regionName={regionName}
+            />
+          ) : null}
+          <RegionSupplyTimelineSection regionName={regionName} lawdCodes={lawdCodes} />
+        </>
+      ) : null}
+
       <section
+        id="market-history"
         aria-label={`${regionName} 지역 거래 내역`}
-        className={`${SECTION_SURFACE} flex flex-col gap-3`}
+        className={`${LAB_SECTION_SURFACE} flex flex-col gap-3`}
       >
-        <SectionHeading
+        <LabSectionHeader
           title="지역 거래 내역"
-          basisLabel={CONTRACT_DATE_BASIS_LABEL}
-          basisHelp={CONTRACT_DATE_BASIS_HELP}
+          meta={CONTRACT_DATE_BASIS_LABEL}
+          tip={<p>{CONTRACT_DATE_BASIS_HELP}</p>}
         />
 
         <div>
@@ -1255,14 +1062,28 @@ export function RegionDailyStatus({
             monthOptions={section3Months}
             onChangeMonth={changeActivityMonth}
           />
-          <p className="mt-2 max-w-md text-[11px] leading-4 text-slate-400">
+          <p className="detail-meta mt-2 max-w-md">
             {CALENDAR_HELPER}
           </p>
         </div>
 
         <div className="mt-2 flex flex-col gap-5 border-t border-slate-200/70 pt-5">
-          {historyQuery.data ? (
-            <p className="shrink-0 text-left text-xs tabular-nums text-slate-500">
+          {calendarSelected ? (
+            <div className="flex items-center justify-between gap-3">
+              <p className="detail-meta tabular-nums">
+                {koreanMonthDayLabel(calendarSelected)} 거래만 보는 중
+              </p>
+              <button
+                type="button"
+                onClick={clearCalendarDate}
+                className="inline-flex min-h-[44px] items-center text-[14px] font-semibold leading-5 hover:underline"
+                style={{ color: "var(--lab-brand-primary)" }}
+              >
+                전체 거래 보기
+              </button>
+            </div>
+          ) : historyQuery.data ? (
+            <p className="detail-meta shrink-0 text-left tabular-nums">
               이 달 총{" "}
               {(historyQuery.data.historyTotalCount ?? 0).toLocaleString(
                 "ko-KR",
@@ -1280,9 +1101,9 @@ export function RegionDailyStatus({
           {(historyQuery.isLoading || initialDaysQuery.isLoading) &&
           !historyQuery.data &&
           !initialDaysQuery.data ? (
-            <div className="h-24 animate-pulse rounded-lg bg-slate-200/50" />
+            <LabDataLoading label="거래 불러오는 중" minHeight={192} />
           ) : null}
-          {listedDates.map((date) => {
+          {(calendarSelected ? [calendarSelected] : listedDates).map((date) => {
             const section = sectionByDate.get(date);
             const summary = calendarDays.find((d) => d.date === date);
             const visibleDeals = visibleDealsByDate.get(date) ?? [];
@@ -1297,11 +1118,11 @@ export function RegionDailyStatus({
                     flashDate === date ? `${date}-flash-${flashNonce}` : date
                   }
                   id={recordDateDomId(date)}
-                  className={`scroll-mt-[calc(var(--site-header-height,3.5rem)+0.75rem)] ${headingClass}`}
+                  className={`scroll-mt-[calc(var(--site-header-height,3.5rem)+var(--lab-sticky-nav-height,0px)+0.75rem)] ${headingClass}`}
                 >
                   <PhraseRow
                     className="text-sm font-medium text-slate-900"
-                    restClassName="text-xs font-normal tabular-nums text-slate-500"
+                    restClassName="text-[13px] font-normal tabular-nums text-slate-500"
                     items={[
                       koreanMonthDayLabel(date),
                       ...(section
@@ -1313,7 +1134,7 @@ export function RegionDailyStatus({
                   />
                 </h4>
                 {section?.bulkIngestDay ? (
-                  <p className="mt-1 text-pretty text-xs leading-5 text-slate-500">
+                  <p className="detail-meta mt-1 text-pretty">
                     이날 거래 건수가 많아 신고가 강조는 생략했습니다. 신고가가
                     0건이라는 뜻은 아닙니다.
                   </p>
@@ -1331,15 +1152,29 @@ export function RegionDailyStatus({
                         해당 날짜 거래가 없습니다.
                       </p>
                     ) : null}
+                    {date === calendarSelected && section.hasMore ? (
+                      <div className="mt-3">
+                        <LabMoreButton
+                          expanded={false}
+                          onToggle={() => void loadMoreBulk(section)}
+                          label="이 날 거래 더보기"
+                        />
+                      </div>
+                    ) : null}
                   </>
                 ) : null}
               </div>
             );
           })}
           {pendingDates.length > 0 ? (
-            <div className="h-16 animate-pulse rounded-lg bg-slate-200/50" />
+            <LabDataLoading label="거래 불러오는 중" minHeight={64} />
           ) : null}
-          <div ref={historySentinel} className="h-px" aria-hidden="true" />
+          {!calendarSelected && hasMoreHistory && pendingDates.length === 0 ? (
+            <LabMoreButton expanded={false} onToggle={loadNextHistory} />
+          ) : null}
+          <LabTextLink href={`/transactions?region=${regionSlug}`}>
+            조건으로 실거래 검색하기
+          </LabTextLink>
         </div>
       </section>
     </div>

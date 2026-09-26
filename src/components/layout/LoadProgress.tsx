@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -9,11 +10,15 @@ import {
   useMemo,
   useState,
 } from "react";
+import { LabTopProgress } from "@/components/ui/LabLoading";
 
 type LoadProgressContextValue = {
   /** Non-empty status text under the bar; null = bar only / hidden text */
   label: string | null;
-  /** Whether any progress source is active */
+  /**
+   * 페이지 이동("nav") 중인지 — 맨 위 막대는 이것만 본다.
+   * 페이지 안 데이터 로딩은 섹션마다 자기 자리에서 로딩을 보이므로(한 번에 표시 하나) 막대를 띄우지 않는다.
+   */
   active: boolean;
   /** Pass null/empty label for bar-only. */
   show: (label: string | null, source?: string) => void;
@@ -21,24 +26,13 @@ type LoadProgressContextValue = {
 };
 
 const DEFAULT_SOURCE = "default";
+/** 맨 위 막대를 띄우는 유일한 출처 — 페이지 이동(링크 누름 → 주소 바뀜, 경로 Suspense 대기) */
+export const NAV_PROGRESS_SOURCE = "nav";
 
 const LoadProgressContext = createContext<LoadProgressContextValue | null>(
   null,
 );
 
-function resolveLabel(bySource: Record<string, string | null>): string | null {
-  const order = ["query", "default", "nav"] as const;
-  for (const key of order) {
-    if (key in bySource) {
-      const value = bySource[key];
-      return value && value.length > 0 ? value : null;
-    }
-  }
-  const keys = Object.keys(bySource);
-  if (keys.length === 0) return null;
-  const value = bySource[keys[keys.length - 1]];
-  return value && value.length > 0 ? value : null;
-}
 
 export function LoadProgressProvider({
   children,
@@ -65,8 +59,9 @@ export function LoadProgressProvider({
     });
   }, []);
 
-  const active = Object.keys(bySource).length > 0;
-  const label = useMemo(() => resolveLabel(bySource), [bySource]);
+  const active = NAV_PROGRESS_SOURCE in bySource;
+  const navLabel = bySource[NAV_PROGRESS_SOURCE];
+  const label = navLabel && navLabel.length > 0 ? navLabel : null;
 
   const value = useMemo(
     () => ({ label, active, show, hide }),
@@ -94,7 +89,8 @@ export function useLoadProgress() {
 }
 
 /**
- * Header progress while `active` (e.g. first query load).
+ * 맨 위 막대를 `active` 동안 켠다 — 페이지 이동 대기(경로 Suspense 자리 등)에만 쓴다.
+ * 페이지 안 데이터 로딩에는 쓰지 않는다: 섹션 틀을 먼저 그리고 섹션 안에서 LabSectionLoading/LabDataLoading을 보인다.
  * Message changes only update the label — they must not hide/remount the bar.
  * Pass an empty message for a bar-only indicator (no status text).
  * Uses layout effect so the bar appears before paint on page entry.
@@ -102,7 +98,7 @@ export function useLoadProgress() {
 export function useLoadProgressWhen(
   active: boolean,
   message: string,
-  source = "query",
+  source = NAV_PROGRESS_SOURCE,
 ) {
   const { show, hide } = useLoadProgress();
 
@@ -118,45 +114,49 @@ export function useLoadProgressWhen(
 }
 
 
-/** SiteHeader 하단에 절대 배치 — 헤더 높이를 흔들지 않아 sticky 깜빡임 방지 */
+/** (예전 헤더 아래 막대) — 전역 {@link GlobalLoadProgress}로 옮겨 빈 컴포넌트로 둔다 */
 export function SiteHeaderLoadProgress() {
-  const { label, active } = useLoadProgress();
-  const [displayLabel, setDisplayLabel] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
+  return null;
+}
 
+/**
+ * 화면 맨 위 진행 막대 — 모든 페이지(상단바 없는 상세 페이지 포함).
+ * 페이지 이동(내부 링크 누름 → 주소 바뀜) 동안만 보인다. 페이지 안 데이터 로딩은 각 섹션이 제자리에서 보인다.
+ */
+export function GlobalLoadProgress() {
+  const { label, active, show, hide } = useLoadProgress();
+  const pathname = usePathname();
+  const search = useSearchParams();
+
+  // 내부 링크를 누르면 이동 시작
   useEffect(() => {
-    if (active) {
-      const frame = window.requestAnimationFrame(() => {
-        setOpen(true);
-        setDisplayLabel(label);
-      });
-      return () => window.cancelAnimationFrame(frame);
-    }
-    const t = window.setTimeout(() => {
-      setOpen(false);
-      setDisplayLabel(null);
-    }, 80);
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
+      if (!a || a.target === "_blank" || a.hasAttribute("download")) return;
+      let url: URL;
+      try {
+        url = new URL(a.href, location.href);
+      } catch {
+        return;
+      }
+      if (url.origin !== location.origin) return;
+      if (url.pathname === location.pathname && url.search === location.search) return;
+      show(null, NAV_PROGRESS_SOURCE);
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, [show]);
+
+  // 주소가 바뀌면 이동 끝 (혹시 못 끝나도 10초 뒤엔 닫는다)
+  useEffect(() => {
+    hide(NAV_PROGRESS_SOURCE);
+  }, [pathname, search, hide]);
+  useEffect(() => {
+    if (!active) return;
+    const t = window.setTimeout(() => hide(NAV_PROGRESS_SOURCE), 10_000);
     return () => window.clearTimeout(t);
-  }, [active, label]);
+  }, [active, hide]);
 
-  if (!open) return null;
-
-  const text = label ?? displayLabel;
-
-  return (
-    <div
-      role="status"
-      aria-live="polite"
-      className="pointer-events-none absolute inset-x-0 top-full z-[60]"
-    >
-      <div className="relative h-1 w-full overflow-hidden bg-teal-100/90">
-        <div className="absolute inset-y-0 w-1/3 animate-[apt-load-progress_1.15s_ease-in-out_infinite] rounded-full bg-teal-600" />
-      </div>
-      {text ? (
-        <div className="border-t border-teal-100/80 bg-teal-50/95 px-4 py-2 text-center text-xs font-medium text-teal-800 sm:px-6">
-          {text}
-        </div>
-      ) : null}
-    </div>
-  );
+  return <LabTopProgress active={active} label={label} />;
 }

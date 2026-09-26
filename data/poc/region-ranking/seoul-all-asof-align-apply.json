@@ -1,0 +1,11 @@
+{
+  "apply": true,
+  "scope": "seoul",
+  "asOf": "2026-07-31",
+  "featureRunId": "13855c61201511888948b5debedf1dc423ea7025b4508ad45e73d26420434a5d",
+  "featureRowsAttempted": 8437,
+  "publicationsInserted": 0,
+  "publicationsUpdated": 0,
+  "publicationsSkippedUnchanged": 25,
+  "oldSeoulFeatureKept": true
+}

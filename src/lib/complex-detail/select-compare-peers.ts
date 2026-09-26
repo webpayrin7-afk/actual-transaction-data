@@ -4,7 +4,11 @@
  */
 import { getDb } from "@/lib/db/client";
 import { normalizeAptName } from "@/lib/db/repository";
-import { ALL_REGIONS, type RegionDef } from "@/lib/constants/regions";
+import {
+  ALL_REGIONS,
+  districtNameFromCode,
+  type RegionDef,
+} from "@/lib/constants/regions";
 // regionFromGu mirrors molit/apt (not exported).
 
 export type ComparePeerCandidate = {
@@ -40,6 +44,32 @@ function regionFromGu(gu: string): RegionDef | undefined {
       r.districts.some((d) => gu.includes(d.name) || d.name === gu)
     );
   });
+}
+
+let lawdCodesByGu: Map<string, string[]> | null = null;
+
+/**
+ * transactions.gu 는 적재 시 districtNameFromCode(sggCd|lawdCd) 로만 채워진다.
+ * 그 역(표시명 → 법정동코드)으로 lawd_cd 를 좁혀 idx_tx_trade_lawd_apt_ym 범위 검색을
+ * 하게 한다. gu = ? 조건은 그대로 두므로 결과 행은 gu 만으로 거른 것과 같다.
+ * (2026-09-26 전체 매매 5.09M 행 검증: gu 가 비어 있지 않은 행은 모두
+ * gu = districtNameFromCode(lawd_cd).)
+ */
+function lawdCodesForGu(gu: string): string[] {
+  if (!lawdCodesByGu) {
+    const map = new Map<string, string[]>();
+    for (const region of ALL_REGIONS) {
+      for (const d of region.districts) {
+        const name = districtNameFromCode(d.code);
+        if (!name) continue;
+        const list = map.get(name) ?? [];
+        if (!list.includes(d.code)) list.push(d.code);
+        map.set(name, list);
+      }
+    }
+    lawdCodesByGu = map;
+  }
+  return lawdCodesByGu.get(gu) ?? [];
 }
 
 function asStr(v: unknown): string {
@@ -148,16 +178,34 @@ export async function selectComparePeers(
   const ph = norms.map(() => "?").join(",");
 
   // 2) Area + build year from recent trades of these candidates only (bounded IN list).
-  const areaRes = await db.execute({
-    sql: `SELECT apt_name_norm, exclusive_area, build_year, COUNT(*) AS c
-          FROM transactions
-          WHERE gu = ? AND apt_name_norm IN (${ph}) AND deal_type = 'trade'
-            AND exclusive_area > 0
-          GROUP BY apt_name_norm, exclusive_area, build_year
-          ORDER BY c DESC
-          LIMIT 400`,
-    args: [gu, ...norms],
-  });
+  // gu 만 주면 통계 없는 플래너가 deal_type 인덱스로 전국 매매를 훑는다(10~30초, 504).
+  // gu 의 법정동코드로 (lawd_cd, apt_name_norm) 매매 부분 인덱스를 타게 한다 — 기간 제한
+  // 없이 같은 행·같은 집계(비교 결과 동일). 코드를 모르는 gu 만 예전 쿼리로 둔다.
+  const lawdCodes = lawdCodesForGu(gu);
+  const areaRes = await db.execute(
+    lawdCodes.length > 0
+      ? {
+          sql: `SELECT apt_name_norm, exclusive_area, build_year, COUNT(*) AS c
+                FROM transactions INDEXED BY idx_tx_trade_lawd_apt_ym
+                WHERE lawd_cd IN (${lawdCodes.map(() => "?").join(",")})
+                  AND apt_name_norm IN (${ph}) AND deal_type = 'trade'
+                  AND gu = ? AND exclusive_area > 0
+                GROUP BY apt_name_norm, exclusive_area, build_year
+                ORDER BY c DESC
+                LIMIT 400`,
+          args: [...lawdCodes, ...norms, gu],
+        }
+      : {
+          sql: `SELECT apt_name_norm, exclusive_area, build_year, COUNT(*) AS c
+                FROM transactions
+                WHERE gu = ? AND apt_name_norm IN (${ph}) AND deal_type = 'trade'
+                  AND exclusive_area > 0
+                GROUP BY apt_name_norm, exclusive_area, build_year
+                ORDER BY c DESC
+                LIMIT 400`,
+          args: [gu, ...norms],
+        },
+  );
 
   type AreaAgg = {
     bestArea: number | null;

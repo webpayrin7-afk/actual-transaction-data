@@ -1,43 +1,43 @@
 "use client";
 
 import {
+  use,
   useEffect,
   useMemo,
   useRef,
   useState,
   type ReactNode,
 } from "react";
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
-  LoaderCircle,
 } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
-import { ComplexMgmtFeeCard } from "@/components/apt/ComplexMgmtFeeCard";
-import {
-  ComplexInfoCard,
-  complexHeaderChips,
-  hasComplexInfoSection,
-} from "@/components/apt/ComplexInfoCards";
-import { ComplexNearbyLifeSection } from "@/components/apt/ComplexNearbyLifeSection";
-import { ComplexNearbySalesSection } from "@/components/apt/ComplexNearbySalesSection";
-import { ComplexCompareSection } from "@/components/apt/ComplexCompareSection";
+import { ComplexHeroMeta } from "@/components/apt/ComplexHeroMeta";
+import { complexHeroMeta } from "@/lib/complex-detail/hero-meta";
+import { ComplexJeonseBenchmark } from "@/components/apt/ComplexJeonseBenchmark";
+import { ComplexTradeActivity } from "@/components/apt/ComplexTradeActivity";
+import { ComplexRentMetrics } from "@/components/apt/ComplexRentMetrics";
+import { SaveComplexButton } from "@/components/complexes/SaveComplexButton";
 import type { ComplexDetailV1 } from "@/lib/complex-detail/get-complex-detail-v1";
 import { getRegion } from "@/lib/constants/regions";
 import type { AptDetailResponse } from "@/lib/molit/apt-client";
+import { APT_DETAIL_MONTHS, buildAptDetailUrl } from "@/lib/apt/apt-detail-url";
+import { unpackAptDetail } from "@/lib/molit/apt-detail-wire";
 import {
   AptPriceChart,
   PeriodRangeSlider,
 } from "@/components/apt/AptPriceChart";
 import { AptAreaSelector } from "@/components/apt/AptAreaSelector";
-import { ComplexPurchaseCalculatorSection } from "@/components/apt/calculator/ComplexPurchaseCalculatorSection";
+import { areaOptionContains, resolveAreaKeyAlias } from "@/lib/apt/area-groups";
+import { AptStickyNav } from "@/components/apt/AptStickyNav";
 import {
   TransactionList,
-  TransactionTypeTabs,
 } from "@/components/apt/TransactionHistory";
 import {
   filterTransactionsByType,
+  filterTransactionsForList,
+  dealTypePriceTextClass,
   type TransactionTabType,
 } from "@/lib/apt/transaction-type";
 import {
@@ -54,23 +54,110 @@ import {
   resolveDefaultAreaKey,
 } from "@/lib/apt/default-area";
 import {
-  PAGE_SHELL,
+  DETAIL_PAGE_SHELL,
   PageHeader,
 } from "@/components/layout/PageHeader";
-import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
+import { LabDataLoading } from "@/components/ui/LabLoading";
+import { LabTabs } from "@/components/ui/LabTabs";
+import { Complex3dEntryCard } from "@/components/complex-3d/Complex3dEntry";
+import { ComplexRedevSection } from "@/components/apt/ComplexRedevSection";
+import { attachTypeSupply, fetchComplexTypes } from "@/lib/apt/area-supply";
+import { pickLatestDeal } from "@/lib/deals/latest";
+
+const DETAIL_PICK = {
+  date: (i: { dealDate: string }) => i.dealDate,
+  floor: (i: { floor?: number | string | null }) => (i.floor == null || i.floor === "" ? null : Number(i.floor)),
+  amount: (i: { dealAmount: number }) => Number(i.dealAmount),
+  gbn: (i: { dealingGbn?: string | null }) => i.dealingGbn ?? null,
+};
 import {
-  labSecondaryTabClass,
-  labSegmentedClass,
-  labUnderlineTabClass,
-} from "@/components/ui/lab";
+  LAB_SUBSECTION_RULE,
+  LabSection,
+  LabSubsectionHeader,
+} from "@/components/ui/LabSection";
+import { LabStatTiles } from "@/components/ui/LabStatTiles";
+import { LabSectionBoundary } from "@/components/ui/LabSectionBoundary";
+import { lazySection } from "@/components/ui/lazySection";
+import {
+  LazyMountProvider,
+  scrollToSectionWhenReady,
+  useMountAllLazy,
+} from "@/components/ui/LazyMountWhenNear";
 import {
   formatDealDate,
   formatEok,
 } from "@/lib/utils/format";
 
-const QUICK_MONTHS = 36;
-const FULL_MONTHS = 120;
+/** DB 모드는 months와 무관하게 전체 이력을 주므로 한 번에 120개월로 요청 */
+const DETAIL_MONTHS = APT_DETAIL_MONTHS;
 const RECENT_YEARS = 3;
+
+/*
+ * 첫 화면(헤더·실거래 현황·차트) 아래 섹션은 따로 받는다 — 첫 로드 JS에서 빼고,
+ * 시세가 뜬 뒤 한가할 때 미리 받아 둔다(preloadSectionChunks).
+ */
+const loadTradeInsight = () =>
+  import("@/components/apt/ComplexTradeInsightSection").then((m) => m.ComplexTradeInsightSection);
+const loadTypeDong = () =>
+  import("@/components/apt/ComplexTypeDongSection").then((m) => m.ComplexTypeDongSection);
+const loadUnitMix = () =>
+  import("@/components/apt/ComplexUnitMixSection").then((m) => m.ComplexUnitMixSection);
+const loadCalculator = () =>
+  import("@/components/apt/calculator/ComplexPurchaseCalculatorSection").then(
+    (m) => m.ComplexPurchaseCalculatorSection,
+  );
+const loadRegionRank = () =>
+  import("@/components/apt/ComplexRegionRankSection").then((m) => m.ComplexRegionRankSection);
+const loadCompare = () =>
+  import("@/components/apt/ComplexCompareSection").then((m) => m.ComplexCompareSection);
+const loadNearbyLife = () =>
+  import("@/components/apt/ComplexNearbyLifeSection").then((m) => m.ComplexNearbyLifeSection);
+const loadNearbySales = () =>
+  import("@/components/apt/ComplexNearbySalesSection").then((m) => m.ComplexNearbySalesSection);
+const loadMgmtFeeCard = () =>
+  import("@/components/apt/ComplexMgmtFeeCard").then((m) => m.ComplexMgmtFeeCard);
+const loadMgmtFeeEmpty = () =>
+  import("@/components/apt/ComplexMgmtFeeCard").then((m) => m.ComplexMgmtFeeEmpty);
+
+const ComplexTradeInsightSection = lazySection(loadTradeInsight);
+const ComplexTypeDongSection = lazySection(loadTypeDong);
+const ComplexUnitMixSection = lazySection(loadUnitMix);
+const ComplexPurchaseCalculatorSection = lazySection(loadCalculator);
+const ComplexRegionRankSection = lazySection(loadRegionRank);
+const ComplexCompareSection = lazySection(loadCompare);
+const ComplexNearbyLifeSection = lazySection(loadNearbyLife);
+const ComplexNearbySalesSection = lazySection(loadNearbySales);
+const ComplexMgmtFeeCard = lazySection(loadMgmtFeeCard);
+const ComplexMgmtFeeEmpty = lazySection(loadMgmtFeeEmpty);
+
+const LAZY_SECTIONS = [
+  ComplexTradeInsightSection,
+  ComplexTypeDongSection,
+  ComplexUnitMixSection,
+  ComplexPurchaseCalculatorSection,
+  ComplexRegionRankSection,
+  ComplexCompareSection,
+  ComplexNearbyLifeSection,
+  ComplexNearbySalesSection,
+  ComplexMgmtFeeCard,
+  ComplexMgmtFeeEmpty,
+];
+
+let sectionChunksRequested = false;
+/** 시세가 뜬 뒤 한가할 때 섹션 코드만 미리 받는다(데이터 요청은 섹션이 마운트될 때). */
+function preloadSectionChunks(): () => void {
+  if (sectionChunksRequested || typeof window === "undefined") return () => {};
+  const run = () => {
+    sectionChunksRequested = true;
+    for (const section of LAZY_SECTIONS) void section.preload();
+  };
+  if (typeof window.requestIdleCallback === "function") {
+    const id = window.requestIdleCallback(run, { timeout: 3000 });
+    return () => window.cancelIdleCallback(id);
+  }
+  const t = window.setTimeout(run, 300);
+  return () => window.clearTimeout(t);
+}
 
 async function fetchAptDetail(
   aptName: string,
@@ -78,15 +165,116 @@ async function fetchAptDetail(
   months: number,
   gu?: string,
 ): Promise<AptDetailResponse> {
-  const qs = new URLSearchParams({
-    aptName,
-    region,
-    months: String(months),
-  });
-  if (gu?.trim()) qs.set("gu", gu.trim());
-  const res = await fetch(`/api/apt-detail?${qs.toString()}`);
+  // page.tsx가 같은 주소로 preload해 두므로 JS가 늦게 떠도 요청은 HTML 파싱 때 이미 출발해 있다.
+  const res = await fetch(buildAptDetailUrl({ aptName, region, months, gu }));
   if (!res.ok) throw new Error("failed");
-  return res.json();
+  return unpackAptDetail(await res.json());
+}
+
+/**
+ * 섹션 틀 — 제목과 대략의 높이(모바일 기준, 다 불러온 뒤 높이보다 조금 작게).
+ * 아직 마운트 전인 아래 섹션 자리·섹션 코드를 받는 동안 이 틀을 먼저 그리고 틀 안에서 로딩을 보인다.
+ */
+const APT_SECTION_FRAMES = {
+  market: { id: "section-market", title: "실거래 현황", minHeight: 1200 },
+  tradeInsight: { id: "section-trade-insight", title: "거래 분석", minHeight: 640 },
+  typeDong: { id: "section-type-dong", title: "타입·동 정보", minHeight: 520 },
+  unitMix: { id: "section-unit-mix", title: "평형 구성", minHeight: 420 },
+  regionRank: { id: "section-region-rank", title: "지역 내 비교", minHeight: 540 },
+  comparison: { id: "section-comparison", title: "단지 비교", minHeight: 340 },
+  nearbyLife: { id: "section-nearby-life", title: "주변 생활", minHeight: 520 },
+  nearbySales: { id: "section-nearby-sales", title: "주변 공급", minHeight: 200 },
+  calculator: { id: "section-calculator", title: "세금·대출 계산", minHeight: 600 },
+  management: { id: "section-management", title: "관리비", minHeight: 600 },
+} as const;
+
+/**
+ * 시세가 오기 전 첫 화면 — 서버 스트리밍 대기(page.tsx Suspense)와 시세 첫 로딩이 같은 모양.
+ * 단지명 머리를 바로 그리고, 그 아래 로딩 하나만 보인다 (빈 섹션 틀을 늘어놓지 않는다).
+ * 단지명·지역은 주소에서 바로 알 수 있으므로 기다리지 않는다.
+ */
+export function AptDetailSkeleton({
+  aptName,
+  regionSlug,
+  gu,
+}: {
+  aptName?: string;
+  regionSlug?: string;
+  gu?: string;
+}) {
+  const location = gu?.trim() || (regionSlug ? getRegion(regionSlug)?.name : undefined) || undefined;
+  return (
+    <div className={DETAIL_PAGE_SHELL} aria-busy="true">
+      <header className="-mt-1 sm:-mt-1.5">
+        <PageHeader
+          leading={<BackLink fallback="/complexes" compact hideLabel />}
+          title={aptName || "단지 상세"}
+          titleSuffix={location}
+          titleClassName="detail-page-title"
+          showDivider={false}
+        />
+      </header>
+      {/* 첫 화면은 단지 이름 + 로딩 하나만 — 빈 섹션 틀을 늘어놓으면 오히려 비어 보인다 (섹션 틀은 시세가 온 뒤 아래 섹션에서) */}
+      <LabDataLoading label="단지 정보 불러오는 중" minHeight={220} />
+    </div>
+  );
+}
+
+/**
+ * 한 번 받은 단지정보를 기억 — 이미 본 단지로 다시 들어오면(시세도 React Query에 있음)
+ * 서버가 새로 스트리밍하는 단지정보를 기다리느라 첫 화면 자리가 번쩍이지 않게, 기억한 값으로 바로 그린다.
+ * 새로 온 값은 도착하면 바꿔 끼운다. 표시하는 내용만 담는다(단지당 한 건, 탭을 닫으면 사라짐).
+ */
+const complexDetailMemory = new Map<string, ComplexDetailV1 | null>();
+const COMPLEX_DETAIL_MEMORY_MAX = 30;
+
+function rememberComplexDetail(key: string, value: ComplexDetailV1 | null) {
+  complexDetailMemory.delete(key);
+  complexDetailMemory.set(key, value);
+  if (complexDetailMemory.size > COMPLEX_DETAIL_MEMORY_MAX) {
+    const oldest = complexDetailMemory.keys().next().value;
+    if (oldest !== undefined) complexDetailMemory.delete(oldest);
+  }
+}
+
+function useStreamedComplexDetail({
+  memoryKey,
+  promise,
+  fallback,
+  ready,
+}: {
+  memoryKey: string;
+  promise: Promise<ComplexDetailV1 | null> | undefined;
+  fallback: ComplexDetailV1 | null;
+  /** 시세가 온 뒤에만 읽는다 — 그 전(서버 렌더 포함)에는 단지정보를 기다리지 않는다. */
+  ready: boolean;
+}): ComplexDetailV1 | null {
+  const [fresh, setFresh] = useState<{
+    promise: Promise<ComplexDetailV1 | null>;
+    value: ComplexDetailV1 | null;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!promise) return;
+    let cancelled = false;
+    promise.then(
+      (value) => {
+        rememberComplexDetail(memoryKey, value);
+        if (!cancelled) setFresh({ promise, value });
+      },
+      () => {},
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [memoryKey, promise]);
+
+  if (!promise) return fallback;
+  if (fresh && fresh.promise === promise) return fresh.value;
+  if (!ready) return fallback;
+  if (complexDetailMemory.has(memoryKey)) return complexDetailMemory.get(memoryKey) ?? null;
+  // `use`는 조건부 호출 가능 — 기억한 값이 없을 때만 스트리밍 도착을 기다린다(보통 시세보다 먼저 온다).
+  return use(promise);
 }
 
 function ymFromDealDate(dealDate: string): string {
@@ -109,7 +297,8 @@ export function AptDetailPage({
   regionSlug,
   gu,
   initialAreaKey,
-  complexDetail = null,
+  complexDetail: complexDetailProp = null,
+  complexDetailPromise,
   initialNearbyTab,
   initialSchoolLevel,
 }: {
@@ -120,6 +309,11 @@ export function AptDetailPage({
   initialAreaKey?: string;
   /** Phase 7.2 enrichment (nullable; market must render without it) */
   complexDetail?: ComplexDetailV1 | null;
+  /**
+   * 서버가 기다리지 않고 넘기는 단지정보(스트리밍). 시세가 온 뒤에만 읽으므로
+   * 셸 HTML·시세 요청은 이것을 기다리지 않는다. 보통 시세보다 먼저 도착한다.
+   */
+  complexDetailPromise?: Promise<ComplexDetailV1 | null>;
   initialNearbyTab?: string;
   /** Restore school-level sub-tab when returning from school detail. */
   initialSchoolLevel?: string;
@@ -137,24 +331,26 @@ export function AptDetailPage({
   } | null>(null);
   const [boundKey, setBoundKey] = useState(aptIdentity);
   const [periodPreset, setPeriodPreset] = useState<PeriodPreset>("recent3");
-  const [stickyVisible, setStickyVisible] = useState(false);
-  const [activeSection, setActiveSection] = useState("market");
-  const heroRef = useRef<HTMLElement | null>(null);
+  const [monthSelection, setMonthSelection] = useState<{
+    scope: string;
+    ym: string | null;
+  }>({ scope: "", ym: null });
+  const stickyAnchorRef = useRef<HTMLDivElement | null>(null);
 
-  const quickQuery = useQuery({
-    queryKey: ["apt-detail", aptName, regionSlug, gu ?? "", "quick", QUICK_MONTHS],
-    queryFn: () => fetchAptDetail(aptName, regionSlug, QUICK_MONTHS, gu),
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const fullQuery = useQuery({
-    queryKey: ["apt-detail", aptName, regionSlug, gu ?? "", "full", FULL_MONTHS],
-    queryFn: () => fetchAptDetail(aptName, regionSlug, FULL_MONTHS, gu),
-    enabled: quickQuery.isSuccess,
+  // quick(36)→full(120) 두 번 받던 것을 한 번으로: 서버가 어차피 전체 이력을 줌
+  const detailQuery = useQuery({
+    queryKey: ["apt-detail", aptName, regionSlug, gu ?? "", "full", DETAIL_MONTHS],
+    queryFn: () => fetchAptDetail(aptName, regionSlug, DETAIL_MONTHS, gu),
     staleTime: 30 * 60 * 1000,
   });
 
-  const data = fullQuery.data ?? quickQuery.data;
+  const data = detailQuery.data;
+  const complexDetail = useStreamedComplexDetail({
+    memoryKey: `${aptName}|${regionSlug}|${gu ?? ""}`,
+    promise: complexDetailPromise,
+    fallback: complexDetailProp,
+    ready: !!data,
+  });
 
   /** URL > 84㎡대/거래량 자동 > all */
   const resolvedAreaKey = useMemo(() => {
@@ -162,10 +358,13 @@ export function AptDetailPage({
     if (initialAreaKey && isValidAreaKey(initialAreaKey, data.areas)) {
       return initialAreaKey;
     }
+    // 예전 링크의 전용 key("84.98")는 그 전용이 든 묶음 평형으로
+    const aliased = initialAreaKey ? resolveAreaKeyAlias(initialAreaKey, data.areas) : null;
+    if (aliased) return aliased;
     return resolveDefaultAreaKey(data.areas, data.items);
   }, [data, initialAreaKey]);
 
-  /** 단지당 최초 확정값 (quick→full 재계산으로 선택값이 바뀌지 않게) */
+  /** 단지당 최초 확정값 (재조회로 데이터가 바뀌어도 선택값이 바뀌지 않게) */
   const [frozenDefault, setFrozenDefault] = useState<{
     forId: string;
     key: string;
@@ -206,103 +405,11 @@ export function AptDetailPage({
     gu,
   ]);
 
+  const hasData = !!data;
   useEffect(() => {
-    if (!data) return;
-    const hero = heroRef.current;
-    if (!hero) return;
-
-    // Hysteresis avoids boundary thrash when site-header height changes
-    // (load progress) or subpixel scroll toggles isIntersecting.
-    const SHOW_SLACK_PX = 4;
-    const HIDE_SLACK_PX = 32;
-    let visible = false;
-    let raf = 0;
-
-    const headerH = () => {
-      // Full-page /apt/[name] hides SiteHeader — treat as 0 (no blank top gap).
-      const header = document.querySelector<HTMLElement>("[data-site-header]");
-      if (!header) return 0;
-      return Math.max(1, Math.round(header.getBoundingClientRect().height));
-    };
-
-    const update = () => {
-      raf = 0;
-      const top = headerH();
-      const heroBottom = hero.getBoundingClientRect().bottom;
-      if (!visible && heroBottom <= top - SHOW_SLACK_PX) {
-        visible = true;
-        setStickyVisible(true);
-      } else if (visible && heroBottom >= top + HIDE_SLACK_PX) {
-        visible = false;
-        setStickyVisible(false);
-      }
-    };
-
-    const onScrollOrResize = () => {
-      if (raf) return;
-      raf = window.requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener("scroll", onScrollOrResize, { passive: true });
-    window.addEventListener("resize", onScrollOrResize);
-    const header = document.querySelector<HTMLElement>("[data-site-header]");
-    const ro = header ? new ResizeObserver(onScrollOrResize) : null;
-    if (header && ro) ro.observe(header);
-
-    return () => {
-      if (raf) window.cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScrollOrResize);
-      window.removeEventListener("resize", onScrollOrResize);
-      ro?.disconnect();
-      setStickyVisible(false);
-    };
-  }, [data]);
-
-  useEffect(() => {
-    if (!data) return;
-    const ids = [
-      "market",
-      "trades",
-      "calculator",
-      "management",
-      "complex-info",
-      "nearby-life",
-      "nearby-sales",
-      "comparison",
-    ] as const;
-    const nodes = ids
-      .map((id) => document.getElementById(`section-${id}`))
-      .filter((el): el is HTMLElement => !!el);
-    if (nodes.length === 0) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        const top = visible[0]?.target.getAttribute("id");
-        if (top?.startsWith("section-")) {
-          const id = top.replace("section-", "");
-          setActiveSection(
-            id === "trades" ? "market" : id,
-          );
-        }
-      },
-      { rootMargin: "-30% 0px -55% 0px", threshold: [0.1, 0.25, 0.5] },
-    );
-    nodes.forEach((n) => io.observe(n));
-    return () => io.disconnect();
-  }, [data, complexDetail]);
-  const isExtendingHistory =
-    quickQuery.isSuccess && !fullQuery.isSuccess && fullQuery.isFetching;
-  // Historical extend: bar-only (empty label) to avoid a sticky shouty banner;
-  // chart section keeps a compact inline hint.
-  const loadProgressLabel =
-    quickQuery.isLoading && !data ? "시세 불러오는 중…" : "";
-  useLoadProgressWhen(
-    (quickQuery.isLoading && !data) || isExtendingHistory,
-    loadProgressLabel,
-  );
+    if (!hasData) return;
+    return preloadSectionChunks();
+  }, [hasData]);
 
   const chartMonths = data?.chart.map((p) => p.yearMonth) ?? [];
   const dataKey = `${aptName}|${regionSlug}|${chartMonths.length}|${data?.loadedMonths ?? 0}`;
@@ -352,9 +459,29 @@ export function AptDetailPage({
     );
   }, [data, areaKey]);
 
+  // 평형 목록의 공급면적 — 타입·동 섹션과 같은 캐시(complex-types)를 쓴다
+  const typesComplexId = complexDetail?.identity?.complexId ?? null;
+  const typesQuery = useQuery({
+    queryKey: ["complex-types", typesComplexId],
+    queryFn: () => fetchComplexTypes(typesComplexId!),
+    enabled: !!typesComplexId,
+    staleTime: 60 * 60 * 1000,
+  });
+  const areasWithSupply = useMemo(() => {
+    const withSupply = attachTypeSupply(data?.areas ?? [], typesQuery.data?.types ?? []);
+    // 평형 시트에 보여줄 평형별 최근 매매 실거래
+    const trades = filterTransactionsByType(data?.items ?? [], "trade");
+    return withSupply.map((area) => {
+      const tx = trades.find((t) => areaOptionContains(area, Number(t.exclusiveArea)));
+      return tx
+        ? { ...area, latestTrade: { amount: tx.dealAmount, date: tx.dealDate, singoga: tx.isSingoga } }
+        : { ...area, latestTrade: null };
+    });
+  }, [data, typesQuery.data]);
+
   const selectedArea = useMemo(
-    () => data?.areas.find((a) => a.key === areaKey) ?? null,
-    [data, areaKey],
+    () => areasWithSupply.find((a) => a.key === areaKey) ?? null,
+    [areasWithSupply, areaKey],
   );
 
   const periodItems = (() => {
@@ -365,15 +492,40 @@ export function AptDetailPage({
     });
   })();
 
-  // Summary list is independent of chart period: latest N for selected area group.
-  const filteredByType = useMemo(
-    () => filterTransactionsByType(areaFiltered, dealFilter),
-    [areaFiltered, dealFilter],
-  );
-  /** Detail summary: latest 5 only for the active tab. */
-  const filtered = useMemo(
-    () => filteredByType.slice(0, 5),
-    [filteredByType],
+  // Summary list shares area + period + deal-type with the chart.
+  // 전월세 탭: 차트는 전세만, 거래내역은 전세+월세.
+  const chartDealType: TransactionTabType =
+    dealFilter === "monthly" ? "jeonse" : dealFilter;
+  const listDealMode =
+    chartDealType === "trade" ? ("trade" as const) : ("rent" as const);
+
+  const monthScope = `${areaKey}|${chartDealType}|${startYm}|${endYm}`;
+  const selectedMonthYm =
+    monthSelection.scope === monthScope ? monthSelection.ym : null;
+  const setSelectedMonthYm = (ym: string | null) => {
+    setMonthSelection({ scope: monthScope, ym });
+  };
+
+  const listSourceItems = useMemo(() => {
+    const base = selectedMonthYm
+      ? periodItems.filter(
+          (item) => ymFromDealDate(item.dealDate) === selectedMonthYm,
+        )
+      : periodItems;
+    return filterTransactionsForList(base, listDealMode);
+  }, [periodItems, selectedMonthYm, listDealMode]);
+
+  const LIST_PREVIEW = 5;
+  const visibleTrades = listSourceItems.slice(0, LIST_PREVIEW);
+
+  /** Chart overlays: 매매 or 전세 only (월세는 그래프 미표현). */
+  const chartDeals = useMemo(
+    () =>
+      filterTransactionsByType(
+        periodItems,
+        chartDealType === "trade" ? "trade" : "jeonse",
+      ),
+    [periodItems, chartDealType],
   );
   const chartPoints = (() => {
     if (!data) return [];
@@ -430,30 +582,33 @@ export function AptDetailPage({
   const periodTradeCount = periodItems.filter(
     (i) => i.dealType === "trade",
   ).length;
-  const periodMax =
-    periodItems
+  /** Area-wide peak for 최고가 대비 — independent of chart period / deal tab. */
+  const areaTradeMax =
+    areaFiltered
       .filter((i) => i.dealType === "trade")
       .reduce((m, i) => Math.max(m, i.dealAmount), 0) || 0;
 
   // 최근 매매·전세: 선택 평수(area) 기준 최신건. 기간 슬라이더와 독립.
-  const latestTrade = useMemo(() => {
-    const trades = areaFiltered
-      .filter((i) => i.dealType === "trade")
-      .sort((a, b) => (a.dealDate < b.dealDate ? 1 : -1));
-    return trades[0] ?? null;
-  }, [areaFiltered]);
+  // 최근 거래 — 지도와 같은 규칙 (매매 직거래 제외 · 전세 갱신 제외 · 같은 날이면 높은 층)
+  const latestTrade = useMemo(
+    () => pickLatestDeal(areaFiltered.filter((i) => i.dealType === "trade"), "trade", DETAIL_PICK),
+    [areaFiltered],
+  );
 
   const vsMaxPct =
-    latestTrade && periodMax > 0
-      ? Math.round((latestTrade.dealAmount / periodMax - 1) * 1000) / 10
+    latestTrade && areaTradeMax > 0
+      ? Math.round((latestTrade.dealAmount / areaTradeMax - 1) * 1000) / 10
       : null;
 
-  const latestJeonse = useMemo(() => {
-    const rows = areaFiltered
-      .filter((i) => i.dealType === "rent" && Number(i.monthlyRent ?? 0) === 0)
-      .sort((a, b) => (a.dealDate < b.dealDate ? 1 : -1));
-    return rows[0] ?? null;
-  }, [areaFiltered]);
+  const latestJeonse = useMemo(
+    () =>
+      pickLatestDeal(
+        areaFiltered.filter((i) => i.dealType === "rent" && Number(i.monthlyRent ?? 0) === 0),
+        "jeonse",
+        DETAIL_PICK,
+      ),
+    [areaFiltered],
+  );
 
   const periodJeonseCount = periodItems.filter(
     (i) => i.dealType === "rent" && Number(i.monthlyRent ?? 0) === 0,
@@ -469,8 +624,6 @@ export function AptDetailPage({
       ? latestTrade.dealAmount - latestJeonse.dealAmount
       : null;
 
-  const headerChips = complexHeaderChips(complexDetail);
-
   const transactionsHref = useMemo(() => {
     const qs = new URLSearchParams({
       region: regionSlug,
@@ -479,9 +632,8 @@ export function AptDetailPage({
       year: "all",
     });
     if (gu?.trim()) qs.set("gu", gu.trim());
-    return `/apt/${encodeURIComponent(aptName)}/transactions?${qs.toString()}`;
+    return `/apt/${aptName}/transactions?${qs.toString()}`;
   }, [aptName, regionSlug, gu, areaKey, dealFilter]);
-
 
   const setRecentYears = (years: number) => {
     if (chartMonths.length === 0) return;
@@ -503,136 +655,78 @@ export function AptDetailPage({
     setRangeOverride({ start: 0, end: chartMonths.length - 1 });
   };
 
-
+  // 계산기 화면에서 돌아옴(#calculator): 계산기 섹션이 마운트·배치된 뒤 스크롤(아래 섹션은 해시가 있으면 바로 마운트된다)
   useEffect(() => {
-    if (!data) return;
     if (typeof window === "undefined") return;
     if (window.location.hash !== "#calculator") return;
-    const t = window.setTimeout(() => scrollToSection("calculator"), 0);
-    return () => window.clearTimeout(t);
-  }, [data]);
+    return scrollToSectionWhenReady("section-calculator");
+  }, []);
 
   /**
    * Only when returning from school detail (?nearbyTab=school#section-nearby-life):
-   * scroll to 주변 생활, then strip restore markers so a later fresh apt entry
+   * scroll to 주변 생활 once it is mounted and laid out, then strip restore markers so a later fresh apt entry
    * defaults to 교통 again.
    */
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (initialNearbyTab !== "school") return;
     if (window.location.hash !== "#section-nearby-life") return;
-    const t = window.setTimeout(() => {
-      scrollToSection("nearby-life");
-      try {
-        const u = new URL(window.location.href);
-        u.searchParams.delete("nearbyTab");
-        u.searchParams.delete("schoolLevel");
-        u.hash = "";
-        window.history.replaceState(
-          window.history.state,
-          "",
-          `${u.pathname}${u.search}`,
-        );
-      } catch {
-        /* ignore */
-      }
-    }, 0);
-    return () => window.clearTimeout(t);
+    return scrollToSectionWhenReady("section-nearby-life", {
+      onScrolled: () => {
+        try {
+          const u = new URL(window.location.href);
+          u.searchParams.delete("nearbyTab");
+          u.searchParams.delete("schoolLevel");
+          u.hash = "";
+          window.history.replaceState(
+            window.history.state,
+            "",
+            `${u.pathname}${u.search}`,
+          );
+        } catch {
+          /* ignore */
+        }
+      },
+    });
   }, [initialNearbyTab]);
 
-  function scrollToSection(id: string) {
-    const el = document.getElementById(`section-${id}`);
-    if (!el) return;
-    setActiveSection(id);
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
   const periodButtons = (
-    <div className={labSegmentedClass()} role="group" aria-label="시세 기간">
-      {([1, 3, 5] as const).map((years) => {
-        const key = years === 1 ? "recent1" : years === 3 ? "recent3" : "recent5";
-        const pressed = periodPreset === key;
-        return (
-          <button
-            key={years}
-            type="button"
-            onClick={() => setRecentYears(years)}
-            aria-pressed={pressed}
-            className={labSecondaryTabClass(pressed)}
-          >
-            {years}년
-          </button>
-        );
-      })}
-      <button
-        type="button"
-        onClick={setFullRange}
-        aria-pressed={periodPreset === "full"}
-        className={labSecondaryTabClass(periodPreset === "full")}
-      >
-        전체
-      </button>
-    </div>
+    <LabTabs
+      variant="compact"
+      ariaLabel="시세 기간"
+      equalWidth={false}
+      allowEmpty
+      value={
+        periodPreset === "recent1" ||
+        periodPreset === "recent3" ||
+        periodPreset === "recent5" ||
+        periodPreset === "full"
+          ? periodPreset
+          : null
+      }
+      items={[
+        { id: "recent1", label: "1년" },
+        { id: "recent3", label: "3년" },
+        { id: "recent5", label: "5년" },
+        { id: "full", label: "전체" },
+      ]}
+      onChange={(next) => {
+        if (next === "full") setFullRange();
+        else if (next === "recent1") setRecentYears(1);
+        else if (next === "recent3") setRecentYears(3);
+        else setRecentYears(5);
+      }}
+    />
   );
 
-  const desktopNavItems: Array<{ id: string; label: string; show: boolean }> = [
-    { id: "market", label: "시세 · 거래", show: true },
-    { id: "calculator", label: "세금, 대출 계산", show: true },
-    {
-      id: "management",
-      label: "관리비",
-      show: !!complexDetail?.management,
-    },
-    {
-      id: "complex-info",
-      label: "단지 정보",
-      show: hasComplexInfoSection(complexDetail),
-    },
-    { id: "nearby-life", label: "주변 생활", show: true },
-    { id: "nearby-sales", label: "주변 공급", show: true },
-    { id: "comparison", label: "주변 단지 비교", show: true },
-  ];
-  const desktopNav = desktopNavItems.filter((i) => i.show);
-
-  const kpiCell = (
-    label: string,
-    value: ReactNode,
-    hint: ReactNode,
-    valueClassName = "",
-  ) => (
-    <div className="min-w-0 px-1.5 py-1.5 pb-2 text-center sm:px-3 sm:py-2 sm:text-left">
-      <p className="text-[9px] font-medium leading-tight text-slate-500 sm:text-[11px]">
-        {label}
-      </p>
-      <p
-        className={`lab-kpi-value mt-0.5 text-[13px] font-semibold leading-tight tabular-nums sm:text-base ${valueClassName}`.trim()}
-      >
-        {value}
-      </p>
-      <p className="mt-0.5 break-keep text-[9px] leading-snug text-slate-500 sm:text-[11px]">
-        {hint}
-      </p>
-    </div>
-  );
-
-  if (quickQuery.isLoading && !data) {
-    return (
-      <div className={`${PAGE_SHELL} max-w-5xl`}>
-        <div className="h-24 animate-pulse rounded-xl bg-slate-200/70" />
-        <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl bg-slate-200/60" />
-          ))}
-        </div>
-        <div className="h-64 animate-pulse rounded-xl bg-slate-200/50" />
-      </div>
-    );
+  if (detailQuery.isLoading && !data) {
+    return <AptDetailSkeleton aptName={aptName} regionSlug={regionSlug} gu={gu} />;
   }
 
-  if ((quickQuery.isError && !data) || !data) {
+  if ((detailQuery.isError && !data) || !data) {
     return (
-      <div className={`${PAGE_SHELL} max-w-5xl text-center`}>
-        <p className="text-sm font-medium text-slate-700">
+      <div className={`${DETAIL_PAGE_SHELL} text-center`}>
+        <p className="detail-body font-medium text-[color:var(--lab-navy-950)]">
           단지 정보를 불러오지 못했습니다.
         </p>
         <div className="mt-3 flex justify-center">
@@ -650,99 +744,97 @@ export function AptDetailPage({
     gu?.trim() ||
     region?.name?.trim() ||
     null;
+  /** 단지 시군구 코드 — 없으면 지역이 구 하나일 때만 그 코드 */
+  const nearbyLawdCd =
+    identity?.lawdCd?.trim() ||
+    (region?.lawdCodes.length === 1 ? region.lawdCodes[0] : null) ||
+    null;
   const locationLabel =
     identity?.sigungu || identity?.legalDongName
       ? [identity.sido, identity.sigungu, identity.legalDongName]
           .filter(Boolean)
           .join(" ")
       : `${data.fullName}${data.dong ? ` ${data.dong}` : ""}`;
+  const heroMeta = complexHeroMeta({
+    sido: identity?.sido,
+    sigungu: identity?.sigungu,
+    legalDongName: identity?.legalDongName,
+    approvalDate: complexDetail?.basic?.approvalDate,
+    buildYear: data.buildYear,
+    householdCount: complexDetail?.basic?.householdCount,
+    buildingCount: complexDetail?.basic?.buildingCount,
+    maxFloor: complexDetail?.building?.maxFloor,
+    parkingPerHousehold: complexDetail?.basic?.parkingPerHousehold,
+    farRatio: complexDetail?.building?.farRatio,
+    bcrRatio: complexDetail?.building?.bcrRatio,
+    heatingType: complexDetail?.basic?.heatingType,
+    locationFallback: locationLabel,
+  });
 
   return (
-    <div className={`${PAGE_SHELL} max-w-5xl`}>
-      {/* Sticky compact header — name + shared area selector */}
-      <div
-        className={`fixed inset-x-0 z-40 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur transition-[opacity,transform] duration-200 ease-out ${
-          stickyVisible
-            ? "translate-y-0 opacity-100"
-            : "pointer-events-none -translate-y-2 opacity-0"
-        }`}
-        style={{ top: "var(--site-header-height, 0px)" }}
-        aria-hidden={!stickyVisible}
-        {...(!stickyVisible ? { inert: true } : {})}
-      >
-        <div className="mx-auto flex w-full max-w-5xl items-center gap-2 overflow-hidden px-3 py-1.5 sm:gap-3 sm:px-6">
-          <div className="shrink-0">
-            <BackLink fallback="/complexes" compact hideLabel />
-          </div>
-          <p
-            className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900"
-            title={data.aptName}
-          >
-            {data.aptName}
-          </p>
-          <div className="min-w-0 max-w-[min(21rem,58%)] shrink-0">
-            <AptAreaSelector
-              areas={data.areas}
-              value={areaKey}
-              variant="compact"
-              onChange={(key) => {
-                setAreaOverride({ forId: aptIdentity, key });
-              }}
-            />
-          </div>
-        </div>
-      </div>
+    <LazySectionShell className={DETAIL_PAGE_SHELL}>
+      <AptStickyNav
+        anchor={stickyAnchorRef}
+        aptName={data.aptName}
+        areas={areasWithSupply}
+        areaKey={areaKey}
+        onAreaChange={(key) => setAreaOverride({ forId: aptIdentity, key })}
+      />
 
-      <header ref={heroRef} className="-mt-1 sm:-mt-1.5">
+      <header className="-mt-1 sm:-mt-1.5">
         <PageHeader
           leading={
             <BackLink fallback="/complexes" compact hideLabel />
           }
           title={data.aptName}
-          description={locationLabel}
-          meta={
-            <>
-              {headerChips.length > 0 ? (
-                <p className="text-[13px] font-medium leading-5 text-slate-700 sm:text-sm">
-                  {headerChips.join(" · ")}
-                </p>
-              ) : data.buildYear ? (
-                <p className="text-[13px] font-medium text-slate-700 sm:text-sm">
-                  {data.buildYear}년 입주
-                </p>
-              ) : null}
-            </>
+          titleSuffix={heroMeta.location ?? undefined}
+          titleClassName="detail-page-title"
+          action={
+            <SaveComplexButton
+              entry={{
+                aptName: data.aptName,
+                regionSlug: data.regionSlug,
+                gu: data.gu || gu,
+                dong: data.dong,
+                regionLabel: formatComplexLocationLabel({
+                  regionSlug: data.regionSlug,
+                  regionName: data.regionName,
+                  gu: data.gu || gu,
+                  dong: data.dong,
+                }),
+                snapshot: latestTrade
+                  ? {
+                      areaLabel:
+                        areaKey === "all" || !selectedArea
+                          ? "전체 면적"
+                          : areaSelectorClosedLabel(selectedArea),
+                      latestTradeMan: latestTrade.dealAmount,
+                      latestTradeDate: latestTrade.dealDate,
+                    }
+                  : null,
+              }}
+            />
           }
+          showDivider={false}
         >
+          {/* 라벨 행은 전체 폭 children 슬롯 (지역 헤더와 같음) — meta 슬롯은 제목 옆이라 좁다. */}
+          <ComplexHeroMeta
+            lines={heroMeta}
+            extraTags={[
+              complexDetail?.basic?.managementType,
+              complexDetail?.building?.structureType,
+            ]}
+          />
           <AptAreaSelector
-            areas={data.areas}
+            areas={areasWithSupply}
             value={areaKey}
             onChange={(key) => {
               setAreaOverride({ forId: aptIdentity, key });
             }}
           />
         </PageHeader>
+        <div ref={stickyAnchorRef} aria-hidden />
       </header>
-
-      {/* Desktop section nav — underline LAB tabs; scroll only, no page swap */}
-      {desktopNav.length > 1 ? (
-        <nav
-          className="sticky top-[calc(var(--site-header-height,0px)+0.25rem)] z-30 -mx-1 hidden gap-5 overflow-x-auto border-b border-slate-200/80 bg-[var(--lab-bg)]/95 px-1 backdrop-blur md:flex"
-          aria-label="단지 상세 섹션"
-        >
-          {desktopNav.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              aria-current={activeSection === item.id ? "true" : undefined}
-              onClick={() => scrollToSection(item.id)}
-              className={labUnderlineTabClass(activeSection === item.id, "shrink-0")}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-      ) : null}
 
       {(data.warning || data.source === "mock") && (
         <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -754,165 +846,349 @@ export function AptDetailPage({
         </div>
       )}
 
-      {/* Market: one white section — period + KPI row + context + chart */}
-      <section id="section-market" className="lab-card scroll-mt-28 p-4 sm:p-5">
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-          <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
-            시세 추이
-          </h2>
-          <div className="flex flex-wrap items-center gap-2">
-            {isExtendingHistory ? (
-              <p className="inline-flex items-center gap-1.5 text-xs text-teal-700">
-                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                과거 시세 추가 중…
-              </p>
-            ) : null}
-            {periodButtons}
-          </div>
-        </div>
-        {/* Match 거래 내역 helper→list gap */}
-        <div style={{ height: 16 }} className="w-full" aria-hidden />
+      {identity?.complexId ? (
+        <LabSectionBoundary id="section-3d" title="3D 단지 보기">
+          <Complex3dEntryCard complexId={identity.complexId} />
+        </LabSectionBoundary>
+      ) : null}
+      {identity?.complexId ? (
+        <LabSectionBoundary id="section-redev" title="정비사업">
+          <ComplexRedevSection complexId={identity.complexId} />
+        </LabSectionBoundary>
+      ) : null}
 
-        <div className="grid grid-cols-4 divide-x divide-slate-100 rounded-xl border border-slate-100 bg-slate-50/40">
-          {kpiCell(
-            "최근 매매",
-            latestTrade ? formatEok(latestTrade.dealAmount) : "—",
-            latestTrade ? formatDealDate(latestTrade.dealDate) : "—",
-          )}
-          {kpiCell(
-            "최근 전세",
-            latestJeonse ? formatEok(latestJeonse.dealAmount) : "—",
-            latestJeonse ? formatDealDate(latestJeonse.dealDate) : "—",
-          )}
-          {kpiCell(
-            "최고가 대비",
-            vsMaxPct == null
-              ? "—"
-              : `${vsMaxPct > 0 ? "↑ +" : vsMaxPct < 0 ? "↓ " : ""}${vsMaxPct}%`,
-            "최근 매매 기준",
-            vsMaxPct == null
-              ? "!text-slate-400"
-              : vsMaxPct < 0
-                ? "!text-rose-600"
-                : vsMaxPct > 0
-                  ? "!text-teal-700"
-                  : "",
-          )}
-          {kpiCell(
-            "거래량",
-            <span className="whitespace-nowrap">{`매매 ${periodTradeCount.toLocaleString("ko-KR")}건`}</span>,
-            <span className="whitespace-nowrap">{`전세 ${periodJeonseCount.toLocaleString("ko-KR")}건`}</span>,
-            "!font-sans !tracking-normal !text-[12px] sm:!text-[13px] !whitespace-nowrap",
-          )}
-        </div>
-
-        <p className="mt-2.5 rounded-lg bg-[var(--lab-teal-50)] px-2.5 py-1.5 text-xs text-slate-600 sm:text-[13px]">
-          <span>
-            전세가율{" "}
-            <span className="font-semibold tabular-nums text-slate-800">
-              {jeonseRatio != null ? `${jeonseRatio}%` : "—"}
-            </span>
-          </span>
-          <span className="text-slate-300"> · </span>
-          <span>
-            매매-전세 갭{" "}
-            <span className="font-semibold tabular-nums text-slate-800">
-              {saleJeonseGap != null && saleJeonseGap !== 0
-                ? formatEok(Math.abs(saleJeonseGap))
-                : "—"}
-            </span>
-          </span>
-        </p>
-
-        <div className="mt-2">
-          <AptPriceChart points={chartPoints} />
-        </div>
-
-        <div className="pl-[18px] pr-5">
-          <PeriodRangeSlider
-            months={chartMonths}
-            startIndex={startIndex}
-            endIndex={endIndex}
-            activePreset={periodPreset === "custom" ? null : periodPreset}
-            showPresets={false}
-            onChange={(start, end) => {
-              setPeriodPreset("custom");
-              setRangeOverride({ start, end });
-            }}
-            onRecentYears={setRecentYears}
-            onFullRange={setFullRange}
-          />
-        </div>
-      </section>
-
-      <section
-        id="section-trades"
-        key={`trades-${areaKey}-${dealFilter}-${startYm}-${endYm}`}
-        className="lab-card scroll-mt-28 p-4 sm:p-5"
+      {/* 시세 = 요약(면적 기준) → 추이(차트) → 거래내역. 한 주제 한 섹션 (policy §12.1). */}
+      <LabSection
+        id={APT_SECTION_FRAMES.market.id}
+        title={APT_SECTION_FRAMES.market.title}
+        meta={
+          areaKey === "all" || !selectedArea
+            ? "전체 면적 기준"
+            : `${areaSelectorClosedLabel(selectedArea)} 기준`
+        }
+        className="gap-4"
       >
-        <div>
-          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-            <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
-              거래 내역
-            </h2>
-            <TransactionTypeTabs
-              value={dealFilter}
-              onChange={setDealFilter}
+        <LabStatTiles
+          columns={4}
+          items={[
+            {
+              key: "trade",
+              label: "최근 매매",
+              value: (
+                <span
+                  className={`detail-summary-value ${dealTypePriceTextClass("trade")}`}
+                >
+                  {latestTrade ? formatEok(latestTrade.dealAmount) : "—"}
+                </span>
+              ),
+              sub: latestTrade ? formatDealDate(latestTrade.dealDate) : "—",
+            },
+            {
+              key: "jeonse",
+              label: "최근 전세",
+              value: (
+                <span
+                  className={`detail-summary-value ${dealTypePriceTextClass("jeonse")}`}
+                >
+                  {latestJeonse ? formatEok(latestJeonse.dealAmount) : "—"}
+                </span>
+              ),
+              sub: latestJeonse ? formatDealDate(latestJeonse.dealDate) : "—",
+            },
+            {
+              key: "vs-max",
+              label: "최고가 대비",
+              value: (
+                <span
+                  className={`detail-summary-value ${
+                    vsMaxPct == null || vsMaxPct === 0
+                      ? ""
+                      : vsMaxPct < 0
+                        ? "detail-change-down"
+                        : "detail-change-up"
+                  }`.trim()}
+                >
+                  {vsMaxPct == null
+                    ? "—"
+                    : `${vsMaxPct > 0 ? "+" : ""}${vsMaxPct}%`}
+                </span>
+              ),
+              sub: "최근 매매 기준",
+            },
+            {
+              key: "ratio",
+              label: "전세가율",
+              value: (
+                <span className="detail-summary-value">
+                  {jeonseRatio != null ? `${jeonseRatio}%` : "—"}
+                </span>
+              ),
+              sub:
+                saleJeonseGap != null && saleJeonseGap !== 0
+                  ? `갭 ${formatEok(Math.abs(saleJeonseGap))}`
+                  : "갭 —",
+            },
+          ]}
+        />
+
+        <ComplexJeonseBenchmark
+          lawdCd={identity?.lawdCd ?? null}
+          regionName={region?.name ?? data.regionName ?? null}
+          complexRatioPct={jeonseRatio}
+        />
+        <ComplexTradeActivity items={areaFiltered} />
+        <ComplexRentMetrics items={areaFiltered} />
+
+        <div className={LAB_SUBSECTION_RULE}>
+          <div className="detail-market-header">
+            <h3 className="detail-subsection-title shrink-0">시세 추이</h3>
+            <div className="detail-market-period">{periodButtons}</div>
+          </div>
+
+          <LabTabs
+            className="detail-market-deal-tabs"
+            variant="secondary"
+            ariaLabel="거래 유형"
+            value={chartDealType === "jeonse" ? "jeonse" : "trade"}
+            items={[
+              { id: "trade", label: "매매" },
+              { id: "jeonse", label: "전월세" },
+            ]}
+            onChange={(next) => setDealFilter(next)}
+          />
+
+          <div className="detail-market-chart">
+            <AptPriceChart
+              points={chartPoints}
+              deals={chartDeals}
+              dealType={chartDealType}
+              dealCount={
+                chartDealType === "trade" ? periodTradeCount : periodJeonseCount
+              }
+              dealCountLabel={chartDealType === "trade" ? "매매" : "전세"}
+              selectedMonthYm={selectedMonthYm}
+              onMonthSelect={setSelectedMonthYm}
             />
           </div>
-          <p className="mt-[5px] truncate text-xs text-slate-500">
-            {areaKey === "all" || !selectedArea
+
+          <div className="detail-market-slider min-h-11 px-1">
+            <PeriodRangeSlider
+              months={chartMonths}
+              startIndex={startIndex}
+              endIndex={endIndex}
+              activePreset={periodPreset === "custom" ? null : periodPreset}
+              showPresets={false}
+              onChange={(start, end) => {
+                setPeriodPreset("custom");
+                setRangeOverride({ start, end });
+              }}
+              onRecentYears={setRecentYears}
+              onFullRange={setFullRange}
+            />
+          </div>
+
+          <div className="detail-market-trades">
+            <div className="mb-3">
+              <LabSubsectionHeader title="거래내역" meta="최근 계약일순" />
+            </div>
+
+            {selectedMonthYm ? (
+              <div className="detail-market-month-filter">
+                <p className="detail-meta">
+                  차트에서 선택한{" "}
+                  <b className="font-semibold text-[color:var(--lab-navy-950)]">
+                    {Number(selectedMonthYm.slice(0, 4))}년 {Number(selectedMonthYm.slice(4, 6))}월
+                  </b>{" "}
+                  거래만 조회
+                </p>
+                <button
+                  type="button"
+                  className="lab-button lab-button-tertiary detail-market-month-clear"
+                  onClick={() => setSelectedMonthYm(null)}
+                >
+                  전체 보기
+                </button>
+              </div>
+            ) : null}
+
+            <TransactionList
+              items={visibleTrades}
+              mode={listDealMode}
+              layout="split"
+            />
+
+            {listSourceItems.length > 0 ? (
+              <div className="detail-cta">
+                {/* Full document navigation — soft Link nav is unreliable via the preview tunnel. */}
+                <a
+                  href={transactionsHref}
+                  className="lab-button lab-button-secondary w-full"
+                >
+                  {`거래 내역 자세히 보기 (${listSourceItems.length.toLocaleString("ko-KR")}건)`}
+                  <span aria-hidden className="ml-1">
+                    →
+                  </span>
+                </a>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </LabSection>
+
+      <LabSectionBoundary
+          id={APT_SECTION_FRAMES.tradeInsight.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.tradeInsight.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.tradeInsight.minHeight}
+        >
+        <ComplexTradeInsightSection
+          items={areaFiltered}
+          maxFloor={complexDetail?.building?.maxFloor ?? null}
+          areaLabel={
+            areaKey === "all" || !selectedArea
               ? "전체 면적"
-              : areaSelectorClosedLabel(selectedArea)}
-          </p>
-          <div style={{ height: 16 }} className="w-full" aria-hidden />
-        </div>
+              : areaSelectorClosedLabel(selectedArea)
+          }
+        />
+      </LabSectionBoundary>
 
-        <TransactionList items={filtered} mode={dealFilter} />
+      {identity?.complexId ? (
+        <LabSectionBoundary
+          id={APT_SECTION_FRAMES.typeDong.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.typeDong.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.typeDong.minHeight}
+        >
+          <ComplexTypeDongSection complexId={identity.complexId} selectedArea={selectedArea} items={data.items} />
+        </LabSectionBoundary>
+      ) : null}
 
-        <div className="mt-4 space-y-2">
-          <Link
-            href={transactionsHref}
-            className="lab-button lab-button-primary w-full min-h-10 text-sm"
-          >
-            거래 내역 자세히 보기
-            {filteredByType.length > 5
-              ? ` (${filteredByType.length.toLocaleString("ko-KR")}건)`
-              : ""}
-            <span aria-hidden className="ml-1">
-              →
-            </span>
-          </Link>
-        </div>
-      </section>
+      <LabSectionBoundary
+          id={APT_SECTION_FRAMES.unitMix.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.unitMix.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.unitMix.minHeight}
+        >
+        <ComplexUnitMixSection
+          unitMix={complexDetail?.unitMix}
+          areas={areasWithSupply}
+          areaKey={areaKey}
+          onAreaChange={(key) => setAreaOverride({ forId: aptIdentity, key })}
+          complexHouseholdCount={complexDetail?.basic?.householdCount ?? null}
+        />
+      </LabSectionBoundary>
 
+      <LabSectionBoundary
+          id={APT_SECTION_FRAMES.regionRank.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.regionRank.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.regionRank.minHeight}
+        >
+      <ComplexRegionRankSection
+          complexId={identity?.complexId ?? null}
+          aptName={data.aptName}
+          regionSlug={regionSlug}
+          regionName={region?.name ?? data.regionName}
+          dongName={identity?.legalDongName ?? data.dong}
+          lawdCd={identity?.lawdCd ?? null}
+          bjdongCd={identity?.bjdongCd ?? null}
+          selectedArea={areaKey === "all" ? null : selectedArea}
+        />
+      </LabSectionBoundary>
+
+      {data ? (
+        <LabSectionBoundary
+          id={APT_SECTION_FRAMES.comparison.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.comparison.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.comparison.minHeight}
+        >
+      <ComplexCompareSection
+            aptName={aptName}
+            regionSlug={regionSlug}
+            gu={gu}
+            dong={data.dong}
+            detail={data}
+            selectedArea={selectedArea}
+            areaKey={areaKey}
+            householdCount={complexDetail?.basic?.householdCount ?? null}
+          />
+        </LabSectionBoundary>
+      ) : null}
+
+      <LabSectionBoundary
+          id={APT_SECTION_FRAMES.nearbyLife.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.nearbyLife.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.nearbyLife.minHeight}
+        >
+      <ComplexNearbyLifeSection
+          aptName={aptName}
+          identity={identity ?? null}
+          initialTab={
+            // Default apt entry → 교통. School tab only via back-from-detail restore.
+            initialNearbyTab === "school"
+              ? "school"
+              : undefined
+          }
+          initialSchoolLevel={initialSchoolLevel}
+          presetAnchor={complexDetail?.mapAnchor ?? null}
+        />
+      </LabSectionBoundary>
+
+      <LabSectionBoundary
+          id={APT_SECTION_FRAMES.nearbySales.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.nearbySales.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.nearbySales.minHeight}
+        >
+      <ComplexNearbySalesSection
+          aptName={aptName}
+          sigungu={nearbySigungu}
+          lawdCd={nearbyLawdCd}
+        />
+      </LabSectionBoundary>
+
+      {/* 세금·대출 계산 — 관리비 바로 위 (집값·대출·관리비를 이어서 보게) */}
+      <LabSectionBoundary
+          id={APT_SECTION_FRAMES.calculator.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.calculator.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.calculator.minHeight}
+        >
       <ComplexPurchaseCalculatorSection
-        complexId={identity?.complexId ?? null}
-        complexName={data.aptName}
-        areaKey={areaKey}
-        areaLabel={
-          areaKey === "all" || !selectedArea
-            ? "전체 면적"
-            : areaSelectorClosedLabel(selectedArea)
-        }
-        latestTradeMan={latestTrade?.dealAmount ?? 0}
-        exclusiveAreaMinSqm={
-          selectedArea
-            ? (selectedArea.exclusiveAreaMin ?? selectedArea.exclusiveArea ?? null)
-            : null
-        }
-        exclusiveAreaMaxSqm={
-          selectedArea
-            ? (selectedArea.exclusiveAreaMax ?? selectedArea.exclusiveArea ?? null)
-            : null
-        }
-        regionSlug={regionSlug}
-        locationLabel={locationLabel}
-      />
+          complexId={identity?.complexId ?? null}
+          complexName={data.aptName}
+          areaKey={areaKey}
+          areaLabel={
+            areaKey === "all" || !selectedArea
+              ? "전체 면적"
+              : areaSelectorClosedLabel(selectedArea)
+          }
+          latestTradeMan={latestTrade?.dealAmount ?? 0}
+          exclusiveAreaMinSqm={
+            selectedArea
+              ? (selectedArea.exclusiveAreaMin ?? selectedArea.exclusiveArea ?? null)
+              : null
+          }
+          exclusiveAreaMaxSqm={
+            selectedArea
+              ? (selectedArea.exclusiveAreaMax ?? selectedArea.exclusiveArea ?? null)
+              : null
+          }
+          regionSlug={regionSlug}
+          locationLabel={locationLabel}
+        />
+      </LabSectionBoundary>
 
       {complexDetail?.management ? (
-        <div id="section-management" className="scroll-mt-28">
-          <ComplexMgmtFeeCard
+        <LabSectionBoundary
+          id={APT_SECTION_FRAMES.management.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.management.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.management.minHeight}
+        >
+      <ComplexMgmtFeeCard
             management={complexDetail.management}
             selectedPyeongLabel={
               areaKey === "all" || !selectedArea
@@ -935,51 +1211,55 @@ export function AptDetailPage({
             }
             aptName={data.aptName}
             complexId={identity?.complexId ?? null}
+            unitMixRows={complexDetail?.unitMix?.rows ?? null}
           />
-        </div>
+        </LabSectionBoundary>
+      ) : complexDetail ? (
+        <LabSectionBoundary
+          id={APT_SECTION_FRAMES.management.id}
+          mountWhenNear
+          title={APT_SECTION_FRAMES.management.title}
+          placeholderMinHeight={APT_SECTION_FRAMES.management.minHeight}
+        >
+          <ComplexMgmtFeeEmpty householdCount={complexDetail.basic?.householdCount ?? null} />
+        </LabSectionBoundary>
       ) : null}
+    </LazySectionShell>
+  );
+}
 
-      {hasComplexInfoSection(complexDetail) && complexDetail ? (
-        <div id="section-complex-info" className="scroll-mt-28">
-          <ComplexInfoCard detail={complexDetail} />
-        </div>
-      ) : null}
+/**
+ * 아래 섹션 마운트 게이트의 범위. 시세가 뜬 뒤 한가할 때 남은 섹션을 동시 요청 2개 이하로 차례로 마운트한다.
+ */
+function LazySectionShell({ className, children }: { className: string; children: ReactNode }) {
+  return (
+    <LazyMountProvider backgroundActive maxConcurrent={2}>
+      <SectionNavJumpCapture className={className}>{children}</SectionNavJumpCapture>
+    </LazyMountProvider>
+  );
+}
 
-      <div id="section-nearby-life" className="scroll-mt-28">
-        <ComplexNearbyLifeSection
-          aptName={aptName}
-          identity={identity ?? null}
-          initialTab={
-            // Default apt entry → 교통. School tab only via back-from-detail restore.
-            initialNearbyTab === "school"
-              ? "school"
-              : undefined
-          }
-          initialSchoolLevel={initialSchoolLevel}
-        />
-      </div>
-
-      <div id="section-nearby-sales" className="scroll-mt-28">
-        <ComplexNearbySalesSection
-          aptName={aptName}
-          sigungu={nearbySigungu}
-        />
-      </div>
-
-      {data ? (
-        <div id="section-comparison" className="scroll-mt-28">
-          <ComplexCompareSection
-            aptName={aptName}
-            regionSlug={regionSlug}
-            gu={gu}
-            dong={data.dong}
-            detail={data}
-            selectedArea={selectedArea}
-            areaKey={areaKey}
-            householdCount={complexDetail?.basic?.householdCount ?? null}
-          />
-        </div>
-      ) : null}
+/**
+ * 섹션 탭(포털로 떠 있지만 React 이벤트는 여기로 올라온다)을 누르면 남은 섹션을 전부 마운트 —
+ * 위 섹션이 뒤늦게 자라 점프 위치가 밀리지 않게.
+ */
+function SectionNavJumpCapture({
+  className,
+  children,
+}: {
+  className: string;
+  children: ReactNode;
+}) {
+  const mountAll = useMountAllLazy();
+  return (
+    <div
+      className={className}
+      onClickCapture={(e) => {
+        const target = e.target as Element | null;
+        if (target?.closest?.("button[data-section]")) mountAll();
+      }}
+    >
+      {children}
     </div>
   );
 }

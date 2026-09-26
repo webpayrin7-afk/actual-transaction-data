@@ -1,6 +1,9 @@
 "use client";
 
-import { Inbox } from "lucide-react";
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
+import { LabDataLoading } from "@/components/ui/LabLoading";
+import { aptDetailHref } from "@/lib/molit/apt-client";
 import {
   dealTypeLabel,
   formatArea,
@@ -12,15 +15,17 @@ import type { Transaction } from "@/types/transaction";
 interface TransactionTableProps {
   items: Transaction[];
   isLoading: boolean;
+  /** Enables complex-detail links on names. */
+  regionSlug?: string;
 }
 
 function TypeBadge({ dealType }: { dealType: Transaction["dealType"] }) {
   return (
     <span
-      className={`inline-flex rounded-md px-2 py-0.5 text-xs font-medium ${
+      className={`inline-flex whitespace-nowrap rounded-md border px-1.5 text-[12px] font-medium leading-5 ${
         dealType === "trade"
-          ? "bg-teal-50 text-teal-700"
-          : "bg-indigo-50 text-indigo-700"
+          ? "border-[color:var(--lab-brand-border)] bg-[color:var(--lab-brand-subtle)] text-[color:var(--lab-teal-700)]"
+          : "border-[color:var(--lab-border)] bg-white text-[color:var(--lab-body)]"
       }`}
     >
       {dealTypeLabel(dealType)}
@@ -28,132 +33,125 @@ function TypeBadge({ dealType }: { dealType: Transaction["dealType"] }) {
   );
 }
 
-function MobileCard({ tx }: { tx: Transaction }) {
-  return (
-    <article className="rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <div className="mb-1.5 flex flex-wrap items-center gap-2">
-            <TypeBadge dealType={tx.dealType} />
-            <time className="text-xs text-slate-500">
-              {formatDealDate(tx.dealDate)}
-            </time>
-          </div>
-          <h3 className="truncate text-base font-semibold text-slate-900">
-            {tx.aptName}
-          </h3>
-          <p className="mt-0.5 text-xs text-slate-500">
-            {tx.gu} · {tx.dong}
-          </p>
-        </div>
-        <div className="shrink-0 text-right">
-          <p className="text-lg font-semibold tracking-tight text-teal-700">
-            {formatDealAmount(tx)}
-          </p>
-          <p className="mt-0.5 text-xs text-slate-500">
-            {formatArea(tx.exclusiveArea)} · {tx.floor}층
-          </p>
-        </div>
+function MobileRow({ tx, regionSlug }: { tx: Transaction; regionSlug?: string }) {
+  const href = regionSlug ? aptDetailHref(tx.aptName, regionSlug, tx.gu) : null;
+  const body = (
+    <>
+      <div className="min-w-0 flex-1">
+        <p className="detail-data-value-emphasis truncate">{tx.aptName}</p>
+        <p className="detail-meta truncate">
+          {[tx.dong, formatArea(tx.exclusiveArea), `${tx.floor}층`].filter(Boolean).join(" · ")}
+        </p>
       </div>
-    </article>
+      <div className="shrink-0 text-right">
+        <p className="detail-data-value-emphasis whitespace-nowrap tabular-nums">
+          {formatDealAmount(tx)}
+        </p>
+        <p className="mt-0.5 flex items-center justify-end gap-1.5">
+          <TypeBadge dealType={tx.dealType} />
+          <time className="detail-meta tabular-nums">{formatDealDate(tx.dealDate)}</time>
+        </p>
+      </div>
+      {href ? <ChevronRight className="lab-press-arrow h-4 w-4 shrink-0" aria-hidden /> : null}
+    </>
+  );
+  const cls = "flex min-h-11 items-center gap-3 py-2.5";
+  return (
+    <li>
+      {href ? (
+        <Link href={href} className={`${cls} lab-row-press -mx-2 rounded-lg px-2`}>
+          {body}
+        </Link>
+      ) : (
+        <div className={cls}>{body}</div>
+      )}
+    </li>
   );
 }
 
-export function TransactionTable({ items, isLoading }: TransactionTableProps) {
+const TH = "detail-meta px-3 py-2.5 font-medium whitespace-nowrap";
+const TD = "px-3 py-2.5 whitespace-nowrap";
+
+/** 표 머리 — 데이터와 무관해 불러오는 동안에도 그대로 그린다. */
+const TABLE_HEAD = (
+  <thead className="border-b border-[color:var(--lab-border)]">
+    <tr>
+      <th className={TH}>계약일자</th>
+      <th className={TH}>유형</th>
+      <th className={TH}>단지명</th>
+      <th className={TH}>구</th>
+      <th className={TH}>법정동</th>
+      <th className={`${TH} text-right`}>전용면적</th>
+      <th className={`${TH} text-right`}>거래금액</th>
+      <th className={`${TH} text-right`}>층</th>
+    </tr>
+  </thead>
+);
+
+export function TransactionTable({ items, isLoading, regionSlug }: TransactionTableProps) {
   if (isLoading) {
     return (
       <>
-        <div className="space-y-2.5 md:hidden">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-[88px] animate-pulse rounded-2xl border border-slate-200 bg-white/70"
-            />
-          ))}
+        <div className="hidden overflow-x-auto md:block">
+          <table className="min-w-full text-left text-[14px] leading-5">{TABLE_HEAD}</table>
         </div>
-        <div className="hidden overflow-hidden rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm md:block">
-          <div className="space-y-3 p-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-10 animate-pulse rounded-lg bg-slate-100"
-              />
-            ))}
-          </div>
-        </div>
+        <LabDataLoading label="거래 불러오는 중" minHeight={264} />
       </>
     );
   }
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white/70 px-6 py-16 text-center">
-        <Inbox className="mb-3 h-10 w-10 text-slate-300" />
-        <p className="text-sm font-medium text-slate-700">조회된 거래가 없습니다</p>
-        <p className="mt-1 text-xs text-slate-500">
-          필터 조건이나 계약년월을 바꿔 다시 조회해 보세요.
-        </p>
+      <div className="lab-state flex-col">
+        <p className="detail-body text-[color:var(--lab-navy-950)]">조회된 거래가 없습니다</p>
+        <p className="detail-meta mt-1">필터 조건이나 계약년월을 바꿔 다시 조회해 보세요.</p>
       </div>
     );
   }
 
   return (
     <>
-      {/* Mobile: scannable cards */}
-      <div className="space-y-2.5 md:hidden">
+      <ul className="divide-y divide-[color:var(--lab-border)] md:hidden">
         {items.map((tx) => (
-          <MobileCard key={tx.id} tx={tx} />
+          <MobileRow key={tx.id} tx={tx} regionSlug={regionSlug} />
         ))}
-      </div>
+      </ul>
 
-      {/* Desktop: table */}
-      <div className="hidden overflow-hidden rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm md:block">
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-left text-sm">
-            <thead className="bg-slate-50/90 text-xs tracking-wide text-slate-500 uppercase">
-              <tr>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">계약일자</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">유형</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">단지명</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">구</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">법정동</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">전용면적</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">거래금액</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">층</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {items.map((tx) => (
-                <tr key={tx.id} className="transition hover:bg-teal-50/40">
-                  <td className="px-4 py-3 whitespace-nowrap text-slate-700">
-                    {formatDealDate(tx.dealDate)}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
+      <div className="hidden overflow-x-auto md:block">
+        <table className="min-w-full text-left text-[14px] leading-5">
+          {TABLE_HEAD}
+          <tbody className="divide-y divide-[color:var(--lab-border)] tabular-nums">
+            {items.map((tx) => {
+              const href = regionSlug ? aptDetailHref(tx.aptName, regionSlug, tx.gu) : null;
+              return (
+                <tr key={tx.id} className="hover:bg-slate-50">
+                  <td className={`${TD} text-[color:var(--lab-body)]`}>{formatDealDate(tx.dealDate)}</td>
+                  <td className={TD}>
                     <TypeBadge dealType={tx.dealType} />
                   </td>
-                  <td className="px-4 py-3 font-medium text-slate-900">
-                    {tx.aptName}
+                  <td className="px-3 py-2.5 font-semibold text-[color:var(--lab-navy-950)]">
+                    {href ? (
+                      <Link href={href} className="hover:underline">
+                        {tx.aptName}
+                      </Link>
+                    ) : (
+                      tx.aptName
+                    )}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-slate-600">
-                    {tx.gu}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-slate-600">
-                    {tx.dong}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-slate-600">
+                  <td className={`${TD} text-[color:var(--lab-body)]`}>{tx.gu}</td>
+                  <td className={`${TD} text-[color:var(--lab-body)]`}>{tx.dong}</td>
+                  <td className={`${TD} text-right text-[color:var(--lab-body)]`}>
                     {formatArea(tx.exclusiveArea)}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap font-semibold text-slate-900">
+                  <td className={`${TD} text-right font-semibold text-[color:var(--lab-navy-950)]`}>
                     {formatDealAmount(tx)}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-slate-600">
-                    {tx.floor}층
-                  </td>
+                  <td className={`${TD} text-right text-[color:var(--lab-body)]`}>{tx.floor}층</td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </>
   );

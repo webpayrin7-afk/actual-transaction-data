@@ -20,7 +20,7 @@ export default function PrivacyPage() {
           서비스입니다. 이 방침은 현재 배포된 기능 기준으로 작성되었으며, 기능이
           바뀌면 내용을 업데이트합니다.
         </p>
-        <p className="text-xs text-slate-500">최종 업데이트: 2026-09-08</p>
+        <p className="detail-meta">최종 업데이트: 2026-09-08</p>
       </InfoSection>
 
       <InfoSection title="회원·로그인">

@@ -19,8 +19,6 @@ const notoSansKr = Noto_Sans_KR({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: "cover",
 };
 

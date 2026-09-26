@@ -6,11 +6,12 @@ import type { MetroType, RegType } from "@/lib/loan/calc";
  *
  * Metro: region registry (서울·경기·인천 → 수도권).
  * Regulated: same FSC designation snapshot referenced by LoanLimitCalculator
- * (DB refresh note 2026-07-01). No ad-hoc inventing of new policy geography.
+ * (policy geography as of 2026-07). No ad-hoc inventing of new policy geography.
  */
 
+/** User-facing policy basis for regulated-area geography (not a DB refresh label). */
 export const LOAN_PROPERTY_CONDITION_SOURCE =
-  "금융위 고시 기준 참고 · DB 갱신 참고일 2026-07-01 (LoanLimitCalculator와 동일 스냅샷)";
+  "2026년 7월 금융 규제 기준";
 
 /** Fully regulated Gyeonggi city slugs (entire city under snapshot). */
 const REGULATED_FULL_SLUGS = new Set([

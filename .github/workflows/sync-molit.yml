@@ -32,6 +32,12 @@ on:
         required: false
         default: "true"
 
+# 15분 cron 이 앞 실행과 겹치지 않게 한 번에 하나만 (뒤 실행은 기다림, 취소하지 않음).
+# 대기 중 실행은 그룹당 1개만 남는다 — 더 새 실행이 오면 대기 중이던 것만 교체된다.
+concurrency:
+  group: sync-molit-warehouse
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -107,3 +113,16 @@ jobs:
       - name: Skip sync (already fresh)
         if: steps.probe.outputs.should_sync != 'true'
         run: echo "Warehouse already matches MOLIT probe sentinels — skip sync."
+
+      # 지역 "새로 확인된 거래" 첫 화면 스냅샷(region_daily_snapshot) — 거래가 바뀐 지역만 다시 만든다.
+      # 한 번에 40지역·10분까지, 한 지역은 1시간에 한 번까지 (남은 지역은 다음 실행, 그동안 라이브).
+      # sync 를 건너뛴 실행에서도 돈다 (날짜·달이 바뀐 지역). 거래 변경 표시가 없으면 스스로 건너뛴다.
+      # 실패해도 동기화 결과에는 영향 없음 — 읽기는 라이브로 간다. 끄기: REGION_DAILY_SNAPSHOT_REFRESH=0
+      - name: Refresh region daily snapshot
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        timeout-minutes: 20
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: npx tsx scripts/build-region-daily-snapshot.ts --apply --max-regions=40 --max-minutes=10

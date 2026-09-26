@@ -1,0 +1,111 @@
+{
+  "generatedAt": "2026-09-24T06:51:56.149Z",
+  "window3y": "apt_unit_exclusive_pairs.trade_count_3y > 0 (deal window used by the pair ledger, from 2023-09-24)",
+  "master": 27524,
+  "profileRows": 22865,
+  "noProfileRow": 4659,
+  "noProfileRowTraded": 1031,
+  "tradedComplexes": 13400,
+  "pnu": {
+    "ok": 21211,
+    "conflict": 0,
+    "missing": 6313
+  },
+  "kapt": {
+    "ok": 14790,
+    "conflict": 0,
+    "missing": 12734
+  },
+  "filled": {
+    "far_ratio": 6895,
+    "bcr_ratio": 6897,
+    "parking_total": 13923,
+    "household_count": 14858,
+    "heating_type": 9972,
+    "corridor_type": 2613,
+    "parking_per_household": 13764
+  },
+  "filledTraded": {
+    "far_ratio": 6866,
+    "bcr_ratio": 6868,
+    "parking_total": 6727,
+    "household_count": 7454,
+    "heating_type": 2649,
+    "corridor_type": 2613,
+    "parking_per_household": 6570
+  },
+  "emptyCause": {
+    "far_ratio": {
+      "HAS_PARCEL_UNFETCHED": 12684,
+      "NO_PROFILE_ROW": 4659,
+      "NO_PARCEL": 3286
+    },
+    "bcr_ratio": {
+      "HAS_PARCEL_UNFETCHED": 12682,
+      "NO_PROFILE_ROW": 4659,
+      "NO_PARCEL": 3286
+    },
+    "parking_total": {
+      "HAS_IDENTITY_UNFETCHED": 8936,
+      "NO_PROFILE_ROW": 4659,
+      "NO_PARCEL_AND_NO_KAPT": 6
+    },
+    "household_count": {
+      "HAS_IDENTITY_UNFETCHED": 8006,
+      "NO_PROFILE_ROW": 4659,
+      "NO_PARCEL_AND_NO_KAPT": 1
+    },
+    "heating_type": {
+      "NO_KAPT": 11378,
+      "NO_PROFILE_ROW": 4659,
+      "HAS_KAPT_UNFETCHED": 1515
+    },
+    "corridor_type": {
+      "NO_KAPT": 11378,
+      "NO_PROFILE_ROW": 4659,
+      "HAS_KAPT_UNFETCHED": 8874
+    },
+    "parking_per_household": {
+      "HAS_IDENTITY_UNFETCHED": 9095,
+      "NO_PROFILE_ROW": 4659,
+      "NO_PARCEL_AND_NO_KAPT": 6
+    }
+  },
+  "emptyCauseTraded": {
+    "far_ratio": {
+      "HAS_PARCEL_UNFETCHED": 5482,
+      "NO_PROFILE_ROW": 1031,
+      "NO_PARCEL": 21
+    },
+    "bcr_ratio": {
+      "HAS_PARCEL_UNFETCHED": 5480,
+      "NO_PROFILE_ROW": 1031,
+      "NO_PARCEL": 21
+    },
+    "parking_total": {
+      "HAS_IDENTITY_UNFETCHED": 5639,
+      "NO_PROFILE_ROW": 1031,
+      "NO_PARCEL_AND_NO_KAPT": 3
+    },
+    "household_count": {
+      "HAS_IDENTITY_UNFETCHED": 4914,
+      "NO_PROFILE_ROW": 1031,
+      "NO_PARCEL_AND_NO_KAPT": 1
+    },
+    "heating_type": {
+      "NO_KAPT": 9696,
+      "NO_PROFILE_ROW": 1031,
+      "HAS_KAPT_UNFETCHED": 24
+    },
+    "corridor_type": {
+      "NO_KAPT": 9696,
+      "NO_PROFILE_ROW": 1031,
+      "HAS_KAPT_UNFETCHED": 60
+    },
+    "parking_per_household": {
+      "HAS_IDENTITY_UNFETCHED": 5796,
+      "NO_PROFILE_ROW": 1031,
+      "NO_PARCEL_AND_NO_KAPT": 3
+    }
+  }
+}

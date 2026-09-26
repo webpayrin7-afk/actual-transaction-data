@@ -13,6 +13,7 @@ export {
   NATIONWIDE_EXTRA_REGIONS,
   REGION_BY_SLUG,
   LAWD_TO_REGION,
+  LEGACY_REGION_SLUGS,
   getRegion,
   districtNameFromCode,
   allNationwideLawdCodes,

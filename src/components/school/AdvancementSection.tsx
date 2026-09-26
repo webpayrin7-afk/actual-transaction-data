@@ -1,6 +1,7 @@
 import { canRenderAdvancementSection } from "@/lib/school-info/advancement-disclosure";
 import { advancementColorByRank } from "@/lib/school-info/advancement-category-colors";
 import type { ProductAdvancementData } from "@/lib/school-info/product-school-detail";
+import { LabSection } from "@/components/ui/LabSection";
 
 type VisibleCategory = {
   key: string;
@@ -50,24 +51,16 @@ export function AdvancementSection({
   const donutStops = buildConicStops(categories);
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white px-3.5 py-3.5 sm:px-4 sm:py-4">
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 className="text-xl font-semibold leading-none tracking-tight text-slate-900">
-          {title}
-        </h2>
-        {yearLabel ? (
-          <p className="text-[11px] text-slate-500">{yearLabel}</p>
-        ) : null}
-      </div>
+    <LabSection title={title} meta={yearLabel ?? undefined}>
 
       {data.graduates?.value ? (
-        <p className="mt-2 text-[13px] font-semibold tabular-nums text-slate-900">
+        <p className="detail-data-value-emphasis tabular-nums">
           졸업생 {data.graduates.value}
         </p>
       ) : null}
 
       {categories.length > 0 ? (
-        <div className="mt-3.5 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:gap-5">
+        <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:gap-5">
           {donutStops ? (
             <div className="mx-auto w-full max-w-[168px] shrink-0 sm:mx-0 sm:w-[168px]">
               <AdvancementDonut
@@ -88,20 +81,20 @@ export function AdvancementSection({
           <ul className="min-w-0 flex-1 space-y-2.5">
             {categories.map((c) => (
               <li key={c.key} className="min-w-0">
-                <div className="flex items-start gap-2 text-[13px]">
+                <div className="flex items-start gap-2">
                   <span
-                    className="mt-1.5 size-2 shrink-0 rounded-full"
+                    className="mt-[7px] size-2 shrink-0 rounded-full"
                     style={{ backgroundColor: c.color }}
                     aria-hidden
                   />
-                  <span className="min-w-0 flex-1 break-words leading-5 text-slate-600">
+                  <span className="detail-data-value min-w-0 flex-1 break-words">
                     {c.label}
                   </span>
-                  <span className="flex shrink-0 items-baseline gap-2.5 pt-px tabular-nums">
-                    <span className="min-w-[3.25rem] text-right font-semibold text-slate-900">
+                  <span className="detail-data-value-emphasis flex shrink-0 items-baseline gap-2.5 tabular-nums">
+                    <span className="min-w-[3.25rem] text-right">
                       {`${c.count.toLocaleString("ko-KR")}명`}
                     </span>
-                    <span className="min-w-[3.25rem] text-right font-semibold text-slate-800">
+                    <span className="min-w-[3.25rem] text-right">
                       {c.percent != null ? `${c.percent}%` : ""}
                     </span>
                   </span>
@@ -126,17 +119,17 @@ export function AdvancementSection({
         </div>
       ) : null}
 
-      <p className="mt-3 text-[10px] leading-4 text-slate-400">
+      <p className="detail-meta">
         비율은 졸업생 수 기준입니다. 0명인 항목은 표시하지 않습니다.
       </p>
 
       {data.completeness === "partial" ? (
-        <p className="mt-1.5 text-[11px] leading-4 text-slate-500">
+        <p className="detail-meta">
           일부 분류만 표시합니다. 표시 항목 합계가 졸업생 전체와 다를 수
           있습니다.
         </p>
       ) : null}
-    </section>
+    </LabSection>
   );
 }
 
@@ -181,14 +174,14 @@ function AdvancementDonut({
         aria-hidden
       />
       <div
-        className="absolute inset-[22%] flex flex-col items-center justify-center rounded-full bg-white text-center shadow-[inset_0_0_0_1px_rgba(15,23,42,0.04)]"
+        className="absolute inset-[22%] flex flex-col items-center justify-center rounded-full bg-white text-center"
         aria-hidden
       >
-        <span className="text-[10px] font-medium leading-none text-slate-500">
+        <span className="text-[13px] font-medium leading-4 text-[color:var(--lab-muted)]">
           졸업생
         </span>
         {centerValue ? (
-          <span className="mt-1 text-[15px] font-semibold tabular-nums leading-none tracking-tight text-slate-900">
+          <span className="mt-1 text-[15px] font-semibold tabular-nums leading-5 text-[color:var(--lab-navy-950)]">
             {centerValue}
           </span>
         ) : null}

@@ -7,9 +7,9 @@ import {
   SITE_CONTACT_MAILTO,
 } from "@/lib/site";
 
-export function SiteFooter() {
+export function SiteFooter({ className = "" }: { className?: string } = {}) {
   return (
-    <footer className="mt-auto border-t border-slate-200 bg-slate-50/80">
+    <footer className={`mt-auto border-t border-slate-200 bg-slate-50/80 ${className}`}>
       <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:justify-between sm:gap-10">
           <div className="min-w-0 max-w-sm">

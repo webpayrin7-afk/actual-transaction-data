@@ -1,43 +1,102 @@
-import { MapPin, Phone, Globe } from "lucide-react";
+import { Globe, Phone } from "lucide-react";
 import { BackLink } from "@/components/layout/BackLink";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { LabTag } from "@/components/ui/LabTag";
+
+/** "서울특별시 송파구 백제고분로 11 , 신천중학교 (잠실동)" → "송파구 잠실동" */
+export function schoolAreaLabel(address: string | null): string | null {
+  if (!address) return null;
+  const tokens = address.split(/[\s,]+/);
+  const gu =
+    tokens.find((t) => /[가-힣](구|군)$/.test(t)) ??
+    tokens.find((t) => /[가-힣]시$/.test(t) && !/(특별|광역|특별자치)시$/.test(t)) ??
+    null;
+  const dong = address.match(/\(([^),]+?(?:동|읍|면|가))[,)]/)?.[1] ?? null;
+  const label = [gu, dong].filter(Boolean).join(" ");
+  return label || null;
+}
 
 function homepageLabel(url: string): string {
   return url.replace(/^https?:\/\//i, "").replace(/\/$/, "");
 }
 
-function HeroChip({
-  children,
-  tone,
-}: {
-  children: string;
-  tone: "kind" | "foundation" | "coedu";
-}) {
-  const toneClass =
-    tone === "kind"
-      ? "border-sky-200/80 bg-sky-50 text-sky-800"
-      : tone === "foundation"
-        ? "border-emerald-200/80 bg-emerald-50 text-emerald-800"
-        : "border-violet-200/80 bg-violet-50 text-violet-800";
+/**
+ * 학교급·설립·성별 색 — 값마다 다른 연한 배경 + 진한 글자 (글자 대비 4.5:1 이상).
+ * 초·중·고 / 공립·사립·국립 / 남·여·남녀공학. 토큰은 globals.css `--lab-school-*`.
+ */
+function kindTone(label: string): string {
+  if (/초등/.test(label)) return "elementary";
+  if (/중학/.test(label)) return "middle";
+  if (/고등|고교/.test(label)) return "high";
+  if (/공립/.test(label)) return "public";
+  if (/사립/.test(label)) return "private";
+  if (/국립/.test(label)) return "national";
+  if (/공학/.test(label)) return "coed";
+  if (/^여/.test(label) || /여자/.test(label)) return "girls";
+  if (/^남/.test(label) || /남자/.test(label)) return "boys";
+  return "neutral";
+}
 
+/** 제목 위 색 라벨 (배지형 12px, policy §3). */
+function KindChip({ children }: { children: string }) {
+  const tone = kindTone(children);
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold leading-none ${toneClass}`}
+      className="inline-flex h-6 items-center rounded-md px-2 text-[12px] font-semibold leading-4"
+      style={{
+        background: `var(--lab-school-${tone}-bg)`,
+        color: `var(--lab-school-${tone}-ink)`,
+      }}
     >
       {children}
     </span>
   );
 }
 
+/**
+ * 전화·홈페이지 — LabTag md와 같은 라벨 모양 + 앞 아이콘. 누르면 전화 걸기 / 새 창으로 홈페이지.
+ * 보이는 26px, 숨은 영역으로 44px 터치.
+ */
+function ContactLink({
+  href,
+  external,
+  icon: Icon,
+  label,
+  children,
+}: {
+  href: string;
+  external?: boolean;
+  icon: typeof Phone;
+  label: string;
+  children: string;
+}) {
+  return (
+    <a
+      href={href}
+      aria-label={label}
+      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+      className="relative inline-flex h-[26px] min-w-0 items-center gap-1 rounded-md border border-[color:var(--lab-border)] bg-white px-1.5 text-[12px] font-medium leading-6 text-[color:var(--lab-brand-primary)] tabular-nums before:absolute before:inset-x-0 before:-inset-y-[9px] before:content-[''] hover:border-[color:var(--lab-brand-border)]"
+    >
+      <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+      <span className="truncate">{children}</span>
+    </a>
+  );
+}
+
+/**
+ * 학교 상세 헤더 — 제목 위: 학교급·설립·성별 색 라벨 / 제목 아래: 기본정보 라벨 행
+ * (지역·교육청·개교·전화·홈페이지). 단지 상세 헤더와 같은 LabTag md 문법 (policy §12.2).
+ */
 export function SchoolHero({
   name,
   kind,
   foundation,
   coedu,
   address,
-  tel,
-  homepage,
   office,
   foundedOn,
+  tel,
+  homepage,
   backHref,
 }: {
   name: string;
@@ -45,85 +104,79 @@ export function SchoolHero({
   foundation: string | null;
   coedu: string | null;
   address: string | null;
-  tel: string | null;
-  homepage: string | null;
   office: string | null;
   foundedOn: string | null;
+  tel: string | null;
+  homepage: string | null;
   backHref: string;
 }) {
+  const kinds = [kind, foundation, coedu].filter((t): t is string => Boolean(t));
+  const area = schoolAreaLabel(address);
+  const founded = foundedOn ? `${foundedOn.slice(0, 4)}년 개교` : null;
   const homepageHref = homepage
     ? homepage.startsWith("http")
       ? homepage
       : `https://${homepage}`
     : null;
+  const hasInfo = Boolean(area || office || founded || tel || homepageHref);
 
   return (
-    <header className="px-3 pt-2 sm:px-4 sm:pt-3">
-      {(kind || foundation || coedu) && (
-        <div className="flex flex-wrap gap-1.5 pl-3.5 sm:pl-4">
-          {kind ? <HeroChip tone="kind">{kind}</HeroChip> : null}
-          {foundation ? (
-            <HeroChip tone="foundation">{foundation}</HeroChip>
-          ) : null}
-          {coedu ? <HeroChip tone="coedu">{coedu}</HeroChip> : null}
-        </div>
-      )}
-
-      <div className="mt-2 flex min-w-0 items-center gap-1">
-        <BackLink
-          fallback={backHref}
-          compact
-          hideLabel
-          preferFallback
-          className="-ml-2 shrink-0"
-        />
-        <h1 className="min-w-0 flex-1 text-[1.375rem] font-semibold leading-7 tracking-tight text-slate-900 sm:text-[1.5rem] sm:leading-8">
-          {name}
-        </h1>
-      </div>
-
-      {address ? (
-        <p className="mt-2 flex gap-1.5 pl-3.5 text-[12px] leading-5 text-slate-600 sm:pl-4 sm:text-[13px]">
-          <MapPin
-            className="mt-0.5 size-3.5 shrink-0 text-slate-400"
-            aria-hidden
-          />
-          <span className="min-w-0 break-words">{address}</span>
-        </p>
-      ) : null}
-
-      {(office || foundedOn) && (
-        <p className="mt-1 pl-3.5 text-[12px] leading-5 text-slate-600 sm:pl-4 sm:text-[13px]">
-          {[office, foundedOn ? `설립/개교 ${foundedOn}` : null]
-            .filter(Boolean)
-            .join(" · ")}
-        </p>
-      )}
-
-      {(tel || homepageHref) && (
-        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 pl-3.5 text-[12px] leading-5 sm:pl-4 sm:text-[13px]">
-          {tel ? (
-            <a
-              href={`tel:${tel.replace(/\s+/g, "")}`}
-              className="inline-flex min-w-0 items-center gap-1.5 font-medium text-[color:var(--lab-teal-700)] underline-offset-2 hover:underline"
-            >
-              <Phone className="size-3.5 shrink-0" aria-hidden />
-              <span className="tabular-nums">{tel}</span>
-            </a>
-          ) : null}
-          {homepageHref ? (
-            <a
-              href={homepageHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-w-0 items-center gap-1.5 font-medium text-[color:var(--lab-teal-700)] underline-offset-2 hover:underline"
-            >
-              <Globe className="size-3.5 shrink-0" aria-hidden />
-              <span className="break-all">{homepageLabel(homepage!)}</span>
-            </a>
-          ) : null}
-        </div>
-      )}
+    <header className="-mt-1 sm:-mt-1.5">
+      <PageHeader
+        leading={<BackLink fallback={backHref} compact hideLabel preferFallback />}
+        eyebrow={
+          kinds.length > 0 ? (
+            <div className="flex flex-wrap gap-1">
+              {kinds.map((k) => (
+                <KindChip key={k}>{k}</KindChip>
+              ))}
+            </div>
+          ) : undefined
+        }
+        title={name}
+        titleClassName="detail-page-title"
+        showDivider={false}
+      >
+        {hasInfo ? (
+          <div className="flex flex-col gap-1" aria-label="학교 기본정보">
+            {area || office || founded ? (
+              <div className="flex flex-wrap gap-1">
+                {area ? (
+                  <span title={address ?? undefined}>
+                    <LabTag size="md">{area}</LabTag>
+                  </span>
+                ) : null}
+                {office ? <LabTag size="md">{office}</LabTag> : null}
+                {founded ? <LabTag size="md">{founded}</LabTag> : null}
+              </div>
+            ) : null}
+            {/* 전화 · 홈페이지는 한 줄 */}
+            {tel || homepageHref ? (
+              <div className="flex min-w-0 flex-nowrap items-center gap-1">
+                {tel ? (
+                  <ContactLink
+                    href={`tel:${tel.replace(/\s+/g, "")}`}
+                    icon={Phone}
+                    label={`전화 걸기 ${tel}`}
+                  >
+                    {tel}
+                  </ContactLink>
+                ) : null}
+                {homepageHref ? (
+                  <ContactLink
+                    href={homepageHref}
+                    external
+                    icon={Globe}
+                    label={`홈페이지 열기 ${homepageLabel(homepage!)}`}
+                  >
+                    {homepageLabel(homepage!)}
+                  </ContactLink>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </PageHeader>
     </header>
   );
 }

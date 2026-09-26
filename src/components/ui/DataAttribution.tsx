@@ -25,7 +25,7 @@ export function DataAttribution({
       href={providerHref}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-slate-500 underline-offset-2 hover:underline"
+      className="relative inline-block text-slate-600 underline-offset-2 before:absolute before:inset-x-0 before:-inset-y-3 before:content-[''] hover:underline"
     >
       {provider}
     </a>
@@ -35,7 +35,7 @@ export function DataAttribution({
 
   return (
     <p
-      className={`text-[11px] leading-4 text-slate-500 sm:text-[12px] sm:leading-5 ${className}`.trim()}
+      className={`detail-meta ${className}`.trim()}
     >
       <span className="font-semibold text-slate-600">자료 출처</span>
       <span className="mx-1.5">

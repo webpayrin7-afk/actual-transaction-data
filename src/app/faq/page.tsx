@@ -161,7 +161,7 @@ export default function FaqPage() {
       <InfoSection title="FAQ">
         <FaqAccordion items={FAQ_ITEMS} />
       </InfoSection>
-      <p className="text-sm text-slate-600">
+      <p className="detail-meta">
         원하는 답이 없다면{" "}
         <Link href="/contact" className="font-medium text-teal-700 hover:underline">
           문의하기

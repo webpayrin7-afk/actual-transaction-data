@@ -10,6 +10,8 @@ type LabDisclosureProps = {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   className?: string;
+  titleClassName?: string;
+  chevronClassName?: string;
 };
 
 /**
@@ -24,6 +26,8 @@ export function LabDisclosure({
   open: openProp,
   onOpenChange,
   className = "",
+  titleClassName = "detail-label min-w-0 font-medium text-[color:var(--lab-navy-950)]",
+  chevronClassName = "h-4 w-4",
 }: LabDisclosureProps) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
   const controlled = openProp !== undefined;
@@ -46,13 +50,11 @@ export function LabDisclosure({
         onClick={() => setOpen(!open)}
         className="flex min-h-11 w-full items-center justify-between gap-3 py-2 text-left transition hover:text-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
       >
-        <span className="min-w-0 text-sm font-semibold text-slate-900">
-          {title}
-        </span>
+        <span className={titleClassName}>{title}</span>
         <svg
           aria-hidden
           viewBox="0 0 20 20"
-          className={`h-[18px] w-[18px] shrink-0 text-slate-500 transition-transform duration-150 ${
+          className={`${chevronClassName} shrink-0 text-slate-500 transition-transform duration-150 ${
             open ? "rotate-180" : ""
           }`}
           fill="none"

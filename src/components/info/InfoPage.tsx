@@ -1,3 +1,4 @@
+import { BackLink } from "@/components/layout/BackLink";
 import type { ReactNode } from "react";
 import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
@@ -14,8 +15,8 @@ export function InfoPage({
   return (
     <main className="flex-1">
       <div className={PAGE_SHELL}>
-        <PageHeader title={title} description={description} />
-        <article className="max-w-3xl space-y-8 text-sm leading-7 text-slate-700 sm:text-[0.9375rem] sm:leading-7">
+        <PageHeader leading={<BackLink fallback="/" compact hideLabel />} title={title} titleClassName="detail-page-title" description={description} />
+        <article className="detail-body max-w-3xl space-y-8 text-[color:var(--lab-body)]">
           {children}
         </article>
       </div>
@@ -32,7 +33,7 @@ export function InfoSection({
 }) {
   return (
     <section className="space-y-3">
-      <h2 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
+      <h2 className="detail-section-title">
         {title}
       </h2>
       {children}
@@ -42,7 +43,7 @@ export function InfoSection({
 
 export function InfoList({ items }: { items: ReactNode[] }) {
   return (
-    <ul className="list-disc space-y-1.5 pl-5 marker:text-slate-400">
+    <ul className="list-disc space-y-1.5 pl-5 marker:text-[color:var(--lab-muted)]">
       {items.map((item, i) => (
         <li key={i}>{item}</li>
       ))}

@@ -48,7 +48,7 @@ export function SchoolDistrictBlock({
           <ChevronRight className="h-3.5 w-3.5" aria-hidden />
         </button>
       </div>
-      <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
+      <p className="mt-0.5 text-[13px] leading-5 text-slate-500">
         {district.description}
       </p>
 
@@ -60,7 +60,7 @@ export function SchoolDistrictBlock({
         hideHeaderDivider
         compactBodyTop
       >
-        <p className="text-[11px] leading-4 text-slate-500">
+        <p className="text-[13px] leading-5 text-slate-500">
           학교군 소속 학교는 실제 배정학교를 의미하지 않습니다.
         </p>
         <div
@@ -115,7 +115,7 @@ function DistrictSchoolRow({
       <div className="rounded-lg px-2.5 py-[5px]">
         <p className="truncate text-[13px] font-medium text-slate-800">{name}</p>
         {meta ? (
-          <p className="mt-0.5 text-[10px] text-slate-500">{meta}</p>
+          <p className="mt-0.5 text-[13px] leading-5 text-slate-500">{meta}</p>
         ) : null}
       </div>
     );
@@ -126,17 +126,17 @@ function DistrictSchoolRow({
       type="button"
       onClick={onClick}
       aria-label={`${name} 상세 보기`}
-      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-[5px] text-left transition active:scale-[0.99] active:bg-slate-100 hover:bg-slate-50"
+      className="lab-row-press flex w-full items-center gap-2 rounded-lg px-2.5 py-[5px] text-left"
     >
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[13px] font-medium text-slate-800">
           {name}
         </span>
         {meta ? (
-          <span className="mt-0.5 block text-[10px] text-slate-500">{meta}</span>
+          <span className="mt-0.5 block text-[13px] leading-5 text-slate-500">{meta}</span>
         ) : null}
       </span>
-      <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
+      <ChevronRight className="lab-press-arrow h-4 w-4 shrink-0" aria-hidden />
     </button>
   );
 }

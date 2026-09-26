@@ -1,5 +1,5 @@
 import type { Client } from "@libsql/client";
-import { getDb, ensureSchema } from "@/lib/db/client";
+import { getDb, ensureSchemaForRead } from "@/lib/db/client";
 import {
   isSameTransactionContent,
   snapshotFromTx,
@@ -13,6 +13,13 @@ import {
   hasDiscoveryAtColumn,
   isoOrNull,
 } from "@/lib/db/discovery-axis";
+import {
+  APT_TX_ORDER_BY,
+  APT_TX_SELECT_COLUMNS,
+  mapAptTxRow,
+  readAptTxSnapshot,
+} from "@/lib/db/apt-tx-snapshot";
+import { groupTxNorms, loadComplexGroupIndex } from "@/lib/complex-group/groups";
 
 export function normalizeAptName(name: string): string {
   return name.replace(/\s+/g, "").toLowerCase();
@@ -22,18 +29,11 @@ function yearMonthFromDealDate(dealDate: string): string {
   return `${dealDate.slice(0, 4)}${dealDate.slice(5, 7)}`;
 }
 
-/** 로컬/원격 DB 스키마 준비 (한 번만) */
-let schemaReady: Promise<void> | null = null;
+/** DB 핸들 (원격 Turso 는 스키마 DDL 생략 — ensureSchemaForRead 참고) */
 async function readyDb(): Promise<Client | null> {
   const db = getDb();
   if (!db) return null;
-  if (!schemaReady) {
-    schemaReady = ensureSchema(db).catch((err) => {
-      schemaReady = null;
-      throw err;
-    });
-  }
-  await schemaReady;
+  await ensureSchemaForRead(db);
   return db;
 }
 
@@ -346,9 +346,11 @@ export async function replaceMonthTransactions(params: {
     );
   }
 
-  // sync_months metadata는 transaction write가 있을 때만 (1 cell upsert)
+  // sync_months metadata는 transaction write가 있을 때만 (1 cell upsert).
+  // 맨 마지막 문장(= 마지막 묶음)에 둔다 — 거래 묶음이 모두 들어간 뒤에만 이 달이 적재 완료로 보인다.
+  // 중간 묶음에서 실패하면 sync_months 는 예전 값 그대로 → 다음 sync 가 다시 비교해 채운다.
   if (wroteTx) {
-    statements.unshift({
+    statements.push({
       sql: `INSERT INTO sync_months (lawd_cd, year_month, deal_kind, synced_at, row_count)
             VALUES (?, ?, ?, ?, ?)
             ON CONFLICT(lawd_cd, year_month, deal_kind) DO UPDATE SET
@@ -427,47 +429,71 @@ export async function queryAptTransactions(params: {
   if (!aptKey || !params.lawdCodes.length) return [];
 
   const dealKinds = params.dealKinds ?? ["trade", "rent"];
-  const lawdPlaceholders = params.lawdCodes.map(() => "?").join(",");
-  const kindPlaceholders = dealKinds.map(() => "?").join(",");
   const yearMonths = params.yearMonths ?? [];
+  // 단지 묶음(지번별로 쪼개진 같은 단지) — 멤버 이름마다 읽어 합친다. 멤버 거래도 이 단지 이름으로 보인다
+  // (상세 화면이 요청 이름으로 거래를 거르므로).
+  const norms = groupTxNorms(await loadComplexGroupIndex(db), params.lawdCodes, aptKey);
+  if (norms.length > 1) {
+    const parts = await Promise.all(
+      norms.map((norm) => queryAptTransactionsOne(db, params.lawdCodes, norm, yearMonths, dealKinds)),
+    );
+    const name = params.aptName.trim();
+    return parts
+      .flatMap((list, i) => (norms[i] === aptKey ? list : list.map((tx) => ({ ...tx, aptName: name }))))
+      .sort((a, b) => (a.dealDate === b.dealDate ? (a.id < b.id ? -1 : a.id > b.id ? 1 : 0) : a.dealDate < b.dealDate ? 1 : -1));
+  }
+  return queryAptTransactionsOne(db, params.lawdCodes, aptKey, yearMonths, dealKinds);
+}
+
+/** 단지명 하나(lawd_cd + apt_name_norm)의 거래 — 스냅샷 먼저, 없으면 라이브. APT_TX_ORDER_BY 순서. */
+async function queryAptTransactionsOne(
+  db: Client,
+  lawdCodes: string[],
+  aptKey: string,
+  yearMonths: string[],
+  dealKinds: DealType[],
+): Promise<Transaction[]> {
+  const lawdPlaceholders = lawdCodes.map(() => "?").join(",");
+  const kindPlaceholders = dealKinds.map(() => "?").join(",");
+  // 전체 이력 + 단일 lawd → 단지 스냅샷(1왕복) 먼저. 최신이 아니거나 없으면(트리거·표 없음 포함) null → 아래 라이브 쿼리.
+  // 스냅샷은 trade·rent 전부를 라이브와 같은 순서로 담고 있어 dealKinds 는 디코드 뒤 거른다.
+  if (yearMonths.length === 0 && lawdCodes.length === 1) {
+    const snap = await readAptTxSnapshot(db, lawdCodes[0], aptKey);
+    if (snap) {
+      const kinds = new Set<string>(dealKinds);
+      return kinds.has("trade") && kinds.has("rent")
+        ? snap
+        : snap.filter((tx) => kinds.has(tx.dealType));
+    }
+  }
+
   const ymClause =
     yearMonths.length > 0
       ? `AND year_month IN (${yearMonths.map(() => "?").join(",")})`
       : "";
 
   // exact apt_name_norm = ? → idx_tx_lawd_apt_ym 사용.
+  // +deal_type: dealKinds 가 하나면 IN 이 등치로 바뀌어 플래너가 idx_tx_type_deal_date(deal_type, deal_date)로
+  // 전국 매매/전월세를 훑는다(헬리오시티 매매만 ~290s). + 로 그 인덱스 후보에서 빼 단지 인덱스로 고정.
   const result = await db.execute({
-    sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+    sql: `SELECT ${APT_TX_SELECT_COLUMNS}
           FROM transactions
           WHERE lawd_cd IN (${lawdPlaceholders})
             ${ymClause}
-            AND deal_type IN (${kindPlaceholders})
+            AND +deal_type IN (${kindPlaceholders})
             AND apt_name_norm = ?
-          ORDER BY deal_date DESC`,
+          ORDER BY ${APT_TX_ORDER_BY}`,
     args: [
-      ...params.lawdCodes,
+      ...lawdCodes,
       ...yearMonths,
       ...dealKinds,
       aptKey,
     ],
   });
 
-  return result.rows.map((row) => ({
-    id: String(row.id),
-    dealType: row.deal_type as DealType,
-    dealDate: String(row.deal_date),
-    aptName: String(row.apt_name),
-    gu: String(row.gu ?? ""),
-    dong: String(row.dong ?? ""),
-    exclusiveArea: Number(row.exclusive_area) || 0,
-    dealAmount: Number(row.deal_amount) || 0,
-    monthlyRent: Number(row.monthly_rent) || 0,
-    floor: Number(row.floor) || 0,
-    buildYear: row.build_year == null ? null : Number(row.build_year),
-    jibun: String(row.jibun ?? ""),
-    dealingGbn: String(row.dealing_gbn ?? ""),
-  }));
+  return result.rows.map((row) =>
+    mapAptTxRow(row as unknown as Record<string, unknown>),
+  );
 }
 
 export type AptArchiveAreaFilter =
@@ -479,16 +505,21 @@ export type AptArchiveListType = "trade" | "jeonse" | "monthly";
 
 export type AptArchiveYearBound = { from: string; to: string } | null;
 
+/** 단지 묶음이면 멤버 전체 실거래 단지명, 아니면 [aptKey] */
+async function archiveNorms(db: Client, lawdCodes: string[], aptKey: string): Promise<string[]> {
+  return groupTxNorms(await loadComplexGroupIndex(db), lawdCodes, aptKey);
+}
+
 function archiveWhere(params: {
   lawdCodes: string[];
-  aptNameNorm: string;
+  aptNameNorms: string[];
   yearBound: AptArchiveYearBound;
   area: AptArchiveAreaFilter;
   listType?: AptArchiveListType;
 }): { sql: string; args: Array<string | number> } {
   const lawdPh = params.lawdCodes.map(() => "?").join(",");
-  const args: Array<string | number> = [...params.lawdCodes, params.aptNameNorm];
-  let sql = `lawd_cd IN (${lawdPh}) AND apt_name_norm = ?`;
+  const args: Array<string | number> = [...params.lawdCodes, ...params.aptNameNorms];
+  let sql = `lawd_cd IN (${lawdPh}) AND apt_name_norm IN (${params.aptNameNorms.map(() => "?").join(",")})`;
   if (params.yearBound) {
     sql += " AND year_month >= ? AND year_month <= ?";
     args.push(params.yearBound.from, params.yearBound.to);
@@ -525,6 +556,8 @@ function mapArchiveRow(row: Record<string, unknown>): Transaction {
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
     dealingGbn: String(row.dealing_gbn ?? ""),
+    rgstDate: row.rgst_date == null || String(row.rgst_date).trim() === "" ? null : String(row.rgst_date),
+    aptDong: row.apt_dong == null || String(row.apt_dong).trim() === "" ? null : String(row.apt_dong).trim(),
   };
 }
 
@@ -538,12 +571,13 @@ export async function queryAptArchiveYears(params: {
   const aptKey = normalizeAptName(params.aptName);
   if (!aptKey || !params.lawdCodes.length) return [];
   const lawdPh = params.lawdCodes.map(() => "?").join(",");
+  const norms = await archiveNorms(db, params.lawdCodes, aptKey);
   const result = await db.execute({
     sql: `SELECT DISTINCT substr(year_month, 1, 4) AS y
           FROM transactions INDEXED BY idx_tx_lawd_apt_ym
-          WHERE lawd_cd IN (${lawdPh}) AND apt_name_norm = ?
+          WHERE lawd_cd IN (${lawdPh}) AND apt_name_norm IN (${norms.map(() => "?").join(",")})
           ORDER BY y DESC`,
-    args: [...params.lawdCodes, aptKey],
+    args: [...params.lawdCodes, ...norms],
   });
   return result.rows
     .map((row) => Number(row.y))
@@ -562,7 +596,7 @@ export async function queryAptArchiveAreaBuckets(params: {
   if (!aptKey || !params.lawdCodes.length) return [];
   const { sql, args } = archiveWhere({
     lawdCodes: params.lawdCodes,
-    aptNameNorm: aptKey,
+    aptNameNorms: await archiveNorms(db, params.lawdCodes, aptKey),
     yearBound: params.yearBound,
     area: { kind: "all" },
   });
@@ -612,7 +646,7 @@ export async function queryAptArchiveKpi(params: {
 
   const base = {
     lawdCodes: params.lawdCodes,
-    aptNameNorm: aptKey,
+    aptNameNorms: await archiveNorms(db, params.lawdCodes, aptKey),
     yearBound: params.yearBound,
     area: params.area,
   };
@@ -684,7 +718,7 @@ export async function queryAptArchivePage(params: {
   if (!aptKey || !params.lawdCodes.length) return [];
   const w = archiveWhere({
     lawdCodes: params.lawdCodes,
-    aptNameNorm: aptKey,
+    aptNameNorms: await archiveNorms(db, params.lawdCodes, aptKey),
     yearBound: params.yearBound,
     area: params.area,
     listType: params.listType,
@@ -693,7 +727,7 @@ export async function queryAptArchivePage(params: {
   const offset = Math.max(params.offset, 0);
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong
           FROM transactions INDEXED BY idx_tx_lawd_apt_ym
           WHERE ${w.sql}
           ORDER BY deal_date DESC, id DESC
@@ -720,8 +754,8 @@ export async function queryTradePool(params: {
   const writeDiscoveryCol = await hasDiscoveryAtColumn(db);
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn,
-                 first_seen_at${writeDiscoveryCol ? ", discovery_at" : ""}
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong,
+                 first_seen_at, lawd_cd${writeDiscoveryCol ? ", discovery_at" : ""}
           FROM transactions
           WHERE lawd_cd IN (${lawdPlaceholders})
             AND year_month IN (${ymPlaceholders})
@@ -743,6 +777,9 @@ export async function queryTradePool(params: {
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
     dealingGbn: String(row.dealing_gbn ?? ""),
+    rgstDate: row.rgst_date == null || String(row.rgst_date).trim() === "" ? null : String(row.rgst_date),
+    aptDong: row.apt_dong == null || String(row.apt_dong).trim() === "" ? null : String(row.apt_dong).trim(),
+    lawdCd: String(row.lawd_cd ?? ""),
     firstSeenAt: isoOrNull(row.first_seen_at),
     ...(writeDiscoveryCol
       ? { discoveryAt: isoOrNull(row.discovery_at) }
@@ -768,6 +805,8 @@ function mapTradeQueryRow(
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
     dealingGbn: String(row.dealing_gbn ?? ""),
+    rgstDate: row.rgst_date == null || String(row.rgst_date).trim() === "" ? null : String(row.rgst_date),
+    aptDong: row.apt_dong == null || String(row.apt_dong).trim() === "" ? null : String(row.apt_dong).trim(),
     firstSeenAt: isoOrNull(row.first_seen_at),
     ...(writeDiscoveryCol
       ? { discoveryAt: isoOrNull(row.discovery_at) }
@@ -825,7 +864,7 @@ export async function queryRegionTrades(params: {
   const writeDiscoveryCol = await hasDiscoveryAtColumn(db);
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn,
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong,
                  first_seen_at${writeDiscoveryCol ? ", discovery_at" : ""}
           FROM transactions
           WHERE lawd_cd IN (${lawdPh})
@@ -852,7 +891,7 @@ export async function queryRegionDiscoveries(params: {
     : "AND first_seen_at IS NOT NULL AND first_seen_at != ''";
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn,
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong,
                  first_seen_at${writeDiscoveryCol ? ", discovery_at" : ""}
           FROM transactions
           WHERE lawd_cd IN (${lawdPh})
@@ -1054,7 +1093,7 @@ export async function queryRentPool(params: {
 
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong
           FROM transactions
           WHERE lawd_cd IN (${lawdPlaceholders})
             AND year_month IN (${ymPlaceholders})
@@ -1077,6 +1116,8 @@ export async function queryRentPool(params: {
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
     dealingGbn: String(row.dealing_gbn ?? ""),
+    rgstDate: row.rgst_date == null || String(row.rgst_date).trim() === "" ? null : String(row.rgst_date),
+    aptDong: row.apt_dong == null || String(row.apt_dong).trim() === "" ? null : String(row.apt_dong).trim(),
   }));
 }
 
@@ -1097,7 +1138,7 @@ export async function queryRegionMonthPool(params: {
 
   const result = await db.execute({
     sql: `SELECT id, deal_type, deal_date, apt_name, gu, dong, exclusive_area,
-                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn
+                 deal_amount, monthly_rent, floor, build_year, jibun, dealing_gbn, rgst_date, apt_dong
           FROM transactions
           WHERE lawd_cd IN (${lawdPlaceholders})
             AND year_month IN (${ymPlaceholders})
@@ -1120,6 +1161,8 @@ export async function queryRegionMonthPool(params: {
     buildYear: row.build_year == null ? null : Number(row.build_year),
     jibun: String(row.jibun ?? ""),
     dealingGbn: String(row.dealing_gbn ?? ""),
+    rgstDate: row.rgst_date == null || String(row.rgst_date).trim() === "" ? null : String(row.rgst_date),
+    aptDong: row.apt_dong == null || String(row.apt_dong).trim() === "" ? null : String(row.apt_dong).trim(),
   }));
 }
 
@@ -1127,8 +1170,13 @@ export async function queryRegionMonthPool(params: {
 export async function searchAptAggregatesFromDb(params: {
   queryNorm: string;
   limit?: number;
+  /** 동·구 이름 앞부분 (공백 없이) — 주어지면 그 동·구 단지만 */
+  locations?: string[];
 }): Promise<
   | Array<{
+      aptNameNorm: string;
+      /** 단지명 일치 점수 (정확 > 앞부분 > 포함 > 띄엄) */
+      score: number;
       aptName: string;
       gu: string;
       dong: string;
@@ -1154,7 +1202,9 @@ export async function searchAptAggregatesFromDb(params: {
     score: number;
   }> = [];
 
+  const locs = (params.locations ?? []).filter(Boolean);
   for (const row of catalog) {
+    if (locs.length && !locs.every((l) => row.dong.replace(/\s+/g, "").startsWith(l) || row.gu.replace(/\s+/g, "").startsWith(l))) continue;
     const score = scoreAptNorm(q, row.aptNameNorm);
     if (score <= 0) continue;
     scored.push({ row, score });
@@ -1166,7 +1216,9 @@ export async function searchAptAggregatesFromDb(params: {
     return b.row.maxDealAmount - a.row.maxDealAmount;
   });
 
-  return scored.slice(0, limit).map(({ row }) => ({
+  return scored.slice(0, limit).map(({ row, score }) => ({
+    aptNameNorm: row.aptNameNorm,
+    score,
     aptName: row.aptName,
     gu: row.gu,
     dong: row.dong,
@@ -1247,6 +1299,71 @@ async function loadAptCatalogRows(): Promise<CatalogRow[] | null> {
   return rows;
 }
 
+export type AptLawdSplitRow = {
+  lawdCd: string;
+  aptName: string;
+  dong: string;
+  dealCount: number;
+  maxDealAmount: number;
+  latestDealDate: string;
+};
+
+const aptLawdSplitCache = new Map<
+  string,
+  { builtAt: number; rows: AptLawdSplitRow[] }
+>();
+
+/**
+ * apt_catalog 은 (단지명, 구명) 으로만 묶여 법정동코드가 없다 — "중구 삼성" 은 서울 중구·대전 중구
+ * 거래가 한 줄로 합쳐진다. 후보 법정동코드 안에서 같은 단지명·구명 매매를 코드별로 다시 센다.
+ * idx_tx_trade_lawd_apt_ym (매매만, lawd_cd·apt_name_norm) 로 찾는다 — 그 단지 매매만 읽는다.
+ */
+export async function splitAptByLawd(params: {
+  aptNameNorm: string;
+  gu: string;
+  lawdCodes: string[];
+}): Promise<AptLawdSplitRow[] | null> {
+  const codes = [...new Set(params.lawdCodes)].sort();
+  if (!params.aptNameNorm || codes.length === 0) return [];
+  const key = `${params.aptNameNorm}|${params.gu}|${codes.join(",")}`;
+  const cached = aptLawdSplitCache.get(key);
+  if (cached && Date.now() - cached.builtAt < CATALOG_TTL_MS) return cached.rows;
+
+  const db = await readyDb();
+  if (!db) return null;
+
+  noteDbQuery();
+  const placeholders = codes.map(() => "?").join(",");
+  const result = await db.execute({
+    sql: `SELECT lawd_cd,
+                 MAX(apt_name) AS apt_name,
+                 MAX(dong) AS dong,
+                 COUNT(*) AS deal_count,
+                 MAX(deal_amount) AS max_deal_amount,
+                 MAX(deal_date) AS latest_deal_date
+          FROM transactions INDEXED BY idx_tx_trade_lawd_apt_ym
+          WHERE lawd_cd IN (${placeholders})
+            AND apt_name_norm = ?
+            AND deal_type = 'trade'
+            AND gu = ?
+          GROUP BY lawd_cd
+          ORDER BY deal_count DESC`,
+    args: [...codes, params.aptNameNorm, params.gu],
+  });
+
+  const rows: AptLawdSplitRow[] = result.rows.map((row) => ({
+    lawdCd: String(row.lawd_cd),
+    aptName: String(row.apt_name ?? ""),
+    dong: String(row.dong ?? ""),
+    dealCount: Number(row.deal_count) || 0,
+    maxDealAmount: Number(row.max_deal_amount) || 0,
+    latestDealDate: String(row.latest_deal_date ?? ""),
+  }));
+  if (aptLawdSplitCache.size > 2000) aptLawdSplitCache.clear();
+  aptLawdSplitCache.set(key, { builtAt: Date.now(), rows });
+  return rows;
+}
+
 export async function listAptCatalog(): Promise<CatalogRow[] | null> {
   return loadAptCatalogRows();
 }
@@ -1308,21 +1425,34 @@ async function queryRegionBrowseAptsUncached(
   if (!db) return null;
 
   const placeholders = lawdCodes.map(() => "?").join(",");
-  const result = await db.execute({
-    sql: `SELECT MAX(apt_name) AS apt_name,
-                 MAX(gu) AS gu,
-                 MAX(dong) AS dong,
-                 COUNT(*) AS deal_count,
-                 MAX(deal_amount) AS max_deal_amount,
-                 MAX(deal_date) AS latest_deal_date,
-                 MAX(build_year) AS build_year
-          FROM transactions
-          WHERE lawd_cd IN (${placeholders})
-            AND deal_type = 'trade'
-            AND TRIM(dong) != ''
-          GROUP BY apt_name_norm, gu, dong`,
-    args: [...lawdCodes],
-  });
+  // 법정동코드가 2개 이상(성남·고양·화성 등)이면 sqlite_stat1이 없어 플래너가
+  // idx_tx_type_first_seen(deal_type=?)로 전국 매매를 훑음(30~60초).
+  // 매매 전용 부분 인덱스(lawd_cd 선두)를 지정 — 구 1개일 때 쓰던 것과 같은 인덱스.
+  // (+deal_type로 막으면 구 1개 지역이 전월세 행까지 읽어 0.4초→6~8초로 느려짐)
+  // 로컬 file: DB 등 인덱스가 없으면 힌트 없이 다시 조회.
+  const buildSql = (indexHint: string) =>
+    `SELECT MAX(apt_name) AS apt_name,
+            MAX(gu) AS gu,
+            MAX(dong) AS dong,
+            COUNT(*) AS deal_count,
+            MAX(deal_amount) AS max_deal_amount,
+            MAX(deal_date) AS latest_deal_date,
+            MAX(build_year) AS build_year
+     FROM transactions${indexHint}
+     WHERE lawd_cd IN (${placeholders})
+       AND deal_type = 'trade'
+       AND TRIM(dong) != ''
+     GROUP BY apt_name_norm, gu, dong`;
+  let result;
+  try {
+    result = await db.execute({
+      sql: buildSql(" INDEXED BY idx_tx_trade_lawd_apt_ym"),
+      args: [...lawdCodes],
+    });
+  } catch (error) {
+    if (!String(error).includes("no such index")) throw error;
+    result = await db.execute({ sql: buildSql(""), args: [...lawdCodes] });
+  }
 
   if (!result.rows.length) return null;
 
@@ -1372,19 +1502,32 @@ export async function rebuildAptCatalog(): Promise<number> {
   return Number(count.rows[0]?.cnt ?? 0);
 }
 
-export async function getSyncStats(): Promise<{
+/**
+ * 적재 상태 요약.
+ * - syncedRowCount: 월별 적재 행수(sync_months.row_count) 합 — 싸다(~4.6만 행).
+ *   sync 가 기록한 "마지막 적재 시 API 행수"라 실제 transactions 행수와 다르다(과소 집계).
+ * - transactions: 정확한 COUNT(*) — 1,300만 행 전체 스캔(수십 초·행 읽기 비용).
+ *   exact=true 일 때만 계산하고, 아니면 null.
+ */
+export async function getSyncStats(opts?: { exact?: boolean }): Promise<{
   months: number;
-  transactions: number;
+  syncedRowCount: number;
+  transactions: number | null;
 }> {
   const db = await readyDb();
-  if (!db) return { months: 0, transactions: 0 };
+  if (!db) return { months: 0, syncedRowCount: 0, transactions: opts?.exact ? 0 : null };
   const [m, t] = await Promise.all([
-    db.execute(`SELECT COUNT(*) AS cnt FROM sync_months`),
-    db.execute(`SELECT COUNT(*) AS cnt FROM transactions`),
+    db.execute(
+      `SELECT COUNT(*) AS months, COALESCE(SUM(row_count), 0) AS synced FROM sync_months`,
+    ),
+    opts?.exact
+      ? db.execute(`SELECT COUNT(*) AS cnt FROM transactions`)
+      : Promise.resolve(null),
   ]);
   return {
-    months: Number(m.rows[0]?.cnt ?? 0),
-    transactions: Number(t.rows[0]?.cnt ?? 0),
+    months: Number(m.rows[0]?.months ?? 0),
+    syncedRowCount: Number(m.rows[0]?.synced ?? 0),
+    transactions: t ? Number(t.rows[0]?.cnt ?? 0) : null,
   };
 }
 

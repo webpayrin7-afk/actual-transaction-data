@@ -124,8 +124,38 @@ export function allCapitalLawdCodes(): string[] {
   return [...new Set(CAPITAL_REGIONS.flatMap((r) => r.lawdCodes))];
 }
 
+/**
+ * 행정구역 분할로 없어진 예전 slug → 이어받는 새 지역 slug 후보(첫 번째가 기본).
+ * 인천 중구·동구 → 제물포구(원도심)·영종구, 서구 → 서해구·검단구.
+ * 지역 화면은 기본 후보로 영구 이동하고, 동 화면은 동이 속한 후보를 찾아 이동한다.
+ */
+export const LEGACY_REGION_SLUGS: Record<string, readonly string[]> = {
+  "incheon-28110": ["incheon-28125", "incheon-28155"],
+  "incheon-28140": ["incheon-28125"],
+  "incheon-28260": ["incheon-28275", "incheon-28290"],
+};
+
+/**
+ * 다른 이름으로 들어온 slug → 정식 slug.
+ * - 분할된 인천 구(LEGACY_REGION_SLUGS 기본 후보)
+ * - 레지스트리가 옛 코드였던 동안 slugFromLawd 대체값으로 만들어진 링크
+ *   (예: gangwon-51110, jeonbuk-52111, other-12330) — 지금은 metro-신코드 로 해석한다.
+ */
+const REGION_SLUG_ALIASES: Record<string, string> = {};
+for (const [legacy, targets] of Object.entries(LEGACY_REGION_SLUGS)) {
+  if (targets[0]) REGION_SLUG_ALIASES[legacy] = targets[0];
+}
+for (const region of ALL_REGIONS) {
+  for (const code of region.lawdCodes) {
+    for (const alt of [`${region.metro}-${code}`, `other-${code}`]) {
+      if (!REGION_BY_SLUG[alt] && !REGION_SLUG_ALIASES[alt]) REGION_SLUG_ALIASES[alt] = region.slug;
+    }
+  }
+}
+
+/** slug 해석 — 정식 slug 가 아니어도 별칭이면 정식 지역을 돌려준다 (region.slug 로 정식 slug 확인). */
 export function getRegion(slug: string): RegionDef | undefined {
-  return REGION_BY_SLUG[slug];
+  return REGION_BY_SLUG[slug] ?? REGION_BY_SLUG[REGION_SLUG_ALIASES[slug] ?? ""];
 }
 
 export function districtNameFromCode(code: string): string {

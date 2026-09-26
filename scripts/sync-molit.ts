@@ -11,6 +11,10 @@
  *   npx tsx scripts/sync-molit.ts --scope=all --from-month=202001 --to-month=202001 --dry-run=1 --discovery=0
  *   npx tsx scripts/sync-molit.ts --scope=all --trade-months=4 --max-writes=50000
  *
+ *   # 전월세만 과거 구간 백필 (--kinds 기본 trade,rent; quota/연속 실패 시 clean stop → 재실행으로 resume)
+ *   npx tsx scripts/sync-molit.ts --codes=11710 --from-month=201101 --to-month=202209 --kinds=rent \
+ *     --skip-existing=1 --only-changed=0 --discovery=0 --concurrency=1
+ *
  *   # 전국 plan (WRITE 0)
  *   npx tsx scripts/sync-molit.ts --scope=nationwide --trade-months=3 --plan=1
  *
@@ -147,6 +151,17 @@ async function main() {
   const fromMonth = argValue("from-month", "");
   const toMonth = argValue("to-month", "");
   const asOfArg = argValue("as-of", "");
+  const kinds = new Set(
+    argValue("kinds", "trade,rent").split(",").map((s) => s.trim()).filter(Boolean),
+  );
+  if (![...kinds].every((k) => k === "trade" || k === "rent") || kinds.size === 0) {
+    console.error(`Invalid --kinds=${argValue("kinds", "")} (use trade,rent | trade | rent)`);
+    process.exit(1);
+  }
+  const maxConsecutiveFailures = Math.max(
+    1,
+    Number(argValue("max-consecutive-failures", "5")) || 5,
+  );
   const asOf = asOfArg
     ? new Date(`${asOfArg}T12:00:00+09:00`)
     : new Date();
@@ -221,6 +236,9 @@ async function main() {
       j.kind === "trade" ? tradeKeep.has(j.yearMonth) : rentKeep.has(j.yearMonth),
     );
   }
+  if (!kinds.has("trade")) tradeYms = [];
+  if (!kinds.has("rent")) rentYms = [];
+  jobs = jobs.filter((j) => kinds.has(j.kind));
 
   let skippedExisting = 0;
   if (skipExisting && jobs.length > 0) {
@@ -242,7 +260,7 @@ async function main() {
     : null;
 
   console.log(
-    `[sync] scope=${scope} lawds=${lawdCodes.length} jobs=${jobs.length} skippedExisting=${skippedExisting} onlyChanged=${onlyChanged ? 1 : 0} discovery=${discovery ? 1 : 0} skipDelete=${skipDelete ? 1 : 0} plan=${planOnly ? 1 : 0} dryRun=${dryRun ? 1 : 0} maxWrites=${maxWrites} concurrency=${concurrency} tradeMonths=${tradeYms.length} rentMonths=${rentYms.length}`,
+    `[sync] scope=${scope} lawds=${lawdCodes.length} jobs=${jobs.length} skippedExisting=${skippedExisting} onlyChanged=${onlyChanged ? 1 : 0} discovery=${discovery ? 1 : 0} skipDelete=${skipDelete ? 1 : 0} plan=${planOnly ? 1 : 0} dryRun=${dryRun ? 1 : 0} maxWrites=${maxWrites} concurrency=${concurrency} kinds=${[...kinds].join(",")} tradeMonths=${tradeYms.length} rentMonths=${rentYms.length}`,
   );
   if (lawdCodes.length <= 20) {
     console.log(`[sync] lawds: ${lawdCodes.join(",")}`);
@@ -274,6 +292,7 @@ async function main() {
   let written = 0;
   let unchanged = 0;
   let failures = 0;
+  let consecutiveFailures = 0;
   let next = 0;
   let stop = false;
   const failedKeys: string[] = [];
@@ -293,6 +312,7 @@ async function main() {
             ? await fetchOneTradeForSync(job.lawdCd, job.yearMonth)
             : await fetchOneRentForSync(job.lawdCd, job.yearMonth);
 
+        consecutiveFailures = 0;
         if (onlyChanged && isCellUnchanged(snapshots?.get(key), items)) {
           unchanged += 1;
         } else {
@@ -349,11 +369,23 @@ async function main() {
         }
       } catch (err) {
         failures += 1;
+        consecutiveFailures += 1;
         failedKeys.push(key);
+        const message = err instanceof Error ? err.message : String(err);
         console.warn(
           `[sync] fail ${job.kind} ${job.lawdCd} ${job.yearMonth}:`,
-          err instanceof Error ? err.message : err,
+          message,
         );
+        // MOLIT daily quota: resultCode 22 LIMITED_NUMBER_OF_SERVICE_REQUESTS_EXCEEDS_ERROR / gateway 429
+        if (/LIMITED_NUMBER|EXCEEDS|quota|HTTP 429/i.test(message)) {
+          stop = true;
+          console.error(`[sync] API QUOTA STOP at ${key}: ${message}`);
+        } else if (consecutiveFailures >= maxConsecutiveFailures) {
+          stop = true;
+          console.error(
+            `[sync] STOP after ${consecutiveFailures} consecutive failures (last ${key})`,
+          );
+        }
       } finally {
         done += 1;
         if (done % 25 === 0 || done === jobs.length || stop) {
@@ -405,6 +437,24 @@ async function main() {
     console.log("[sync] apt_catalog rebuild skipped (no writes)");
   }
 
+  // 지도 단지 최근 거래 스냅샷 — 변경 번호가 바뀐 시군구의 바뀐 단지만 다시 만든다.
+  // 실패해도 지도는 변경 번호가 다른 단지를 거래 표에서 바로 읽는다(결과는 같고 느릴 뿐).
+  // 한 번에 시군구 30개까지 — 처음 채우기(모든 시군구)는 여러 번의 동기화에 나눠 이어 간다.
+  if (written > 0 && !dryRun) {
+    try {
+      const db = getDb();
+      if (db) {
+        const { refreshMapComplexRecent } = await import("../src/lib/map/map-complex-recent");
+        const r = await refreshMapComplexRecent(db, { mode: "stale", maxLawds: 30 });
+        console.log(
+          `[sync] map_complex_recent refreshed lawds=${r.lawds} targets=${r.targets} written=${r.written} markOnly=${r.markOnly} skippedChanged=${r.skippedChanged} deleted=${r.deleted}`,
+        );
+      }
+    } catch (err) {
+      console.warn("[sync] map_complex_recent refresh failed:", err);
+    }
+  }
+
   // 시장 홈 스냅샷 — 쓰기가 있거나 강제 플래그일 때 갱신
   const rebuildMarket =
     !dryRun &&
@@ -424,14 +474,42 @@ async function main() {
       console.warn("[sync] market_home snapshot rebuild failed:", err);
     }
 
+    // 시장 통계(market_stats_*)는 지금 쓰는 화면이 없어 매일 동기화에서는 돌리지 않는다 (40~50분·대량 읽기/쓰기).
+    // 필요할 때만: REBUILD_MARKET_STATS=1 또는 --rebuild-market-stats=1
+    if (process.env.REBUILD_MARKET_STATS === "1" || process.argv.includes("--rebuild-market-stats=1")) {
+      try {
+        const { rebuildMarketStats } = await import("../src/lib/market/stats");
+        const stats = await rebuildMarketStats();
+        console.log(
+          `[sync] market_stats rebuilt asOf=${stats.asOfDate} days=${stats.days} regions=${stats.regions} ms=${stats.ms}`,
+        );
+      } catch (err) {
+        console.warn("[sync] market_stats rebuild failed:", err);
+      }
+    }
+  }
+
+  // 단지 실거래 스냅샷 — 지난 갱신 뒤 transactions 변경 표시 번호가 오른 단지만 다시 만든다
+  // (이번 sync 쓰기 + sync 밖 직접 UPDATE 모두). 번호 오름차순 묶음마다 기준 번호를 올리므로
+  // 한도(APT_TX_SNAPSHOT_REFRESH_MAX)를 넘는 날은 다음 sync 가 이어서 한다.
+  // 초기 적재 전(기준 번호 없음)이면 건너뛰고, 트리거가 없으면 에러 → 요청 경로는 라이브 폴백.
+  if (!dryRun && process.env.APT_TX_SNAPSHOT_REFRESH !== "0") {
     try {
-      const { rebuildMarketStats } = await import("../src/lib/market/stats");
-      const stats = await rebuildMarketStats();
+      const { refreshAptTxSnapshots } = await import("../src/lib/db/apt-tx-snapshot");
+      const max = Number(process.env.APT_TX_SNAPSHOT_REFRESH_MAX ?? "5000");
+      const t0 = Date.now();
+      const r = await refreshAptTxSnapshots(db, {
+        maxComplexes: Number.isFinite(max) && max > 0 ? max : 5000,
+        deadlineAt: t0 + 20 * 60 * 1000,
+        log: (msg) => console.log(msg),
+      });
+      const sum = (k: "inserted" | "updated" | "markOnly" | "deleted" | "raced" | "fresh") =>
+        r.stats.reduce((acc, s) => acc + s[k], 0);
       console.log(
-        `[sync] market_stats rebuilt asOf=${stats.asOfDate} days=${stats.days} regions=${stats.regions} ms=${stats.ms}`,
+        `[sync] apt_tx_hist_snap ${r.skipped ?? "refreshed"} changed=${r.changed} processed=${r.processed} batches=${r.batches} lawds=${r.lawds} ins=${sum("inserted")} upd=${sum("updated")} markOnly=${sum("markOnly")} del=${sum("deleted")} raced=${sum("raced")} fresh=${sum("fresh")} deferred=${r.deferred} failed=${r.failedLawds.length} wm=${r.watermark.from}→${r.watermark.to ?? "unchanged"} ms=${Date.now() - t0}`,
       );
     } catch (err) {
-      console.warn("[sync] market_stats rebuild failed:", err);
+      console.warn("[sync] apt_tx_hist_snap refresh failed (요청 경로는 라이브 폴백):", err);
     }
   }
 

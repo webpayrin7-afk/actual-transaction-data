@@ -1,12 +1,12 @@
-import { LAWD_TO_REGION } from "@/lib/constants/regions";
-import { getDb, hasDb, ensureSchema } from "@/lib/db/client";
-import { isArea84Band } from "@/lib/apt/default-area";
-import { labCoverageLabel, labCoverageShort } from "@/lib/lab/coverage";
+import { LAWD_TO_REGION, districtNameFromCode } from "@/lib/constants/regions-registry";
 import {
-  LAB_FEATURED_ID,
-  getLabDef,
-  type LabExperimentId,
-} from "@/lib/lab/definitions";
+  METRO_LABELS,
+  metroFromLawdNationwide,
+  slugFromLawd,
+} from "@/lib/constants/nationwide-lawd";
+import { getDb, hasDb, ensureSchemaForRead } from "@/lib/db/client";
+import { labCoverageLabel, labCoverageShort } from "@/lib/lab/coverage";
+import { LAB_FEATURED_ID, getLabDef, type LabExperimentId } from "@/lib/lab/definitions";
 import type {
   LabBucketRow,
   LabExperimentResult,
@@ -15,44 +15,47 @@ import type {
 } from "@/lib/lab/types";
 import { addDays } from "@/lib/market/keys";
 
-/** 메모리 캐시 — market-home과 동일 계열 */
-const READ_CACHE_TTL_MS = 5 * 60 * 1000;
-
 /**
- * 최근 계약일 구간은 신고 지연으로 과소집계되기 쉬움.
- * 거래량 온도계 비교 창의 끝을 asOf에서 이 일수만큼 당긴다.
- * (5일은 미확정 말단을 피하면서도 표본이 과도하게 줄지 않는 균형)
+ * 오늘의 실험실 (READ only).
+ * - 최근 30일 전국 매매 행을 한 번 읽어 분포·비교 실험을 메모리에서 계산 (deal_type+deal_date 인덱스)
+ * - 거래량 온도계: 같은 인덱스로 60일 구간을 시군구별 집계
+ * - 추정·보간 없음. 표본 기준에 못 미치는 칸은 null로 두고 화면에서 '표본 부족'으로 보인다.
  */
-const VOLUME_COMPARE_LAG_DAYS = 5;
 
-/** 표본이 너무 적은 지역이 증감률을 독점하지 않도록 */
+/** 메모리 캐시 — 데이터는 하루 한 번 바뀐다 */
+const READ_CACHE_TTL_MS = 30 * 60 * 1000;
+
+/** 거래량 온도계: 신고 지연 말단을 피하려 최신 계약일에서 뺄 일수 */
+const VOLUME_COMPARE_LAG_DAYS = 5;
 const VOLUME_MIN_RECENT = 10;
 const VOLUME_MIN_PRIOR = 8;
+/** 비교형 실험 칸의 최소 표본 */
+const MIN_CELL = 30;
+/** 직거래 비중 순위의 최소 거래 수 */
+const DIRECT_MIN_TRADES = 50;
+const PYEONG_SQM = 3.3058;
 
-const PRICE_BANDS: { key: string; label: string; test: (man: number) => boolean }[] =
-  [
-    { key: "under3", label: "3억 미만", test: (a) => a < 30_000 },
-    { key: "3-5", label: "3~5억", test: (a) => a >= 30_000 && a < 50_000 },
-    { key: "5-7", label: "5~7억", test: (a) => a >= 50_000 && a < 70_000 },
-    { key: "7-10", label: "7~10억", test: (a) => a >= 70_000 && a < 100_000 },
-    { key: "10-15", label: "10~15억", test: (a) => a >= 100_000 && a < 150_000 },
-    { key: "15plus", label: "15억 이상", test: (a) => a >= 150_000 },
-  ];
+type Band<T> = { key: string; label: string; test: (v: T) => boolean };
 
-const FLOOR_BANDS: { key: string; label: string; test: (f: number) => boolean }[] =
-  [
-    { key: "1-5", label: "1~5층", test: (f) => f >= 1 && f <= 5 },
-    { key: "6-10", label: "6~10층", test: (f) => f >= 6 && f <= 10 },
-    { key: "11-15", label: "11~15층", test: (f) => f >= 11 && f <= 15 },
-    { key: "16-20", label: "16~20층", test: (f) => f >= 16 && f <= 20 },
-    { key: "21plus", label: "21층 이상", test: (f) => f >= 21 },
-  ];
+const PRICE_BANDS: Band<number>[] = [
+  { key: "under3", label: "3억 미만", test: (a) => a < 30_000 },
+  { key: "3-5", label: "3~5억", test: (a) => a >= 30_000 && a < 50_000 },
+  { key: "5-7", label: "5~7억", test: (a) => a >= 50_000 && a < 70_000 },
+  { key: "7-10", label: "7~10억", test: (a) => a >= 70_000 && a < 100_000 },
+  { key: "10-15", label: "10~15억", test: (a) => a >= 100_000 && a < 150_000 },
+  { key: "15plus", label: "15억 이상", test: (a) => a >= 150_000 },
+];
 
-const AGE_BANDS: {
-  key: string;
-  label: string;
-  test: (age: number) => boolean;
-}[] = [
+const FLOOR_BANDS: Band<number>[] = [
+  { key: "1-2", label: "1~2층", test: (f) => f >= 1 && f <= 2 },
+  { key: "3-5", label: "3~5층", test: (f) => f >= 3 && f <= 5 },
+  { key: "6-10", label: "6~10층", test: (f) => f >= 6 && f <= 10 },
+  { key: "11-15", label: "11~15층", test: (f) => f >= 11 && f <= 15 },
+  { key: "16-20", label: "16~20층", test: (f) => f >= 16 && f <= 20 },
+  { key: "21plus", label: "21층 이상", test: (f) => f >= 21 },
+];
+
+const AGE_BANDS: Band<number>[] = [
   { key: "0-5", label: "5년 이하", test: (a) => a >= 0 && a <= 5 },
   { key: "6-10", label: "6~10년", test: (a) => a >= 6 && a <= 10 },
   { key: "11-20", label: "11~20년", test: (a) => a >= 11 && a <= 20 },
@@ -60,7 +63,19 @@ const AGE_BANDS: {
   { key: "31plus", label: "30년 초과", test: (a) => a > 30 },
 ];
 
+const SIZE_BANDS: Band<number>[] = [
+  { key: "u40", label: "전용 40㎡ 미만", test: (s) => s < 40 },
+  { key: "40-60", label: "40~60㎡", test: (s) => s >= 40 && s < 60 },
+  { key: "60-85", label: "60~85㎡", test: (s) => s >= 60 && s < 85 },
+  { key: "85-135", label: "85~135㎡", test: (s) => s >= 85 && s < 135 },
+  { key: "135plus", label: "135㎡ 이상", test: (s) => s >= 135 },
+];
+
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"] as const;
+
 let readCache: { expiresAt: number; data: LabHomeResponse } | null = null;
+
+/* ───────── helpers ───────── */
 
 function fmtPeriodDot(iso: string): string {
   return `${iso.slice(0, 4)}.${iso.slice(5, 7)}.${iso.slice(8, 10)}`;
@@ -80,16 +95,58 @@ function sharePct(count: number, total: number): number {
   return Math.round((count / total) * 1000) / 10;
 }
 
-function districtLabel(lawdCd: string, fallbackName: string): string {
-  const reg = LAWD_TO_REGION[lawdCd];
-  if (!reg) return fallbackName || lawdCd;
-  const dist = reg.districts.find((d) => d.code === lawdCd);
-  if (dist && dist.name !== reg.name) return `${reg.name} ${dist.name}`;
-  return reg.name;
+function median(values: number[]): number | null {
+  if (values.length === 0) return null;
+  const s = [...values].sort((a, b) => a - b);
+  const mid = s.length >> 1;
+  return s.length % 2 ? s[mid]! : (s[mid - 1]! + s[mid]!) / 2;
 }
 
-function regionSlugFor(lawdCd: string): string {
-  return LAWD_TO_REGION[lawdCd]?.slug ?? "";
+function round1(v: number): number {
+  return Math.round(v * 10) / 10;
+}
+
+function signed(v: number): string {
+  return `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(1)}%`;
+}
+
+function fmtN(n: number): string {
+  return n.toLocaleString("ko-KR");
+}
+
+/** lawd_cd → 단지 마스터의 시군구 이름 (새 행정코드 51xxx·12xxx 등도 포함). 인스턴스별 캐시. */
+let sigunguByLawd: Map<string, string> | null = null;
+
+async function loadSigunguNames(db: NonNullable<ReturnType<typeof getDb>>): Promise<Map<string, string>> {
+  if (sigunguByLawd) return sigunguByLawd;
+  const r = await db.execute(
+    `SELECT lawd_cd, MIN(sigungu) AS s FROM apt_complex_master
+     WHERE sigungu IS NOT NULL AND sigungu <> '' GROUP BY lawd_cd`,
+  );
+  sigunguByLawd = new Map(r.rows.map((row) => [String(row.lawd_cd), String(row.s)]));
+  return sigunguByLawd;
+}
+
+/** 광주·전남 통합 신코드(12xxx)의 구는 metroFromLawdNationwide 가 광주로 본다 */
+function sidoShort(lawdCd: string): string {
+  const m = metroFromLawdNationwide(lawdCd);
+  return m === "other" ? "" : METRO_LABELS[m];
+}
+
+/** "서울 강남구", "인천 서구", "성남시 분당구", "정선군" — 이름만으로 겹치는 "X구"에만 시도를 붙인다. */
+function lawdLabel(lawdCd: string): string {
+  // 지역 레지스트리(화성 새 구 등 최신 이름) 우선, 없으면 단지 마스터 시군구
+  const name = districtNameFromCode(lawdCd) || sigunguByLawd?.get(lawdCd) || "";
+  if (!name) return lawdCd;
+  if (/^[^\s]+구$/.test(name)) {
+    const sido = sidoShort(lawdCd);
+    return sido ? `${sido} ${name}` : name;
+  }
+  return name;
+}
+
+function lawdSlug(lawdCd: string): string {
+  return LAWD_TO_REGION[lawdCd]?.slug ?? slugFromLawd("", lawdCd);
 }
 
 function emptyLab(warning: string): LabHomeResponse {
@@ -98,8 +155,7 @@ function emptyLab(warning: string): LabHomeResponse {
     asOfDate: null,
     coverageLabel: labCoverageLabel(),
     coverageShort: labCoverageShort(),
-    dateBasisNote:
-      "계약일(deal date) 기준입니다. ‘오늘’은 콘텐츠 브랜드이며 당일 계약만을 의미하지 않습니다.",
+    dateBasisNote: "계약일 기준입니다.",
     featuredId: LAB_FEATURED_ID,
     experiments: [],
     computedAt: null,
@@ -107,11 +163,7 @@ function emptyLab(warning: string): LabHomeResponse {
   };
 }
 
-async function timed<T>(
-  bag: Record<string, number>,
-  key: string,
-  fn: () => Promise<T>,
-): Promise<T> {
+async function timed<T>(bag: Record<string, number>, key: string, fn: () => Promise<T>): Promise<T> {
   const t0 = performance.now();
   try {
     return await fn();
@@ -120,210 +172,190 @@ async function timed<T>(
   }
 }
 
-function buildBuckets(
-  counts: Record<string, number>,
-  defs: { key: string; label: string }[],
-  total: number,
-): LabBucketRow[] {
-  return defs.map((d) => ({
-    key: d.key,
-    label: d.label,
-    count: counts[d.key] ?? 0,
-    sharePct: sharePct(counts[d.key] ?? 0, total),
-  }));
+function shareBuckets<T>(values: T[], bands: Band<T>[]): { buckets: LabBucketRow[]; known: number } {
+  const counts = new Map<string, number>();
+  let known = 0;
+  for (const v of values) {
+    const b = bands.find((x) => x.test(v));
+    if (!b) continue;
+    known += 1;
+    counts.set(b.key, (counts.get(b.key) ?? 0) + 1);
+  }
+  return {
+    known,
+    buckets: bands.map((b) => ({
+      key: b.key,
+      label: b.label,
+      count: counts.get(b.key) ?? 0,
+      sharePct: sharePct(counts.get(b.key) ?? 0, known),
+    })),
+  };
 }
 
-function topInsightFromBuckets(
-  id: LabExperimentId,
-  buckets: LabBucketRow[],
-  total: number,
-): string {
-  const top = [...buckets].sort((a, b) => b.count - a.count)[0];
-  if (!top || total <= 0) return "해당 기간 매매 거래가 부족합니다.";
-  if (id === "price-bands") {
-    return `최근 30일 매매 ${total.toLocaleString("ko-KR")}건 중 ${top.label} 구간이 ${top.sharePct}%(${top.count.toLocaleString("ko-KR")}건)로 가장 많았습니다.`;
+/** 비교형: 각 칸의 (값/기준 − 1) 중앙값(%). 표본이 MIN_CELL 미만이면 null. */
+function deltaBuckets<T>(
+  samples: Array<{ v: T; ratio: number }>,
+  bands: Band<T>[],
+): { buckets: LabBucketRow[]; known: number } {
+  const byBand = new Map<string, number[]>();
+  for (const s of samples) {
+    const b = bands.find((x) => x.test(s.v));
+    if (!b) continue;
+    const list = byBand.get(b.key) ?? [];
+    list.push(s.ratio);
+    byBand.set(b.key, list);
   }
-  if (id === "floor-mix") {
-    return `최근 30일 매매에서 ${top.label} 거래가 ${top.sharePct}%로 가장 큰 비중을 차지했습니다.`;
-  }
-  if (id === "building-age") {
-    return `최근 30일 매매 중 연식 ${top.label} 아파트가 ${top.sharePct}%로 가장 많았습니다.`;
-  }
-  return `${top.label}이(가) ${top.sharePct}%로 가장 많았습니다.`;
+  const known = [...byBand.values()].reduce((n, l) => n + l.length, 0);
+  return {
+    known,
+    buckets: bands.map((b) => {
+      const list = byBand.get(b.key) ?? [];
+      const m = list.length >= MIN_CELL ? median(list) : null;
+      return {
+        key: b.key,
+        label: b.label,
+        count: list.length,
+        sharePct: sharePct(list.length, known),
+        deltaPct: m == null ? null : round1((m - 1) * 100),
+      };
+    }),
+  };
 }
 
-/**
- * 오늘의 실험실 홈 데이터 (READ only).
- * - Exp01: market_stats_daily_region 재사용 (class A)
- * - Exp02~05: deal_type+deal_date 인덱스 범위 쿼리 (class B)
- * - full historical scan / MOLIT / DB write 없음
- */
+function topShare(buckets: LabBucketRow[]): LabBucketRow | null {
+  return [...buckets].sort((a, b) => b.count - a.count)[0] ?? null;
+}
+
+function extremes(buckets: LabBucketRow[]): { hi: LabBucketRow | null; lo: LabBucketRow | null } {
+  const valid = buckets.filter((b) => b.deltaPct != null);
+  if (valid.length === 0) return { hi: null, lo: null };
+  const sorted = [...valid].sort((a, b) => b.deltaPct! - a.deltaPct!);
+  return { hi: sorted[0]!, lo: sorted.at(-1)! };
+}
+
+/* ───────── main ───────── */
+
+type Trade = {
+  lawd: string;
+  apt: string;
+  area: number;
+  floor: number | null;
+  amount: number;
+  buildYear: number | null;
+  date: string;
+  direct: boolean | null;
+};
+
 export async function getLabHome(): Promise<LabHomeResponse> {
   if (readCache && readCache.expiresAt > Date.now()) {
     return { ...readCache.data, source: "cache" };
   }
-
-  if (!hasDb()) {
-    return emptyLab("DB가 설정되지 않아 실험실 데이터를 표시할 수 없습니다.");
-  }
+  if (!hasDb()) return emptyLab("DB가 설정되지 않아 실험실 데이터를 표시할 수 없습니다.");
 
   const tAll = performance.now();
   const timings: Record<string, number> = {};
-  await ensureSchema();
+  await ensureSchemaForRead();
   const db = getDb()!;
 
   const asOfDate = await timed(timings, "asOf", async () => {
-    const meta = await db.execute(
-      `SELECT as_of_date AS d FROM market_stats_meta WHERE id = 1`,
-    );
+    const meta = await db.execute(`SELECT as_of_date AS d FROM market_stats_meta WHERE id = 1`);
     const fromMeta = String(meta.rows[0]?.d ?? "");
     if (fromMeta) return fromMeta;
     const r = await db.execute(
-      `SELECT MAX(deal_date) AS d
-       FROM transactions
+      `SELECT MAX(deal_date) AS d FROM transactions
        WHERE deal_type = 'trade' AND deal_date IS NOT NULL AND deal_date != ''`,
     );
     return String(r.rows[0]?.d ?? "");
   });
+  if (!asOfDate) return emptyLab("매매 거래 데이터가 없습니다.");
 
-  if (!asOfDate) {
-    return emptyLab("매매 거래 데이터가 없습니다.");
-  }
-
-  /** 분포 실험용: asOf 기준 최근 30일 (계약일) */
   const distTo = asOfDate;
   const distFrom = addDays(asOfDate, -29);
-
-  /** 온도계: 신고 지연 보정된 비교 창 */
   const volTo = addDays(asOfDate, -VOLUME_COMPARE_LAG_DAYS);
   const volFrom = addDays(volTo, -29);
   const volPriorTo = addDays(volTo, -30);
   const volPriorFrom = addDays(volTo, -59);
 
-  const [regionRows, area84Rows, distAgg] = await Promise.all([
-    timed(timings, "volumeRegions", async () => {
+  const [, volRows, tradeRows] = await Promise.all([
+    // 이름표는 순위 라벨에만 필요 — 실패해도 코드로 표시
+    loadSigunguNames(db).catch(() => new Map<string, string>()),
+    timed(timings, "volume", async () => {
       const r = await db.execute({
-        sql: `SELECT day, lawd_cd, region_slug, region_name, trade_count
-              FROM market_stats_daily_region
-              WHERE day >= ? AND day <= ?`,
-        args: [volPriorFrom, volTo],
-      });
-      return r.rows;
-    }),
-    timed(timings, "area84", async () => {
-      const r = await db.execute({
-        sql: `SELECT lawd_cd, COUNT(*) AS c
+        sql: `SELECT lawd_cd,
+                     SUM(CASE WHEN deal_date >= ? THEN 1 ELSE 0 END) AS cur,
+                     SUM(CASE WHEN deal_date < ? THEN 1 ELSE 0 END) AS prev
               FROM transactions
-              WHERE deal_type = 'trade'
-                AND deal_date >= ? AND deal_date <= ?
-                AND exclusive_area >= 84 AND exclusive_area < 85
-              GROUP BY lawd_cd
-              ORDER BY c DESC`,
-        args: [distFrom, distTo],
+              WHERE deal_type = 'trade' AND deal_date >= ? AND deal_date <= ?
+              GROUP BY lawd_cd`,
+        args: [volFrom, volFrom, volPriorFrom, volTo],
       });
       return r.rows;
     }),
-    timed(timings, "distributions", async () => {
+    timed(timings, "trades30", async () => {
       const r = await db.execute({
-        sql: `SELECT
-            COUNT(*) AS total,
-            SUM(CASE WHEN deal_amount < 30000 THEN 1 ELSE 0 END) AS p_under3,
-            SUM(CASE WHEN deal_amount >= 30000 AND deal_amount < 50000 THEN 1 ELSE 0 END) AS p_3_5,
-            SUM(CASE WHEN deal_amount >= 50000 AND deal_amount < 70000 THEN 1 ELSE 0 END) AS p_5_7,
-            SUM(CASE WHEN deal_amount >= 70000 AND deal_amount < 100000 THEN 1 ELSE 0 END) AS p_7_10,
-            SUM(CASE WHEN deal_amount >= 100000 AND deal_amount < 150000 THEN 1 ELSE 0 END) AS p_10_15,
-            SUM(CASE WHEN deal_amount >= 150000 THEN 1 ELSE 0 END) AS p_15plus,
-            SUM(CASE WHEN floor BETWEEN 1 AND 5 THEN 1 ELSE 0 END) AS f_1_5,
-            SUM(CASE WHEN floor BETWEEN 6 AND 10 THEN 1 ELSE 0 END) AS f_6_10,
-            SUM(CASE WHEN floor BETWEEN 11 AND 15 THEN 1 ELSE 0 END) AS f_11_15,
-            SUM(CASE WHEN floor BETWEEN 16 AND 20 THEN 1 ELSE 0 END) AS f_16_20,
-            SUM(CASE WHEN floor >= 21 THEN 1 ELSE 0 END) AS f_21plus,
-            SUM(CASE WHEN floor IS NULL OR floor <= 0 THEN 1 ELSE 0 END) AS f_unknown,
-            SUM(CASE WHEN build_year IS NOT NULL AND build_year >= 1960
-              AND CAST(substr(deal_date,1,4) AS INTEGER) - build_year BETWEEN 0 AND 5 THEN 1 ELSE 0 END) AS a_0_5,
-            SUM(CASE WHEN build_year IS NOT NULL AND build_year >= 1960
-              AND CAST(substr(deal_date,1,4) AS INTEGER) - build_year BETWEEN 6 AND 10 THEN 1 ELSE 0 END) AS a_6_10,
-            SUM(CASE WHEN build_year IS NOT NULL AND build_year >= 1960
-              AND CAST(substr(deal_date,1,4) AS INTEGER) - build_year BETWEEN 11 AND 20 THEN 1 ELSE 0 END) AS a_11_20,
-            SUM(CASE WHEN build_year IS NOT NULL AND build_year >= 1960
-              AND CAST(substr(deal_date,1,4) AS INTEGER) - build_year BETWEEN 21 AND 30 THEN 1 ELSE 0 END) AS a_21_30,
-            SUM(CASE WHEN build_year IS NOT NULL AND build_year >= 1960
-              AND CAST(substr(deal_date,1,4) AS INTEGER) - build_year > 30 THEN 1 ELSE 0 END) AS a_31plus,
-            SUM(CASE WHEN build_year IS NULL OR build_year < 1960
-              OR CAST(substr(deal_date,1,4) AS INTEGER) - build_year < 0 THEN 1 ELSE 0 END) AS a_unknown
-          FROM transactions
-          WHERE deal_type = 'trade' AND deal_date >= ? AND deal_date <= ?`,
+        sql: `SELECT lawd_cd, apt_name_norm, exclusive_area, floor, deal_amount, build_year,
+                     deal_date, dealing_gbn
+              FROM transactions
+              WHERE deal_type = 'trade' AND deal_date >= ? AND deal_date <= ?`,
         args: [distFrom, distTo],
       });
-      return r.rows[0] ?? {};
+      return r.rows;
     }),
   ]);
 
-  // —— LAB 01 volume thermometer ——
-  type VolAgg = {
-    lawdCd: string;
-    regionSlug: string;
-    label: string;
-    cur: number;
-    prev: number;
-  };
-  const volMap = new Map<string, VolAgg>();
-  for (const row of regionRows) {
-    const lawdCd = String(row.lawd_cd);
-    const day = String(row.day);
-    const c = Number(row.trade_count) || 0;
-    let a = volMap.get(lawdCd);
-    if (!a) {
-      a = {
-        lawdCd,
-        regionSlug: regionSlugFor(lawdCd) || String(row.region_slug ?? ""),
-        label: districtLabel(lawdCd, String(row.region_name ?? "")),
-        cur: 0,
-        prev: 0,
-      };
-      volMap.set(lawdCd, a);
-    }
-    if (day >= volFrom && day <= volTo) a.cur += c;
-    else if (day >= volPriorFrom && day <= volPriorTo) a.prev += c;
+  const trades: Trade[] = [];
+  for (const r of tradeRows) {
+    const amount = Number(r.deal_amount);
+    const area = Number(r.exclusive_area);
+    if (!(amount > 0) || !(area > 0)) continue;
+    const fl = Number(r.floor);
+    const by = Number(r.build_year);
+    const gbn = r.dealing_gbn == null ? "" : String(r.dealing_gbn);
+    trades.push({
+      lawd: String(r.lawd_cd),
+      apt: String(r.apt_name_norm ?? ""),
+      area,
+      floor: Number.isFinite(fl) && fl >= 1 ? fl : null,
+      amount,
+      buildYear: Number.isFinite(by) && by >= 1960 ? by : null,
+      date: String(r.deal_date),
+      direct: gbn.includes("직거래") ? true : gbn.includes("중개") ? false : null,
+    });
   }
+  const period = { label: periodLabel(distFrom, distTo, 30), from: distFrom, to: distTo };
+  const experiments: LabExperimentResult[] = [];
 
-  const volTotalCur = [...volMap.values()].reduce((s, x) => s + x.cur, 0);
-  const volTotalPrev = [...volMap.values()].reduce((s, x) => s + x.prev, 0);
-
-  const volumeRanks: LabRankRow[] = [...volMap.values()]
+  // —— LAB 01 거래량 온도계 (전국 시군구) ——
+  let volCur = 0;
+  let volPrev = 0;
+  const volAll = volRows.map((r) => {
+    const lawd = String(r.lawd_cd);
+    const cur = Number(r.cur) || 0;
+    const prev = Number(r.prev) || 0;
+    volCur += cur;
+    volPrev += prev;
+    return { lawd, cur, prev };
+  });
+  const volumeRanks: LabRankRow[] = volAll
     .map((a) => ({
       rank: 0,
-      label: a.label,
-      regionSlug: a.regionSlug,
-      href: a.regionSlug ? `/region/${a.regionSlug}` : "/regions",
+      label: lawdLabel(a.lawd),
+      regionSlug: lawdSlug(a.lawd),
+      href: `/region/${lawdSlug(a.lawd)}`,
       recentCount: a.cur,
       priorCount: a.prev,
       increaseCount: a.cur - a.prev,
       growthPct: pctChange(a.cur, a.prev),
     }))
     .filter(
-      (x) =>
-        x.recentCount >= VOLUME_MIN_RECENT &&
-        (x.priorCount ?? 0) >= VOLUME_MIN_PRIOR &&
-        (x.growthPct ?? 0) > 0,
+      (x) => x.recentCount >= VOLUME_MIN_RECENT && x.priorCount >= VOLUME_MIN_PRIOR && (x.growthPct ?? 0) > 0,
     )
     .sort((a, b) => (b.growthPct ?? 0) - (a.growthPct ?? 0))
-    .slice(0, 5)
+    .slice(0, 10)
     .map((x, i) => ({ ...x, rank: i + 1 }));
-
   const volTop = volumeRanks[0];
-  let volumeInsight: string;
-  if (volTop) {
-    volumeInsight = `최근 30일 ${volTop.label}의 매매 거래량은 직전 30일보다 ${volTop.growthPct}% 증가했습니다(${volTop.priorCount}→${volTop.recentCount}건).`;
-    if (volTotalPrev > 0 && volTotalCur < volTotalPrev) {
-      volumeInsight += ` 같은 기간 제공 지역 전체 거래량은 직전 대비 감소했습니다.`;
-    }
-  } else {
-    volumeInsight =
-      "최소 표본을 충족하며 직전 30일보다 거래량이 늘어난 지역이 이번 창에서는 많지 않았습니다.";
-  }
-
-  const volumeResult: LabExperimentResult = {
+  const nationalVol = pctChange(volCur, volPrev);
+  experiments.push({
     id: "volume-thermometer",
     period: {
       label: periodLabel(volFrom, volTo, 30),
@@ -331,149 +363,290 @@ export async function getLabHome(): Promise<LabHomeResponse> {
       to: volTo,
       priorFrom: volPriorFrom,
       priorTo: volPriorTo,
-      priorLabel: periodLabel(volPriorFrom, volPriorTo, 30).replace(
-        "최근 30일",
-        "직전 30일",
-      ),
+      priorLabel: periodLabel(volPriorFrom, volPriorTo, 30).replace("최근 30일", "직전 30일"),
     },
-    insight: volumeInsight,
+    headline: volTop ? `${volTop.label} +${volTop.growthPct}%` : "뚜렷한 급증 없음",
+    insight: volTop
+      ? `${volTop.label}의 매매가 직전 30일 ${fmtN(volTop.priorCount ?? 0)}건에서 ${fmtN(volTop.recentCount)}건으로 늘었습니다.${
+          nationalVol != null ? ` 같은 기간 전국 매매는 ${signed(nationalVol)} 변했습니다.` : ""
+        }`
+      : "표본 기준을 넘으면서 거래가 늘어난 시군구가 이번 구간에는 없었습니다.",
     ranks: volumeRanks,
-    totalCount: volTotalCur,
-  };
+    totalCount: volCur,
+  });
 
-  // —— LAB 02 area 84 ——
-  type AreaAgg = { slug: string; label: string; count: number };
-  const areaBySlug = new Map<string, AreaAgg>();
-  let area84Total = 0;
-  for (const row of area84Rows) {
-    const lawdCd = String(row.lawd_cd);
-    const c = Number(row.c) || 0;
-    area84Total += c;
-    const reg = LAWD_TO_REGION[lawdCd];
-    const slug = reg?.slug ?? String(lawdCd);
-    const label = reg?.name ?? districtLabel(lawdCd, lawdCd);
-    const cur = areaBySlug.get(slug) ?? { slug, label, count: 0 };
-    cur.count += c;
-    areaBySlug.set(slug, cur);
+  // —— LAB 02 국민평형 84㎡ ——
+  const a84 = new Map<string, number>();
+  let a84Total = 0;
+  for (const t of trades) {
+    if (t.area >= 84 && t.area < 85) {
+      a84Total += 1;
+      a84.set(t.lawd, (a84.get(t.lawd) ?? 0) + 1);
+    }
   }
-  // sanity: isArea84Band kept in sync with SQL (>=84 && <85)
-  void isArea84Band;
+  const areaRanks: LabRankRow[] = [...a84.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([lawd, c], i) => ({
+      rank: i + 1,
+      label: lawdLabel(lawd),
+      regionSlug: lawdSlug(lawd),
+      href: `/region/${lawdSlug(lawd)}`,
+      recentCount: c,
+      sharePct: sharePct(c, a84Total),
+    }));
+  const aTop = areaRanks[0];
+  experiments.push({
+    id: "area-84",
+    period,
+    headline: aTop ? `${aTop.label} ${fmtN(aTop.recentCount)}건` : "표본 부족",
+    insight: aTop
+      ? `최근 30일 전용 84㎡ 매매 ${fmtN(a84Total)}건 중 ${aTop.label}가 ${aTop.sharePct}%를 차지했습니다.`
+      : "해당 기간 84㎡대 매매가 부족합니다.",
+    ranks: areaRanks,
+    totalCount: a84Total,
+  });
 
-  const areaRanks: LabRankRow[] = [...areaBySlug.values()]
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 5)
+  // —— LAB 03 가격대 ——
+  const price = shareBuckets(trades.map((t) => t.amount), PRICE_BANDS);
+  const pTop = topShare(price.buckets);
+  experiments.push({
+    id: "price-bands",
+    period,
+    headline: pTop ? `${pTop.label} ${pTop.sharePct}%` : "표본 부족",
+    insight: pTop
+      ? `최근 30일 매매 ${fmtN(price.known)}건 중 ${pTop.label} 거래가 ${fmtN(pTop.count)}건으로 가장 많았습니다.`
+      : "해당 기간 매매가 부족합니다.",
+    buckets: price.buckets,
+    totalCount: price.known,
+  });
+
+  // —— LAB 04 층 ——
+  const floorVals = trades.map((t) => t.floor).filter((f): f is number => f != null);
+  const floor = shareBuckets(floorVals, FLOOR_BANDS);
+  const fTop = topShare(floor.buckets);
+  const floorUnknown = trades.length - floorVals.length;
+  experiments.push({
+    id: "floor-mix",
+    period,
+    headline: fTop ? `${fTop.label} ${fTop.sharePct}%` : "표본 부족",
+    insight: fTop
+      ? `층이 확인된 매매 ${fmtN(floor.known)}건 중 ${fTop.label} 거래가 가장 많았습니다.`
+      : "해당 기간 매매가 부족합니다.",
+    buckets: floor.buckets,
+    totalCount: floor.known,
+    excludedCount: floorUnknown,
+    excludedNote: floorUnknown > 0 ? `층 정보 없음·지하층 ${fmtN(floorUnknown)}건 제외` : undefined,
+  });
+
+  // —— LAB 05 연식 ——
+  const ageOf = (t: Trade) =>
+    t.buildYear == null ? null : Number(t.date.slice(0, 4)) - t.buildYear;
+  const ageVals = trades.map(ageOf).filter((a): a is number => a != null && a >= 0);
+  const age = shareBuckets(ageVals, AGE_BANDS);
+  const ageTop = topShare(age.buckets);
+  const ageUnknown = trades.length - ageVals.length;
+  experiments.push({
+    id: "building-age",
+    period,
+    headline: ageTop ? `${ageTop.label} ${ageTop.sharePct}%` : "표본 부족",
+    insight: ageTop
+      ? `연식이 확인된 매매 ${fmtN(age.known)}건 중 ${ageTop.label} 아파트가 가장 많이 거래됐습니다.`
+      : "해당 기간 매매가 부족합니다.",
+    buckets: age.buckets,
+    totalCount: age.known,
+    excludedCount: ageUnknown,
+    excludedNote: ageUnknown > 0 ? `건축년도 없음·비정상 ${fmtN(ageUnknown)}건 제외` : undefined,
+  });
+
+  // —— 공통 기준: 같은 단지·같은 면적 중위가, 같은 시군구 평당 중위가 ——
+  const groupKey = (t: Trade) => `${t.lawd}|${t.apt}|${Math.round(t.area)}`;
+  const groups = new Map<string, Trade[]>();
+  for (const t of trades) {
+    if (!t.apt) continue;
+    const k = groupKey(t);
+    const list = groups.get(k) ?? [];
+    list.push(t);
+    groups.set(k, list);
+  }
+  const groupMedian = new Map<string, number>();
+  for (const [k, list] of groups) {
+    if (list.length >= 2) groupMedian.set(k, median(list.map((t) => t.amount))!);
+  }
+  const ppp = (t: Trade) => t.amount / (t.area / PYEONG_SQM);
+  const lawdPpp = new Map<string, number[]>();
+  for (const t of trades) {
+    const list = lawdPpp.get(t.lawd) ?? [];
+    list.push(ppp(t));
+    lawdPpp.set(t.lawd, list);
+  }
+  const lawdPppMedian = new Map<string, number>();
+  for (const [l, list] of lawdPpp) {
+    if (list.length >= 10) lawdPppMedian.set(l, median(list)!);
+  }
+
+  // —— LAB 06 로열층 프리미엄 ——
+  const floorSamples: Array<{ v: number; ratio: number }> = [];
+  for (const t of trades) {
+    if (t.floor == null) continue;
+    const m = groupMedian.get(groupKey(t));
+    if (m) floorSamples.push({ v: t.floor, ratio: t.amount / m });
+  }
+  const royal = deltaBuckets(floorSamples, FLOOR_BANDS);
+  const rx = extremes(royal.buckets);
+  experiments.push({
+    id: "royal-floor",
+    period,
+    headline:
+      rx.hi && rx.lo && rx.hi.key !== rx.lo.key
+        ? `${rx.hi.label} vs ${rx.lo.label} ${(rx.hi.deltaPct! - rx.lo.deltaPct!).toFixed(1)}%p`
+        : "표본 부족",
+    insight:
+      rx.hi && rx.lo && rx.hi.key !== rx.lo.key
+        ? `같은 단지·같은 평형 안에서 ${rx.hi.label}은 묶음 중위가보다 ${signed(rx.hi.deltaPct!)}, ${rx.lo.label}은 ${signed(rx.lo.deltaPct!)}에 거래됐습니다.`
+        : "비교할 수 있는 같은 단지·같은 평형 거래가 부족합니다.",
+    buckets: royal.buckets,
+    deltaBasis: "같은 단지·같은 전용면적 중위가 대비",
+    totalCount: royal.known,
+  });
+
+  // —— LAB 07 새 아파트 프리미엄 ——
+  const ageSamples: Array<{ v: number; ratio: number }> = [];
+  for (const t of trades) {
+    const a = ageOf(t);
+    const base = lawdPppMedian.get(t.lawd);
+    if (a == null || a < 0 || !base) continue;
+    ageSamples.push({ v: a, ratio: ppp(t) / base });
+  }
+  const newPrem = deltaBuckets(ageSamples, AGE_BANDS);
+  const newest = newPrem.buckets[0];
+  const oldest = newPrem.buckets.at(-1);
+  experiments.push({
+    id: "new-premium",
+    period,
+    headline: newest?.deltaPct != null ? `5년 이하 ${signed(newest.deltaPct)}` : "표본 부족",
+    insight:
+      newest?.deltaPct != null
+        ? `준공 5년 이하 아파트는 같은 시군구 평당 중위가보다 ${signed(newest.deltaPct)}에 거래됐습니다.${
+            oldest?.deltaPct != null ? ` 30년 넘은 아파트는 ${signed(oldest.deltaPct)}였습니다(재건축 기대가 섞일 수 있습니다).` : ""
+          }`
+        : "연식별로 비교할 표본이 부족합니다.",
+    buckets: newPrem.buckets,
+    deltaBasis: "같은 시군구 전용 평당 중위가 대비",
+    totalCount: newPrem.known,
+  });
+
+  // —— LAB 08 작은 집의 평당가 ——
+  const sizeSamples: Array<{ v: number; ratio: number }> = [];
+  for (const t of trades) {
+    const base = lawdPppMedian.get(t.lawd);
+    if (base) sizeSamples.push({ v: t.area, ratio: ppp(t) / base });
+  }
+  const size = deltaBuckets(sizeSamples, SIZE_BANDS);
+  const sx = extremes(size.buckets);
+  experiments.push({
+    id: "size-ppp",
+    period,
+    headline: sx.hi ? `${sx.hi.label} ${signed(sx.hi.deltaPct!)}` : "표본 부족",
+    insight: sx.hi
+      ? `평당가로 보면 ${sx.hi.label} 구간이 같은 시군구 중위보다 ${signed(sx.hi.deltaPct!)}로 가장 높았고, ${sx.lo!.label} 구간은 ${signed(sx.lo!.deltaPct!)}였습니다.`
+      : "면적별로 비교할 표본이 부족합니다.",
+    buckets: size.buckets,
+    deltaBasis: "같은 시군구 전용 평당 중위가 대비",
+    totalCount: size.known,
+  });
+
+  // —— LAB 09 직거래 ——
+  const typed = trades.filter((t) => t.direct != null);
+  const directs = typed.filter((t) => t.direct);
+  const directShare = sharePct(directs.length, typed.length);
+  // 같은 묶음에 중개거래가 있을 때만 직거래 가격을 그 중개거래 중위가와 비교
+  const brokeredMedian = new Map<string, number>();
+  for (const [k, list] of groups) {
+    const brokered = list.filter((t) => t.direct === false).map((t) => t.amount);
+    if (brokered.length >= 1) brokeredMedian.set(k, median(brokered)!);
+  }
+  const directRatios: number[] = [];
+  for (const t of directs) {
+    const m = t.apt ? brokeredMedian.get(groupKey(t)) : undefined;
+    if (m) directRatios.push(t.amount / m);
+  }
+  const directGap = directRatios.length >= MIN_CELL ? round1((median(directRatios)! - 1) * 100) : null;
+  const byLawd = new Map<string, { all: number; direct: number }>();
+  for (const t of typed) {
+    const a = byLawd.get(t.lawd) ?? { all: 0, direct: 0 };
+    a.all += 1;
+    if (t.direct) a.direct += 1;
+    byLawd.set(t.lawd, a);
+  }
+  const directRanks: LabRankRow[] = [...byLawd.entries()]
+    .filter(([, a]) => a.all >= DIRECT_MIN_TRADES)
+    .map(([lawd, a]) => ({ lawd, ...a, share: sharePct(a.direct, a.all) }))
+    .sort((a, b) => b.share - a.share)
+    .slice(0, 10)
     .map((a, i) => ({
       rank: i + 1,
-      label: a.label,
-      regionSlug: a.slug,
-      href: `/region/${a.slug}`,
-      recentCount: a.count,
-      sharePct: sharePct(a.count, area84Total),
+      label: lawdLabel(a.lawd),
+      regionSlug: lawdSlug(a.lawd),
+      href: `/region/${lawdSlug(a.lawd)}`,
+      recentCount: a.direct,
+      priorCount: a.all,
+      sharePct: a.share,
     }));
-
-  const areaTop = areaRanks[0];
-  const areaInsight = areaTop
-    ? `최근 30일 전용 84㎡(84㎡ 이상~85㎡ 미만) 매매 ${area84Total.toLocaleString("ko-KR")}건 중 ${areaTop.label}가 ${areaTop.recentCount.toLocaleString("ko-KR")}건(${areaTop.sharePct}%)으로 가장 많았습니다.`
-    : "해당 기간 84㎡대 매매 거래가 부족합니다.";
-
-  const areaResult: LabExperimentResult = {
-    id: "area-84",
-    period: {
-      label: periodLabel(distFrom, distTo, 30),
-      from: distFrom,
-      to: distTo,
-    },
-    insight: areaInsight,
-    ranks: areaRanks,
-    totalCount: area84Total,
-  };
-
-  // —— LAB 03~05 from distAgg ——
-  const total = Number(distAgg.total) || 0;
-  const priceCounts: Record<string, number> = {
-    under3: Number(distAgg.p_under3) || 0,
-    "3-5": Number(distAgg.p_3_5) || 0,
-    "5-7": Number(distAgg.p_5_7) || 0,
-    "7-10": Number(distAgg.p_7_10) || 0,
-    "10-15": Number(distAgg.p_10_15) || 0,
-    "15plus": Number(distAgg.p_15plus) || 0,
-  };
-  const priceBuckets = buildBuckets(priceCounts, PRICE_BANDS, total);
-  const priceResult: LabExperimentResult = {
-    id: "price-bands",
-    period: {
-      label: periodLabel(distFrom, distTo, 30),
-      from: distFrom,
-      to: distTo,
-    },
-    insight: topInsightFromBuckets("price-bands", priceBuckets, total),
-    buckets: priceBuckets,
-    totalCount: total,
-  };
-
-  const floorUnknown = Number(distAgg.f_unknown) || 0;
-  const floorKnown = total - floorUnknown;
-  const floorCounts: Record<string, number> = {
-    "1-5": Number(distAgg.f_1_5) || 0,
-    "6-10": Number(distAgg.f_6_10) || 0,
-    "11-15": Number(distAgg.f_11_15) || 0,
-    "16-20": Number(distAgg.f_16_20) || 0,
-    "21plus": Number(distAgg.f_21plus) || 0,
-  };
-  const floorBuckets = buildBuckets(floorCounts, FLOOR_BANDS, floorKnown);
-  const floorResult: LabExperimentResult = {
-    id: "floor-mix",
-    period: {
-      label: periodLabel(distFrom, distTo, 30),
-      from: distFrom,
-      to: distTo,
-    },
-    insight: topInsightFromBuckets("floor-mix", floorBuckets, floorKnown),
-    buckets: floorBuckets,
-    totalCount: floorKnown,
-    excludedCount: floorUnknown,
+  experiments.push({
+    id: "direct-deal",
+    period,
+    headline: directGap != null ? `중개거래보다 ${signed(directGap)}` : `직거래 ${directShare}%`,
+    insight: `최근 30일 매매의 ${directShare}%(${fmtN(directs.length)}건)가 직거래였습니다.${
+      directGap != null
+        ? ` 같은 단지·같은 면적의 중개거래와 비교하면 직거래는 중위 ${signed(directGap)}에 거래됐습니다(비교 가능 ${fmtN(directRatios.length)}건).`
+        : ""
+    }`,
+    buckets: [
+      { key: "direct", label: "직거래", count: directs.length, sharePct: directShare },
+      {
+        key: "brokered",
+        label: "중개거래",
+        count: typed.length - directs.length,
+        sharePct: round1(100 - directShare),
+      },
+    ],
+    ranks: directRanks,
+    totalCount: typed.length,
+    excludedCount: trades.length - typed.length,
     excludedNote:
-      floorUnknown > 0
-        ? `층 정보 없음 ${floorUnknown.toLocaleString("ko-KR")}건 제외`
-        : undefined,
-  };
+      trades.length > typed.length ? `거래 유형 미기재 ${fmtN(trades.length - typed.length)}건 제외` : undefined,
+  });
 
-  const ageUnknown = Number(distAgg.a_unknown) || 0;
-  const ageKnown = total - ageUnknown;
-  const ageCounts: Record<string, number> = {
-    "0-5": Number(distAgg.a_0_5) || 0,
-    "6-10": Number(distAgg.a_6_10) || 0,
-    "11-20": Number(distAgg.a_11_20) || 0,
-    "21-30": Number(distAgg.a_21_30) || 0,
-    "31plus": Number(distAgg.a_31plus) || 0,
-  };
-  const ageBuckets = buildBuckets(ageCounts, AGE_BANDS, ageKnown);
-  const ageResult: LabExperimentResult = {
-    id: "building-age",
-    period: {
-      label: periodLabel(distFrom, distTo, 30),
-      from: distFrom,
-      to: distTo,
-    },
-    insight: topInsightFromBuckets("building-age", ageBuckets, ageKnown),
-    buckets: ageBuckets,
-    totalCount: ageKnown,
-    excludedCount: ageUnknown,
-    excludedNote:
-      ageUnknown > 0
-        ? `연식 미상·비정상(build_year NULL/1960 미만/미래) ${ageUnknown.toLocaleString("ko-KR")}건 제외`
-        : undefined,
-  };
+  // —— LAB 10 요일 ——
+  const dayCounts = new Array<number>(7).fill(0);
+  for (const t of trades) {
+    // 계약일은 날짜만 있다 — 그 달력 날짜의 요일 (UTC 자정으로 읽으면 시간대 영향 없음)
+    const d = new Date(`${t.date.slice(0, 10)}T00:00:00Z`);
+    if (!Number.isNaN(d.getTime())) dayCounts[d.getUTCDay()]! += 1;
+  }
+  const dayTotal = dayCounts.reduce((a, b) => a + b, 0);
+  // 월요일부터
+  const order = [1, 2, 3, 4, 5, 6, 0];
+  const dayBuckets: LabBucketRow[] = order.map((i) => ({
+    key: `d${i}`,
+    label: `${WEEKDAYS[i]}요일`,
+    count: dayCounts[i]!,
+    sharePct: sharePct(dayCounts[i]!, dayTotal),
+  }));
+  const dTop = topShare(dayBuckets);
+  const weekend = dayCounts[0]! + dayCounts[6]!;
+  experiments.push({
+    id: "weekday",
+    period,
+    headline: dTop ? `${dTop.label} ${dTop.sharePct}%` : "표본 부족",
+    insight: dTop
+      ? `매매 계약은 ${dTop.label}에 가장 많았고, 주말(토·일) 계약은 ${sharePct(weekend, dayTotal)}%였습니다.`
+      : "해당 기간 매매가 부족합니다.",
+    buckets: dayBuckets,
+    totalCount: dayTotal,
+  });
 
-  const experiments = [
-    volumeResult,
-    areaResult,
-    priceResult,
-    floorResult,
-    ageResult,
-  ];
-
-  // ensure defs exist
   for (const e of experiments) getLabDef(e.id);
 
   const data: LabHomeResponse = {
@@ -482,16 +655,12 @@ export async function getLabHome(): Promise<LabHomeResponse> {
     coverageLabel: labCoverageLabel(),
     coverageShort: labCoverageShort(),
     dateBasisNote:
-      "계약일(deal date) 기준입니다. 거래량 온도계는 신고 지연을 고려해 최신 계약일에서 5일을 뺀 창으로 직전 30일과 비교합니다. ‘오늘’은 콘텐츠 브랜드이며 당일 계약만을 의미하지 않습니다.",
+      "국토교통부 실거래 신고 기준, 계약일 기준입니다. 최근 계약은 신고 기한(30일) 안이라 뒤늦게 더 들어올 수 있습니다.",
     featuredId: LAB_FEATURED_ID,
     experiments,
     computedAt: new Date().toISOString(),
-    timings: {
-      totalMs: Math.round(performance.now() - tAll),
-      queries: timings,
-    },
+    timings: { totalMs: Math.round(performance.now() - tAll), queries: timings },
   };
-
   readCache = { expiresAt: Date.now() + READ_CACHE_TTL_MS, data };
   return data;
 }
@@ -500,3 +669,5 @@ export async function getLabHome(): Promise<LabHomeResponse> {
 export function invalidateLabHomeCache(): void {
   readCache = null;
 }
+
+export type { LabExperimentId };

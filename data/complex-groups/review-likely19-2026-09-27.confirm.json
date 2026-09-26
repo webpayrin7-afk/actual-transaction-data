@@ -1,0 +1,66 @@
+{
+  "generated_at": "2026-09-27",
+  "source": "data/complex-groups/dry-run-2026-09-27.json (LIKELY, parcel_triple_all_pairs=true, 19 groups)",
+  "review": "data/complex-groups/review-likely19-2026-09-27.md",
+  "mode": "REVIEW_ONLY_NOT_APPLIED",
+  "apply_flag_file": "data/complex-groups/review-likely19-2026-09-27.approved.txt",
+  "counts": { "CONFIRM": 4, "SEPARATE": 15, "UNSURE": 0 },
+  "confirm": [
+    {
+      "group_key": "11260|10500|금호어울림",
+      "display": "중랑숲금호어울림 (중랑구 망우동)",
+      "members": [
+        { "complex_id": "cx_698ebc06995ed519", "apt_name": "금호어울림(580)", "residential_households": 558, "dongs": "101-111" },
+        { "complex_id": "cx_0ab39c19b9467c32", "apt_name": "금호어울림(580-1)", "residential_households": 128, "dongs": "112-113" }
+      ],
+      "expected_primary": "cx_698ebc06995ed519",
+      "correct_household_count": 686,
+      "evidence": ["BUILDING_HUB_RECAP 580 = 686 = 558 + 128", "dong labels 101-113 continuous", "bldrgst pk 1008129924-943 one series", "same approval 2006-04-28", "footprint 28m", "same road address 양원역로 18", "tx apt_dong split matches"],
+      "urls": ["https://hogangnono.com/apt/lf81", "https://realty.daum.net/home/apt/danjis/12133"]
+    },
+    {
+      "group_key": "11470|10300|롯데캐슬",
+      "display": "양천 롯데캐슬 (양천구 신월동)",
+      "members": [
+        { "complex_id": "cx_7fc4b5c8c0f70639", "apt_name": "롯데캐슬(1057-0)", "residential_households": 197, "dongs": "101-102" },
+        { "complex_id": "cx_aaf673efe09b5cd8", "apt_name": "롯데캐슬(1057-1)", "residential_households": 120, "dongs": "201-203" }
+      ],
+      "expected_primary": "cx_7fc4b5c8c0f70639",
+      "correct_household_count": 317,
+      "evidence": ["RECAP 197 + 120 = 317 = 분양 기사 317가구 5개동", "same approval 2010-10-14", "footprint 25m", "오목로5길 19/20", "tx apt_dong split matches"],
+      "urls": ["https://www.seoul.co.kr/news/economy/estate/2011/01/17/20110117015001", "https://edaily.co.kr/News/Read?mediaCodeNo=257&newsId=01899126593004344"]
+    },
+    {
+      "group_key": "11620|10100|서울대입구아이원",
+      "display": "서울대입구아이원 (관악구 봉천동)",
+      "members": [
+        { "complex_id": "cx_8e70bce29549bc9a", "apt_name": "서울대입구아이원(1560-61)", "kapt": "A15184101", "residential_households": 238, "dongs": "101-104" },
+        { "complex_id": "cx_7039f96018656e79", "apt_name": "서울대입구아이원(1560-62)", "residential_households": 136, "dongs": "201-203" }
+      ],
+      "expected_primary": "cx_8e70bce29549bc9a",
+      "correct_household_count": 374,
+      "evidence": ["238 + 136 = 374 = portal 374세대", "bldrgst pk 102212319-327 consecutive", "same approval 2006-11-30", "footprint 34m", "청룡길 77/78", "tx apt_dong split matches"],
+      "urls": ["https://hogangnono.com/apt/1wwbc"]
+    },
+    {
+      "group_key": "41281|11800|허스",
+      "display": "허스아파트 (고양시 덕양구 관산동)",
+      "members": [
+        { "complex_id": "cx_c5507dc7b6e9abf4", "apt_name": "허스(151)", "residential_households": 50, "dongs": "A-B" },
+        { "complex_id": "cx_9366da8c5599b5e1", "apt_name": "허스(151-3)", "residential_households": 60, "dongs": "C-D" }
+      ],
+      "expected_primary": "cx_9366da8c5599b5e1",
+      "correct_household_count": 110,
+      "evidence": ["RECAP 50 + 60 = 110 = KB 110세대 4개동", "dong labels A-D continuous", "same approval 1987-01-26", "footprint 15m", "통일로742번길 38/42", "tx apt_dong split matches"],
+      "urls": ["https://kbland.kr/se/c/2810"]
+    }
+  ],
+  "apply_script_caveat": "apply-complex-groups.mts sets household_count = max(member official). Correct only for 금호어울림(686). It would write 197/136/60 instead of 317/374/110 — fix before --apply.",
+  "separate_policy_small": [
+    "11440|12300|삼화아크빌", "11545|10300|한빛로얄", "11620|10200|파로스프라자", "11650|10100|방배삼성홈타운",
+    "11650|10100|상지리츠빌4차", "11650|10100|프레스턴", "11680|10500|삼성동헤렌하우스2", "11680|10300|우찬현대",
+    "11740|10900|광남벨라스2차아파트", "11740|10900|광남벨라스643v", "11740|10100|다성이즈빌", "11740|10700|대은팰리스뷰",
+    "11740|10500|에이스빌", "11740|10500|엠프라자아파트"
+  ],
+  "separate_different_phase": ["11710|10800|동궁리치웰문정"]
+}

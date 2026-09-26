@@ -8,7 +8,8 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { Check, ChevronDown, X } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
+import { formatEok } from "@/lib/utils/format";
 import type { AptAreaOption } from "@/lib/molit/apt-client";
 import {
   areaSelectorClosedLabel,
@@ -129,28 +130,26 @@ export function AptAreaSelector({
   }
 
   const compact = variant === "compact";
+  // 랩 UI 가이드 11.0 — 면적은 3차 조건: 둥근 필터 칩(누르면 바텀시트). 본문·스티키 같은 모양 (LabFilterChips와 같은 규격)
+  const chip =
+    "relative inline-flex h-9 min-w-0 max-w-full items-center gap-0.5 whitespace-nowrap rounded-full border px-3 text-[14px] leading-5 tabular-nums before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']";
+  const chipOn =
+    // 평형은 늘 하나가 골라진 값이라 청록 면(필터 걸림 표시) 대신 흰 면 + 회색 테두리, "34평"만 청록 글씨
+    "border-[color:var(--lab-border-control)] bg-white font-semibold text-[color:var(--lab-navy-950)]";
+  const chipOff =
+    "border-[color:var(--lab-border)] bg-[color:var(--lab-surface)] font-medium text-[color:var(--lab-navy-950)]";
+  // 본문은 폭 전체(글자 왼쪽 · ▾ 오른쪽 끝), 스티키는 글자 길이만큼
+  const width = compact ? "" : "w-full justify-between px-4";
 
   if (sorted.length <= 1) {
     const only = sorted[0];
     if (!only) {
       return (
-        <div
-          className={`flex items-center rounded-lg border border-slate-200 text-slate-700 ${
-            compact ? "h-8 px-2.5 text-xs" : "h-10 w-full px-3.5 text-sm"
-          } ${triggerClassName || "bg-white"}`}
-        >
-          전체 면적
-        </div>
+        <div className={`${chip} ${width} ${chipOff} ${triggerClassName}`}>전체 면적</div>
       );
     }
     return (
-      <div
-        className={`flex items-center rounded-lg border border-slate-200 tabular-nums text-slate-800 ${
-          compact
-            ? "h-8 max-w-full px-2.5 text-xs font-semibold"
-            : "h-10 w-full px-3.5 text-sm font-semibold"
-        } ${triggerClassName || "bg-white"}`}
-      >
+      <div className={`${chip} ${width} ${chipOn} ${triggerClassName}`}>
         <span className="min-w-0 truncate">
           <AreaTriggerLabel area={only} />
         </span>
@@ -176,25 +175,16 @@ export function AptAreaSelector({
         aria-expanded={open}
         aria-label={`현재 ${triggerLabel}, ${a11yExtra}`}
         onClick={openSheet}
-        className={`flex items-center gap-1.5 border border-slate-200 text-left tabular-nums text-slate-800 hover:bg-slate-50 ${
-          compact
-            ? "h-8 max-w-full rounded-md px-2.5 text-xs font-semibold"
-            : "h-10 w-full gap-2 rounded-xl px-3.5 text-sm sm:gap-3"
-        } ${triggerClassName || "bg-white"}`}
+        className={`${chip} ${width} ${isAll || !selected ? chipOff : chipOn} text-left ${triggerClassName}`}
       >
-        <span className="min-w-0 flex-1 truncate">
+        <span className="min-w-0 truncate">
           {isAll || !selected ? (
             <span className="font-semibold">전체 면적</span>
           ) : (
             <AreaTriggerLabel area={selected} />
           )}
         </span>
-        <ChevronDown
-          className={`shrink-0 text-slate-400 transition ${
-            compact ? "h-3.5 w-3.5" : "h-4 w-4"
-          } ${open ? "rotate-180" : ""}`}
-          aria-hidden
-        />
+        <ChevronDown className={`h-4 w-4 shrink-0 opacity-60 transition ${open ? "rotate-180" : ""}`} aria-hidden />
       </button>
 
       {present
@@ -239,8 +229,6 @@ function AreaSheet({
   const draggingRef = useRef(false);
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-
-  const totalDeals = areas.reduce((sum, a) => sum + a.count, 0);
 
   useLayoutEffect(() => {
     const run = () => {
@@ -349,24 +337,10 @@ function AreaSheet({
           <div className="relative flex items-center justify-center px-12 pb-3.5 pt-2.5">
             <h2
               id={titleId}
-              className="text-center text-lg font-bold leading-none tracking-tight text-slate-900 sm:text-xl"
+              className="text-center detail-section-title"
             >
-              평형
+              평형 선택
             </h2>
-            <button
-              type="button"
-              aria-label="닫기"
-              onClick={onClose}
-              onMouseDown={(e) => e.stopPropagation()}
-              onTouchStart={(e) => e.stopPropagation()}
-              className="absolute right-2.5 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
-            >
-              <X
-                className="pointer-events-none h-6 w-6"
-                strokeWidth={1.5}
-                aria-hidden
-              />
-            </button>
           </div>
         </div>
 
@@ -374,16 +348,6 @@ function AreaSheet({
           ref={listRef}
           className="min-h-0 overflow-y-auto overscroll-contain touch-pan-y pb-2"
         >
-          <AreaOptionRow
-            active={value === "all"}
-            buttonRef={value === "all" ? activeRef : undefined}
-            onClick={() => onPick("all")}
-            pyeongLabel="전체 면적"
-            exclusiveLabel={`타입 ${areas.length.toLocaleString("ko-KR")}개`}
-            supplyLabel={null}
-            dealLabel={areaSelectorDealCountLabel(totalDeals)}
-          />
-          <div className="mx-4 border-b border-slate-100" aria-hidden />
           {areas.map((area, index) => (
             <div key={area.key}>
               <AreaOptionRow
@@ -401,6 +365,8 @@ function AreaSheet({
                 }
                 supplyLabel={areaSelectorSupplyLabel(area)}
                 dealLabel={areaSelectorDealCountLabel(area.count)}
+                householdsLabel={area.households ? `${area.households.toLocaleString("ko-KR")}세대` : null}
+                latest={area.latestTrade}
               />
               {index < areas.length - 1 ? (
                 <div
@@ -416,6 +382,15 @@ function AreaSheet({
   );
 }
 
+/** 26.05.29 */
+function shortDate(d: string): string {
+  return d.length >= 10 ? `${d.slice(2, 4)}.${d.slice(5, 7)}.${d.slice(8, 10)}` : d;
+}
+
+/**
+ * 평형 한 줄 — 왼쪽: 평형·세대 / 전용·공급, 오른쪽: 최근 매매 실거래가 / 계약일·거래 건수.
+ * 호가가 아니라 실거래라 날짜를 같이 둔다. 신고가면 작은 표시.
+ */
 function AreaOptionRow({
   active,
   buttonRef,
@@ -424,6 +399,8 @@ function AreaOptionRow({
   exclusiveLabel,
   supplyLabel,
   dealLabel,
+  householdsLabel = null,
+  latest,
 }: {
   active: boolean;
   buttonRef?: React.RefObject<HTMLButtonElement | null>;
@@ -432,7 +409,10 @@ function AreaOptionRow({
   exclusiveLabel: string;
   supplyLabel: string | null;
   dealLabel: string;
+  householdsLabel?: string | null;
+  latest?: AptAreaOption["latestTrade"];
 }) {
+  const sub = [exclusiveLabel, supplyLabel].filter(Boolean).join(" · ");
   return (
     <button
       ref={buttonRef}
@@ -443,24 +423,33 @@ function AreaOptionRow({
       }`}
     >
       <span className="min-w-0 flex-1">
-        <span className="block text-[15px] font-semibold tabular-nums leading-snug text-[color:var(--lab-teal-700)] sm:text-base">
-          {pyeongLabel}
+        <span className="flex items-baseline gap-2">
+          <span className="detail-number leading-snug text-[color:var(--lab-teal-700)]">{pyeongLabel}</span>
+          {householdsLabel ? <span className="detail-meta tabular-nums">{householdsLabel}</span> : null}
         </span>
-        <span className="mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          {exclusiveLabel ? (
-            <span className="text-[13px] tabular-nums leading-snug text-slate-500">
-              {exclusiveLabel}
+        {sub ? <span className="detail-meta mt-0.5 block tabular-nums">{sub}</span> : null}
+      </span>
+      <span className="shrink-0 text-right">
+        {latest !== undefined ? (
+          <>
+            <span className="flex items-center justify-end gap-1">
+              {latest?.singoga ? (
+                <span className="shrink-0 whitespace-nowrap rounded border border-rose-400 px-1 py-px text-[12px] font-semibold leading-4 text-rose-600">
+                  신고가
+                </span>
+              ) : null}
+              <span className={`detail-number leading-snug tabular-nums ${latest ? "text-[color:var(--lab-navy-950)]" : "text-slate-400"}`}>
+                {latest ? formatEok(latest.amount) : "매매 없음"}
+              </span>
             </span>
-          ) : null}
-          <span className="text-[13px] tabular-nums leading-snug text-slate-400">
-            {dealLabel}
-          </span>
-        </span>
-        {supplyLabel ? (
-          <span className="mt-0.5 hidden text-[12px] tabular-nums text-slate-400 sm:block">
-            {supplyLabel}
-          </span>
-        ) : null}
+            <span className="detail-meta mt-0.5 block tabular-nums">
+              {latest ? `${shortDate(latest.date)} · ` : ""}
+              {dealLabel}
+            </span>
+          </>
+        ) : (
+          <span className="detail-meta tabular-nums">{dealLabel}</span>
+        )}
       </span>
       <span className="flex w-5 shrink-0 items-center justify-center">
         {active ? (

@@ -4,7 +4,7 @@ import { LoanRateCompare } from "@/components/rates/LoanRateCompare";
 export const metadata: Metadata = {
   title: "금리비교 - 아파트 데이터랩",
   description:
-    "서울시 시중은행협력자금 취급 은행별 대출·보전 금리를 비교합니다.",
+    "금융감독원 금융상품통합비교공시 기준 은행·저축은행 주택담보대출·전세자금대출 금리를 비교합니다.",
 };
 
 export default function Page() {

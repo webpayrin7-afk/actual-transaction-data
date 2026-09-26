@@ -2,8 +2,10 @@
 
 import { AptQuickSearch } from "@/components/home/AptQuickSearch";
 import { RecentComplexList } from "@/components/complexes/RecentComplexList";
+import { SavedComplexList } from "@/components/complexes/SavedComplexList";
+import { GuLeaderList } from "@/components/complexes/GuLeaderList";
 import { ActiveComplexList } from "@/components/complexes/ActiveComplexList";
-import { PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
+import { PAGE_SHELL_MENU as PAGE_SHELL, PageHeader } from "@/components/layout/PageHeader";
 
 /**
  * 단지별 조회 = 검색 · 다시보기 · 단지 발견.
@@ -13,8 +15,10 @@ export function ComplexesPage() {
   return (
     <div className={PAGE_SHELL}>
       <PageHeader
-        title="단지별 조회"
-        description="궁금한 아파트를 검색하고 실거래가와 거래 이력을 확인하세요."
+        title="단지 조회"
+        titleClassName="detail-page-title"
+        showDivider={false}
+        titleInHeader
       >
         <AptQuickSearch
           inputId="complexes-search"
@@ -23,9 +27,14 @@ export function ComplexesPage() {
         />
       </PageHeader>
 
+      <SavedComplexList />
+
       <RecentComplexList />
 
       <ActiveComplexList />
+
+
+      <GuLeaderList />
     </div>
   );
 }
