@@ -226,24 +226,63 @@ function linkGis(rows: Rows, center: { lat: number; lng: number }): Map<string, 
   return gisByPk;
 }
 
+/**
+ * 대장 행이 없는 단지 건물 모양 (complex_extra_shapes — scripts/building-coverage/apply-fill.mts, 엄격 규칙만).
+ * 예: 한강맨숀 11~38동(표제부가 대표 필지 1행뿐), 래미안용산더센트럴 A·B동. 표가 없으면(optional) 빈 결과.
+ */
+function extraShapesStatement(complexId: string, columns: string): InStatement {
+  return { sql: `SELECT ${columns} FROM complex_extra_shapes WHERE complex_id = ?`, args: [complexId] };
+}
+
+/** extra 행 → 동. 이미 번호로 붙은 도형(ownKeys)은 건너뛰고, 쓴 도형은 ownKeys·spbdRings에 더한다 */
+function extraBuildings(rows: Rows, ownKeys: Set<string>, spbdRings: Ring[][]): Complex3dBuilding[] {
+  const out: Complex3dBuilding[] = [];
+  for (const r of rows) {
+    const key = String(r.bld_key);
+    if (ownKeys.has(key)) continue;
+    ownKeys.add(key);
+    const rings = JSON.parse(String(r.rings)) as Ring[];
+    if (r.source === SPBD) spbdRings.push(rings);
+    out.push({
+      id: `x:${key}`,
+      dong: str(r.dong_label),
+      name: str(r.name),
+      usage: null,
+      residential: Number(r.residential) === 1,
+      households: null,
+      floors: num(r.floors_above),
+      floorsBelow: null,
+      heightM: num(r.height_m),
+      approvalDate: str(r.approval_date),
+      units: [],
+      lines: [],
+      rings,
+    });
+  }
+  return out;
+}
+
 /** 3D 모형을 그릴 수 있는지만 — 지도 카드의 '3D로 보기' 버튼용 (동 수 · 모양 연결된 동 수). DB 왕복 1번. */
 export async function readComplex3dCoverage(
   db: Client,
   complexId: string,
 ): Promise<Complex3d["coverage"] | null> {
   const ids = idsScope(complexId, true);
-  const [mRows, cbRows, gisRows] = await readAll(db, [
+  const [mRows, cbRows, gisRows, extraRows = []] = await readAll(db, [
     { stmt: masterStatement(complexId, true) },
     { stmt: { sql: `SELECT mgm_bldrgst_pk FROM complex_buildings WHERE complex_id IN (${ids.sql})`, args: ids.args } },
     { stmt: linkedGisStatement(complexId, "bldrgst_pk, lat, lng, (rings IS NOT NULL AND rings <> 'null') AS has_rings", ids) },
+    { stmt: extraShapesStatement(complexId, "bld_key"), optional: true },
   ]);
   const m = mRows![0];
   if (!m || m.lat == null) return null;
   const pks = cbRows!.map((r) => String(r.mgm_bldrgst_pk ?? ""));
   const gisByPk = linkGis(gisRows!, { lat: Number(m.lat), lng: Number(m.lng) });
+  // 대장 행 없는 단지 건물 모양 — 모두 외곽선이 있다 (apply-fill은 대장에 번호로 붙은 도형을 extra로 넣지 않는다)
+  const extras = extraRows.length;
   return {
-    buildings: pks.length,
-    withShape: pks.filter((pk) => pk.length > 5 && Number(gisByPk.get(pk.slice(5))?.has_rings) === 1).length,
+    buildings: pks.length + extras,
+    withShape: pks.filter((pk) => pk.length > 5 && Number(gisByPk.get(pk.slice(5))?.has_rings) === 1).length + extras,
   };
 }
 
@@ -310,7 +349,13 @@ export async function readComplex3d(
           },
           { stmt: txNameLinksStatement(complexId) },
         ]),
+    // 대장 행 없는 단지 건물 모양 — 맨 끝에 두고 아래에서 pop (앞 문장들의 자리를 바꾸지 않게)
+    {
+      stmt: extraShapesStatement(complexId, "bld_key, source, dong_label, name, residential, floors_above, height_m, approval_date, rings"),
+      optional: true,
+    },
   ]);
+  const extraRows = first.pop() ?? [];
   const [mRows, cbRows, gisRows, unitRows = [], lineRows = [], schoolRows = [], linkRows = []] = first;
   const m = mRows![0];
   if (!m || m.lat == null) return null;
@@ -371,6 +416,7 @@ export async function readComplex3d(
       rings,
     };
   });
+  buildings.push(...extraBuildings(extraRows, ownKeys, spbdRings));
 
   const coverage = { buildings: buildings.length, withShape: buildings.filter((b) => b.rings).length };
   const place = [reg?.name ?? gu, str(m.legal_dong_name)].filter(Boolean).join(" ");

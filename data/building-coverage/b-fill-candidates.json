@@ -1,0 +1,2206 @@
+[
+ {
+  "complex_id": "cx_7081b58e1dd0f703",
+  "apt": "시범(중산1차)",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1970195818424473940900000000",
+   "pnu": "1117012900102110006",
+   "pk": "3590",
+   "name": "1차시범아파트",
+   "dong": "6동",
+   "use": "공동주택",
+   "fl": 7,
+   "appr": "1970-06-30",
+   "dist_m": 36
+  },
+  "area_m2": 460,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900002110002",
+   "jibun": "이촌동 211-2",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_7081b58e1dd0f703",
+  "apt": "시범(중산1차)",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1970195805284474426400000000",
+   "pnu": "1117012900102110005",
+   "pk": "11904",
+   "name": "1차시범아파트",
+   "dong": "4동",
+   "use": "공동주택",
+   "fl": 7,
+   "appr": "1970-06-30",
+   "dist_m": 24
+  },
+  "area_m2": 360,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900002110002",
+   "jibun": "이촌동 211-2",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_7081b58e1dd0f703",
+  "apt": "시범(중산1차)",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1970195827024474519200000000",
+   "pnu": "1117012900102110004",
+   "pk": "27385",
+   "name": "1차시범아파트",
+   "dong": "3동",
+   "use": "공동주택",
+   "fl": 7,
+   "appr": "1970-06-30",
+   "dist_m": 23
+  },
+  "area_m2": 474,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900002110002",
+   "jibun": "이촌동 211-2",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_7081b58e1dd0f703",
+  "apt": "시범(중산1차)",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1970195781824474875400000000",
+   "pnu": "1117012900102110003",
+   "pk": "1082",
+   "name": "1차시범아파트",
+   "dong": "2동",
+   "use": "공동주택",
+   "fl": 7,
+   "appr": "1970-06-30",
+   "dist_m": 73
+  },
+  "area_m2": 456,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900002110002",
+   "jibun": "이촌동 211-2",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_7081b58e1dd0f703",
+  "apt": "시범(중산1차)",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1970195844864473964500000000",
+   "pnu": "1117012900102110007",
+   "pk": "4803",
+   "name": "1차시범아파트",
+   "dong": "5동",
+   "use": "공동주택",
+   "fl": 7,
+   "appr": "1970-06-30",
+   "dist_m": 38
+  },
+  "area_m2": 459,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900002110002",
+   "jibun": "이촌동 211-2",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197478664463108600000000",
+   "pnu": "1117012900103000166",
+   "pk": "19994",
+   "name": "맨숀아파트",
+   "dong": "15동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 78
+  },
+  "area_m2": 687,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197455524462531900000000",
+   "pnu": "1117012900103000130",
+   "pk": "10320",
+   "name": "맨숀아파트",
+   "dong": "17동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 129
+  },
+  "area_m2": 687,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197489904463399000000000",
+   "pnu": "1117012900103000163",
+   "pk": "11064",
+   "name": "맨숀아파트",
+   "dong": "14동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 61
+  },
+  "area_m2": 721,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197444044462239500000000",
+   "pnu": "1117012900103000127",
+   "pk": "13148",
+   "name": "맨숀아파트",
+   "dong": "18동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 158
+  },
+  "area_m2": 733,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197587964463001600000000",
+   "pnu": "1117012900103000083",
+   "pk": "2522",
+   "name": "맨숀아파트",
+   "dong": "24동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 54
+  },
+  "area_m2": 799,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197666624462068200000000",
+   "pnu": "1117012900103000089",
+   "pk": "16951",
+   "name": "맨숀아파트",
+   "dong": "36동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 175
+  },
+  "area_m2": 690,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197553454462137900000000",
+   "pnu": "1117012900103000104",
+   "pk": "16671",
+   "name": "맨숀아파트",
+   "dong": "27동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 126
+  },
+  "area_m2": 790,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197564854462426600000000",
+   "pnu": "1117012900103000107",
+   "pk": "4087",
+   "name": "맨숀아파트",
+   "dong": "26동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 98
+  },
+  "area_m2": 813,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197467434462818500000000",
+   "pnu": "1117012900103000133",
+   "pk": "21587",
+   "name": "맨숀아파트",
+   "dong": "16동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 102
+  },
+  "area_m2": 669,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197643544461495600000000",
+   "pnu": "1117012900103000095",
+   "pk": "24592",
+   "name": "맨숀아파트",
+   "dong": "38동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 211
+  },
+  "area_m2": 737,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197541984461849200000000",
+   "pnu": "1117012900103000101",
+   "pk": "19923",
+   "name": "맨숀아파트",
+   "dong": "28동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 155
+  },
+  "area_m2": 792,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197599714463290100000000",
+   "pnu": "1117012900103000080",
+   "pk": "24043",
+   "name": "맨숀아파트",
+   "dong": "23동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 50
+  },
+  "area_m2": 856,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197655014461780900000000",
+   "pnu": "1117012900103000092",
+   "pk": "22616",
+   "name": "맨숀아파트",
+   "dong": "37동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 192
+  },
+  "area_m2": 691,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197501684463687700000000",
+   "pnu": "1117012900103000160",
+   "pk": "18852",
+   "name": "맨숀아파트",
+   "dong": "13동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 57
+  },
+  "area_m2": 717,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197576524462713900000000",
+   "pnu": "1117012900103000025",
+   "pk": "5908",
+   "name": "맨숀아파트",
+   "dong": "25동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 72
+  },
+  "area_m2": 801,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197513324463974400000000",
+   "pnu": "1117012900103000157",
+   "pk": "26652",
+   "name": "맨숀아파트",
+   "dong": "12동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 69
+  },
+  "area_m2": 709,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197611424463577100000000",
+   "pnu": "1117012900103000077",
+   "pk": "2391",
+   "name": "맨숀아파트",
+   "dong": "22동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 63
+  },
+  "area_m2": 844,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197687594462607800000000",
+   "pnu": "1117012900103000068",
+   "pk": "26656",
+   "name": "맨숀아파트",
+   "dong": "34동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 157
+  },
+  "area_m2": 795,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197699044462896900000000",
+   "pnu": "1117012900103000065",
+   "pk": "17273",
+   "name": "맨숀아파트",
+   "dong": "33동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 155
+  },
+  "area_m2": 794,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197710604463184600000000",
+   "pnu": "1117012900103000062",
+   "pk": "9434",
+   "name": "맨숀아파트",
+   "dong": "32동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 160
+  },
+  "area_m2": 786,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197526444464302400000000",
+   "pnu": "1117012900103000153",
+   "pk": "17119",
+   "name": "맨숀아파트",
+   "dong": "11동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 94
+  },
+  "area_m2": 710,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c9d24424697f3ef3",
+  "apt": "한강맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1971197624224463896700000000",
+   "pnu": "1117012900103000026",
+   "pk": "19054",
+   "name": "맨숀아파트",
+   "dong": "21동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1971-03-22",
+   "dist_m": 89
+  },
+  "area_m2": 783,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003000023",
+   "jibun": "이촌동 300-23",
+   "kapt_bc": null,
+   "kapt_hh": 660,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_2dc725f3441fdb54",
+  "apt": "현대맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1975198368104461938600000000",
+   "pnu": "1117012900103010162",
+   "pk": "19736",
+   "name": "현대맨숀",
+   "dong": "나동",
+   "use": "공동주택",
+   "fl": 15,
+   "appr": "1975-11-12",
+   "dist_m": 93
+  },
+  "area_m2": 581,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003010160",
+   "jibun": "이촌동 301-160",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 5,
+   "withShape": 5,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_2dc725f3441fdb54",
+  "apt": "현대맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1975198394264462818500000000",
+   "pnu": "1117012900103010162",
+   "pk": "19735",
+   "name": "현대맨숀",
+   "dong": "다동",
+   "use": "공동주택",
+   "fl": 15,
+   "appr": "1975-11-13",
+   "dist_m": 85
+  },
+  "area_m2": 1588,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003010160",
+   "jibun": "이촌동 301-160",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 5,
+   "withShape": 5,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_2dc725f3441fdb54",
+  "apt": "현대맨숀",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1975198364774462109700000000",
+   "pnu": "1117012900103010162",
+   "pk": "19737",
+   "name": "현대맨숀",
+   "dong": "가동",
+   "use": "공동주택",
+   "fl": 15,
+   "appr": "1975-11-12",
+   "dist_m": 79
+  },
+  "area_m2": 925,
+  "cb": null,
+  "complex": {
+   "pnu": "1117012900003010160",
+   "jibun": "이촌동 301-160",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 5,
+   "withShape": 5,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_5fa71177c63cf208",
+  "apt": "서울숲푸르지오",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R1_PARCEL+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2007201857124491106000000000",
+   "pnu": "1120011200103400000",
+   "pk": "100179901",
+   "name": "서울숲푸르지오아파트",
+   "dong": "관리동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "2007-07-31",
+   "dist_m": 83
+  },
+  "area_m2": 102,
+  "cb": null,
+  "complex": {
+   "pnu": "1120011200003400000",
+   "jibun": "금호동4가 340",
+   "kapt_bc": null,
+   "kapt_hh": 888,
+   "cb": 20,
+   "withShape": 20,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_193ede01bff114da",
+  "apt": "서울숲행당푸르지오",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2011202872124504209100000000",
+   "pnu": "1120010700103760001",
+   "pk": "100187672",
+   "name": "서울숲행당푸르지오아파트",
+   "dong": "110동",
+   "use": "공동주택",
+   "fl": 11,
+   "appr": "2011-05-02",
+   "dist_m": 138
+  },
+  "area_m2": 836,
+  "cb": null,
+  "complex": {
+   "pnu": "1120010700003760000",
+   "jibun": "행당동 376",
+   "kapt_bc": null,
+   "kapt_hh": 457,
+   "cb": 10,
+   "withShape": 10,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_0041cfd994dc0cd0",
+  "apt": "옥수삼성",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1999201153284487489500000000",
+   "pnu": "1120011300102500005",
+   "pk": "16436",
+   "name": "옥수삼성아파트",
+   "dong": "111동",
+   "use": "공동주택",
+   "fl": 20,
+   "appr": "1999-04-20",
+   "dist_m": 166
+  },
+  "area_m2": 1050,
+  "cb": null,
+  "complex": {
+   "pnu": "1120011300002500000",
+   "jibun": "옥수동 250",
+   "kapt_bc": null,
+   "kapt_hh": 1114,
+   "cb": 11,
+   "withShape": 11,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_a7c61717bc30d0b5",
+  "apt": "행당한진타운",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2000202299254502971900000000",
+   "pnu": "1120010700103460001",
+   "pk": "10646",
+   "name": "행당 한진타운",
+   "dong": "204동",
+   "use": "공동주택",
+   "fl": 23,
+   "appr": "2000-11-07",
+   "dist_m": 163
+  },
+  "area_m2": 432,
+  "cb": null,
+  "complex": {
+   "pnu": "1120010700003460000",
+   "jibun": "행당동 346",
+   "kapt_bc": null,
+   "kapt_hh": 2123,
+   "cb": 25,
+   "withShape": 25,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_a7c61717bc30d0b5",
+  "apt": "행당한진타운",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2000202276364503543800000000",
+   "pnu": "1120010700103460001",
+   "pk": "10644",
+   "name": "행당 한진타운",
+   "dong": "202동",
+   "use": "공동주택",
+   "fl": 23,
+   "appr": "2000-11-07",
+   "dist_m": 129
+  },
+  "area_m2": 431,
+  "cb": null,
+  "complex": {
+   "pnu": "1120010700003460000",
+   "jibun": "행당동 346",
+   "kapt_bc": null,
+   "kapt_hh": 2123,
+   "cb": 25,
+   "withShape": 25,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_a7c61717bc30d0b5",
+  "apt": "행당한진타운",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2000202262334503208700000000",
+   "pnu": "1120010700103460001",
+   "pk": "10645",
+   "name": "행당 한진타운",
+   "dong": "203동",
+   "use": "공동주택",
+   "fl": 25,
+   "appr": "2000-11-07",
+   "dist_m": 164
+  },
+  "area_m2": 423,
+  "cb": null,
+  "complex": {
+   "pnu": "1120010700003460000",
+   "jibun": "행당동 346",
+   "kapt_bc": null,
+   "kapt_hh": 2123,
+   "cb": 25,
+   "withShape": 25,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_a7c61717bc30d0b5",
+  "apt": "행당한진타운",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2000202223454503476800000000",
+   "pnu": "1120010700103460001",
+   "pk": "10643",
+   "name": "행당 한진타운",
+   "dong": "201동",
+   "use": "공동주택",
+   "fl": 20,
+   "appr": "2000-11-07",
+   "dist_m": 175
+  },
+  "area_m2": 415,
+  "cb": null,
+  "complex": {
+   "pnu": "1120010700003460000",
+   "jibun": "행당동 346",
+   "kapt_bc": null,
+   "kapt_hh": 2123,
+   "cb": 25,
+   "withShape": 25,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_cda364b12155a28a",
+  "apt": "전농sk",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2000205583984528520000000000",
+   "pnu": "1123010400100100001",
+   "pk": "6211",
+   "name": "전농 SK아파트",
+   "dong": "203동",
+   "use": "공동주택",
+   "fl": 18,
+   "appr": "2000-05-29",
+   "dist_m": 317
+  },
+  "area_m2": 608,
+  "cb": null,
+  "complex": {
+   "pnu": "1123010400000100000",
+   "jibun": "전농동 10",
+   "kapt_bc": null,
+   "kapt_hh": 1830,
+   "cb": 21,
+   "withShape": 21,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_cda364b12155a28a",
+  "apt": "전농sk",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2000205508374528057800000000",
+   "pnu": "1123010400100100001",
+   "pk": "6212",
+   "name": "전농 SK아파트",
+   "dong": "202동",
+   "use": "공동주택",
+   "fl": 20,
+   "appr": "2000-05-29",
+   "dist_m": 246
+  },
+  "area_m2": 786,
+  "cb": null,
+  "complex": {
+   "pnu": "1123010400000100000",
+   "jibun": "전농동 10",
+   "kapt_bc": null,
+   "kapt_hh": 1830,
+   "cb": 21,
+   "withShape": 21,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_cda364b12155a28a",
+  "apt": "전농sk",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2000205464364527759300000000",
+   "pnu": "1123010400100100001",
+   "pk": "6213",
+   "name": "전농 SK아파트",
+   "dong": "201동",
+   "use": "공동주택",
+   "fl": 22,
+   "appr": "2000-05-29",
+   "dist_m": 195
+  },
+  "area_m2": 906,
+  "cb": null,
+  "complex": {
+   "pnu": "1123010400000100000",
+   "jibun": "전농동 10",
+   "kapt_bc": null,
+   "kapt_hh": 1830,
+   "cb": 21,
+   "withShape": 21,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c037cf2be3987bce",
+  "apt": "용마",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2005207541814528029000000000",
+   "pnu": "1126010100103540008",
+   "pk": "13724",
+   "name": "용마아파트",
+   "dong": "101동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "2005-09-07",
+   "dist_m": 44
+  },
+  "area_m2": 200,
+  "cb": null,
+  "complex": {
+   "pnu": "1126010100003540012",
+   "jibun": "면목동 354-12",
+   "kapt_bc": null,
+   "kapt_hh": 17,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_c037cf2be3987bce",
+  "apt": "용마",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2005207543724527824600000000",
+   "pnu": "1126010100103540008",
+   "pk": "13725",
+   "name": "용마아파트",
+   "dong": "102동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "2005-09-07",
+   "dist_m": 24
+  },
+  "area_m2": 192,
+  "cb": null,
+  "complex": {
+   "pnu": "1126010100003540012",
+   "jibun": "면목동 354-12",
+   "kapt_bc": null,
+   "kapt_hh": 17,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_47c30293a0ce57cf",
+  "apt": "삼부컨비니언",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1998202168324556630400000000",
+   "pnu": "1129013400112760001",
+   "pk": "25263",
+   "name": "돈암2-1 삼부아파트",
+   "dong": "106동",
+   "use": "공동주택",
+   "fl": 15,
+   "appr": "1998-02-02",
+   "dist_m": 163
+  },
+  "area_m2": 684,
+  "cb": null,
+  "complex": {
+   "pnu": "1129013400012760000",
+   "jibun": "길음동 1276",
+   "kapt_bc": 7,
+   "kapt_hh": 684,
+   "cb": 7,
+   "withShape": 5,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_54c57b4ba2afb7b4",
+  "apt": "정릉풍림아이원",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2005200570574570529000000000",
+   "pnu": "1129013300102390005",
+   "pk": "21993",
+   "name": "정릉풍림아이원",
+   "dong": "130동",
+   "use": "공동주택",
+   "fl": 15,
+   "appr": "2005-12-28",
+   "dist_m": 180
+  },
+  "area_m2": 546,
+  "cb": null,
+  "complex": {
+   "pnu": "1129013300002390000",
+   "jibun": "정릉동 239",
+   "kapt_bc": null,
+   "kapt_hh": 1971,
+   "cb": 31,
+   "withShape": 31,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_54c57b4ba2afb7b4",
+  "apt": "정릉풍림아이원",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2005200573184571123900000000",
+   "pnu": "1129013300102390005",
+   "pk": "21988",
+   "name": "정릉풍림아이원",
+   "dong": "129동",
+   "use": "공동주택",
+   "fl": 20,
+   "appr": "2005-12-28",
+   "dist_m": 166
+  },
+  "area_m2": 560,
+  "cb": null,
+  "complex": {
+   "pnu": "1129013300002390000",
+   "jibun": "정릉동 239",
+   "kapt_bc": null,
+   "kapt_hh": 1971,
+   "cb": 31,
+   "withShape": 31,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_b0cff6214c79dae8",
+  "apt": "벽산라이브파크",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2004200713834574903700000000",
+   "pnu": "1130510100113540001",
+   "pk": "14560",
+   "name": "벽산라이브파크",
+   "dong": "201동",
+   "use": "공동주택",
+   "fl": 18,
+   "appr": "2004-08-07",
+   "dist_m": 281
+  },
+  "area_m2": 810,
+  "cb": null,
+  "complex": {
+   "pnu": "1130510100013540000",
+   "jibun": "미아동 1354",
+   "kapt_bc": null,
+   "kapt_hh": 1585,
+   "cb": 20,
+   "withShape": 20,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_b0cff6214c79dae8",
+  "apt": "벽산라이브파크",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2004200738844574464400000000",
+   "pnu": "1130510100113540001",
+   "pk": "14561",
+   "name": "벽산라이브파크",
+   "dong": "202동",
+   "use": "공동주택",
+   "fl": 18,
+   "appr": "2004-08-07",
+   "dist_m": 287
+  },
+  "area_m2": 718,
+  "cb": null,
+  "complex": {
+   "pnu": "1130510100013540000",
+   "jibun": "미아동 1354",
+   "kapt_bc": null,
+   "kapt_hh": 1585,
+   "cb": 20,
+   "withShape": 20,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_d0141156bd2fa70f",
+  "apt": "거성리젠시2차",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2004192553724553472100000000",
+   "pnu": "1138010800100440023",
+   "pk": "33471",
+   "name": "거성리젠시아파트",
+   "dong": null,
+   "use": "공동주택",
+   "fl": 7,
+   "appr": "2004-08-23",
+   "dist_m": 16
+  },
+  "area_m2": 360,
+  "cb": null,
+  "complex": {
+   "pnu": "1138010800000440006",
+   "jibun": "역촌동 44-6",
+   "kapt_bc": null,
+   "kapt_hh": 23,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_e456245d1a728a8d",
+  "apt": "미래하임(아파트)",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2015191786054549459300000000",
+   "pnu": "1138010900102290040",
+   "pk": "100253674",
+   "name": "미래하임",
+   "dong": "B동",
+   "use": "공동주택",
+   "fl": 6,
+   "appr": "2015-04-17",
+   "dist_m": 21
+  },
+  "area_m2": 117,
+  "cb": null,
+  "complex": {
+   "pnu": "1138010900002290024",
+   "jibun": "신사동 229-24",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_a11e2f777d5003b1",
+  "apt": "북한산힐스테이트7차",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2011193475964570378000000000",
+   "pnu": "1138010300106430001",
+   "pk": "100224289",
+   "name": "북한산 힐스테이트7차",
+   "dong": "116동",
+   "use": "공동주택",
+   "fl": 12,
+   "appr": "2011-07-29",
+   "dist_m": 137
+  },
+  "area_m2": 1244,
+  "cb": null,
+  "complex": {
+   "pnu": "1138010300006430000",
+   "jibun": "불광동 643",
+   "kapt_bc": null,
+   "kapt_hh": 882,
+   "cb": 16,
+   "withShape": 16,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_f98f71dc91c3bb62",
+  "apt": "세민하이파크",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2018191923224548205500000000",
+   "pnu": "1138010900100400020",
+   "pk": "100290375",
+   "name": "세민하이파크",
+   "dong": null,
+   "use": "공동주택",
+   "fl": 8,
+   "appr": "2018-12-13",
+   "dist_m": 27
+  },
+  "area_m2": 107,
+  "cb": null,
+  "complex": {
+   "pnu": "1138010900000400002",
+   "jibun": "신사동 40-2",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_81885765788e20e5",
+  "apt": "dmc래미안클라시스",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2000192500054529012000000000",
+   "pnu": "1141012000103770001",
+   "pk": "31184",
+   "name": "DMC래미안클라시스",
+   "dong": "201동",
+   "use": "공동주택",
+   "fl": 17,
+   "appr": "2000-12-15",
+   "dist_m": 69
+  },
+  "area_m2": 549,
+  "cb": null,
+  "complex": {
+   "pnu": "1141012000003770000",
+   "jibun": "남가좌동 377",
+   "kapt_bc": null,
+   "kapt_hh": 1114,
+   "cb": 16,
+   "withShape": 16,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_81885765788e20e5",
+  "apt": "dmc래미안클라시스",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2000192525034529406100000000",
+   "pnu": "1141012000103770001",
+   "pk": "31185",
+   "name": "DMC래미안클라시스",
+   "dong": "202동",
+   "use": "공동주택",
+   "fl": 17,
+   "appr": "2000-12-15",
+   "dist_m": 68
+  },
+  "area_m2": 553,
+  "cb": null,
+  "complex": {
+   "pnu": "1141012000003770000",
+   "jibun": "남가좌동 377",
+   "kapt_bc": null,
+   "kapt_hh": 1114,
+   "cb": 16,
+   "withShape": 16,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_84de2b9c32e7576e",
+  "apt": "돈의문센트레빌",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2011196751604515840300000000",
+   "pnu": "1141010500102610001",
+   "pk": "100190923",
+   "name": "돈의문센트레빌",
+   "dong": "215동",
+   "use": "공동주택",
+   "fl": 12,
+   "appr": "2011-04-07",
+   "dist_m": 228
+  },
+  "area_m2": 736,
+  "cb": null,
+  "complex": {
+   "pnu": "1141010500002610000",
+   "jibun": "냉천동 261",
+   "kapt_bc": null,
+   "kapt_hh": 561,
+   "cb": 14,
+   "withShape": 14,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_3367295c39195586",
+  "apt": "북가좌삼호",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1996192167234527333600000000",
+   "pnu": "1141011900104490001",
+   "pk": "26547",
+   "name": "북가좌삼호아파트",
+   "dong": "105동",
+   "use": "공동주택",
+   "fl": 18,
+   "appr": "1996-02-16",
+   "dist_m": 35
+  },
+  "area_m2": 813,
+  "cb": null,
+  "complex": {
+   "pnu": "1141011900004490000",
+   "jibun": "북가좌동 449",
+   "kapt_bc": null,
+   "kapt_hh": 616,
+   "cb": 6,
+   "withShape": 6,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_beb4bf81d59d81b4",
+  "apt": "인왕산현대",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2000195667854535033100000000",
+   "pnu": "1141011100104600001",
+   "pk": "10545",
+   "name": "인왕산현대아파트",
+   "dong": "111동",
+   "use": "공동주택",
+   "fl": 18,
+   "appr": "2000-07-05",
+   "dist_m": 274
+  },
+  "area_m2": 694,
+  "cb": null,
+  "complex": {
+   "pnu": "1141011100004600000",
+   "jibun": "홍제동 460",
+   "kapt_bc": null,
+   "kapt_hh": 700,
+   "cb": 12,
+   "withShape": 12,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_e99ef1c66bc1ad97",
+  "apt": "홍은동벽산",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1997194983374548143300000000",
+   "pnu": "1141011800104550001",
+   "pk": "22334",
+   "name": "홍은벽산아파트",
+   "dong": "108동",
+   "use": "공동주택",
+   "fl": 15,
+   "appr": "1997-09-30",
+   "dist_m": 189
+  },
+  "area_m2": 560,
+  "cb": null,
+  "complex": {
+   "pnu": "1141011800004550000",
+   "jibun": "홍은동 455",
+   "kapt_bc": null,
+   "kapt_hh": 1509,
+   "cb": 21,
+   "withShape": 21,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_2d7cb64e2755f304",
+  "apt": "홍제삼성래미안",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2001195725864529424400000000",
+   "pnu": "1141011100104610001",
+   "pk": "10553",
+   "name": "홍제삼성래미안아파트",
+   "dong": "106동",
+   "use": "공동주택",
+   "fl": 12,
+   "appr": "2001-06-13",
+   "dist_m": 65
+  },
+  "area_m2": 566,
+  "cb": null,
+  "complex": {
+   "pnu": "1141011100004610000",
+   "jibun": "홍제동 461",
+   "kapt_bc": null,
+   "kapt_hh": 474,
+   "cb": 6,
+   "withShape": 6,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_a6e1486e42d3aeb6",
+  "apt": "대림아크로빌",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2003187564364459386100000000",
+   "pnu": "1147010100103240008",
+   "pk": "17856",
+   "name": "대림아크로빌",
+   "dong": null,
+   "use": "공동주택",
+   "fl": 23,
+   "appr": "2003-02-27",
+   "dist_m": 50
+  },
+  "area_m2": 1613,
+  "cb": null,
+  "complex": {
+   "pnu": "1147010100003240007",
+   "jibun": "신정동 324-7",
+   "kapt_bc": null,
+   "kapt_hh": 122,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_58e708942b4ca6b4",
+  "apt": "래디앙아파트",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2003188266454469203300000000",
+   "pnu": "1147010200104080294",
+   "pk": "12566",
+   "name": "래디앙아파트",
+   "dong": "101동",
+   "use": "공동주택",
+   "fl": 7,
+   "appr": "2003-08-26",
+   "dist_m": 31
+  },
+  "area_m2": 396,
+  "cb": null,
+  "complex": {
+   "pnu": "1147010200004080219",
+   "jibun": "목동 408-219",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_61f73e34ace56990",
+  "apt": "목동2삼성래미안",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2001188238114452999500000000",
+   "pnu": "1147010100112950004",
+   "pk": "1912",
+   "name": "목동2차삼성래미안아파트",
+   "dong": "102동",
+   "use": "공동주택",
+   "fl": 16,
+   "appr": "2001-11-06",
+   "dist_m": 37
+  },
+  "area_m2": 701,
+  "cb": null,
+  "complex": {
+   "pnu": "1147010100012950000",
+   "jibun": "신정동 1295",
+   "kapt_bc": 7,
+   "kapt_hh": 353,
+   "cb": 4,
+   "withShape": 4,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_61f73e34ace56990",
+  "apt": "목동2삼성래미안",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2001188214424452722000000000",
+   "pnu": "1147010100112950004",
+   "pk": "1913",
+   "name": "목동2차삼성래미안아파트",
+   "dong": "101동",
+   "use": "공동주택",
+   "fl": 12,
+   "appr": "2001-11-06",
+   "dist_m": 81
+  },
+  "area_m2": 317,
+  "cb": null,
+  "complex": {
+   "pnu": "1147010100012950000",
+   "jibun": "신정동 1295",
+   "kapt_bc": 7,
+   "kapt_hh": 353,
+   "cb": 4,
+   "withShape": 4,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_d5228dda2c208f89",
+  "apt": "힐타운",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2004188283384489059500000000",
+   "pnu": "1147010200103150007",
+   "pk": "9692",
+   "name": "힐타운아파트",
+   "dong": "나동",
+   "use": "공동주택",
+   "fl": 7,
+   "appr": "2004-04-16",
+   "dist_m": 18
+  },
+  "area_m2": 210,
+  "cb": null,
+  "complex": {
+   "pnu": "1147010200003150006",
+   "jibun": "목동 315-6",
+   "kapt_bc": null,
+   "kapt_hh": 13,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_9ba635a68cf3cc2e",
+  "apt": "한백e타운아파트",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2003186253954474596200000000",
+   "pnu": "1150010300109010024",
+   "pk": "21404",
+   "name": "한백e타운아파트",
+   "dong": "101동",
+   "use": "공동주택",
+   "fl": 9,
+   "appr": "2003-09-25",
+   "dist_m": 24
+  },
+  "area_m2": 252,
+  "cb": null,
+  "complex": {
+   "pnu": "1150010300009010013",
+   "jibun": "화곡동 901-13",
+   "kapt_bc": null,
+   "kapt_hh": 16,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_62aa9886459e85de",
+  "apt": "세명",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2000189679194428178300000000",
+   "pnu": "1153010200107170012",
+   "pk": "6086",
+   "name": "세명빌라",
+   "dong": null,
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "2000-05-30",
+   "dist_m": 11
+  },
+  "area_m2": 121,
+  "cb": null,
+  "complex": {
+   "pnu": "1153010200007170011",
+   "jibun": "구로동 717-11",
+   "kapt_bc": null,
+   "kapt_hh": 5,
+   "cb": 2,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_6ea034e202b1ceea",
+  "apt": "한성",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1986186992174451668300000000",
+   "pnu": "1153010600102270006",
+   "pk": "18971",
+   "name": "한성아파트",
+   "dong": "A동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "1986-12-26",
+   "dist_m": 45
+  },
+  "area_m2": 835,
+  "cb": null,
+  "complex": {
+   "pnu": "1153010600002270001",
+   "jibun": "고척동 227-1",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_2f9f36dc1789200d",
+  "apt": "백운스위트빌",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2002191579554375062200000000",
+   "pnu": "1154510300109590004",
+   "pk": "3714",
+   "name": "백운스위트빌Ⅲ",
+   "dong": "가동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "2002-05-02",
+   "dist_m": 19
+  },
+  "area_m2": 182,
+  "cb": null,
+  "complex": {
+   "pnu": "1154510300009590011",
+   "jibun": "시흥동 959-11",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_2f9f36dc1789200d",
+  "apt": "백운스위트빌",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2002191601294375067000000000",
+   "pnu": "1154510300109590004",
+   "pk": "3713",
+   "name": "백운스위트빌Ⅲ",
+   "dong": "나동",
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "2002-05-02",
+   "dist_m": 19
+  },
+  "area_m2": 181,
+  "cb": null,
+  "complex": {
+   "pnu": "1154510300009590011",
+   "jibun": "시흥동 959-11",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_a20995830c9535ba",
+  "apt": "종인아네스트",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2012195830264449900300000000",
+   "pnu": "1159010200100070043",
+   "pk": "100196132",
+   "name": "종인 아네스트",
+   "dong": null,
+   "use": "공동주택",
+   "fl": 5,
+   "appr": "2012-02-02",
+   "dist_m": 29
+  },
+  "area_m2": 205,
+  "cb": null,
+  "complex": {
+   "pnu": "1159010200000070092",
+   "jibun": "상도동 7-92",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_170ac152c21e31c4",
+  "apt": "봉천우성",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2000196495204424895500000000",
+   "pnu": "1162010100117060001",
+   "pk": "3397",
+   "name": "봉천 우성아파트",
+   "dong": "110동",
+   "use": "공동주택",
+   "fl": 21,
+   "appr": "2000-12-13",
+   "dist_m": 153
+  },
+  "area_m2": 1158,
+  "cb": null,
+  "complex": {
+   "pnu": "1162010100017060000",
+   "jibun": "봉천동 1706",
+   "kapt_bc": null,
+   "kapt_hh": 1597,
+   "cb": 11,
+   "withShape": 11,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_170ac152c21e31c4",
+  "apt": "봉천우성",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2000196508714425410500000000",
+   "pnu": "1162010100117060001",
+   "pk": "3398",
+   "name": "봉천 우성아파트",
+   "dong": "109동",
+   "use": "공동주택",
+   "fl": 21,
+   "appr": "2000-12-13",
+   "dist_m": 160
+  },
+  "area_m2": 589,
+  "cb": null,
+  "complex": {
+   "pnu": "1162010100017060000",
+   "jibun": "봉천동 1706",
+   "kapt_bc": null,
+   "kapt_hh": 1597,
+   "cb": 11,
+   "withShape": 11,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_69c1d6027e9e87a7",
+  "apt": "신구",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1992199199364419613400000000",
+   "pnu": "1165010100109800050",
+   "pk": "7502",
+   "name": "신구아파트",
+   "dong": null,
+   "use": "공동주택",
+   "fl": 10,
+   "appr": "1992-09-09",
+   "dist_m": 33
+  },
+  "area_m2": 400,
+  "cb": null,
+  "complex": {
+   "pnu": "1165010100009800048",
+   "jibun": "방배동 980-48",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_3b39d4f623114b49",
+  "apt": "블루밍하우스",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2006204554384461180700000000",
+   "pnu": "1168010500100640010",
+   "pk": "12160",
+   "name": "블루밍 하우스",
+   "dong": "102동",
+   "use": "공동주택",
+   "fl": 7,
+   "appr": "2006-02-10",
+   "dist_m": 15
+  },
+  "area_m2": 400,
+  "cb": null,
+  "complex": {
+   "pnu": "1168010500000640004",
+   "jibun": "삼성동 64-4",
+   "kapt_bc": null,
+   "kapt_hh": 13,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_76c65f7d767db77d",
+  "apt": "삼호",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R1_PARCEL",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1984203990974434871100000000",
+   "pnu": "1168011800105400000",
+   "pk": "1312",
+   "name": "삼호아파트2동",
+   "dong": "2",
+   "use": "공동주택",
+   "fl": 12,
+   "appr": "1984-01-16",
+   "dist_m": 58
+  },
+  "area_m2": 908,
+  "cb": null,
+  "complex": {
+   "pnu": "1168011800005400000",
+   "jibun": "도곡동 540",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_76c65f7d767db77d",
+  "apt": "삼호",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R1_PARCEL",
+  "src": "gis",
+  "shape": {
+   "bld_key": "1984203874064434424900000000",
+   "pnu": "1168011800105400000",
+   "pk": "1313",
+   "name": "삼호아파트1동",
+   "dong": "1",
+   "use": "공동주택",
+   "fl": 12,
+   "appr": "1984-01-16",
+   "dist_m": 65
+  },
+  "area_m2": 942,
+  "cb": null,
+  "complex": {
+   "pnu": "1168011800005400000",
+   "jibun": "도곡동 540",
+   "kapt_bc": null,
+   "kapt_hh": null,
+   "cb": 1,
+   "withShape": 1,
+   "siteCached": false
+  }
+ },
+ {
+  "complex_id": "cx_e0b6328a55c8abb0",
+  "apt": "롯데캐슬퍼스트",
+  "kind": "EXTRA_SHAPE",
+  "rule": "R2_MAINNO+NAME",
+  "src": "gis",
+  "shape": {
+   "bld_key": "2008212333564503405300000000",
+   "pnu": "1174010700104140018",
+   "pk": "100177617",
+   "name": "강동 롯데캐슬퍼스트아파트",
+   "dong": "상가동",
+   "use": "판매시설",
+   "fl": 5,
+   "appr": "2008-09-25",
+   "dist_m": 281
+  },
+  "area_m2": 2644,
+  "cb": null,
+  "complex": {
+   "pnu": "1174010700004140002",
+   "jibun": "암사동 414-2",
+   "kapt_bc": 43,
+   "kapt_hh": 3226,
+   "cb": 44,
+   "withShape": 42,
+   "siteCached": false
+  }
+ }
+]
