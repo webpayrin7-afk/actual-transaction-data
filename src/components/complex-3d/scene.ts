@@ -919,6 +919,17 @@ export class Complex3dScene {
   // ── 걷기 경로 ──────────────────────────────────────────────────────────────
   /** 걸은 시간(초)·끝났는지 — 빨리 감기로 움직이는 사람 표시에 맞춰 */
   onWalkProgress: (sec: number, done: boolean) => void = () => {};
+  /**
+   * 걷기 그룹 비우기 — 사람 표시·도착 핀은 CSS2D(HTML) 요소라 장면에서 빼도 화면에 남는다. 요소도 같이 지운다.
+   */
+  private clearWalkGroup() {
+    this.groups.walk.traverse((o) => {
+      if (o instanceof CSS2DObject) o.element.remove();
+    });
+    this.groups.walk.clear();
+    this.walker = null;
+  }
+
   private walkDraw: WalkRouteDraw | null = null;
   private walkReduced = false;
   private walkPath: { pts: THREE.Vector3[]; cum: number[]; total: number } | null = null;
@@ -934,7 +945,7 @@ export class Complex3dScene {
     if (!this.data) return;
     this.walkDraw = d;
     this.walkReduced = reduced;
-    this.groups.walk.clear();
+    this.clearWalkGroup();
     this.walkAnim = null;
     // 4m 간격으로 다시 찍어 땅을 따라가게
     const raw = d.points.map(([lng, lat]) => this.toLocal(lng, lat));
@@ -1034,7 +1045,7 @@ export class Complex3dScene {
   }
 
   clearWalk() {
-    this.groups.walk.clear();
+    this.clearWalkGroup();
     this.walkDraw = null;
     this.walkPath = null;
     this.walkAnim = null;
