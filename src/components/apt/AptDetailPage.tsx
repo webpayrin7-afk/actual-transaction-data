@@ -64,6 +64,7 @@ import {
   PageHeader,
 } from "@/components/layout/PageHeader";
 import { useLoadProgressWhen } from "@/components/layout/LoadProgress";
+import { LabSectionLoading } from "@/components/ui/LabLoading";
 import { LabTabs } from "@/components/ui/LabTabs";
 import { Complex3dEntryCard } from "@/components/complex-3d/Complex3dEntry";
 import { ComplexRedevSection } from "@/components/apt/ComplexRedevSection";
@@ -549,13 +550,7 @@ export function AptDetailPage({
   if (detailQuery.isLoading && !data) {
     return (
       <div className={DETAIL_PAGE_SHELL}>
-        <div className="h-24 animate-pulse rounded-xl bg-slate-200/70" />
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl bg-slate-200/60" />
-          ))}
-        </div>
-        <div className="h-64 animate-pulse rounded-xl bg-slate-200/50" />
+        <LabSectionLoading title="실거래 현황" label="시세 불러오는 중" minHeight={280} />
       </div>
     );
   }

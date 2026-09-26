@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { LabIndeterminateBar } from "@/components/ui/LabLoading";
 import { useQuery } from "@tanstack/react-query";
 import { InfoTip } from "@/components/ui/InfoTip";
 import { LabTabs } from "@/components/ui/LabTabs";
@@ -498,11 +499,9 @@ export function ComplexRegionPriceCompare({
           <PriceCompareChart key={chartKey} replayKey={chartKey} className="mt-2">
             {(entered) =>
               query.isLoading ? (
-                <div className="space-y-1.5" aria-label="가격 비교 불러오는 중">
-                  <div className="h-5 animate-pulse rounded-lg bg-slate-100" />
-                  <div className="h-5 animate-pulse rounded-lg bg-slate-100" />
-                  <div className="h-5 animate-pulse rounded-lg bg-slate-100" />
-                  <div className="h-5 animate-pulse rounded-lg bg-slate-100" />
+                <div className="flex flex-col items-center gap-2.5 py-6" aria-label="가격 비교 불러오는 중">
+                  <LabIndeterminateBar className="max-w-[160px]" />
+                  <p className="detail-meta">가격 비교 불러오는 중…</p>
                 </div>
               ) : query.isError ? (
                 <div className="rounded-xl bg-slate-50 px-3 py-2.5 text-center">
